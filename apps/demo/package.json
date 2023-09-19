@@ -1,15 +1,11 @@
 {
-  "name": "ic-snap-site",
+  "name": "ic-snap-demo",
   "version": "0.1.10",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
     "build": "tsc && vite build",
     "dev": "vite --mode dev",
-    "dev:gen": "dfx generate",
-    "dev:nns": "dfx nns install",
-    "dev:start": "dfx start --clean",
-    "dev:deploy": "dfx deploy site_backend && node propagate-env.js",
     "version:set": "node ../../set-version.js"
   },
   "devDependencies": {
@@ -24,7 +20,6 @@
     "solid-styled-components": "0.28.5",
     "nanostores": "0.9.3",
     "@nanostores/solid": "0.4.2",
-    "@fort-major/ic-snap-agent": "workspace:*",
-    "@fort-major/ic-snap-shared": "workspace:*"
+    "@fort-major/ic-snap-agent": "workspace:*"
   }
 }

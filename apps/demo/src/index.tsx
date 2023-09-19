@@ -3,8 +3,7 @@
 /* @refresh reload */
 import { render } from 'solid-js/web';
 import { Router, Route, Routes } from '@solidjs/router';
-import { IndexPage } from './pages/index';
-import { LoginPage } from './pages/login';
+import { IndexPage } from './pages/index/index';
 
 const root = document.getElementById('root');
 
@@ -18,7 +17,6 @@ render(() => (
     <Router>
         <Routes>
             <Route path='/' component={IndexPage} />
-            <Route path='/login' component={LoginPage} />
         </Routes>
     </Router>
 ), root!);

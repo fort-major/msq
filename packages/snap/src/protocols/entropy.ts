@@ -1,4 +1,4 @@
-import { TOrigin, ZEntropyGetRequest, hexToBytes, fromCBOR, unreacheable } from "internet-computer-snap-shared";
+import { TOrigin, ZEntropyGetRequest, hexToBytes, fromCBOR, unreacheable } from "@fort-major/ic-snap-shared";
 import { makeEntropySalt, retrieveStateLocal } from "../utils";
 
 

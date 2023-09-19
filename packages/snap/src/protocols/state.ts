@@ -1,4 +1,4 @@
-import { IOriginData, ZStateGetOriginDataRequest, fromCBOR } from "internet-computer-snap-shared";
+import { IOriginData, ZStateGetOriginDataRequest, fromCBOR } from "@fort-major/ic-snap-shared";
 import { retrieveStateLocal } from "../utils";
 
 export async function protected_handleStateGetOriginData(bodyCBOR: string): Promise<IOriginData | undefined> {

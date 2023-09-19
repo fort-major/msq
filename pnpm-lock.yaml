@@ -24,8 +24,11 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2
 
-  apps/site:
+  apps/demo:
     dependencies:
+      '@fort-major/ic-snap-agent':
+        specifier: workspace:*
+        version: link:../../packages/agent
       '@nanostores/solid':
         specifier: 0.4.2
         version: 0.4.2(nanostores@0.9.3)(solid-js@1.7.12)
@@ -35,18 +38,52 @@ importers:
       '@solidjs/router':
         specifier: 0.8.3
         version: 0.8.3(solid-js@1.7.12)
-      internet-computer-snap-agent:
-        specifier: workspace:*
-        version: link:../../packages/agent
-      internet-computer-snap-shared:
-        specifier: workspace:*
-        version: link:../../packages/shared
       nanostores:
         specifier: 0.9.3
         version: 0.9.3
       solid-js:
         specifier: 1.7.12
         version: 1.7.12
+      solid-styled-components:
+        specifier: 0.28.5
+        version: 0.28.5(solid-js@1.7.12)
+    devDependencies:
+      dotenv:
+        specifier: 16.3.1
+        version: 16.3.1
+      vite:
+        specifier: ^4.4.9
+        version: 4.4.9
+      vite-plugin-solid:
+        specifier: ^2.7.0
+        version: 2.7.0(solid-js@1.7.12)(vite@4.4.9)
+
+  apps/site:
+    dependencies:
+      '@fort-major/ic-snap-agent':
+        specifier: workspace:*
+        version: link:../../packages/agent
+      '@fort-major/ic-snap-shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@nanostores/solid':
+        specifier: 0.4.2
+        version: 0.4.2(nanostores@0.9.3)(solid-js@1.7.12)
+      '@solid-primitives/event-listener':
+        specifier: 2.3.0
+        version: 2.3.0(solid-js@1.7.12)
+      '@solidjs/router':
+        specifier: 0.8.3
+        version: 0.8.3(solid-js@1.7.12)
+      nanostores:
+        specifier: 0.9.3
+        version: 0.9.3
+      solid-js:
+        specifier: 1.7.12
+        version: 1.7.12
+      solid-styled-components:
+        specifier: 0.28.5
+        version: 0.28.5(solid-js@1.7.12)
     devDependencies:
       dotenv:
         specifier: 16.3.1
@@ -60,12 +97,12 @@ importers:
 
   packages/agent:
     dependencies:
+      '@fort-major/ic-snap-shared':
+        specifier: workspace:*
+        version: link:../shared
       '@metamask/detect-provider':
         specifier: ^2.0.0
         version: 2.0.0
-      internet-computer-snap-shared:
-        specifier: workspace:*
-        version: link:../shared
     devDependencies:
       '@metamask/snaps-types':
         specifier: ^1.0.2
@@ -98,12 +135,12 @@ importers:
       '@dfinity/ledger':
         specifier: ^0.0.15
         version: 0.0.15(@dfinity/agent@0.19.2)(@dfinity/candid@0.19.2)(@dfinity/principal@0.19.2)(@dfinity/utils@0.0.22)
+      '@fort-major/ic-snap-shared':
+        specifier: workspace:*
+        version: link:../shared
       '@metamask/snaps-ui':
         specifier: ^1.0.2
         version: 1.0.2
-      internet-computer-snap-shared:
-        specifier: workspace:*
-        version: link:../shared
       js-big-decimal:
         specifier: ^2.0.4
         version: 2.0.4
@@ -3980,6 +4017,14 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
+  /goober@2.1.13(csstype@3.1.2):
+    resolution: {integrity: sha512-jFj3BQeleOoy7t93E9rZ2de+ScC4lQICLwiAQmKMg9F6roKGaLSHoCDYKkWlSafg138jejvq/mTdvmnwDQgqoQ==}
+    peerDependencies:
+      csstype: ^3.0.10
+    dependencies:
+      csstype: 3.1.2
+    dev: false
+
   /gopd@1.0.1:
     resolution: {integrity: sha512-d65bNlIadxvpb/A2abVdlqKqV563juRnZ1Wtk6s1sIR8uNsXR70xqIzVqxVf1eTqDunwT2MkczEeaezCKTZhwA==}
     dependencies:
@@ -5787,6 +5832,16 @@ packages:
       '@babel/types': 7.22.15
       solid-js: 1.7.12
     dev: true
+
+  /solid-styled-components@0.28.5(solid-js@1.7.12):
+    resolution: {integrity: sha512-vwTcdp76wZNnESIzB6rRZ3U55NgcSAQXCiiRIiEFhxTFqT0bEh/warNT1qaRZu4OkAzrBkViOngF35ktI8sc4A==}
+    peerDependencies:
+      solid-js: ^1.4.4
+    dependencies:
+      csstype: 3.1.2
+      goober: 2.1.13(csstype@3.1.2)
+      solid-js: 1.7.12
+    dev: false
 
   /source-map-js@1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}

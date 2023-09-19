@@ -1,7 +1,7 @@
 import { Agent, AnonymousIdentity, ApiQueryResponse, CallOptions, HttpAgent, Identity, QueryFields, ReadStateOptions, ReadStateResponse, SubmitResponse } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import detectEthereumProvider from "@metamask/detect-provider";
-import { SNAP_METHODS, toCBOR, fromCBOR, IAgentQueryRequest, IAgentCallRequest, IAgentCreateReadStateRequestRequest, IAgentReadStateRequest, IState, IIdentityLoginRequest, TOrigin, IIdentityLinkRequest, IIdentityUnlinkRequest, IICRC1TransferRequest, IICRC1Account, IEntropyGetRequest, err, ErrorCode, IStateGetOriginDataRequest, IIdentityAddRequest, IOriginData } from 'internet-computer-snap-shared';
+import { SNAP_METHODS, toCBOR, fromCBOR, IAgentQueryRequest, IAgentCallRequest, IAgentCreateReadStateRequestRequest, IAgentReadStateRequest, IState, IIdentityLoginRequest, TOrigin, IIdentityLinkRequest, IIdentityUnlinkRequest, IICRC1TransferRequest, IICRC1Account, IEntropyGetRequest, err, ErrorCode, IStateGetOriginDataRequest, IIdentityAddRequest, IOriginData, TIdentityId, IAgentGetUrlPrincipalAtRequest, ZLoginSiteMsg, ILoginRequestMsg } from '@fort-major/ic-snap-shared';
 import { IMetaMaskEthereumProvider } from "./types";
 
 export class MetaMaskSnapAgent implements Agent {
@@ -9,7 +9,7 @@ export class MetaMaskSnapAgent implements Agent {
 
     public static async create(
         host?: string,
-        snapId: string = "npm:internet-computer-snap",
+        snapId: string = "npm:@fort-major/ic-snap",
         snapVersion: string = "*",
         shouldBeFlask: boolean = false
     ): Promise<MetaMaskSnapAgent> {
@@ -101,6 +101,15 @@ export class MetaMaskSnapAgent implements Agent {
         return this.requestSnap(SNAP_METHODS.agent.readState, body);
     }
 
+    async protected_getUrlPrincipalAt(origin: TOrigin, identityId: TIdentityId): Promise<Principal> {
+        const body: IAgentGetUrlPrincipalAtRequest = {
+            atOrigin: origin,
+            identityId
+        };
+
+        return this.requestSnap(SNAP_METHODS.agent.protected_getUrlPrincipalAt, body);
+    }
+
     // ------------ STATE RELATED METHODS -----------------
 
     async protected_getOriginData(ofOrigin: TOrigin): Promise<IOriginData | undefined> {
@@ -131,7 +140,45 @@ export class MetaMaskSnapAgent implements Agent {
 
     // opens a new browser window with identity selection screen
     async requestLogin(): Promise<boolean> {
-        throw new Error('Unimplemented');
+        // @ts-expect-error
+        const origin: TOrigin = process.env.TURBO_SNAP_SITE_ORIGIN;
+        const url = new URL("/login", origin);
+
+        const childWindow = window.open(url);
+
+        if (!childWindow) {
+            err(ErrorCode.UNKOWN, 'Unable to open a new browser window');
+        }
+
+        return new Promise((res, rej) => {
+            childWindow.addEventListener('message', msg => {
+                if (msg.origin !== origin) {
+                    return;
+                }
+
+                try {
+                    const m = ZLoginSiteMsg.parse(msg.data);
+
+                    if (m.type === 'login_site_ready') {
+                        const loginRequestMsg: ILoginRequestMsg = {
+                            domain: 'internet-computer-metamask-snap',
+                            type: 'login_request'
+                        };
+
+                        childWindow.postMessage(loginRequestMsg, origin);
+
+                        return;
+                    }
+
+                    if (m.type === 'login_result') {
+                        res(m.result);
+                        return;
+                    }
+                } catch (e) {
+                    rej(e);
+                }
+            })
+        })
     }
 
     async requestLogout(): Promise<boolean> {

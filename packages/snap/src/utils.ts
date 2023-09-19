@@ -2,7 +2,7 @@ import { heading, panel, text } from "@metamask/snaps-ui";
 import { Json } from "@metamask/snaps-types";
 import { Ed25519KeyIdentity } from "@dfinity/identity";
 import nacl from "tweetnacl";
-import { ErrorCode, IOriginData, IState, SNAP_METHODS, TIdentityId, TOrigin, ZState, err, hexToBytes, unreacheable } from "internet-computer-snap-shared";
+import { ErrorCode, IOriginData, IState, SNAP_METHODS, TIdentityId, TOrigin, ZState, err, hexToBytes, unreacheable } from "@fort-major/ic-snap-shared";
 import { AnonymousIdentity, HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 
@@ -13,10 +13,13 @@ if (!process.env.TURBO_SNAP_SITE_ORIGIN) {
     throw new Error(`Bad build: snap site origin is '${process.env.TURBO_SNAP_SITE_ORIGIN}'`);
 }
 
+// protected methods are those which could be executed only 
+// from the Internet Computer Snap website
 const PROTECTED_METHODS = [
     SNAP_METHODS.identity.protected_add,
     SNAP_METHODS.identity.protected_login,
     SNAP_METHODS.state.protected_getOriginData,
+    SNAP_METHODS.agent.protected_getUrlPrincipalAt,
 ];
 
 export function guardMethods(method: string, origin: TOrigin) {

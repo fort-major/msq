@@ -1,6 +1,6 @@
 import { divider, heading, panel, text } from "@metamask/snaps-ui";
 import { DEFAULT_ORIGIN_DATA, persistStateLocal, retrieveStateLocal } from "../utils";
-import { TOrigin, ZIdentityAddRequest, ZIdentityLoginRequest, ZIdentityLinkRequest, ZIdentityUnlinkRequest, fromCBOR, unreacheable } from "internet-computer-snap-shared";
+import { TOrigin, ZIdentityAddRequest, ZIdentityLoginRequest, ZIdentityLinkRequest, ZIdentityUnlinkRequest, fromCBOR, unreacheable } from "@fort-major/ic-snap-shared";
 
 export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<void> {
     const body = ZIdentityAddRequest.parse(fromCBOR(bodyCBOR));

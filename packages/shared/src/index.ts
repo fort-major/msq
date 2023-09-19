@@ -8,6 +8,7 @@ export const SNAP_METHODS = {
         call: 'agent_call',
         createReadStateRequest: 'agent_createReadStateRequest',
         readState: 'agent_readState',
+        protected_getUrlPrincipalAt: 'agent_protected_getUrlPrincipalAt',
     },
     identity: {
         protected_add: 'identity_protected_add',

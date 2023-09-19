@@ -1,4 +1,4 @@
-import { SNAP_METHODS, ZICRC1TransferRequest, bytesToHex, fromCBOR } from "internet-computer-snap-shared";
+import { SNAP_METHODS, ZICRC1TransferRequest, bytesToHex, fromCBOR } from "@fort-major/ic-snap-shared";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries, IcrcValue } from "@dfinity/ledger";
 import { copyable, divider, heading, panel, text } from "@metamask/snaps-ui";
 import bigDecimal from "js-big-decimal";

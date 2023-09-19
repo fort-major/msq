@@ -1,18 +1,18 @@
 {
-  "version": "0.1.10-flask",
+  "version": "0.1.10",
   "description": "Privacy-focused MetaMask wallet for the Internet Computer (ICP)",
   "proposedName": "Internet Computer",
   "repository": {
     "type": "git",
-    "url": "https://github.com/seniorjoinu/internet-computer-snap.git"
+    "url": "https://github.com/fort-major/internet-computer-snap.git"
   },
   "source": {
-    "shasum": "AOwrh9RjeyhVH1BTIxdDV/S393ZPs0n61ZEe843p05I=",
+    "shasum": "SAq5DGZiIfW67jMxfb/mofDAH0jGIasani2qqxwJYUM=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
         "iconPath": "icon.svg",
-        "packageName": "internet-computer-snap",
+        "packageName": "@fort-major/ic-snap",
         "registry": "https://registry.npmjs.org"
       }
     }

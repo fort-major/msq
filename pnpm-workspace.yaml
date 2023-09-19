@@ -3,3 +3,4 @@ packages:
   - 'packages/agent'
   - 'packages/snap'
   - 'apps/site'
+  - 'apps/demo'

@@ -1,6 +1,6 @@
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
-import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR } from 'internet-computer-snap-shared';
-import { protected_handleIdentityLogin, handleIdentityLogoutRequest as handleIdentityRequestLogout, handleIdentityLinkRequest, handleIdentityUnlinkRequest, handleAgentQuery, handleAgentCall, handleAgentCreateReadStateRequest, handleAgentReadState, handleAgentGetPrincipal, protected_handleIdentityAdd, protected_handleStateGetOriginData, handleIcrc1TransferRequest, handleEntropyGet } from './protocols';
+import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR } from '@fort-major/ic-snap-shared';
+import { protected_handleIdentityLogin, handleIdentityLogoutRequest as handleIdentityRequestLogout, handleIdentityLinkRequest, handleIdentityUnlinkRequest, handleAgentQuery, handleAgentCall, handleAgentCreateReadStateRequest, handleAgentReadState, handleAgentGetPrincipal, protected_handleIdentityAdd, protected_handleStateGetOriginData, handleIcrc1TransferRequest, handleEntropyGet, protected_handleAgentGetUrlPrincipalAt } from './protocols';
 import { guardMethods as guardProtectedMethods } from './utils';
 
 
@@ -37,6 +37,11 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
         case SNAP_METHODS.agent.getPrincipal: {
             result = handleAgentGetPrincipal(origin);
+            break;
+        }
+
+        case SNAP_METHODS.agent.protected_getUrlPrincipalAt: {
+            result = protected_handleAgentGetUrlPrincipalAt(req.params.body);
             break;
         }
 

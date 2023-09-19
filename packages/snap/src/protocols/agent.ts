@@ -1,5 +1,5 @@
-import { SNAP_METHODS, TOrigin, ZAgentCallRequest, ZAgentCreateReadStateRequestRequest, ZAgentQueryRequest, ZAgentReadStateRequest, fromCBOR } from 'internet-computer-snap-shared';
-import { getIdentity, makeAgent, retrieveStateLocal } from '../utils';
+import { SNAP_METHODS, TOrigin, ZAgentCallRequest, ZAgentGetUrlPrincipalAtRequest, ZAgentCreateReadStateRequestRequest, ZAgentQueryRequest, ZAgentReadStateRequest, fromCBOR } from '@fort-major/ic-snap-shared';
+import { getIdentity, makeAgent } from '../utils';
 import { Principal } from '@dfinity/principal';
 
 
@@ -39,4 +39,12 @@ export async function handleAgentGetPrincipal(origin: TOrigin): Promise<Principa
     const agent = await makeAgent(SNAP_METHODS.agent.getPrincipal, origin, undefined, undefined);
 
     return agent.getPrincipal();
+}
+
+export async function protected_handleAgentGetUrlPrincipalAt(bodyCBOR: string): Promise<Principal> {
+    const body = ZAgentGetUrlPrincipalAtRequest.parse(fromCBOR(bodyCBOR));
+
+    const identity = await getIdentity(SNAP_METHODS.agent.protected_getUrlPrincipalAt, body.identityId, body.atOrigin, undefined);
+
+    return identity.getPrincipal();
 }
