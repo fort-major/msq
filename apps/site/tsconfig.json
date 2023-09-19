@@ -1,0 +1,34 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "dist",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "allowJs": true,
+    "declaration": true,
+    "declarationDir": "dist",
+    "emitDeclarationOnly": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js"
+  },
+  "types": [
+    "vite/client"
+  ],
+  "references": [
+    {
+      "path": "../../packages/agent"
+    },
+    {
+      "path": "../../packages/shared"
+    }
+  ],
+  "include": [
+    "./src/site_frontend",
+    "./src/declarations"
+  ]
+}

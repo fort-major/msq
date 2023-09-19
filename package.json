@@ -1,0 +1,23 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "dotenv -- turbo build",
+    "dev": "dotenv -- turbo dev",
+    "test": "dotenv -- turbo test",
+    "dev:deploy": "dotenv -- turbo dev:deploy",
+    "dev:start": "turbo dev:start",
+    "dev:nns": "turbo dev:nns",
+    "dev:gen": "turbo dev:gen",
+    "version:set": "dotenv -- turbo version:set"
+  },
+  "dependencies": {
+    "@dfinity/agent": "^0.19.2",
+    "@dfinity/candid": "^0.19.2",
+    "@dfinity/principal": "^0.19.2",
+    "zod": "^3.22.2"
+  },
+  "devDependencies": {
+    "glob": "^10.3.4",
+    "typescript": "^5.2.2"
+  }
+}

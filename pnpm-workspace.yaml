@@ -1,0 +1,5 @@
+packages:
+  - 'packages/shared'
+  - 'packages/agent'
+  - 'packages/snap'
+  - 'apps/site'

@@ -1,0 +1,35 @@
+{
+    "$schema": "https://turbo.build/schema.json",
+    "globalDotEnv": [
+        ".env"
+    ],
+    "pipeline": {
+        "build": {
+            "outputs": [
+                "dist/**"
+            ]
+        },
+        "version:set": {
+            "cache": false
+        },
+        "dev": {
+            "cache": false
+        },
+        "dev:deploy": {
+            "cache": false
+        },
+        "dev:nns": {
+            "cache": false
+        },
+        "dev:gen": {
+            "cache": false
+        },
+        "dev:start": {
+            "cache": false
+        },
+        "test": {
+            "cache": false
+        },
+        "lint": {}
+    }
+}

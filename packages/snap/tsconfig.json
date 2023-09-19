@@ -1,0 +1,24 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "target": "ESNext",
+    "module": "commonjs",
+    "declaration": true,
+    "declarationDir": "dist",
+    "composite": true,
+    "emitDeclarationOnly": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "references": [
+    {
+      "path": "../agent"
+    },
+    {
+      "path": "../shared"
+    }
+  ],
+}

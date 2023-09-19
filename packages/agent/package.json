@@ -1,0 +1,22 @@
+{
+  "name": "@fort-major/ic-snap-agent",
+  "version": "0.1.10",
+  "main": "./lib/cjs/index",
+  "module": "./lib/esm/index",
+  "unpkg": "./lib/esm/index",
+  "types": "./lib/esm/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc && tsc -p tsconfig.cjs.json",
+    "pub": "npm run build && npm publish",
+    "version:set": "node ../../set-version.js"
+  },
+  "devDependencies": {
+    "@metamask/snaps-types": "^1.0.2",
+    "@metamask/types": "^1.1.0"
+  },
+  "dependencies": {
+    "@metamask/detect-provider": "^2.0.0",
+    "@fort-major/ic-snap-shared": "workspace:*"
+  }
+}

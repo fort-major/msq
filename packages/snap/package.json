@@ -1,0 +1,49 @@
+{
+  "name": "@fort-major/ic-snap",
+  "version": "0.1.10",
+  "description": "Privacy-focused MetaMask wallet for the Internet Computer (ICP)",
+  "keywords": [
+    "MetaMask",
+    "web3",
+    "Internet Computer",
+    "ICP",
+    "wallet",
+    "authorization",
+    "login",
+    "crypto",
+    "icrc1",
+    "agent"
+  ],
+  "main": "dist/bundle.js",
+  "types": "",
+  "author": "seniorjoinu <senior.joinu@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fort-major/internet-computer-snap.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fort-major/internet-computer-snap/issues"
+  },
+  "homepage": "https://github.com/fort-major/internet-computer-snap#readme",
+  "scripts": {
+    "build": "mm-snap build -s src/index.ts",
+    "verify": "mm-snap manifest --fix",
+    "dev": "mm-snap watch -s src/index.ts -d dist",
+    "pub": "npm run build && npm run verify && npm publish",
+    "version:set": "node ../../set-version.js"
+  },
+  "devDependencies": {
+    "@metamask/snaps-cli": "^1.0.2",
+    "@metamask/snaps-types": "^1.0.2",
+    "envify": "4.1.0"
+  },
+  "dependencies": {
+    "@dfinity/identity": "^0.19.2",
+    "@dfinity/ledger": "^0.0.15",
+    "@metamask/snaps-ui": "^1.0.2",
+    "@fort-major/ic-snap-shared": "workspace:*",
+    "js-big-decimal": "^2.0.4",
+    "tweetnacl": "^1.0.3"
+  }
+}

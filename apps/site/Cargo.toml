@@ -1,0 +1,4 @@
+[workspace]
+members = [
+    "src/site_backend",
+]

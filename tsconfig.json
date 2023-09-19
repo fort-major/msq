@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "resolveJsonModule": true,
+    "strict": true,
+  },
+  "exclude": [
+    "**/src/**/*.test.ts",
+  ]
+}

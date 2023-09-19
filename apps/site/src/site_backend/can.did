@@ -1,0 +1,4 @@
+service : {
+    "store" : (text) -> (vec text);
+    "greet" : (text) -> (text) query;
+};
