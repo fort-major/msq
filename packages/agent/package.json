@@ -7,13 +7,14 @@
   "types": "./dist/esm/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "tsc && tsc -p tsconfig.cjs.json",
+    "build": "tsc && tsc -p tsconfig.cjs.json && node inline-env-vars.js",
     "pub": "npm run build && npm publish",
     "version:set": "node ../../set-version.js"
   },
   "devDependencies": {
     "@metamask/snaps-types": "^1.0.2",
-    "@metamask/types": "^1.1.0"
+    "@metamask/types": "^1.1.0",
+    "dotenv": "16.3.1"
   },
   "dependencies": {
     "@metamask/detect-provider": "^2.0.0",

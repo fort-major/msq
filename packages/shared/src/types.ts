@@ -15,6 +15,10 @@ export const ZTimestamp = z.number().int().nonnegative();
 export type TTimestamp = z.infer<typeof ZTimestamp>;
 
 
+// Blob of bytes
+export const ZBlob = z.instanceof(ArrayBuffer).or(z.instanceof(Uint8Array));
+export type TBlob = z.infer<typeof ZBlob>;
+
 // Identity ID
 // Just a number that allows user to switch their entire set of identities on all sites + all payment identities
 export const ZIdentityId = z.number().int().nonnegative();
@@ -65,7 +69,8 @@ export type ISnapRpcRequest = z.infer<typeof ZSnapRPCRequest>;
 // Options which are passed from out-agent to in-agent
 export const ZAgentOptions = z.object({
     // a host to make canister calls against
-    host: z.optional(ZOrigin)
+    host: z.optional(ZOrigin),
+    rootKey: z.optional(ZBlob),
 });
 export type IAgentOptions = z.infer<typeof ZAgentOptions>;
 
@@ -83,7 +88,7 @@ export type IStateGetOriginDataRequest = z.infer<typeof ZStateGetOriginDataReque
 export const ZAgentQueryRequest = ZAgentOptions.extend({
     canisterId: z.string().or(ZPrincipal),
     methodName: z.string(),
-    arg: z.instanceof(ArrayBuffer),
+    arg: ZBlob,
 });
 export type IAgentQueryRequest = z.infer<typeof ZAgentQueryRequest>;
 
@@ -95,15 +100,15 @@ export type IAgentCallRequest = z.infer<typeof ZAgentCallRequest>;
 
 
 export const ZAgentCreateReadStateRequestRequest = ZAgentOptions.extend({
-    paths: z.array(z.array(z.instanceof(ArrayBuffer)))
+    paths: z.array(z.array(ZBlob))
 });
 export type IAgentCreateReadStateRequestRequest = z.infer<typeof ZAgentCreateReadStateRequestRequest>;
 
 
 export const ZAgentReadStateRequest = ZAgentOptions.extend({
     canisterId: z.string().or(ZPrincipal),
-    paths: z.array(z.array(z.instanceof(ArrayBuffer))),
-    request: z.optional(z.string())
+    paths: z.array(z.array(ZBlob)),
+    request: z.optional(z.any())
 });
 export type IAgentReadStateRequest = z.infer<typeof ZAgentReadStateRequest>;
 

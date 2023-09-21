@@ -19,11 +19,12 @@ This project is managed with `pnpm` and `turborepo`.
 * `pnpm run build`
 
 ### Run locally
-* `pnpm run dev:start` - (in a separate terminal window) starts a local replica with '--clean' flag
+* `dfx start` - (in a separate terminal window)
+* `dfx extension install nns` - install nns extension to your dfx
 * `pnpm run dev:gen` - generates javascript declaration files
 * `pnpm run dev:nns` - deploys a local copy of nns canisters
 * `pnpm run dev:deploy` - deploys site_backend canister
-    * if this command fails because of locked `Cargo.toml` do the following - `cd apps/site && cargo build --target=wasm32-unknown-unknown`
+    * if this command fails because of locked `Cargo.toml`, run `pnpm run cargo:repair` and repeat 
 * `pnpm run dev` - starts site_frontend dev server
 
 ### Publish

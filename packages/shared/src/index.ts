@@ -1,3 +1,5 @@
+import { ZodError, ZodObject, ZodRawShape, z } from 'zod';
+
 export * from './types';
 export * from './encoding';
 
@@ -47,5 +49,18 @@ export function unreacheable(msg?: string): never {
         throw new Error('Unreacheable');
     } else {
         throw new Error(`Unreacheable: ${msg}`);
+    }
+}
+
+export async function delay(ms: number): Promise<void> {
+    return new Promise(res => setTimeout(res, ms));
+}
+
+// ZodError do not work properly inside a snap, so we rethrow them here
+export function zodParse<S extends ZodObject<any>>(schema: S, obj: any): z.infer<typeof schema> {
+    try {
+        return schema.parse(obj)
+    } catch (e) {
+        err(ErrorCode.INVALID_INPUT, JSON.stringify(e));
     }
 }

@@ -1,4 +1,4 @@
 service : {
-    "store" : (text) -> (vec text);
+    "greet_certified" : (text) -> (text);
     "greet" : (text) -> (text) query;
 };

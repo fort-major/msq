@@ -1,2 +1,2 @@
 [workspace]
-members = ["apps/demo/backend"]
+members = ["apps/demo/src/backend"]

@@ -1,5 +1,5 @@
 import { Principal } from "@dfinity/principal";
-import { Encoder, addExtension } from 'cbor-x';
+import { Decoder, Encoder, addExtension } from 'cbor-x';
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
@@ -25,7 +25,11 @@ export const hexToBytes = (hexString: string): Uint8Array => {
     return Uint8Array.from(matches.map((byte) => parseInt(byte, 16)));
 }
 
-const cborEncoder = new Encoder();
+// @ts-expect-error
+const cborEncoder = new Encoder({ int64AsNumber: true });
+// @ts-expect-error
+const cborDecoder = new Decoder({ int64AsNumber: true });
+
 addExtension<Principal, Uint8Array>({
     // @ts-expect-error
     Class: Principal,
@@ -45,5 +49,5 @@ export function toCBOR(obj: any): string {
 export function fromCBOR(hex: string): any {
     const obj = hexToBytes(hex);
 
-    return cborEncoder.decode(obj);
+    return cborDecoder.decode(obj);
 }

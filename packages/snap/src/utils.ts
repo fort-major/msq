@@ -2,7 +2,7 @@ import { heading, panel, text } from "@metamask/snaps-ui";
 import { Json } from "@metamask/snaps-types";
 import { Ed25519KeyIdentity } from "@dfinity/identity";
 import nacl from "tweetnacl";
-import { ErrorCode, IOriginData, IState, SNAP_METHODS, TIdentityId, TOrigin, ZState, err, hexToBytes, unreacheable } from "@fort-major/ic-snap-shared";
+import { ErrorCode, IOriginData, IState, SNAP_METHODS, TBlob, TIdentityId, TOrigin, ZState, err, fromCBOR, hexToBytes, toCBOR, unreacheable, zodParse } from "@fort-major/ic-snap-shared";
 import { AnonymousIdentity, HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 
@@ -94,7 +94,7 @@ export async function getIdentity(method: string, identityId: TIdentityId, origi
     }
 }
 
-export async function makeAgent(method: string, origin?: TOrigin, canisterId?: Principal, host?: TOrigin): Promise<HttpAgent> {
+export async function makeAgent(method: string, origin?: TOrigin, canisterId?: Principal, host?: TOrigin, rootKey?: TBlob): Promise<HttpAgent> {
     if (canisterId && origin) { unreacheable('mageAgent() - both: origin and canisterId are present') };
 
     let identity;
@@ -116,11 +116,17 @@ export async function makeAgent(method: string, origin?: TOrigin, canisterId?: P
         unreacheable('mageAgent() - none: origin nor canister are present')
     }
 
-    return new HttpAgent({
+    const agent = new HttpAgent({
         fetch,
         identity,
         host,
     });
+
+    if (rootKey) {
+        agent.rootKey = rootKey;
+    }
+
+    return agent;
 }
 
 export async function retrieveStateLocal(): Promise<IState> {
@@ -136,7 +142,8 @@ export async function retrieveStateLocal(): Promise<IState> {
         return DEFAULT_STATE;
     }
 
-    return ZState.parse(state);
+    // @ts-expect-error
+    return zodParse(ZState, fromCBOR(state.data));
 }
 
 export async function persistStateLocal(state: IState): Promise<void> {
@@ -144,7 +151,7 @@ export async function persistStateLocal(state: IState): Promise<void> {
         method: "snap_manageState",
         params: {
             operation: "update",
-            newState: state as unknown as Record<string, Json>,
+            newState: { data: toCBOR(state) },
         }
     });
 }

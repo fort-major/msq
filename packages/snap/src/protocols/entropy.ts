@@ -1,9 +1,9 @@
-import { TOrigin, ZEntropyGetRequest, hexToBytes, fromCBOR, unreacheable } from "@fort-major/ic-snap-shared";
+import { TOrigin, ZEntropyGetRequest, hexToBytes, fromCBOR, unreacheable, zodParse } from "@fort-major/ic-snap-shared";
 import { makeEntropySalt, retrieveStateLocal } from "../utils";
 
 
 export async function handleEntropyGet(bodyCBOR: string, origin: TOrigin): Promise<Uint8Array> {
-    const body = ZEntropyGetRequest.parse(fromCBOR(bodyCBOR));
+    const body = zodParse(ZEntropyGetRequest, fromCBOR(bodyCBOR));
     const state = await retrieveStateLocal();
 
     // if anonymous set identityId to MAX_SAFE_INTEGER

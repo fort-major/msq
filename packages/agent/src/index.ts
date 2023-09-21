@@ -1,7 +1,7 @@
 import { Agent, AnonymousIdentity, ApiQueryResponse, CallOptions, HttpAgent, Identity, QueryFields, ReadStateOptions, ReadStateResponse, SubmitResponse } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import detectEthereumProvider from "@metamask/detect-provider";
-import { SNAP_METHODS, toCBOR, fromCBOR, IAgentQueryRequest, IAgentCallRequest, IAgentCreateReadStateRequestRequest, IAgentReadStateRequest, IState, IIdentityLoginRequest, TOrigin, IIdentityLinkRequest, IIdentityUnlinkRequest, IICRC1TransferRequest, IICRC1Account, IEntropyGetRequest, err, ErrorCode, IStateGetOriginDataRequest, IIdentityAddRequest, IOriginData, TIdentityId, IAgentGetUrlPrincipalAtRequest, ZLoginSiteMsg, ILoginRequestMsg } from '@fort-major/ic-snap-shared';
+import { SNAP_METHODS, toCBOR, fromCBOR, IAgentQueryRequest, IAgentCallRequest, IAgentCreateReadStateRequestRequest, IAgentReadStateRequest, IState, IIdentityLoginRequest, TOrigin, IIdentityLinkRequest, IIdentityUnlinkRequest, IICRC1TransferRequest, IICRC1Account, IEntropyGetRequest, err, ErrorCode, IStateGetOriginDataRequest, IIdentityAddRequest, IOriginData, TIdentityId, IAgentGetUrlPrincipalAtRequest, ZLoginSiteMsg, ILoginRequestMsg, delay, ILoginSiteMsg, zodParse } from '@fort-major/ic-snap-shared';
 import { IMetaMaskEthereumProvider } from "./types";
 
 export class MetaMaskSnapAgent implements Agent {
@@ -64,7 +64,8 @@ export class MetaMaskSnapAgent implements Agent {
             canisterId,
             methodName: options.methodName,
             arg: options.arg,
-            host: this.host
+            host: this.host,
+            rootKey: this.dummy.rootKey,
         };
 
         return this.requestSnap(SNAP_METHODS.agent.query, body);
@@ -75,7 +76,8 @@ export class MetaMaskSnapAgent implements Agent {
             canisterId,
             methodName: fields.methodName,
             arg: fields.arg,
-            host: this.host
+            host: this.host,
+            rootKey: this.dummy.rootKey,
         };
 
         return this.requestSnap(SNAP_METHODS.agent.call, body);
@@ -85,6 +87,7 @@ export class MetaMaskSnapAgent implements Agent {
         const body: IAgentCreateReadStateRequestRequest = {
             paths: options.paths,
             host: this.host,
+            rootKey: this.dummy.rootKey,
         };
 
         return this.requestSnap(SNAP_METHODS.agent.createReadStateRequest, body);
@@ -95,6 +98,7 @@ export class MetaMaskSnapAgent implements Agent {
             canisterId: effectiveCanisterId,
             paths: options.paths,
             host: this.host,
+            rootKey: this.dummy.rootKey,
             request
         };
 
@@ -140,45 +144,56 @@ export class MetaMaskSnapAgent implements Agent {
 
     // opens a new browser window with identity selection screen
     async requestLogin(): Promise<boolean> {
-        // @ts-expect-error
-        const origin: TOrigin = process.env.TURBO_SNAP_SITE_ORIGIN;
-        const url = new URL("/login", origin);
+        return new Promise<boolean>(async (res, rej) => {
+            // @ts-expect-error
+            const origin: TOrigin = process.env.TURBO_SNAP_SITE_ORIGIN;
+            const url = new URL("/login", origin);
 
-        const childWindow = window.open(url);
+            const childWindow = window.open(url, '_blank');
 
-        if (!childWindow) {
-            err(ErrorCode.UNKOWN, 'Unable to open a new browser window');
-        }
+            if (!childWindow) {
+                err(ErrorCode.UNKOWN, 'Unable to open a new browser window');
+            }
 
-        return new Promise((res, rej) => {
-            childWindow.addEventListener('message', msg => {
+            let receivedReady = false;
+
+            const loginRequestMsg: ILoginRequestMsg = {
+                domain: 'internet-computer-metamask-snap',
+                type: 'login_request'
+            };
+
+            window.addEventListener('message', msg => {
                 if (msg.origin !== origin) {
                     return;
                 }
 
+                let loginSiteMsg: ILoginSiteMsg;
+
                 try {
-                    const m = ZLoginSiteMsg.parse(msg.data);
-
-                    if (m.type === 'login_site_ready') {
-                        const loginRequestMsg: ILoginRequestMsg = {
-                            domain: 'internet-computer-metamask-snap',
-                            type: 'login_request'
-                        };
-
-                        childWindow.postMessage(loginRequestMsg, origin);
-
-                        return;
-                    }
-
-                    if (m.type === 'login_result') {
-                        res(m.result);
-                        return;
-                    }
+                    // @ts-expect-error
+                    loginSiteMsg = zodParse(ZLoginSiteMsg, msg.data);
                 } catch (e) {
-                    rej(e);
+                    return rej(e);
                 }
-            })
-        })
+
+                if (loginSiteMsg.type === 'login_site_ready') {
+                    receivedReady = true;
+                    return;
+                }
+
+                if (loginSiteMsg.type === 'login_result') {
+                    return res(loginSiteMsg.result);
+                }
+            });
+
+            while (!receivedReady) {
+                await delay(500);
+
+                try {
+                    childWindow.postMessage(loginRequestMsg, origin);
+                } catch (e) { }
+            }
+        });
     }
 
     async requestLogout(): Promise<boolean> {
@@ -206,6 +221,7 @@ export class MetaMaskSnapAgent implements Agent {
             amount,
             memo,
             host: this.host,
+            rootKey: this.dummy.rootKey,
         };
 
         return this.requestSnap(SNAP_METHODS.icrc1.requestTransfer, body);
@@ -229,14 +245,30 @@ export class MetaMaskSnapAgent implements Agent {
     }
 
     private async requestSnap<T, R>(method: string, body?: T): Promise<R> {
+        const params = {
+            snapId: this.snapId,
+            request: { method, params: { body: toCBOR(body) } }
+        };
+
+        try {
+            console.log(`Sending ${JSON.stringify(params)} to the wallet...`)
+        } catch (e) {
+            console.error(e);
+        }
+
         const response = await this.provider.request<any>({
             method: "wallet_invokeSnap",
-            params: {
-                snapId: this.snapId,
-                request: { method, params: { body: toCBOR(body) } }
-            }
+            params
         });
 
-        return fromCBOR(response);
+        const decodedResponse = fromCBOR(response);
+
+        try {
+            console.log(`Received ${JSON.stringify(decodedResponse)} from the wallet`);
+        } catch (e) {
+            console.error(e);
+        }
+
+        return decodedResponse;
     }
 } 

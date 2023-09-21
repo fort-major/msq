@@ -1,17 +1,18 @@
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
-import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR } from '@fort-major/ic-snap-shared';
+import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR, zodParse } from '@fort-major/ic-snap-shared';
 import { protected_handleIdentityLogin, handleIdentityLogoutRequest as handleIdentityRequestLogout, handleIdentityLinkRequest, handleIdentityUnlinkRequest, handleAgentQuery, handleAgentCall, handleAgentCreateReadStateRequest, handleAgentReadState, handleAgentGetPrincipal, protected_handleIdentityAdd, protected_handleStateGetOriginData, handleIcrc1TransferRequest, handleEntropyGet, protected_handleAgentGetUrlPrincipalAt } from './protocols';
 import { guardMethods as guardProtectedMethods } from './utils';
+import { ZodError } from 'zod';
 
 
 export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => {
-    const req = ZSnapRPCRequest.parse(request);
+    const req = zodParse(ZSnapRPCRequest, request);
 
     // restrict access to protected methods to be only executed
     // from the Internet Computer Snap website
     guardProtectedMethods(req.method, origin);
 
-    let result: any;
+    let result: Promise<any>;
 
     switch (request.method) {
         // ------ AGENT RELATED METHODS --------

@@ -1,25 +1,27 @@
 import { divider, heading, panel, text } from "@metamask/snaps-ui";
 import { DEFAULT_ORIGIN_DATA, persistStateLocal, retrieveStateLocal } from "../utils";
-import { TOrigin, ZIdentityAddRequest, ZIdentityLoginRequest, ZIdentityLinkRequest, ZIdentityUnlinkRequest, fromCBOR, unreacheable } from "@fort-major/ic-snap-shared";
+import { TOrigin, ZIdentityAddRequest, ZIdentityLoginRequest, ZIdentityLinkRequest, ZIdentityUnlinkRequest, fromCBOR, unreacheable, err, ErrorCode, zodParse } from "@fort-major/ic-snap-shared";
 
-export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<void> {
-    const body = ZIdentityAddRequest.parse(fromCBOR(bodyCBOR));
+export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<true> {
+    const body = zodParse(ZIdentityAddRequest, fromCBOR(bodyCBOR));
     const state = await retrieveStateLocal();
 
-    const originData = state.originData[body.toOrigin];
+    let originData = state.originData[body.toOrigin];
 
     if (!originData) {
-        state.originData[body.toOrigin] = DEFAULT_ORIGIN_DATA;
+        originData = DEFAULT_ORIGIN_DATA;
     } else {
         originData.identitiesTotal += 1;
     }
 
     state.originData[body.toOrigin] = originData;
     await persistStateLocal(state);
+
+    return true;
 }
 
-export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<void> {
-    const body = ZIdentityLoginRequest.parse(fromCBOR(bodyCBOR));
+export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<true> {
+    const body = zodParse(ZIdentityLoginRequest, fromCBOR(bodyCBOR));
     const state = await retrieveStateLocal();
     const timestamp = (new Date()).getTime();
 
@@ -34,6 +36,8 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<v
 
     state.originData[body.toOrigin] = originData;
     await persistStateLocal(state);
+
+    return true;
 }
 
 export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<boolean> {
@@ -75,7 +79,7 @@ export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<bool
 }
 
 export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigin): Promise<boolean> {
-    const body = ZIdentityLinkRequest.parse(fromCBOR(bodyCBOR));
+    const body = zodParse(ZIdentityLinkRequest, fromCBOR(bodyCBOR));
     const state = await retrieveStateLocal();
 
     const originData = state.originData[body.withOrigin] || DEFAULT_ORIGIN_DATA;
@@ -116,7 +120,7 @@ export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigi
 }
 
 export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOrigin) {
-    const body = ZIdentityUnlinkRequest.parse(fromCBOR(bodyCBOR));
+    const body = zodParse(ZIdentityUnlinkRequest, fromCBOR(bodyCBOR));
     const state = await retrieveStateLocal();
 
     const originData = state.originData[body.withOrigin] || DEFAULT_ORIGIN_DATA;

@@ -1,4 +1,4 @@
-import { SNAP_METHODS, ZICRC1TransferRequest, bytesToHex, fromCBOR } from "@fort-major/ic-snap-shared";
+import { SNAP_METHODS, ZICRC1TransferRequest, bytesToHex, fromCBOR, zodParse } from "@fort-major/ic-snap-shared";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries, IcrcValue } from "@dfinity/ledger";
 import { copyable, divider, heading, panel, text } from "@metamask/snaps-ui";
 import bigDecimal from "js-big-decimal";
@@ -6,8 +6,8 @@ import { makeAgent } from "../utils";
 
 
 export async function handleIcrc1TransferRequest(bodyCBOR: string, origin: string): Promise<bigint | null> {
-    const body = ZICRC1TransferRequest.parse(fromCBOR(bodyCBOR));
-    const agent = await makeAgent(SNAP_METHODS.icrc1.requestTransfer, undefined, body.canisterId, body.host);
+    const body = zodParse(ZICRC1TransferRequest, fromCBOR(bodyCBOR));
+    const agent = await makeAgent(SNAP_METHODS.icrc1.requestTransfer, undefined, body.canisterId, body.host, body.rootKey);
 
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: body.canisterId });
     const metadata: Record<string | IcrcMetadataResponseEntries, IcrcValue> = (await ledger.metadata({})).reduce((prev, cur) => ({
