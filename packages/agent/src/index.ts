@@ -1,7 +1,7 @@
 import { Agent, AnonymousIdentity, ApiQueryResponse, CallOptions, HttpAgent, Identity, QueryFields, ReadStateOptions, ReadStateResponse, SubmitResponse } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import detectEthereumProvider from "@metamask/detect-provider";
-import { SNAP_METHODS, toCBOR, fromCBOR, IAgentQueryRequest, IAgentCallRequest, IAgentCreateReadStateRequestRequest, IAgentReadStateRequest, IState, IIdentityLoginRequest, TOrigin, IIdentityLinkRequest, IIdentityUnlinkRequest, IICRC1TransferRequest, IICRC1Account, IEntropyGetRequest, err, ErrorCode, IStateGetOriginDataRequest, IIdentityAddRequest, IOriginData, TIdentityId, IAgentGetUrlPrincipalAtRequest, ZLoginSiteMsg, ILoginRequestMsg, delay, ILoginSiteMsg, zodParse } from '@fort-major/ic-snap-shared';
+import { SNAP_METHODS, toCBOR, fromCBOR, IAgentQueryRequest, IAgentCallRequest, IAgentCreateReadStateRequestRequest, IAgentReadStateRequest, IState, IIdentityLoginRequest, TOrigin, IIdentityLinkRequest, IIdentityUnlinkRequest, IICRC1TransferRequest, IICRC1Account, IEntropyGetRequest, err, ErrorCode, IStateGetOriginDataRequest, IIdentityAddRequest, IOriginData, TIdentityId, IAgentGetUrlPrincipalAtRequest, ZLoginSiteMsg, ILoginRequestMsg, delay, ILoginSiteMsg, zodParse, debugStringify, bytesToHex } from '@fort-major/ic-snap-shared';
 import { IMetaMaskEthereumProvider } from "./types";
 
 export class MetaMaskSnapAgent implements Agent {
@@ -47,6 +47,15 @@ export class MetaMaskSnapAgent implements Agent {
         return this.dummy.rootKey;
     }
 
+    private get fetchedRootKey(): ArrayBuffer | undefined {
+        // @ts-expect-error
+        if (this.dummy._rootKeyFetched) {
+            return this.dummy.rootKey;
+        }
+
+        return undefined;
+    }
+
     async status(): Promise<Record<string, any>> {
         return this.dummy.status();
     }
@@ -65,7 +74,7 @@ export class MetaMaskSnapAgent implements Agent {
             methodName: options.methodName,
             arg: options.arg,
             host: this.host,
-            rootKey: this.dummy.rootKey,
+            rootKey: this.fetchedRootKey,
         };
 
         return this.requestSnap(SNAP_METHODS.agent.query, body);
@@ -77,7 +86,7 @@ export class MetaMaskSnapAgent implements Agent {
             methodName: fields.methodName,
             arg: fields.arg,
             host: this.host,
-            rootKey: this.dummy.rootKey,
+            rootKey: this.fetchedRootKey,
         };
 
         return this.requestSnap(SNAP_METHODS.agent.call, body);
@@ -87,7 +96,7 @@ export class MetaMaskSnapAgent implements Agent {
         const body: IAgentCreateReadStateRequestRequest = {
             paths: options.paths,
             host: this.host,
-            rootKey: this.dummy.rootKey,
+            rootKey: this.fetchedRootKey,
         };
 
         return this.requestSnap(SNAP_METHODS.agent.createReadStateRequest, body);
@@ -98,7 +107,7 @@ export class MetaMaskSnapAgent implements Agent {
             canisterId: effectiveCanisterId,
             paths: options.paths,
             host: this.host,
-            rootKey: this.dummy.rootKey,
+            rootKey: this.fetchedRootKey,
             request
         };
 
@@ -221,7 +230,7 @@ export class MetaMaskSnapAgent implements Agent {
             amount,
             memo,
             host: this.host,
-            rootKey: this.dummy.rootKey,
+            rootKey: this.fetchedRootKey,
         };
 
         return this.requestSnap(SNAP_METHODS.icrc1.requestTransfer, body);
@@ -242,6 +251,8 @@ export class MetaMaskSnapAgent implements Agent {
             host: this.host,
             identity: new AnonymousIdentity()
         });
+
+        console.log('default rootKey', bytesToHex(new Uint8Array(this.dummy.rootKey)));
     }
 
     private async requestSnap<T, R>(method: string, body?: T): Promise<R> {
@@ -250,11 +261,7 @@ export class MetaMaskSnapAgent implements Agent {
             request: { method, params: { body: toCBOR(body) } }
         };
 
-        try {
-            console.log(`Sending ${JSON.stringify(params)} to the wallet...`)
-        } catch (e) {
-            console.error(e);
-        }
+        console.log(`Sending ${debugStringify(params)} to the wallet...`)
 
         const response = await this.provider.request<any>({
             method: "wallet_invokeSnap",
@@ -263,11 +270,7 @@ export class MetaMaskSnapAgent implements Agent {
 
         const decodedResponse = fromCBOR(response);
 
-        try {
-            console.log(`Received ${JSON.stringify(decodedResponse)} from the wallet`);
-        } catch (e) {
-            console.error(e);
-        }
+        console.log(`Received ${debugStringify(decodedResponse)} from the wallet`);
 
         return decodedResponse;
     }

@@ -1,8 +1,10 @@
-import { ActorSubclass } from "@dfinity/agent";
+import { ActorSubclass, HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import { MetaMaskSnapAgent } from "@fort-major/ic-snap-agent";
 import { createSignal, onMount } from "solid-js";
 import { Backend, createBackendActor } from "../../backend";
+import { bytesToHex, debugStringify } from "@fort-major/ic-snap-shared";
+import { IcrcLedgerCanister } from "@dfinity/ledger";
 
 export const IndexPage = () => {
     const [agent, setAgent] = createSignal<MetaMaskSnapAgent | null>(null);
@@ -16,6 +18,15 @@ export const IndexPage = () => {
 
         setAgent(agent);
         setActor(createBackendActor(agent));
+
+        await agent.fetchRootKey().catch((err) => {
+            console.warn(
+                "Unable to fetch root key. Check to ensure that your local replica is running"
+            );
+            console.error(err);
+        });
+
+        console.log('fetched rootKey', bytesToHex(new Uint8Array(agent.rootKey!)));
 
         const principal = await agent.getPrincipal();
 
@@ -68,10 +79,26 @@ export const IndexPage = () => {
         alert(result);
     };
 
+    const icpTransferButton = () => {
+        return <button onClick={onTransfer}>Send ICP</button>
+    }
+
+    const onTransfer = async () => {
+        const blockId = await agent()?.requestICRC1Transfer(
+            Principal.fromText('ryjl3-tyaaa-aaaaa-aaaba-cai'),
+            { owner: Principal.fromText('aaaaa-aa') },
+            10000000n,
+            new Uint8Array([1, 3, 3, 7])
+        );
+
+        console.log('transfer success', blockId);
+    };
+
     return (
         <main>
             {agent() && authBtn()}
             {agent() && canisterCallBtns()}
+            {agent() && icpTransferButton()}
         </main>
     );
 }

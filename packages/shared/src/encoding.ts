@@ -1,4 +1,5 @@
 import { Principal } from "@dfinity/principal";
+import { Expiry } from "@dfinity/agent";
 import { Decoder, Encoder, addExtension } from 'cbor-x';
 
 const textEncoder = new TextEncoder();
@@ -25,10 +26,7 @@ export const hexToBytes = (hexString: string): Uint8Array => {
     return Uint8Array.from(matches.map((byte) => parseInt(byte, 16)));
 }
 
-// @ts-expect-error
-const cborEncoder = new Encoder({ int64AsNumber: true });
-// @ts-expect-error
-const cborDecoder = new Decoder({ int64AsNumber: true });
+const cborEncoder = new Encoder();
 
 addExtension<Principal, Uint8Array>({
     // @ts-expect-error
@@ -42,6 +40,23 @@ addExtension<Principal, Uint8Array>({
     }
 });
 
+addExtension<Expiry, Uint8Array>({
+    Class: Expiry,
+    tag: 40502,
+    encode(it, enc) {
+        // @ts-expect-error
+        const timestampMs = Math.floor(Number(it._value / 1000000n));
+        const deltaMs = timestampMs - Date.now() + 60000;
+
+        enc(strToBytes(deltaMs.toString()))
+    },
+    decode(it) {
+        const deltaInMs = parseInt(bytesToStr(it));
+
+        return new Expiry(deltaInMs);
+    }
+})
+
 export function toCBOR(obj: any): string {
     return bytesToHex(cborEncoder.encode(obj));
 }
@@ -49,5 +64,13 @@ export function toCBOR(obj: any): string {
 export function fromCBOR(hex: string): any {
     const obj = hexToBytes(hex);
 
-    return cborDecoder.decode(obj);
+    return cborEncoder.decode(obj);
+}
+
+export function debugStringify(obj: any): string {
+    return JSON.stringify(obj, (key, value) =>
+        typeof value === 'bigint'
+            ? value.toString()
+            : value
+    );
 }

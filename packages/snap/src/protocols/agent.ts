@@ -30,14 +30,6 @@ export async function handleAgentCreateReadStateRequest(bodyCBOR: string, origin
 export async function handleAgentReadState(bodyCBOR: string, origin: TOrigin): Promise<any> {
     const body = zodParse(ZAgentReadStateRequest, fromCBOR(bodyCBOR));
 
-    if (body.request) {
-        err(ErrorCode.UNKOWN, JSON.stringify(body.request, (key, value) =>
-            typeof value === 'bigint'
-                ? value.toString()
-                : value
-        ));
-    }
-
     const agent = await makeAgent(SNAP_METHODS.agent.readState, origin, undefined, body.host, body.rootKey);
 
     return agent.readState(body.canisterId, { paths: body.paths }, undefined, body.request);

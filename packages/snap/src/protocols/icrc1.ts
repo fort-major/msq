@@ -1,4 +1,4 @@
-import { SNAP_METHODS, ZICRC1TransferRequest, bytesToHex, fromCBOR, zodParse } from "@fort-major/ic-snap-shared";
+import { ErrorCode, SNAP_METHODS, ZICRC1TransferRequest, bytesToHex, debugStringify, err, fromCBOR, zodParse } from "@fort-major/ic-snap-shared";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries, IcrcValue } from "@dfinity/ledger";
 import { copyable, divider, heading, panel, text } from "@metamask/snaps-ui";
 import bigDecimal from "js-big-decimal";
@@ -7,14 +7,17 @@ import { makeAgent } from "../utils";
 
 export async function handleIcrc1TransferRequest(bodyCBOR: string, origin: string): Promise<bigint | null> {
     const body = zodParse(ZICRC1TransferRequest, fromCBOR(bodyCBOR));
-    const agent = await makeAgent(SNAP_METHODS.icrc1.requestTransfer, undefined, body.canisterId, body.host, body.rootKey);
 
+    const agent = await makeAgent(SNAP_METHODS.icrc1.requestTransfer, undefined, body.canisterId, body.host, body.rootKey);
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: body.canisterId });
-    const metadata: Record<string | IcrcMetadataResponseEntries, IcrcValue> = (await ledger.metadata({})).reduce((prev, cur) => ({
-        ...prev,
-        [cur[0]]: cur[1],
-    }), {});
-    const balance = await ledger.balance({ certified: true, owner: await agent.getPrincipal() });
+
+    // fetching metadata and user's balance in parallel
+    const promises: [Promise<Record<string | IcrcMetadataResponseEntries, IcrcValue>>, Promise<bigint>] = [
+        ledger.metadata({ certified: true }).then(it => it.reduce((prev, cur) => ({ ...prev, [cur[0]]: cur[1] }), {})),
+        ledger.balance({ certified: true, owner: await agent.getPrincipal() })
+    ];
+
+    const [metadata, balance] = await Promise.all(promises);
 
     const tokenName = (metadata[IcrcMetadataResponseEntries.NAME] as { Text: string }).Text;
     const tokenSymbol = (metadata[IcrcMetadataResponseEntries.SYMBOL] as { Text: string }).Text;

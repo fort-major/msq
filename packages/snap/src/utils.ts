@@ -2,7 +2,7 @@ import { heading, panel, text } from "@metamask/snaps-ui";
 import { Json } from "@metamask/snaps-types";
 import { Ed25519KeyIdentity } from "@dfinity/identity";
 import nacl from "tweetnacl";
-import { ErrorCode, IOriginData, IState, SNAP_METHODS, TBlob, TIdentityId, TOrigin, ZState, err, fromCBOR, hexToBytes, toCBOR, unreacheable, zodParse } from "@fort-major/ic-snap-shared";
+import { ErrorCode, IOriginData, IState, SNAP_METHODS, TBlob, TIdentityId, TOrigin, ZState, debugStringify, err, fromCBOR, hexToBytes, toCBOR, unreacheable, zodParse } from "@fort-major/ic-snap-shared";
 import { AnonymousIdentity, HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 
@@ -119,11 +119,13 @@ export async function makeAgent(method: string, origin?: TOrigin, canisterId?: P
     const agent = new HttpAgent({
         fetch,
         identity,
-        host,
+        host
     });
 
     if (rootKey) {
         agent.rootKey = rootKey;
+        // @ts-expect-error
+        agent._rootKeyFetched = true;
     }
 
     return agent;

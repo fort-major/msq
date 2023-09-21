@@ -26,9 +26,15 @@ importers:
 
   apps/demo:
     dependencies:
+      '@dfinity/ledger':
+        specifier: 0.0.15
+        version: 0.0.15(@dfinity/agent@0.19.2)(@dfinity/candid@0.19.2)(@dfinity/principal@0.19.2)(@dfinity/utils@0.0.22)
       '@fort-major/ic-snap-agent':
         specifier: workspace:*
         version: link:../../packages/agent
+      '@fort-major/ic-snap-shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@nanostores/solid':
         specifier: 0.4.2
         version: 0.4.2(nanostores@0.9.3)(solid-js@1.7.12)
