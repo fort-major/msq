@@ -33,6 +33,21 @@ export const ZSession = z.object({
 export type ISession = z.infer<typeof ZSession>;
 
 
+const ZSiteSessionOrigin = z.object({
+    type: z.literal('origin'),
+    origin: ZOrigin,
+    identityId: ZIdentityId,
+});
+
+const ZSiteSessionCanisterId = z.object({
+    type: z.literal('canisterId'),
+    canisterId: ZPrincipal,
+    identityId: ZIdentityId
+});
+
+export const ZSiteSession = z.discriminatedUnion('type', [ZSiteSessionOrigin, ZSiteSessionCanisterId]);
+export type ISiteSession = z.infer<typeof ZSiteSession>;
+
 export const ZOriginData = z.object({
     // how many identities does a user have on this website
     identitiesTotal: ZIdentityId,
@@ -51,7 +66,9 @@ export type IOriginData = z.infer<typeof ZOriginData>;
 // Snap state that is stored in encrypted form on user's device
 // TODO: [when vetKeys are ready] - persist it on-chain
 export const ZState = z.object({
-    // currently, all data the user stores in the state is scoped by origin
+    // session that is currently used on Internet Computer Snap website
+    siteSession: z.optional(ZSiteSession),
+    // other origins data
     originData: z.record(ZOrigin, z.optional(ZOriginData)),
 });
 export type IState = z.infer<typeof ZState>;

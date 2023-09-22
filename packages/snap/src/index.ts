@@ -1,8 +1,7 @@
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
 import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR, zodParse } from '@fort-major/ic-snap-shared';
-import { protected_handleIdentityLogin, handleIdentityLogoutRequest as handleIdentityRequestLogout, handleIdentityLinkRequest, handleIdentityUnlinkRequest, handleAgentQuery, handleAgentCall, handleAgentCreateReadStateRequest, handleAgentReadState, handleAgentGetPrincipal, protected_handleIdentityAdd, protected_handleStateGetOriginData, handleIcrc1TransferRequest, handleEntropyGet, protected_handleAgentGetUrlPrincipalAt } from './protocols';
+import { protected_handleIdentityLogin, handleIdentityLinkRequest, handleIdentityUnlinkRequest, handleAgentQuery, handleAgentCall, handleAgentCreateReadStateRequest, handleAgentReadState, handleAgentGetPrincipal, protected_handleIdentityAdd, protected_handleStateGetOriginData, handleEntropyGet, protected_handleStateGetSiteSession, handleIdentityLogoutRequest, protected_handleStateSetSiteSession } from './protocols';
 import { guardMethods as guardProtectedMethods } from './utils';
-import { ZodError } from 'zod';
 
 
 export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => {
@@ -41,14 +40,19 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
             break;
         }
 
-        case SNAP_METHODS.agent.protected_getUrlPrincipalAt: {
-            result = protected_handleAgentGetUrlPrincipalAt(req.params.body);
-            break;
-        }
-
         // ------ STATE RELATED METHODS -----------
         case SNAP_METHODS.state.protected_getOriginData: {
             result = protected_handleStateGetOriginData(req.params.body);
+            break;
+        }
+
+        case SNAP_METHODS.state.protected_getSiteSession: {
+            result = protected_handleStateGetSiteSession();
+            break;
+        }
+
+        case SNAP_METHODS.state.protected_setSiteSession: {
+            result = protected_handleStateSetSiteSession(req.params.body);
             break;
         }
 
@@ -64,7 +68,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
         }
 
         case SNAP_METHODS.identity.requestLogout: {
-            result = handleIdentityRequestLogout(origin);
+            result = handleIdentityLogoutRequest(origin);
             break;
         }
 
@@ -75,12 +79,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
         case SNAP_METHODS.identity.requestUnlink: {
             result = handleIdentityUnlinkRequest(req.params.body, origin);
-            break;
-        }
-
-        // ------ ICRC-1 RELATED METHODS ----------
-        case SNAP_METHODS.icrc1.requestTransfer: {
-            result = handleIcrc1TransferRequest(req.params.body, origin);
             break;
         }
 

@@ -1,4 +1,4 @@
-import { ZodError, ZodObject, ZodRawShape, z } from 'zod';
+import { ZodError, ZodObject, ZodRawShape, ZodType, z } from 'zod';
 
 export * from './types';
 export * from './encoding';
@@ -10,23 +10,22 @@ export const SNAP_METHODS = {
         call: 'agent_call',
         createReadStateRequest: 'agent_createReadStateRequest',
         readState: 'agent_readState',
-        protected_getUrlPrincipalAt: 'agent_protected_getUrlPrincipalAt',
     },
     identity: {
         protected_add: 'identity_protected_add',
         protected_login: 'identity_protected_login',
+
         requestLogout: 'identity_requestLogout',
         requestLink: 'identity_requestLink',
         requestUnlink: 'identity_requestUnlink',
     },
     state: {
         protected_getOriginData: 'state_protected_getOriginData',
+        protected_getSiteSession: 'state_protected_getSiteSession',
+        protected_setSiteSession: 'state_protected_setSiteSession',
     },
     entropy: {
         get: 'entropy_get',
-    },
-    icrc1: {
-        requestTransfer: 'icrc1_requestTransfer',
     }
 };
 
@@ -57,7 +56,7 @@ export async function delay(ms: number): Promise<void> {
 }
 
 // ZodError do not work properly inside a snap, so we rethrow them here
-export function zodParse<S extends ZodObject<any>>(schema: S, obj: any): z.infer<typeof schema> {
+export function zodParse<S extends ZodType<any, any, any>>(schema: S, obj: any): z.infer<typeof schema> {
     try {
         return schema.parse(obj)
     } catch (e) {

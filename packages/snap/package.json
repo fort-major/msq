@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@dfinity/identity": "^0.19.2",
-    "@dfinity/ledger": "^0.0.15",
+    "@dfinity/ledger": "0.0.15",
     "@metamask/snaps-ui": "^1.0.2",
     "@fort-major/ic-snap-shared": "workspace:*",
     "js-big-decimal": "^2.0.4",

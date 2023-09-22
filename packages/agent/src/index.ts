@@ -1,7 +1,7 @@
 import { Agent, AnonymousIdentity, ApiQueryResponse, CallOptions, HttpAgent, Identity, QueryFields, ReadStateOptions, ReadStateResponse, SubmitResponse } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import detectEthereumProvider from "@metamask/detect-provider";
-import { SNAP_METHODS, toCBOR, fromCBOR, IAgentQueryRequest, IAgentCallRequest, IAgentCreateReadStateRequestRequest, IAgentReadStateRequest, IState, IIdentityLoginRequest, TOrigin, IIdentityLinkRequest, IIdentityUnlinkRequest, IICRC1TransferRequest, IICRC1Account, IEntropyGetRequest, err, ErrorCode, IStateGetOriginDataRequest, IIdentityAddRequest, IOriginData, TIdentityId, IAgentGetUrlPrincipalAtRequest, ZLoginSiteMsg, ILoginRequestMsg, delay, ILoginSiteMsg, zodParse, debugStringify, bytesToHex } from '@fort-major/ic-snap-shared';
+import { SNAP_METHODS, toCBOR, fromCBOR, IAgentQueryRequest, IAgentCallRequest, IAgentCreateReadStateRequestRequest, IAgentReadStateRequest, IState, IIdentityLoginRequest, TOrigin, IIdentityLinkRequest, IIdentityUnlinkRequest, IICRC1TransferRequest, IICRC1Account, IEntropyGetRequest, err, ErrorCode, IStateGetOriginDataRequest, IIdentityAddRequest, IOriginData, TIdentityId, IAgentGetUrlPrincipalAtRequest, ZLoginSiteMsg, ILoginRequestMsg, delay, ILoginSiteMsg, zodParse, debugStringify, bytesToHex, ISiteSession } from '@fort-major/ic-snap-shared';
 import { IMetaMaskEthereumProvider } from "./types";
 
 export class MetaMaskSnapAgent implements Agent {
@@ -114,18 +114,9 @@ export class MetaMaskSnapAgent implements Agent {
         return this.requestSnap(SNAP_METHODS.agent.readState, body);
     }
 
-    async protected_getUrlPrincipalAt(origin: TOrigin, identityId: TIdentityId): Promise<Principal> {
-        const body: IAgentGetUrlPrincipalAtRequest = {
-            atOrigin: origin,
-            identityId
-        };
-
-        return this.requestSnap(SNAP_METHODS.agent.protected_getUrlPrincipalAt, body);
-    }
-
     // ------------ STATE RELATED METHODS -----------------
 
-    async protected_getOriginData(ofOrigin: TOrigin): Promise<IOriginData | undefined> {
+    async _getOriginData(ofOrigin: TOrigin): Promise<IOriginData | undefined> {
         const body: IStateGetOriginDataRequest = {
             origin: ofOrigin
         };
@@ -133,15 +124,23 @@ export class MetaMaskSnapAgent implements Agent {
         return this.requestSnap(SNAP_METHODS.state.protected_getOriginData, body);
     }
 
+    async _getSiteSession(): Promise<ISiteSession | undefined> {
+        return this.requestSnap(SNAP_METHODS.state.protected_getSiteSession);
+    }
+
+    async _setSiteSession(body: ISiteSession): Promise<void> {
+        return this.requestSnap(SNAP_METHODS.state.protected_setSiteSession, body);
+    }
+
     // ------------ IDENTITY RELATED METHODS --------------
 
-    async protected_addIdentity(toOrigin: TOrigin): Promise<void> {
+    async _addIdentity(toOrigin: TOrigin): Promise<void> {
         const body: IIdentityAddRequest = { toOrigin };
 
         return this.requestSnap(SNAP_METHODS.identity.protected_add, body);
     }
 
-    async protected_login(toOrigin: TOrigin, withIdentityId: number, withDeriviationOrigin?: TOrigin): Promise<void> {
+    async _login(toOrigin: TOrigin, withIdentityId: number, withDeriviationOrigin?: TOrigin): Promise<void> {
         const body: IIdentityLoginRequest = {
             toOrigin,
             withIdentityId,
@@ -179,7 +178,6 @@ export class MetaMaskSnapAgent implements Agent {
                 let loginSiteMsg: ILoginSiteMsg;
 
                 try {
-                    // @ts-expect-error
                     loginSiteMsg = zodParse(ZLoginSiteMsg, msg.data);
                 } catch (e) {
                     return rej(e);
@@ -224,16 +222,7 @@ export class MetaMaskSnapAgent implements Agent {
     // ------ ICRC-1 RELATED METHODS ----------
 
     async requestICRC1Transfer(tokenCanisterId: Principal, to: IICRC1Account, amount: bigint, memo?: Uint8Array): Promise<bigint | null> {
-        const body: IICRC1TransferRequest = {
-            canisterId: tokenCanisterId,
-            to,
-            amount,
-            memo,
-            host: this.host,
-            rootKey: this.fetchedRootKey,
-        };
-
-        return this.requestSnap(SNAP_METHODS.icrc1.requestTransfer, body);
+        // TODO: redirect to IC snap site
     }
 
     // ------ ENTROPY RELATED METHODS ---------
