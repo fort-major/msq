@@ -1,9 +1,8 @@
 import { Principal } from "@dfinity/principal";
 import z from 'zod';
 
-export const ZPrincipal = z.custom<Principal>(it => (it as Principal)._isPrincipal, 'Not a principal');
+export const ZPrincipalStr = z.string();
 export const ZICRC1Subaccount = z.instanceof(Uint8Array);
-
 
 // Website origin passed from Metamask 
 export const ZOrigin = z.string().url();
@@ -11,7 +10,7 @@ export type TOrigin = z.infer<typeof ZOrigin>;
 
 
 // Timestamp in millis
-export const ZTimestamp = z.number().int().nonnegative();
+export const ZTimestamp = z.bigint();
 export type TTimestamp = z.infer<typeof ZTimestamp>;
 
 
@@ -41,7 +40,7 @@ const ZSiteSessionOrigin = z.object({
 
 const ZSiteSessionCanisterId = z.object({
     type: z.literal('canisterId'),
-    canisterId: ZPrincipal,
+    canisterId: ZPrincipalStr,
     identityId: ZIdentityId
 });
 
@@ -99,11 +98,15 @@ export const ZStateGetOriginDataRequest = z.object({
 });
 export type IStateGetOriginDataRequest = z.infer<typeof ZStateGetOriginDataRequest>;
 
+export const ZStateSetSiteSessionRequest = z.object({
+    session: z.optional(ZSiteSession)
+});
+export type IStateSetSiteSessionRequest = z.infer<typeof ZStateSetSiteSessionRequest>;
 
 // -------------- AGENT PROTOCOL RELATED TYPES --------------
 
 export const ZAgentQueryRequest = ZAgentOptions.extend({
-    canisterId: z.string().or(ZPrincipal),
+    canisterId: ZPrincipalStr,
     methodName: z.string(),
     arg: ZBlob,
 });
@@ -111,7 +114,7 @@ export type IAgentQueryRequest = z.infer<typeof ZAgentQueryRequest>;
 
 
 export const ZAgentCallRequest = ZAgentQueryRequest.extend({
-    effectiveCanisterId: z.optional(z.string().or(ZPrincipal))
+    effectiveCanisterId: z.optional(ZPrincipalStr)
 });
 export type IAgentCallRequest = z.infer<typeof ZAgentCallRequest>;
 
@@ -123,7 +126,7 @@ export type IAgentCreateReadStateRequestRequest = z.infer<typeof ZAgentCreateRea
 
 
 export const ZAgentReadStateRequest = ZAgentOptions.extend({
-    canisterId: z.string().or(ZPrincipal),
+    canisterId: ZPrincipalStr,
     paths: z.array(z.array(ZBlob)),
     request: z.optional(z.any())
 });
@@ -165,24 +168,6 @@ export const ZIdentityUnlinkRequest = z.object({
 export type IIdentityUnlinkRequest = z.infer<typeof ZIdentityUnlinkRequest>;
 
 
-// ----------- ICRC-1 PROTOCOL RELATED TYPES -----------
-
-export const ZICRC1Account = z.object({
-    owner: ZPrincipal,
-    subaccount: z.optional(ZICRC1Subaccount),
-});
-export type IICRC1Account = z.infer<typeof ZICRC1Account>;
-
-
-// TODO: also add timestamp
-export const ZICRC1TransferRequest = ZAgentOptions.extend({
-    canisterId: ZPrincipal,
-    to: ZICRC1Account,
-    memo: z.optional(z.instanceof(Uint8Array)),
-    amount: z.bigint(),
-});
-export type IICRC1TransferRequest = z.infer<typeof ZICRC1TransferRequest>;
-
 // ----------- ENTROPY PROTOCOL RELATED TYPES -----------
 
 export const ZEntropyGetRequest = z.object({
@@ -192,15 +177,17 @@ export type IEntropyGetRequest = z.infer<typeof ZEntropyGetRequest>;
 
 // ---------- MESSAGE TYPES ------------------------------
 
+const ZMsgDomain = z.literal('internet-computer-metamask-snap');
+
 export const ZLoginSiteReadyMsg = z.object({
-    domain: z.literal('internet-computer-metamask-snap'),
+    domain: ZMsgDomain,
     type: z.literal('login_site_ready')
 });
 export type ILoginSiteReadyMsg = z.infer<typeof ZLoginSiteReadyMsg>;
 
 
 export const ZLoginResultMsg = z.object({
-    domain: z.literal('internet-computer-metamask-snap'),
+    domain: ZMsgDomain,
     type: z.literal('login_result'),
     result: z.boolean(),
 });
@@ -212,7 +199,47 @@ export type ILoginSiteMsg = z.infer<typeof ZLoginSiteMsg>;
 
 
 export const ZLoginRequestMsg = z.object({
-    domain: z.literal('internet-computer-metamask-snap'),
+    domain: ZMsgDomain,
     type: z.literal('login_request')
 });
 export type ILoginRequestMsg = z.infer<typeof ZLoginRequestMsg>;
+
+
+export const ZICRC1Account = z.object({
+    owner: ZPrincipalStr,
+    subaccount: z.optional(ZICRC1Subaccount),
+});
+export type IICRC1Account = z.infer<typeof ZICRC1Account>;
+
+// TODO: also add timestamp
+const ZICRC1TransferRequest = z.object({
+    canisterId: ZPrincipalStr,
+    to: ZICRC1Account,
+    amount: z.bigint(),
+    memo: z.optional(z.instanceof(Uint8Array)),
+    created_at_time: z.optional(ZTimestamp),
+});
+export type IICRC1TransferRequest = z.infer<typeof ZICRC1TransferRequest>;
+
+export const ZWalletSiteICRC1TransferMsg = z.object({
+    domain: ZMsgDomain,
+    type: z.literal('transfer_icrc1_request'),
+    request: ZICRC1TransferRequest,
+});
+export type IWalletSiteICRC1TransferMsg = z.infer<typeof ZWalletSiteICRC1TransferMsg>;
+
+export const ZWalletSiteReadyMsg = z.object({
+    domain: ZMsgDomain,
+    type: z.literal('wallet_site_ready')
+});
+export type IWalletSiteReadyMsg = z.infer<typeof ZWalletSiteReadyMsg>;
+
+export const ZWalletSiteICRC1TransferResultMsg = z.object({
+    domain: ZMsgDomain,
+    type: z.literal('transfer_icrc1_result'),
+    result: z.optional(z.bigint()),
+});
+export type IWalletSiteICRC1TransferResultMsg = z.infer<typeof ZWalletSiteICRC1TransferResultMsg>;
+
+export const ZWalletSiteMsg = z.discriminatedUnion('type', [ZWalletSiteReadyMsg, ZWalletSiteICRC1TransferResultMsg]);
+export type IWalletSiteMsg = z.infer<typeof ZWalletSiteMsg>;

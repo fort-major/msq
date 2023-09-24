@@ -82,14 +82,17 @@ export function LoginPage() {
         const agent = await MetaMaskSnapAgent.create('http://localhost:8000', 'local:http://localhost:8081');
         setAgent(agent);
 
-        let mainOriginData = await agent.protected_getOriginData(referrerOrigin);
+        let mainOriginData = await agent._getOriginData(referrerOrigin);
 
         if (!mainOriginData) {
-            await agent.protected_addIdentity(referrerOrigin);
-            mainOriginData = await agent.protected_getOriginData(referrerOrigin);
+            await agent._addIdentity(referrerOrigin);
+            mainOriginData = await agent._getOriginData(referrerOrigin);
         }
 
-        const promises = Array(mainOriginData!.identitiesTotal).fill(0).map((_, idx) => agent.protected_getUrlPrincipalAt(referrerOrigin, idx));
+        const promises = Array(mainOriginData!.identitiesTotal).fill(0).map(async (_, idx) => {
+            await agent._setSiteSession({ type: 'origin', identityId: idx, origin: referrerOrigin });
+            return agent.getPrincipal();
+        });
         const principals = await Promise.all(promises);
 
         const availOrigins: Record<TOrigin, IAvailableOrigin> = {
@@ -97,6 +100,8 @@ export function LoginPage() {
         };
 
         await fillOriginData(availOrigins, mainOriginData!);
+
+        await agent._setSiteSession(undefined);
 
         setAvailableOrigins(availOrigins);
         setState(LoginPageState.WaitingForUserInput);
@@ -106,9 +111,12 @@ export function LoginPage() {
         const ag = agent()!;
 
         const promises = data.links.map(async link => {
-            const linkedOrigin = await ag.protected_getOriginData(link);
+            const linkedOrigin = await ag._getOriginData(link);
 
-            const promises = Array(linkedOrigin!.identitiesTotal).fill(0).map((_, idx) => ag.protected_getUrlPrincipalAt(link, idx));
+            const promises = Array(linkedOrigin!.identitiesTotal).fill(0).map(async (_, idx) => {
+                await ag._setSiteSession({ type: 'origin', identityId: idx, origin: link });
+                return ag.getPrincipal();
+            });
             const principals = await Promise.all(promises);
 
             availData[link] = { ...linkedOrigin!, principals };
@@ -134,7 +142,7 @@ export function LoginPage() {
             deriviationOrig = referrerOrigin;
         }
 
-        await ag.protected_login(referrerOrigin, id, deriviationOrig);
+        await ag._login(referrerOrigin, id, deriviationOrig);
 
         const msg: ILoginResultMsg = {
             domain: 'internet-computer-metamask-snap',

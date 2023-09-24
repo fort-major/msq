@@ -3,7 +3,6 @@ import { Ed25519KeyIdentity } from "@dfinity/identity";
 import nacl from "tweetnacl";
 import { ErrorCode, IOriginData, IState, SNAP_METHODS, TBlob, TIdentityId, TOrigin, ZState, debugStringify, err, fromCBOR, hexToBytes, toCBOR, unreacheable, zodParse } from "@fort-major/ic-snap-shared";
 import { AnonymousIdentity, HttpAgent } from "@dfinity/agent";
-import { Principal } from "@dfinity/principal";
 
 // this is executed during the 'verify' build step process
 // when the snap is evaluated in SES
@@ -17,9 +16,9 @@ if (!process.env.TURBO_SNAP_SITE_ORIGIN) {
 const PROTECTED_METHODS = [
     SNAP_METHODS.identity.protected_add,
     SNAP_METHODS.identity.protected_login,
-    SNAP_METHODS.identity.protected_setSiteSession,
     SNAP_METHODS.state.protected_getOriginData,
     SNAP_METHODS.state.protected_getSiteSession,
+    SNAP_METHODS.state.protected_setSiteSession,
 ];
 
 export function guardMethods(method: string, origin: TOrigin) {
@@ -30,7 +29,7 @@ export function guardMethods(method: string, origin: TOrigin) {
 
     // validate origin to be Internet Computer Snap website
     if (origin !== JSON.parse(process.env.TURBO_SNAP_SITE_ORIGIN as string)) {
-        return err(ErrorCode.PROTECTED_METHOD, `Method ${method} can only be executed from the Internet Computer Snap website (${origin} != ${process.env.TURBO_SNAP_SITE_ORIGIN})`);
+        return err(ErrorCode.PROTECTED_METHOD, `Method ${method} can only be executed from the Internet Computer Snap website ("${origin}" != ${process.env.TURBO_SNAP_SITE_ORIGIN})`);
     }
 
     // pass if all good
@@ -53,12 +52,12 @@ async function getOriginIdentity(origin: TOrigin, identityId: TIdentityId): Prom
     return identityFromEntropy(hexToBytes(entropy.slice(2)));
 }
 
-async function getCanisterIdIdentity(canisterId: Principal, identityId: TIdentityId): Promise<IcIdentity> {
+async function getCanisterIdIdentity(canisterId: string, identityId: TIdentityId): Promise<IcIdentity> {
     const entropy = await snap.request({
         method: "snap_getEntropy",
         params: {
             version: 1,
-            salt: makeEntropySalt('identityCanisterId', `${canisterId.toText()}\n${identityId}`)
+            salt: makeEntropySalt('identityCanisterId', `${canisterId}\n${identityId}`)
         }
     });
 
@@ -134,7 +133,7 @@ async function makeSiteAgent(host?: TOrigin, rootKey?: TBlob): Promise<HttpAgent
 }
 
 export async function makeAgent(origin: TOrigin, host?: TOrigin, rootKey?: TBlob): Promise<HttpAgentExt> {
-    if (origin === process.env.TURBO_SNAP_SITE_ORIGIN) {
+    if (origin === JSON.parse(process.env.TURBO_SNAP_SITE_ORIGIN as string)) {
         return makeSiteAgent(host, rootKey);
     } else {
         return makeRegularAgent(origin, host, rootKey);

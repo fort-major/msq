@@ -5,6 +5,7 @@ import { render } from 'solid-js/web';
 import { Router, Route, Routes } from '@solidjs/router';
 import { IndexPage } from './pages/index/index';
 import { LoginPage } from './pages/login';
+import { WalletPage } from './pages/wallet';
 
 const root = document.getElementById('root');
 
@@ -19,6 +20,7 @@ render(() => (
         <Routes>
             <Route path='/' component={IndexPage} />
             <Route path='/login' component={LoginPage} />
+            <Route path='/wallet' component={WalletPage} />
         </Routes>
     </Router>
 ), root!);

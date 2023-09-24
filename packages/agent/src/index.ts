@@ -1,7 +1,7 @@
 import { Agent, AnonymousIdentity, ApiQueryResponse, CallOptions, HttpAgent, Identity, QueryFields, ReadStateOptions, ReadStateResponse, SubmitResponse } from "@dfinity/agent";
-import { Principal } from "@dfinity/principal";
+import { Principal } from "@fort-major/ic-snap-shared";
 import detectEthereumProvider from "@metamask/detect-provider";
-import { SNAP_METHODS, toCBOR, fromCBOR, IAgentQueryRequest, IAgentCallRequest, IAgentCreateReadStateRequestRequest, IAgentReadStateRequest, IState, IIdentityLoginRequest, TOrigin, IIdentityLinkRequest, IIdentityUnlinkRequest, IICRC1TransferRequest, IICRC1Account, IEntropyGetRequest, err, ErrorCode, IStateGetOriginDataRequest, IIdentityAddRequest, IOriginData, TIdentityId, IAgentGetUrlPrincipalAtRequest, ZLoginSiteMsg, ILoginRequestMsg, delay, ILoginSiteMsg, zodParse, debugStringify, bytesToHex, ISiteSession } from '@fort-major/ic-snap-shared';
+import { SNAP_METHODS, toCBOR, fromCBOR, IAgentQueryRequest, IAgentCallRequest, IAgentCreateReadStateRequestRequest, IAgentReadStateRequest, IState, IIdentityLoginRequest, TOrigin, IIdentityLinkRequest, IIdentityUnlinkRequest, IEntropyGetRequest, err, ErrorCode, IStateGetOriginDataRequest, IIdentityAddRequest, IOriginData, ZLoginSiteMsg, ILoginRequestMsg, delay, ILoginSiteMsg, zodParse, debugStringify, bytesToHex, ISiteSession, IStateSetSiteSessionRequest, IWalletSiteICRC1TransferMsg, IWalletSiteMsg, ZWalletSiteMsg, IICRC1Account } from '@fort-major/ic-snap-shared';
 import { IMetaMaskEthereumProvider } from "./types";
 
 export class MetaMaskSnapAgent implements Agent {
@@ -65,12 +65,16 @@ export class MetaMaskSnapAgent implements Agent {
     }
 
     async getPrincipal(): Promise<Principal> {
-        return this.requestSnap(SNAP_METHODS.agent.getPrincipal);
+        const textPrincipal: string = await this.requestSnap(SNAP_METHODS.agent.getPrincipal);
+
+        return Principal.fromText(textPrincipal);
     }
 
     async query(canisterId: string | Principal, options: QueryFields): Promise<ApiQueryResponse> {
+        const canId = (canisterId as Principal)._isPrincipal ? (canisterId as Principal).toText() : canisterId as string;
+
         const body: IAgentQueryRequest = {
-            canisterId,
+            canisterId: canId,
             methodName: options.methodName,
             arg: options.arg,
             host: this.host,
@@ -81,8 +85,10 @@ export class MetaMaskSnapAgent implements Agent {
     }
 
     async call(canisterId: string | Principal, fields: CallOptions): Promise<SubmitResponse> {
+        const canId = (canisterId as Principal)._isPrincipal ? (canisterId as Principal).toText() : canisterId as string;
+
         const body: IAgentCallRequest = {
-            canisterId,
+            canisterId: canId,
             methodName: fields.methodName,
             arg: fields.arg,
             host: this.host,
@@ -102,9 +108,11 @@ export class MetaMaskSnapAgent implements Agent {
         return this.requestSnap(SNAP_METHODS.agent.createReadStateRequest, body);
     }
 
-    async readState(effectiveCanisterId: string | Principal, options: ReadStateOptions, _IGNORED?: Identity | undefined, request?: any): Promise<ReadStateResponse> {
+    async readState(canisterId: string | Principal, options: ReadStateOptions, _IGNORED?: Identity | undefined, request?: any): Promise<ReadStateResponse> {
+        const canId = (canisterId as Principal)._isPrincipal ? (canisterId as Principal).toText() : canisterId as string;
+
         const body: IAgentReadStateRequest = {
-            canisterId: effectiveCanisterId,
+            canisterId: canId,
             paths: options.paths,
             host: this.host,
             rootKey: this.fetchedRootKey,
@@ -128,7 +136,11 @@ export class MetaMaskSnapAgent implements Agent {
         return this.requestSnap(SNAP_METHODS.state.protected_getSiteSession);
     }
 
-    async _setSiteSession(body: ISiteSession): Promise<void> {
+    async _setSiteSession(session: ISiteSession | undefined): Promise<void> {
+        const body: IStateSetSiteSessionRequest = {
+            session
+        };
+
         return this.requestSnap(SNAP_METHODS.state.protected_setSiteSession, body);
     }
 
@@ -221,8 +233,69 @@ export class MetaMaskSnapAgent implements Agent {
 
     // ------ ICRC-1 RELATED METHODS ----------
 
-    async requestICRC1Transfer(tokenCanisterId: Principal, to: IICRC1Account, amount: bigint, memo?: Uint8Array): Promise<bigint | null> {
-        // TODO: redirect to IC snap site
+    async requestICRC1Transfer(
+        tokenCanisterId: Principal,
+        to: { owner: Principal, subaccount?: Uint8Array | undefined },
+        amount: bigint,
+        memo?: Uint8Array | undefined,
+        created_at_time?: bigint | undefined
+    ): Promise<bigint | null> {
+        return new Promise<bigint | null>(async (res, rej) => {
+            // @ts-expect-error
+            const origin: TOrigin = process.env.TURBO_SNAP_SITE_ORIGIN;
+            const url = new URL("/wallet", origin);
+
+            const childWindow = window.open(url, '_blank');
+
+            if (!childWindow) {
+                err(ErrorCode.UNKOWN, 'Unable to open a new browser window');
+            }
+
+            let receivedReady = false;
+
+            const transferRequestMsg: IWalletSiteICRC1TransferMsg = {
+                domain: 'internet-computer-metamask-snap',
+                type: 'transfer_icrc1_request',
+                request: {
+                    canisterId: tokenCanisterId.toText(),
+                    to: { owner: to.owner.toText(), subaccount: to.subaccount },
+                    amount,
+                    memo,
+                    created_at_time
+                }
+            };
+
+            window.addEventListener('message', msg => {
+                if (msg.origin !== origin) {
+                    return;
+                }
+
+                let walletSiteMsg: IWalletSiteMsg;
+
+                try {
+                    walletSiteMsg = zodParse(ZWalletSiteMsg, msg.data);
+                } catch (e) {
+                    return rej(e);
+                }
+
+                if (walletSiteMsg.type === 'wallet_site_ready') {
+                    receivedReady = true;
+                    return;
+                }
+
+                if (walletSiteMsg.type === 'transfer_icrc1_result') {
+                    return res(walletSiteMsg.result || null);
+                }
+            });
+
+            while (!receivedReady) {
+                await delay(500);
+
+                try {
+                    childWindow.postMessage(transferRequestMsg, origin);
+                } catch (e) { }
+            }
+        });
     }
 
     // ------ ENTROPY RELATED METHODS ---------

@@ -1,4 +1,4 @@
-import { IOriginData, ISiteSession, ZSiteSession, ZStateGetOriginDataRequest, fromCBOR, zodParse } from "@fort-major/ic-snap-shared";
+import { IOriginData, ISiteSession, ZSiteSession, ZStateGetOriginDataRequest, ZStateSetSiteSessionRequest, fromCBOR, zodParse } from "@fort-major/ic-snap-shared";
 import { persistStateLocal, retrieveStateLocal } from "../utils";
 
 export async function protected_handleStateGetOriginData(bodyCBOR: string): Promise<IOriginData | undefined> {
@@ -16,10 +16,10 @@ export async function protected_handleStateGetSiteSession(): Promise<ISiteSessio
 }
 
 export async function protected_handleStateSetSiteSession(bodyCBOR: string): Promise<true> {
-    const body = zodParse(ZSiteSession, fromCBOR(bodyCBOR));
+    const body = zodParse(ZStateSetSiteSessionRequest, fromCBOR(bodyCBOR));
     const state = await retrieveStateLocal();
 
-    state.siteSession = body;
+    state.siteSession = body.session;
 
     await persistStateLocal(state);
 

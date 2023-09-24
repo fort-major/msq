@@ -86,7 +86,7 @@ export const IndexPage = () => {
     const onTransfer = async () => {
         const blockId = await agent()?.requestICRC1Transfer(
             Principal.fromText('ryjl3-tyaaa-aaaaa-aaaba-cai'),
-            { owner: Principal.fromText('aaaaa-aa') },
+            { owner: Principal.fromText('ryjl3-tyaaa-aaaaa-aaaba-cai') },
             10000000n,
             new Uint8Array([1, 3, 3, 7])
         );

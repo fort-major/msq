@@ -1,6 +1,9 @@
 import { Principal } from "@dfinity/principal";
 import { Expiry } from "@dfinity/agent";
-import { Decoder, Encoder, addExtension } from 'cbor-x';
+import { Encoder, addExtension } from 'cbor-x';
+import { ErrorCode, err } from ".";
+
+export { Principal } from "@dfinity/principal"
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();

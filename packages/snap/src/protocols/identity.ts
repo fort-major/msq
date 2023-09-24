@@ -31,7 +31,7 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
     originData.currentSession = {
         deriviationOrigin: body.withDeriviationOrigin || body.toOrigin,
         identityId: body.withIdentityId,
-        timestampMs: timestamp
+        timestampMs: BigInt(timestamp)
     }
 
     state.originData[body.toOrigin] = originData;
