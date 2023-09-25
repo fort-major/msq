@@ -58,7 +58,7 @@ export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<bool
             content: panel([
                 heading('Log out request'),
                 text(`**${origin}** wants you to **log out**`),
-                text(`You **will** become **anonymous**, but **${origin}** may still **track** your actions!`),
+                text(`You **will** become **anonymous**, but **${origin}** may still **track** your actions and call canisters on your behalf!`),
                 divider(),
                 text('Proceed?')
             ])

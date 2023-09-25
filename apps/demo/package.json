@@ -25,7 +25,7 @@
     "solid-styled-components": "0.28.5",
     "nanostores": "0.9.3",
     "@nanostores/solid": "0.4.2",
-    "@fort-major/ic-snap-agent": "workspace:*",
+    "@fort-major/ic-snap-client": "workspace:*",
     "@fort-major/ic-snap-shared": "workspace:*",
     "@dfinity/ledger": "0.0.15"
   }

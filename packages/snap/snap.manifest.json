@@ -7,7 +7,7 @@
     "url": "https://github.com/fort-major/internet-computer-snap.git"
   },
   "source": {
-    "shasum": "2aT1of8aMGy1NFn3FIKw+L1LwEELmeYMNXR2CW5eu/M=",
+    "shasum": "scsb0geAg1eUXOY+q7N3f95XoovkWAnZmOMsBiQwKag=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -22,7 +22,6 @@
       "dapps": true,
       "snaps": false
     },
-    "endowment:network-access": {},
     "snap_dialog": {},
     "snap_manageState": {},
     "snap_getEntropy": {}

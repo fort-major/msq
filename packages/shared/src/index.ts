@@ -1,16 +1,9 @@
-import { ZodError, ZodObject, ZodRawShape, ZodType, z } from 'zod';
+import { ZodType, z } from 'zod';
 
 export * from './types';
 export * from './encoding';
 
 export const SNAP_METHODS = {
-    agent: {
-        getPrincipal: 'agent_getPrincipal',
-        query: 'agent_query',
-        call: 'agent_call',
-        createReadStateRequest: 'agent_createReadStateRequest',
-        readState: 'agent_readState',
-    },
     identity: {
         protected_add: 'identity_protected_add',
         protected_login: 'identity_protected_login',
@@ -21,8 +14,6 @@ export const SNAP_METHODS = {
     },
     state: {
         protected_getOriginData: 'state_protected_getOriginData',
-        protected_getSiteSession: 'state_protected_getSiteSession',
-        protected_setSiteSession: 'state_protected_setSiteSession',
     },
     entropy: {
         get: 'entropy_get',

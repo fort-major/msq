@@ -1,6 +1,6 @@
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
 import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR, zodParse } from '@fort-major/ic-snap-shared';
-import { protected_handleIdentityLogin, handleIdentityLinkRequest, handleIdentityUnlinkRequest, handleAgentQuery, handleAgentCall, handleAgentCreateReadStateRequest, handleAgentReadState, handleAgentGetPrincipal, protected_handleIdentityAdd, protected_handleStateGetOriginData, handleEntropyGet, protected_handleStateGetSiteSession, handleIdentityLogoutRequest, protected_handleStateSetSiteSession } from './protocols';
+import { protected_handleIdentityLogin, handleIdentityLinkRequest, handleIdentityUnlinkRequest, protected_handleIdentityAdd, protected_handleStateGetOriginData, handleEntropyGet, handleIdentityLogoutRequest } from './protocols';
 import { guardMethods as guardProtectedMethods } from './utils';
 
 
@@ -14,45 +14,9 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
     let result: Promise<any>;
 
     switch (request.method) {
-        // ------ AGENT RELATED METHODS --------
-        case SNAP_METHODS.agent.query: {
-            result = handleAgentQuery(req.params.body, origin);
-            break;
-        }
-
-        case SNAP_METHODS.agent.call: {
-            result = handleAgentCall(req.params.body, origin);
-            break;
-        }
-
-        case SNAP_METHODS.agent.createReadStateRequest: {
-            result = handleAgentCreateReadStateRequest(req.params.body, origin);
-            break;
-        }
-
-        case SNAP_METHODS.agent.readState: {
-            result = handleAgentReadState(req.params.body, origin);
-            break;
-        }
-
-        case SNAP_METHODS.agent.getPrincipal: {
-            result = handleAgentGetPrincipal(origin);
-            break;
-        }
-
         // ------ STATE RELATED METHODS -----------
         case SNAP_METHODS.state.protected_getOriginData: {
             result = protected_handleStateGetOriginData(req.params.body);
-            break;
-        }
-
-        case SNAP_METHODS.state.protected_getSiteSession: {
-            result = protected_handleStateGetSiteSession();
-            break;
-        }
-
-        case SNAP_METHODS.state.protected_setSiteSession: {
-            result = protected_handleStateSetSiteSession(req.params.body);
             break;
         }
 

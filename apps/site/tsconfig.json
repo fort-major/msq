@@ -21,7 +21,7 @@
   ],
   "references": [
     {
-      "path": "../../packages/agent"
+      "path": "../../packages/client"
     },
     {
       "path": "../../packages/shared"

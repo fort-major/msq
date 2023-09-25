@@ -1,12 +1,14 @@
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries, IcrcValue } from "@dfinity/ledger";
 import { Account } from "@dfinity/ledger/dist/candid/icrc1_ledger";
 import { Principal } from "@dfinity/principal";
-import { MetaMaskSnapAgent } from "@fort-major/ic-snap-agent";
-import { ErrorCode, IICRC1TransferRequest, IWalletSiteICRC1TransferMsg, IWalletSiteICRC1TransferResultMsg, IWalletSiteReadyMsg, ZWalletSiteICRC1TransferMsg, bytesToHex, debugStringify, err, unreacheable } from "@fort-major/ic-snap-shared";
+import { InternalSnapClient } from "@fort-major/ic-snap-client/dist/esm/internal";
+import { ErrorCode, IICRC1TransferRequest, IWalletSiteICRC1TransferResultMsg, IWalletSiteReadyMsg, ZWalletSiteICRC1TransferMsg, bytesToHex, err, unreacheable } from "@fort-major/ic-snap-shared";
 import { createEventSignal } from "@solid-primitives/event-listener";
 import { useNavigate } from "@solidjs/router";
 import bigDecimal from "js-big-decimal";
 import { createEffect, createSignal } from "solid-js";
+import { createIdentityForCanisterId } from "../../utils";
+import { HttpAgent } from "@dfinity/agent";
 
 enum WalletPageState {
     WaitingForTransferRequest,
@@ -19,7 +21,6 @@ const referrerOrigin = (new URL(document.referrer)).origin;
 export function WalletPage() {
     const [state, setState] = createSignal<WalletPageState>(WalletPageState.WaitingForTransferRequest);
     const [userPrincipal, setUserPrincipal] = createSignal<Principal | null>(null);
-    const [agent, setAgent] = createSignal<MetaMaskSnapAgent | null>(null);
     const [actor, setActor] = createSignal<IcrcLedgerCanister | null>(null);
     const [referrerWindow, setReferrerWindow] = createSignal<MessageEventSource | null>(null);
     const [transferRequest, setTransferRequest] = createSignal<IICRC1TransferRequest | null>(null);
@@ -50,7 +51,6 @@ export function WalletPage() {
 
         // we only expect one single kind of message here
         const transferRequestMsg = ZWalletSiteICRC1TransferMsg.parse(msg.data);
-
         setTransferRequest(transferRequestMsg.request);
 
         // if transfer request received, send back ready
@@ -68,8 +68,6 @@ export function WalletPage() {
         setReferrerWindow(msg.source);
 
         window.onbeforeunload = () => {
-            agent()?._setSiteSession(undefined);
-
             const failMsg: IWalletSiteICRC1TransferResultMsg = {
                 domain: 'internet-computer-metamask-snap',
                 type: 'transfer_icrc1_result',
@@ -91,11 +89,11 @@ export function WalletPage() {
 
         const req = transferRequest()!;
 
-        const agent = await MetaMaskSnapAgent.create('http://localhost:8080', 'local:http://localhost:8081');
-        await agent.fetchRootKey();
-        await agent._setSiteSession({ type: 'canisterId', canisterId: req.canisterId, identityId: 0 });
-        setAgent(agent);
+        const client = await InternalSnapClient.create({ snapId: 'local:http://localhost:8081' });
+        const identity = await createIdentityForCanisterId(client, req.canisterId, 0);
+        const agent = new HttpAgent({ host: 'http://localhost:8080', identity });
 
+        await agent.fetchRootKey();
         setUserPrincipal(await agent.getPrincipal());
 
         const actor = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(req.canisterId) });
@@ -143,8 +141,6 @@ export function WalletPage() {
             created_at_time: req.created_at_time
         });
 
-        agent()?._setSiteSession(undefined);
-
         const successMsg: IWalletSiteICRC1TransferResultMsg = {
             domain: 'internet-computer-metamask-snap',
             type: 'transfer_icrc1_result',
@@ -157,8 +153,6 @@ export function WalletPage() {
     };
 
     const onCancel = async () => {
-        agent()?._setSiteSession(undefined);
-
         const failMsg: IWalletSiteICRC1TransferResultMsg = {
             domain: 'internet-computer-metamask-snap',
             type: 'transfer_icrc1_result',
@@ -240,8 +234,6 @@ export function WalletPage() {
         ) : undefined;
 
         console.log(userPrincipal()?.toText());
-
-        agent()?._getSiteSession().then(console.log);
 
         return (
             <>

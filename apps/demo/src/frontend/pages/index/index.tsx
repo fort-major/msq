@@ -1,38 +1,19 @@
 import { ActorSubclass, HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
-import { MetaMaskSnapAgent } from "@fort-major/ic-snap-agent";
+import { SnapClient } from "@fort-major/ic-snap-client";
 import { createSignal, onMount } from "solid-js";
 import { Backend, createBackendActor } from "../../backend";
-import { bytesToHex, debugStringify } from "@fort-major/ic-snap-shared";
-import { IcrcLedgerCanister } from "@dfinity/ledger";
+import { ErrorCode, err } from "@fort-major/ic-snap-shared";
 
 export const IndexPage = () => {
-    const [agent, setAgent] = createSignal<MetaMaskSnapAgent | null>(null);
+    const [snapClient, setSnapClient] = createSignal<SnapClient | null>();
     const [actor, setActor] = createSignal<ActorSubclass<Backend> | null>(null);
     const [principal, setPrincipal] = createSignal<Principal>(Principal.anonymous());
 
     onMount(async () => {
-        const agent = await MetaMaskSnapAgent.create("http://localhost:8080", "local:http://localhost:8081");
+        const client = await SnapClient.create({ snapId: 'local:http://localhost:8081' });
 
-        console.log(agent);
-
-        setAgent(agent);
-        setActor(createBackendActor(agent));
-
-        await agent.fetchRootKey().catch((err) => {
-            console.warn(
-                "Unable to fetch root key. Check to ensure that your local replica is running"
-            );
-            console.error(err);
-        });
-
-        console.log('fetched rootKey', bytesToHex(new Uint8Array(agent.rootKey!)));
-
-        const principal = await agent.getPrincipal();
-
-        console.log(principal.toText());
-
-        setPrincipal(principal);
+        setSnapClient(client);
     });
 
     const authBtn = () => {
@@ -43,16 +24,36 @@ export const IndexPage = () => {
     }
 
     const onLogin = async () => {
-        if (await agent()!.requestLogin()) {
-            setPrincipal(await agent()!.getPrincipal());
-        } else {
-            console.log('user denied login');
+        const client = snapClient()!;
+        const identity = await client.requestLogin();
+
+        if (!identity) {
+            err(ErrorCode.UNKOWN, 'user denied login');
         }
+
+        const agent = new HttpAgent({ host: 'http://localhost:8080', identity });
+
+        console.log(agent);
+
+        setActor(createBackendActor(agent));
+
+        await agent.fetchRootKey().catch((err) => {
+            console.warn(
+                "Unable to fetch root key. Check to ensure that your local replica is running"
+            );
+            console.error(err);
+        });
+
+        const principal = await agent.getPrincipal();
+
+        console.log(principal.toText());
+
+        setPrincipal(principal);
     };
 
     const onLogout = async () => {
-        if (await agent()!.requestLogout()) {
-            setPrincipal(await agent()!.getPrincipal());
+        if (await snapClient()!.requestLogout()) {
+            setPrincipal(Principal.anonymous());
         } else {
             console.log('user denied logout');
         }
@@ -84,7 +85,7 @@ export const IndexPage = () => {
     }
 
     const onTransfer = async () => {
-        const blockId = await agent()?.requestICRC1Transfer(
+        const blockId = await snapClient()?.requestICRC1Transfer(
             Principal.fromText('ryjl3-tyaaa-aaaaa-aaaba-cai'),
             { owner: Principal.fromText('ryjl3-tyaaa-aaaaa-aaaba-cai') },
             10000000n,
@@ -96,9 +97,9 @@ export const IndexPage = () => {
 
     return (
         <main>
-            {agent() && authBtn()}
-            {agent() && canisterCallBtns()}
-            {agent() && icpTransferButton()}
+            {snapClient() && authBtn()}
+            {snapClient() && canisterCallBtns()}
+            {snapClient() && icpTransferButton()}
         </main>
     );
 }

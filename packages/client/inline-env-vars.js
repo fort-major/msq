@@ -14,4 +14,4 @@ for (let v of Object.keys(env)) {
 fs.writeFileSync('dist/cjs/index.js', fileCjs);
 fs.writeFileSync('dist/esm/index.js', fileEsm);
 
-console.log('Env variables inlined into agent');
+console.log('Env variables inlined into client');

@@ -1,8 +1,5 @@
 import { heading, panel, text } from "@metamask/snaps-ui";
-import { Ed25519KeyIdentity } from "@dfinity/identity";
-import nacl from "tweetnacl";
-import { ErrorCode, IOriginData, IState, SNAP_METHODS, TBlob, TIdentityId, TOrigin, ZState, debugStringify, err, fromCBOR, hexToBytes, toCBOR, unreacheable, zodParse } from "@fort-major/ic-snap-shared";
-import { AnonymousIdentity, HttpAgent } from "@dfinity/agent";
+import { ErrorCode, IOriginData, IState, SNAP_METHODS, TOrigin, ZState, err, fromCBOR, toCBOR, zodParse } from "@fort-major/ic-snap-shared";
 
 // this is executed during the 'verify' build step process
 // when the snap is evaluated in SES
@@ -17,8 +14,6 @@ const PROTECTED_METHODS = [
     SNAP_METHODS.identity.protected_add,
     SNAP_METHODS.identity.protected_login,
     SNAP_METHODS.state.protected_getOriginData,
-    SNAP_METHODS.state.protected_getSiteSession,
-    SNAP_METHODS.state.protected_setSiteSession,
 ];
 
 export function guardMethods(method: string, origin: TOrigin) {
@@ -36,109 +31,7 @@ export function guardMethods(method: string, origin: TOrigin) {
     return;
 }
 
-export function makeEntropySalt(type: 'identityOrigin' | 'identityCanisterId' | 'custom', body: string) {
-    return `\x0a${type}\n${body}`;
-}
-
-async function getOriginIdentity(origin: TOrigin, identityId: TIdentityId): Promise<IcIdentity> {
-    const entropy = await snap.request({
-        method: "snap_getEntropy",
-        params: {
-            version: 1,
-            salt: makeEntropySalt('identityOrigin', `${origin}\n${identityId}`)
-        }
-    });
-
-    return identityFromEntropy(hexToBytes(entropy.slice(2)));
-}
-
-async function getCanisterIdIdentity(canisterId: string, identityId: TIdentityId): Promise<IcIdentity> {
-    const entropy = await snap.request({
-        method: "snap_getEntropy",
-        params: {
-            version: 1,
-            salt: makeEntropySalt('identityCanisterId', `${canisterId}\n${identityId}`)
-        }
-    });
-
-    return identityFromEntropy(hexToBytes(entropy.slice(2)));
-}
-
-export type HttpAgentExt = HttpAgent & { identityId?: TIdentityId };
 export const ANONYMOUS_IDENTITY_ID = Number.MAX_SAFE_INTEGER;
-
-async function makeRegularAgent(origin: TOrigin, host?: TOrigin, rootKey?: TBlob): Promise<HttpAgentExt> {
-    const state = await retrieveStateLocal();
-
-    const originData = state.originData[origin];
-    const session = originData?.currentSession;
-
-    let identity, identityId;
-    if (!originData || !session) {
-        identity = new AnonymousIdentity();
-        identityId = ANONYMOUS_IDENTITY_ID;
-    } else {
-        identity = await getOriginIdentity(session.deriviationOrigin, session.identityId);
-        identityId = session.identityId;
-    }
-
-    const agent: HttpAgentExt = new HttpAgent({
-        fetch,
-        identity,
-        host
-    });
-
-    agent.identityId = identityId;
-
-    if (rootKey) {
-        agent.rootKey = rootKey;
-        // @ts-expect-error
-        agent._rootKeyFetched = true;
-    }
-
-    return agent;
-}
-
-async function makeSiteAgent(host?: TOrigin, rootKey?: TBlob): Promise<HttpAgentExt> {
-    const state = await retrieveStateLocal();
-    const siteSession = state.siteSession;
-
-    let identity, identityId;
-    if (!siteSession) {
-        identity = new AnonymousIdentity();
-        identityId = ANONYMOUS_IDENTITY_ID;
-    } else if (siteSession.type === 'origin') {
-        identity = await getOriginIdentity(siteSession.origin, siteSession.identityId);
-        identityId = siteSession.identityId;
-    } else {
-        identity = await getCanisterIdIdentity(siteSession.canisterId, siteSession.identityId);
-        identityId = siteSession.identityId;
-    }
-
-    const agent: HttpAgentExt = new HttpAgent({
-        fetch,
-        identity,
-        host
-    });
-
-    agent.identityId = identityId;
-
-    if (rootKey) {
-        agent.rootKey = rootKey;
-        // @ts-expect-error
-        agent._rootKeyFetched = true;
-    }
-
-    return agent;
-}
-
-export async function makeAgent(origin: TOrigin, host?: TOrigin, rootKey?: TBlob): Promise<HttpAgentExt> {
-    if (origin === JSON.parse(process.env.TURBO_SNAP_SITE_ORIGIN as string)) {
-        return makeSiteAgent(host, rootKey);
-    } else {
-        return makeRegularAgent(origin, host, rootKey);
-    }
-}
 
 export async function retrieveStateLocal(): Promise<IState> {
     let state = await snap.request({
@@ -189,11 +82,3 @@ export const DEFAULT_ORIGIN_DATA: IOriginData = {
     currentSession: undefined,
     links: []
 };
-
-type IcIdentity = Ed25519KeyIdentity;
-
-function identityFromEntropy(entropy: Uint8Array): IcIdentity {
-    const keyPair = nacl.sign.keyPair.fromSeed(entropy)
-
-    return Ed25519KeyIdentity.fromKeyPair(keyPair.publicKey.buffer, keyPair.secretKey.buffer);
-}

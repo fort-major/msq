@@ -32,21 +32,6 @@ export const ZSession = z.object({
 export type ISession = z.infer<typeof ZSession>;
 
 
-const ZSiteSessionOrigin = z.object({
-    type: z.literal('origin'),
-    origin: ZOrigin,
-    identityId: ZIdentityId,
-});
-
-const ZSiteSessionCanisterId = z.object({
-    type: z.literal('canisterId'),
-    canisterId: ZPrincipalStr,
-    identityId: ZIdentityId
-});
-
-export const ZSiteSession = z.discriminatedUnion('type', [ZSiteSessionOrigin, ZSiteSessionCanisterId]);
-export type ISiteSession = z.infer<typeof ZSiteSession>;
-
 export const ZOriginData = z.object({
     // how many identities does a user have on this website
     identitiesTotal: ZIdentityId,
@@ -65,8 +50,6 @@ export type IOriginData = z.infer<typeof ZOriginData>;
 // Snap state that is stored in encrypted form on user's device
 // TODO: [when vetKeys are ready] - persist it on-chain
 export const ZState = z.object({
-    // session that is currently used on Internet Computer Snap website
-    siteSession: z.optional(ZSiteSession),
     // other origins data
     originData: z.record(ZOrigin, z.optional(ZOriginData)),
 });
@@ -82,63 +65,12 @@ export const ZSnapRPCRequest = z.object({
 export type ISnapRpcRequest = z.infer<typeof ZSnapRPCRequest>;
 
 
-// Options which are passed from out-agent to in-agent
-export const ZAgentOptions = z.object({
-    // a host to make canister calls against
-    host: z.optional(ZOrigin),
-    rootKey: z.optional(ZBlob),
-});
-export type IAgentOptions = z.infer<typeof ZAgentOptions>;
-
-
 // -------------- STATE PROTOCOL RELATED TYPES --------------
 
 export const ZStateGetOriginDataRequest = z.object({
     origin: ZOrigin
 });
 export type IStateGetOriginDataRequest = z.infer<typeof ZStateGetOriginDataRequest>;
-
-export const ZStateSetSiteSessionRequest = z.object({
-    session: z.optional(ZSiteSession)
-});
-export type IStateSetSiteSessionRequest = z.infer<typeof ZStateSetSiteSessionRequest>;
-
-// -------------- AGENT PROTOCOL RELATED TYPES --------------
-
-export const ZAgentQueryRequest = ZAgentOptions.extend({
-    canisterId: ZPrincipalStr,
-    methodName: z.string(),
-    arg: ZBlob,
-});
-export type IAgentQueryRequest = z.infer<typeof ZAgentQueryRequest>;
-
-
-export const ZAgentCallRequest = ZAgentQueryRequest.extend({
-    effectiveCanisterId: z.optional(ZPrincipalStr)
-});
-export type IAgentCallRequest = z.infer<typeof ZAgentCallRequest>;
-
-
-export const ZAgentCreateReadStateRequestRequest = ZAgentOptions.extend({
-    paths: z.array(z.array(ZBlob))
-});
-export type IAgentCreateReadStateRequestRequest = z.infer<typeof ZAgentCreateReadStateRequestRequest>;
-
-
-export const ZAgentReadStateRequest = ZAgentOptions.extend({
-    canisterId: ZPrincipalStr,
-    paths: z.array(z.array(ZBlob)),
-    request: z.optional(z.any())
-});
-export type IAgentReadStateRequest = z.infer<typeof ZAgentReadStateRequest>;
-
-
-export const ZAgentGetUrlPrincipalAtRequest = z.object({
-    atOrigin: ZOrigin,
-    identityId: ZIdentityId,
-});
-export type IAgentGetUrlPrincipalAtRequest = z.infer<typeof ZAgentGetUrlPrincipalAtRequest>;
-
 
 // ----------- IDENTITY PROTOCOL RELATED TYPES ---------
 
@@ -189,7 +121,7 @@ export type ILoginSiteReadyMsg = z.infer<typeof ZLoginSiteReadyMsg>;
 export const ZLoginResultMsg = z.object({
     domain: ZMsgDomain,
     type: z.literal('login_result'),
-    result: z.boolean(),
+    result: z.optional(z.string()),
 });
 export type ILoginResultMsg = z.infer<typeof ZLoginResultMsg>;
 

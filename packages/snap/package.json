@@ -39,9 +39,7 @@
     "envify": "4.1.0"
   },
   "dependencies": {
-    "@dfinity/identity": "^0.19.2",
     "@metamask/snaps-ui": "^1.0.2",
-    "@fort-major/ic-snap-shared": "workspace:*",
-    "tweetnacl": "^1.0.3"
+    "@fort-major/ic-snap-shared": "workspace:*"
   }
 }

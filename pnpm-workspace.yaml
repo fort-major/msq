@@ -1,6 +1,6 @@
 packages:
   - 'packages/shared'
-  - 'packages/agent'
+  - 'packages/client'
   - 'packages/snap'
   - 'apps/site'
   - 'apps/demo'

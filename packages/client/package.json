@@ -1,5 +1,5 @@
 {
-  "name": "@fort-major/ic-snap-agent",
+  "name": "@fort-major/ic-snap-client",
   "version": "0.1.10",
   "main": "./dist/cjs/index",
   "module": "./dist/esm/index",
@@ -17,6 +17,7 @@
     "dotenv": "16.3.1"
   },
   "dependencies": {
+    "@dfinity/identity": "0.19.2",
     "@metamask/detect-provider": "^2.0.0",
     "@fort-major/ic-snap-shared": "workspace:*"
   }
