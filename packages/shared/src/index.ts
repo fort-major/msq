@@ -1,4 +1,5 @@
 import { ZodType, z } from 'zod';
+import { TOrigin } from './types';
 
 export * from './types';
 export * from './encoding';
@@ -56,4 +57,8 @@ export function zodParse<S extends ZodType<any, any, any>>(schema: S, obj: any):
     } catch (e) {
         err(ErrorCode.INVALID_INPUT, JSON.stringify(e));
     }
+}
+
+export function originToHostname(origin: TOrigin): string {
+    return (new URL(origin)).hostname;
 }

@@ -7,8 +7,9 @@
   "types": "./dist/esm/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "pnpm run version:set && tsc && tsc -p tsconfig.cjs.json",
-    "pub": "pnpm run build && npm publish",
+    "prod:build": "pnpm run version:set && tsc && tsc -p tsconfig.cjs.json",
+    "prod:pub": "pnpm run prod:build && npm publish",
+    "dev:build": "tsc && tsc -p tsconfig.cjs.json",
     "version:set": "node ../../set-version.js"
   },
   "dependencies": {

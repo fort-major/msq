@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const config = dotenv.config();
 
 const whitelisted = Object.keys(config.parsed)
-    .filter(key => key.startsWith('CANISTER_ID_') || key.startsWith('TURBO_'))
+    .filter(key => key.startsWith('CANISTER_ID_') || key.startsWith('MSQ_'))
     .map(key => key.toUpperCase())
     .reduce((prev, cur) => ({ ...prev, [`VITE_${cur}`]: JSON.stringify(config.parsed[cur]) }), {});
 

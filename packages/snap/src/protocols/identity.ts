@@ -1,6 +1,6 @@
 import { divider, heading, panel, text } from "@metamask/snaps-ui";
 import { DEFAULT_ORIGIN_DATA, persistStateLocal, retrieveStateLocal } from "../utils";
-import { TOrigin, ZIdentityAddRequest, ZIdentityLoginRequest, ZIdentityLinkRequest, ZIdentityUnlinkRequest, fromCBOR, unreacheable, zodParse } from "@fort-major/masquerade-shared";
+import { TOrigin, ZIdentityAddRequest, ZIdentityLoginRequest, ZIdentityLinkRequest, ZIdentityUnlinkRequest, fromCBOR, unreacheable, zodParse, originToHostname } from "@fort-major/masquerade-shared";
 
 export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<true> {
     const body = zodParse(ZIdentityAddRequest, fromCBOR(bodyCBOR));
@@ -42,7 +42,6 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
 
 export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<boolean> {
     const state = await retrieveStateLocal();
-
     const originData = state.originData[origin];
 
     // if we're not authorized anyway - just return true
@@ -57,9 +56,9 @@ export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<bool
             type: 'confirmation',
             content: panel([
                 heading('🔒 Log out request'),
-                text(`🌐 **${origin}** wants you to log out.`),
+                text(`🌐 **${originToHostname(origin)}** wants you to log out.`),
                 divider(),
-                text(`You will become anonymous, but **${origin}** may still track your actions and call canisters on your behalf!`),
+                text(`You will become anonymous, but **${originToHostname(origin)}** may still track your actions and call canisters on your behalf!`),
                 divider(),
                 text('**Proceed?** 🚀')
             ])
@@ -97,11 +96,11 @@ export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigi
             type: 'confirmation',
             content: panel([
                 heading('🎭 Mask Link Request 🎭'),
-                text(`**🌐 ${origin}** wants you to reveal your masks to 🌐 **${body.withOrigin}**.`),
-                text(`You will be able to log in to **${body.withOrigin}** using masks you use on **${origin}**.`),
+                text(`**🌐 ${originToHostname(origin)}** wants you to reveal your masks to 🌐 **${originToHostname(body.withOrigin)}**.`),
+                text(`You will be able to log in to **${originToHostname(body.withOrigin)}** using masks you use on **${originToHostname(origin)}**.`),
                 heading('🚨 BE CAREFUL! 🚨'),
-                text(`**${body.withOrigin}** will be able to call **${origin}**'s canisters on your behalf without notice!`),
-                text(`Only proceed if **${origin}** explicitly proposed this action to you.`),
+                text(`**${originToHostname(body.withOrigin)}** will be able to call **${originToHostname(origin)}**'s canisters on your behalf without notice!`),
+                text(`Only proceed if **${originToHostname(origin)}** explicitly proposed this action to you.`),
                 divider(),
                 text('Proceed? 🚀')
             ])
@@ -139,8 +138,8 @@ export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOri
             type: 'confirmation',
             content: panel([
                 heading('🎭 Mask Unlink Request 🎭'),
-                text(`**🌐 ${origin}** wants you to unlink your masks from 🌐 **${body.withOrigin}**`),
-                text(`You will no longer be able to log in to **${body.withOrigin}** using masks you use on **${origin}**`),
+                text(`**🌐 ${originToHostname(origin)}** wants you to unlink your masks from 🌐 **${originToHostname(body.withOrigin)}**`),
+                text(`You will no longer be able to log in to **${originToHostname(body.withOrigin)}** using masks you use on **${originToHostname(origin)}**`),
                 divider(),
                 text('Proceed? 🚀')
             ])

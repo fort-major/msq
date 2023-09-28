@@ -1,14 +1,15 @@
 {
   "private": true,
   "scripts": {
-    "build": "dotenv -- turbo build",
-    "dev": "dotenv -- turbo dev",
-    "test": "dotenv -- turbo test",
-    "dev:deploy": "dotenv -- turbo dev:deploy",
+    "prod:build": "dotenv -e .env.prod -- turbo prod:build",
+    "prod:pub": "dotenv -e .env.prod -- turbo prod:pub",
+    "dev": "dotenv -e .env.dev -- turbo dev",
+    "dev:build": "dotenv -e .env.dev -- turbo dev:build",
+    "dev:deploy": "dotenv -e .env.dev -- turbo dev:deploy",
     "dev:nns": "turbo dev:nns",
     "dev:gen": "turbo dev:gen",
-    "cargo:repair": "turbo cargo:repair",
-    "version:set": "dotenv -- turbo version:set"
+    "test": "dotenv -e .env.dev -- turbo test",
+    "cargo:repair": "turbo cargo:repair"
   },
   "dependencies": {
     "@dfinity/identity": "0.19.2",

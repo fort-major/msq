@@ -2,7 +2,7 @@ import { createEventSignal } from "@solid-primitives/event-listener";
 import { createEffect, createSignal } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { InternalSnapClient } from "@fort-major/masquerade-client/dist/esm/internal";
-import { ErrorCode, ILoginResultMsg, ILoginSiteReadyMsg, IOriginData, TIdentityId, TOrigin, ZLoginRequestMsg, err } from "@fort-major/masquerade-shared";
+import { ErrorCode, ILoginResultMsg, ILoginSiteReadyMsg, IOriginData, TIdentityId, TOrigin, ZLoginRequestMsg, err, originToHostname } from "@fort-major/masquerade-shared";
 import { createIdentityForOrigin } from "../../utils";
 import { Ed25519KeyIdentity } from "@dfinity/identity";
 
@@ -163,7 +163,7 @@ export function LoginPage() {
     const statusText = () => {
         switch (state()) {
             case LoginPageState.WaitingForLoginRequest:
-                return <p>Waiting for ${referrerOrigin}...</p>;
+                return <p>Waiting for ${originToHostname(referrerOrigin)}...</p>;
 
             case LoginPageState.ConnectingWallet:
                 return <p>Connecting to your wallet...</p>;
@@ -199,7 +199,7 @@ export function LoginPage() {
 
             return (
                 <div>
-                    <h3>Identities from ${origin}</h3>
+                    <h3>Identities from ${originToHostname(origin)}</h3>
                     {identities}
                 </div>
             );
@@ -215,7 +215,7 @@ export function LoginPage() {
     return (
         <main>
             <div>
-                <h1>{referrerOrigin} wants you to log in</h1>
+                <h1>{originToHostname(referrerOrigin)} wants you to log in</h1>
                 {statusText()}
                 {selection()}
                 <div>

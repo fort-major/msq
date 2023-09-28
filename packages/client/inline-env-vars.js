@@ -1,19 +1,19 @@
 const fs = require('fs');
-const dotenv = require('dotenv');
 
-const env = dotenv.config({ path: '../../.env' }).parsed;
-
-let fileCjs = fs.readFileSync('dist/cjs/index.js', 'utf8');
 let fileEsm = fs.readFileSync('dist/esm/index.js', 'utf8');
+let fileCjs = fs.readFileSync('dist/cjs/index.js', 'utf8');
 
-for (let v of Object.keys(env)) {
-    if (!v.startsWith('TURBO_')) continue;
+console.log(process.env);
 
-    fileCjs = fileCjs.replace(`process.env.${v}`, `"${env[v]}"`);
-    fileEsm = fileEsm.replace(`process.env.${v}`, `"${env[v]}"`);
+for (let v of Object.keys(process.env)) {
+    if (!v.startsWith('MSQ_')) continue;
+
+    fileEsm = fileEsm.replace(`process.env.${v}`, `"${process.env[v]}"`);
+    fileCjs = fileCjs.replace(`process.env.${v}`, `"${process.env[v]}"`);
 }
 
-fs.writeFileSync('dist/cjs/index.js', fileCjs);
 fs.writeFileSync('dist/esm/index.js', fileEsm);
+fs.writeFileSync('dist/cjs/index.js', fileCjs);
+
 
 console.log('Env variables inlined into client');

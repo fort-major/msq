@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "pnpm run version:set && tsc && vite build",
+    "prod:build": "pnpm run version:set && tsc && vite build",
+    "dev:build": "tsc && vite build",
     "dev": "vite --mode dev",
     "dev:gen": "dfx generate",
     "dev:nns": "dfx nns install",

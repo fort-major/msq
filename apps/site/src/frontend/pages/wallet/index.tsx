@@ -2,7 +2,7 @@ import { IcrcLedgerCanister, IcrcMetadataResponseEntries, IcrcValue } from "@dfi
 import { Account } from "@dfinity/ledger/dist/candid/icrc1_ledger";
 import { Principal } from "@dfinity/principal";
 import { InternalSnapClient } from "@fort-major/masquerade-client/dist/esm/internal";
-import { ErrorCode, IICRC1TransferRequest, IWalletSiteICRC1TransferResultMsg, IWalletSiteReadyMsg, ZWalletSiteICRC1TransferMsg, bytesToHex, err, unreacheable } from "@fort-major/masquerade-shared";
+import { ErrorCode, IICRC1TransferRequest, IWalletSiteICRC1TransferResultMsg, IWalletSiteReadyMsg, ZWalletSiteICRC1TransferMsg, bytesToHex, err, originToHostname, unreacheable } from "@fort-major/masquerade-shared";
 import { createEventSignal } from "@solid-primitives/event-listener";
 import { useNavigate } from "@solidjs/router";
 import bigDecimal from "js-big-decimal";
@@ -251,11 +251,9 @@ export function WalletPage() {
             </div>
         ) : undefined;
 
-        console.log(userPrincipal()?.toText());
-
         return (
             <>
-                <h2>{referrerOrigin} wants you to transfer {tokenSymbol()} ({tokenName()})</h2>
+                <h2>{originToHostname(referrerOrigin)} wants you to transfer {tokenSymbol()} ({tokenName()})</h2>
                 <div>
                     <div>
                         <span>From</span>

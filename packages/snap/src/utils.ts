@@ -4,8 +4,8 @@ import { ErrorCode, IOriginData, IState, SNAP_METHODS, TOrigin, ZState, err, fro
 // this is executed during the 'verify' build step process
 // when the snap is evaluated in SES
 // if it passes during the build step, it will also pass in runtime
-if (!process.env.TURBO_SNAP_SITE_ORIGIN) {
-    throw new Error(`Bad build: snap site origin is '${process.env.TURBO_SNAP_SITE_ORIGIN}'`);
+if (!process.env.MSQ_SNAP_SITE_ORIGIN) {
+    throw new Error(`Bad build: snap site origin is '${process.env.MSQ_SNAP_SITE_ORIGIN}'`);
 }
 
 // protected methods are those which could be executed only 
@@ -24,8 +24,8 @@ export function guardMethods(method: string, origin: TOrigin) {
     }
 
     // validate origin to be Internet Computer Snap website
-    if (origin !== JSON.parse(process.env.TURBO_SNAP_SITE_ORIGIN as string)) {
-        return err(ErrorCode.PROTECTED_METHOD, `Method ${method} can only be executed from the Internet Computer Snap website ("${origin}" != ${process.env.TURBO_SNAP_SITE_ORIGIN})`);
+    if (origin !== JSON.parse(process.env.MSQ_SNAP_SITE_ORIGIN as string)) {
+        return err(ErrorCode.PROTECTED_METHOD, `Method ${method} can only be executed from the Internet Computer Snap website ("${origin}" != ${process.env.MSQ_SNAP_SITE_ORIGIN})`);
     }
 
     // pass if all good

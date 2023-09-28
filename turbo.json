@@ -1,19 +1,30 @@
 {
     "$schema": "https://turbo.build/schema.json",
     "globalDotEnv": [
-        ".env"
+        ".env.dev",
+        ".env.prod"
     ],
     "pipeline": {
-        "build": {
+        "prod:build": {
             "dependsOn": [
-                "^build"
+                "^prod:build"
             ],
             "outputs": [
                 "dist/**"
             ]
         },
-        "version:set": {
-            "cache": false
+        "prod:pub": {
+            "dependsOn": [
+                "^prod:pub"
+            ]
+        },
+        "dev:build": {
+            "dependsOn": [
+                "^dev:build"
+            ],
+            "outputs": [
+                "dist/**"
+            ]
         },
         "dev": {
             "cache": false
@@ -31,6 +42,9 @@
             "cache": false
         },
         "test": {
+            "cache": false
+        },
+        "version:set": {
             "cache": false
         },
         "cargo:repair": {
