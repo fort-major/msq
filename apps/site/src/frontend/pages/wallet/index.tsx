@@ -1,8 +1,8 @@
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries, IcrcValue } from "@dfinity/ledger";
 import { Account } from "@dfinity/ledger/dist/candid/icrc1_ledger";
 import { Principal } from "@dfinity/principal";
-import { InternalSnapClient } from "@fort-major/ic-snap-client/dist/esm/internal";
-import { ErrorCode, IICRC1TransferRequest, IWalletSiteICRC1TransferResultMsg, IWalletSiteReadyMsg, ZWalletSiteICRC1TransferMsg, bytesToHex, err, unreacheable } from "@fort-major/ic-snap-shared";
+import { InternalSnapClient } from "@fort-major/masquerade-client/dist/esm/internal";
+import { ErrorCode, IICRC1TransferRequest, IWalletSiteICRC1TransferResultMsg, IWalletSiteReadyMsg, ZWalletSiteICRC1TransferMsg, bytesToHex, err, unreacheable } from "@fort-major/masquerade-shared";
 import { createEventSignal } from "@solid-primitives/event-listener";
 import { useNavigate } from "@solidjs/router";
 import bigDecimal from "js-big-decimal";

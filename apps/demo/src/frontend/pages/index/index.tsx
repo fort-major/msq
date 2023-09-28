@@ -1,9 +1,9 @@
 import { ActorSubclass, HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
-import { SnapClient } from "@fort-major/ic-snap-client";
+import { SnapClient } from "@fort-major/masquerade-client";
 import { createSignal, onMount } from "solid-js";
 import { Backend, createBackendActor } from "../../backend";
-import { ErrorCode, err } from "@fort-major/ic-snap-shared";
+import { ErrorCode, err } from "@fort-major/masquerade-shared";
 
 export const IndexPage = () => {
     const [snapClient, setSnapClient] = createSignal<SnapClient | null>();

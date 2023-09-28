@@ -1,12 +1,10 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import { IMetaMaskEthereumProvider } from "./types";
-import { ErrorCode, IEntropyGetRequest, IIdentityLinkRequest, IIdentityUnlinkRequest, ILoginRequestMsg, ILoginSiteMsg, IWalletSiteICRC1TransferMsg, IWalletSiteMsg, Principal, SNAP_METHODS, TOrigin, ZLoginSiteMsg, ZWalletSiteMsg, debugStringify, delay, err, fromCBOR, toCBOR, zodParse } from "@fort-major/ic-snap-shared";
+import { ErrorCode, IEntropyGetRequest, IIdentityLinkRequest, IIdentityUnlinkRequest, ILoginRequestMsg, ILoginSiteMsg, IWalletSiteICRC1TransferMsg, IWalletSiteMsg, Principal, SNAP_METHODS, TOrigin, ZLoginSiteMsg, ZWalletSiteMsg, debugStringify, delay, err, fromCBOR, toCBOR, zodParse } from "@fort-major/masquerade-shared";
 import { Identity } from "@dfinity/agent";
 import { Ed25519KeyIdentity } from "@dfinity/identity";
-import { SNAP_SITE_ORIGIN } from ".";
+import { SNAP_ID, SNAP_SITE_ORIGIN, SNAP_VERSION } from ".";
 
-const DEFAULT_SNAP_ID = "npm:@fort-major/ic-snap";
-const DEFAULT_SNAP_VERSION = "*";
 const DEFAULT_SHOULD_BE_FLASK = false;
 const DEFAULT_DEBUG = false;
 
@@ -188,8 +186,8 @@ export class SnapClient {
         const version = await provider?.request<string>({ method: 'web3_clientVersion' });
         const isFlask = version?.includes('flask');
 
-        const snapId = params?.snapId || DEFAULT_SNAP_ID;
-        const snapVersion = params?.snapVersion || DEFAULT_SNAP_VERSION;
+        const snapId = params?.snapId || SNAP_ID;
+        const snapVersion = params?.snapVersion || SNAP_VERSION;
 
         if (!provider) {
             err(ErrorCode.METAMASK_ERROR, 'Install MetaMask');
@@ -215,7 +213,7 @@ export class SnapClient {
 
     private constructor(
         private provider: IMetaMaskEthereumProvider,
-        private snapId: string = DEFAULT_SNAP_ID,
+        private snapId: string,
         private debug: boolean = DEFAULT_DEBUG,
     ) { }
 }

@@ -1,7 +1,7 @@
 {
-  "name": "@fort-major/ic-snap",
-  "version": "0.1.10",
-  "description": "Privacy-focused MetaMask wallet for the Internet Computer (ICP)",
+  "name": "@fort-major/masquerade",
+  "version": "0.2.0",
+  "description": "Privacy-focused MetaMask snap for the Internet Computer (ICP)",
   "keywords": [
     "MetaMask",
     "web3",
@@ -20,14 +20,14 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fort-major/internet-computer-snap.git"
+    "url": "https://github.com/fort-major/masquerade.git"
   },
   "bugs": {
-    "url": "https://github.com/fort-major/internet-computer-snap/issues"
+    "url": "https://github.com/fort-major/masquerade/issues"
   },
-  "homepage": "https://github.com/fort-major/internet-computer-snap#readme",
+  "homepage": "https://github.com/fort-major/masquerade#readme",
   "scripts": {
-    "build": "mm-snap build -s src/index.ts",
+    "build": "pnpm run version:set && mm-snap build -s src/index.ts",
     "verify": "mm-snap manifest --fix",
     "dev": "mm-snap watch -s src/index.ts -d dist",
     "pub": "npm run build && npm run verify && npm publish",
@@ -40,6 +40,6 @@
   },
   "dependencies": {
     "@metamask/snaps-ui": "^1.0.2",
-    "@fort-major/ic-snap-shared": "workspace:*"
+    "@fort-major/masquerade-shared": "workspace:*"
   }
 }

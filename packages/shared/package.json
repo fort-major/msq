@@ -1,14 +1,14 @@
 {
-  "name": "@fort-major/ic-snap-shared",
-  "version": "0.1.10",
+  "name": "@fort-major/masquerade-shared",
+  "version": "0.2.0",
   "main": "./dist/cjs/index",
   "module": "./dist/esm/index",
   "unpkg": "./dist/esm/index",
   "types": "./dist/esm/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "tsc && tsc -p tsconfig.cjs.json",
-    "pub": "npm run build && npm publish",
+    "build": "pnpm run version:set && tsc && tsc -p tsconfig.cjs.json",
+    "pub": "pnpm run build && npm publish",
     "version:set": "node ../../set-version.js"
   },
   "dependencies": {

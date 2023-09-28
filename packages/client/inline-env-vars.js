@@ -7,6 +7,8 @@ let fileCjs = fs.readFileSync('dist/cjs/index.js', 'utf8');
 let fileEsm = fs.readFileSync('dist/esm/index.js', 'utf8');
 
 for (let v of Object.keys(env)) {
+    if (!v.startsWith('TURBO_')) continue;
+
     fileCjs = fileCjs.replace(`process.env.${v}`, `"${env[v]}"`);
     fileEsm = fileEsm.replace(`process.env.${v}`, `"${env[v]}"`);
 }

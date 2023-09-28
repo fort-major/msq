@@ -1,6 +1,6 @@
 import { Principal } from '@dfinity/principal'
 import { atom } from 'nanostores'
-import { IState } from '@fort-major/ic-snap-shared';
+import { IState } from '@fort-major/masquerade-shared';
 
 export interface IUser {
     principal: Principal,

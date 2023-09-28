@@ -1,18 +1,18 @@
 {
-  "version": "0.1.10",
-  "description": "Privacy-focused MetaMask wallet for the Internet Computer (ICP)",
-  "proposedName": "Internet Computer",
+  "version": "0.2.0",
+  "description": "Privacy-focused MetaMask snap for the Internet Computer (ICP)",
+  "proposedName": "Masquerade",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fort-major/internet-computer-snap.git"
+    "url": "https://github.com/fort-major/masquerade.git"
   },
   "source": {
-    "shasum": "scsb0geAg1eUXOY+q7N3f95XoovkWAnZmOMsBiQwKag=",
+    "shasum": "TFl7BPdcqfdnCIiPMyWrlwNd9dsQtAvK+EiGpkeJR7w=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
         "iconPath": "icon.svg",
-        "packageName": "@fort-major/ic-snap",
+        "packageName": "@fort-major/masquerade",
         "registry": "https://registry.npmjs.org"
       }
     }

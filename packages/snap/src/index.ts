@@ -1,5 +1,5 @@
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
-import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR, zodParse } from '@fort-major/ic-snap-shared';
+import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR, zodParse } from '@fort-major/masquerade-shared';
 import { protected_handleIdentityLogin, handleIdentityLinkRequest, handleIdentityUnlinkRequest, protected_handleIdentityAdd, protected_handleStateGetOriginData, handleEntropyGet, handleIdentityLogoutRequest } from './protocols';
 import { guardMethods as guardProtectedMethods } from './utils';
 

@@ -1,17 +1,18 @@
 {
-  "name": "@fort-major/ic-snap-client",
-  "version": "0.1.10",
+  "name": "@fort-major/masquerade-client",
+  "version": "0.2.0",
   "main": "./dist/cjs/index",
   "module": "./dist/esm/index",
   "unpkg": "./dist/esm/index",
   "types": "./dist/esm/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "tsc && tsc -p tsconfig.cjs.json && node inline-env-vars.js",
-    "pub": "npm run build && npm publish",
+    "build": "tsc && tsc -p tsconfig.cjs.json && pnpm run version:set && node inline-env-vars.js",
+    "pub": "pnpm run build && npm publish",
     "version:set": "node ../../set-version.js"
   },
   "devDependencies": {
+    "@types/node": "20.7.1",
     "@metamask/snaps-types": "^1.0.2",
     "@metamask/types": "^1.1.0",
     "dotenv": "16.3.1"
@@ -19,6 +20,6 @@
   "dependencies": {
     "@dfinity/identity": "0.19.2",
     "@metamask/detect-provider": "^2.0.0",
-    "@fort-major/ic-snap-shared": "workspace:*"
+    "@fort-major/masquerade-shared": "workspace:*"
   }
 }

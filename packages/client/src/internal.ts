@@ -1,4 +1,4 @@
-import { IIdentityAddRequest, IIdentityLoginRequest, IOriginData, IStateGetOriginDataRequest, SNAP_METHODS, TIdentityId, TOrigin } from "@fort-major/ic-snap-shared";
+import { IIdentityAddRequest, IIdentityLoginRequest, IOriginData, IStateGetOriginDataRequest, SNAP_METHODS, TIdentityId, TOrigin } from "@fort-major/masquerade-shared";
 import { SnapClient } from "./client";
 
 export interface IInternalSnapClientParams {

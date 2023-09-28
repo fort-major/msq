@@ -1,9 +1,13 @@
-# Internet Computer MetaMask Snap
-Allows authorizing within IC dapps with MetaMask
+# Masquerade
+Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
-* auto logout on timer
-* tests
+* better confirmation windows
+* add confirmation on transfer
+* refactor env variables
+* add second demo site and check mask linking
+* tests & security critical code isolation
+* comment code
 * lint & prettier
 
 ## Local development

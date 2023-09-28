@@ -1,4 +1,4 @@
-import { IOriginData, ZStateGetOriginDataRequest, fromCBOR, zodParse } from "@fort-major/ic-snap-shared";
+import { IOriginData, ZStateGetOriginDataRequest, fromCBOR, zodParse } from "@fort-major/masquerade-shared";
 import { persistStateLocal, retrieveStateLocal } from "../utils";
 
 

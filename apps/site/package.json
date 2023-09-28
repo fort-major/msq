@@ -1,10 +1,10 @@
 {
-  "name": "ic-snap-site",
-  "version": "0.1.10",
+  "name": "masquerade-site",
+  "version": "0.2.0",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "pnpm run version:set && tsc && vite build",
     "dev": "vite --mode dev",
     "version:set": "node ../../set-version.js"
   },
@@ -22,8 +22,8 @@
     "solid-styled-components": "0.28.5",
     "nanostores": "0.9.3",
     "@nanostores/solid": "0.4.2",
-    "@fort-major/ic-snap-client": "workspace:*",
-    "@fort-major/ic-snap-shared": "workspace:*",
+    "@fort-major/masquerade-client": "workspace:*",
+    "@fort-major/masquerade-shared": "workspace:*",
     "tweetnacl": "1.0.3"
   }
 }

@@ -1,4 +1,4 @@
-import { TOrigin, ZEntropyGetRequest, hexToBytes, fromCBOR, zodParse } from "@fort-major/ic-snap-shared";
+import { TOrigin, ZEntropyGetRequest, hexToBytes, fromCBOR, zodParse } from "@fort-major/masquerade-shared";
 
 
 export async function handleEntropyGet(bodyCBOR: string, origin: TOrigin): Promise<Uint8Array> {
@@ -9,7 +9,8 @@ export async function handleEntropyGet(bodyCBOR: string, origin: TOrigin): Promi
         method: "snap_getEntropy",
         params: {
             version: 1,
-            salt: `\x0aic-snap\n${origin}`
+            // WARNING! DO NOT CHANGE THIS EVER, OR USERS WONT BE ABLE TO USE THEIR KEYS
+            salt: `\x0amasquerade-snap\n${origin}`
         }
     });
 

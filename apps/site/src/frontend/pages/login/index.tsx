@@ -1,8 +1,8 @@
 import { createEventSignal } from "@solid-primitives/event-listener";
 import { createEffect, createSignal } from "solid-js";
 import { useNavigate } from "@solidjs/router";
-import { InternalSnapClient } from "@fort-major/ic-snap-client/dist/esm/internal";
-import { ErrorCode, ILoginResultMsg, ILoginSiteReadyMsg, IOriginData, TIdentityId, TOrigin, ZLoginRequestMsg, err } from "@fort-major/ic-snap-shared";
+import { InternalSnapClient } from "@fort-major/masquerade-client/dist/esm/internal";
+import { ErrorCode, ILoginResultMsg, ILoginSiteReadyMsg, IOriginData, TIdentityId, TOrigin, ZLoginRequestMsg, err } from "@fort-major/masquerade-shared";
 import { createIdentityForOrigin } from "../../utils";
 import { Ed25519KeyIdentity } from "@dfinity/identity";
 

@@ -1,5 +1,5 @@
 import { heading, panel, text } from "@metamask/snaps-ui";
-import { ErrorCode, IOriginData, IState, SNAP_METHODS, TOrigin, ZState, err, fromCBOR, toCBOR, zodParse } from "@fort-major/ic-snap-shared";
+import { ErrorCode, IOriginData, IState, SNAP_METHODS, TOrigin, ZState, err, fromCBOR, toCBOR, zodParse } from "@fort-major/masquerade-shared";
 
 // this is executed during the 'verify' build step process
 // when the snap is evaluated in SES
