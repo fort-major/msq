@@ -56,11 +56,12 @@ export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<bool
         params: {
             type: 'confirmation',
             content: panel([
-                heading('Log out request'),
-                text(`**${origin}** wants you to **log out**`),
-                text(`You **will** become **anonymous**, but **${origin}** may still **track** your actions and call canisters on your behalf!`),
+                heading('🔒 Log out request'),
+                text(`🌐 **${origin}** wants you to log out.`),
                 divider(),
-                text('Proceed?')
+                text(`You will become anonymous, but **${origin}** may still track your actions and call canisters on your behalf!`),
+                divider(),
+                text('**Proceed?** 🚀')
             ])
         }
     });
@@ -95,13 +96,14 @@ export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigi
         params: {
             type: 'confirmation',
             content: panel([
-                heading('Identity link request'),
-                text(`**${origin}** wants you to **link** your identities to **${body.withOrigin}**`),
-                text(`You will be able to log in **${body.withOrigin}** using any of identities you use on **${origin}**`),
-                text(`BE CAREFUL! **${body.withOrigin}** will be able to act on your behalf on **${origin}** without a notice`),
-                text(`Only agree if **${origin}** explicitely proposed you this action!`),
+                heading('🎭 Mask Link Request 🎭'),
+                text(`**🌐 ${origin}** wants you to reveal your masks to 🌐 **${body.withOrigin}**.`),
+                text(`You will be able to log in to **${body.withOrigin}** using masks you use on **${origin}**.`),
+                heading('🚨 BE CAREFUL! 🚨'),
+                text(`**${body.withOrigin}** will be able to call **${origin}**'s canisters on your behalf without notice!`),
+                text(`Only proceed if **${origin}** explicitly proposed this action to you.`),
                 divider(),
-                text('Proceed?')
+                text('Proceed? 🚀')
             ])
         }
     });
@@ -136,12 +138,11 @@ export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOri
         params: {
             type: 'confirmation',
             content: panel([
-                heading('Identity unlink request'),
-                text(`**${origin}** wants you to **unlink** your identities from **${body.withOrigin}**`),
-                text(`You will no longer be able to log in **${body.withOrigin}** using any of identities from **${origin}**`),
-                text(`Only agree if **${origin}** explicitely proposed you this action!`),
+                heading('🎭 Mask Unlink Request 🎭'),
+                text(`**🌐 ${origin}** wants you to unlink your masks from 🌐 **${body.withOrigin}**`),
+                text(`You will no longer be able to log in to **${body.withOrigin}** using masks you use on **${origin}**`),
                 divider(),
-                text('Proceed?')
+                text('Proceed? 🚀')
             ])
         }
     });

@@ -14,6 +14,7 @@ const PROTECTED_METHODS = [
     SNAP_METHODS.identity.protected_add,
     SNAP_METHODS.identity.protected_login,
     SNAP_METHODS.state.protected_getOriginData,
+    SNAP_METHODS.icrc1.protected_showTransferConfirm,
 ];
 
 export function guardMethods(method: string, origin: TOrigin) {

@@ -1,4 +1,4 @@
-import { IIdentityAddRequest, IIdentityLoginRequest, IOriginData, IStateGetOriginDataRequest, SNAP_METHODS, TIdentityId, TOrigin } from "@fort-major/masquerade-shared";
+import { IIdentityAddRequest, IIdentityLoginRequest, IOriginData, IShowICRC1TransferConfirmRequest, IStateGetOriginDataRequest, SNAP_METHODS, TIdentityId, TOrigin } from "@fort-major/masquerade-shared";
 import { SnapClient } from "./client";
 
 export interface IInternalSnapClientParams {
@@ -35,6 +35,10 @@ export class InternalSnapClient {
 
     async getEntropy(salt: Uint8Array): Promise<Uint8Array> {
         return this.inner.getEntropy(salt);
+    }
+
+    async showICRC1TransferConfirm(body: IShowICRC1TransferConfirmRequest): Promise<boolean> {
+        return this.inner._requestSnap(SNAP_METHODS.icrc1.protected_showTransferConfirm, body);
     }
 
     constructor(private inner: SnapClient) { }

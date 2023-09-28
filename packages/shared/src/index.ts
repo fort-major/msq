@@ -17,6 +17,9 @@ export const SNAP_METHODS = {
     },
     entropy: {
         get: 'entropy_get',
+    },
+    icrc1: {
+        protected_showTransferConfirm: 'icrc1_protected_showTransferConfirm'
     }
 };
 

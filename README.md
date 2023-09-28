@@ -2,8 +2,7 @@
 Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
-* better confirmation windows
-* add confirmation on transfer
+* origins to hosts for user view
 * refactor env variables
 * add second demo site and check mask linking
 * tests & security critical code isolation

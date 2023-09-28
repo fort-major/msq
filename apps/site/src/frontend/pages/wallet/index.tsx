@@ -21,6 +21,7 @@ const referrerOrigin = (new URL(document.referrer)).origin;
 export function WalletPage() {
     const [state, setState] = createSignal<WalletPageState>(WalletPageState.WaitingForTransferRequest);
     const [userPrincipal, setUserPrincipal] = createSignal<Principal | null>(null);
+    const [snapClient, setSnapClient] = createSignal<InternalSnapClient | null>(null);
     const [actor, setActor] = createSignal<IcrcLedgerCanister | null>(null);
     const [referrerWindow, setReferrerWindow] = createSignal<MessageEventSource | null>(null);
     const [transferRequest, setTransferRequest] = createSignal<IICRC1TransferRequest | null>(null);
@@ -90,6 +91,8 @@ export function WalletPage() {
         const req = transferRequest()!;
 
         const client = await InternalSnapClient.create({ snapId: 'local:http://localhost:8081' });
+        setSnapClient(client);
+
         const identity = await createIdentityForCanisterId(client, req.canisterId, 0);
         const agent = new HttpAgent({ host: 'http://localhost:8080', identity });
 
@@ -133,6 +136,21 @@ export function WalletPage() {
             owner: Principal.fromText(req.to.owner),
             subaccount: req.to.subaccount ? [req.to.subaccount] : [],
         };
+
+        const decimalsForText = new bigDecimal(Math.pow(10, Number(tokenDecimals())));
+        const total = new bigDecimal(req.amount + tokenFee()!);
+        const totalAmount = total.divide(decimalsForText).getPrettyValue();
+
+        const agreed = await snapClient()!.showICRC1TransferConfirm({
+            from: userPrincipal()!.toText(),
+            to: req.to,
+            totalAmount,
+            ticker: tokenSymbol()!
+        });
+
+        if (!agreed) {
+            return;
+        }
 
         const blockIdx = await actor()!.transfer({
             to,

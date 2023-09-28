@@ -2,6 +2,7 @@ import { OnRpcRequestHandler } from '@metamask/snaps-types';
 import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR, zodParse } from '@fort-major/masquerade-shared';
 import { protected_handleIdentityLogin, handleIdentityLinkRequest, handleIdentityUnlinkRequest, protected_handleIdentityAdd, protected_handleStateGetOriginData, handleEntropyGet, handleIdentityLogoutRequest } from './protocols';
 import { guardMethods as guardProtectedMethods } from './utils';
+import { protected_handleShowICRC1TransferConfirm } from './protocols/icrc1';
 
 
 export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => {
@@ -49,6 +50,13 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
         // ------ ENTROPY RELATED METHODS ---------
         case SNAP_METHODS.entropy.get: {
             result = handleEntropyGet(req.params.body, origin);
+            break;
+        }
+
+        // ------ ICRC1 RELATED METHODS -----------
+
+        case SNAP_METHODS.icrc1.protected_showTransferConfirm: {
+            result = protected_handleShowICRC1TransferConfirm(req.params.body);
             break;
         }
 

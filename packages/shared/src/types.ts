@@ -107,6 +107,32 @@ export const ZEntropyGetRequest = z.object({
 });
 export type IEntropyGetRequest = z.infer<typeof ZEntropyGetRequest>;
 
+// ----------- ICRC1 PROTOCOL RELATED TYPES -------------
+
+export const ZICRC1Account = z.object({
+    owner: ZPrincipalStr,
+    subaccount: z.optional(ZICRC1Subaccount),
+});
+export type IICRC1Account = z.infer<typeof ZICRC1Account>;
+
+// TODO: also add timestamp
+const ZICRC1TransferRequest = z.object({
+    canisterId: ZPrincipalStr,
+    to: ZICRC1Account,
+    amount: z.bigint(),
+    memo: z.optional(z.instanceof(Uint8Array)),
+    created_at_time: z.optional(ZTimestamp),
+});
+export type IICRC1TransferRequest = z.infer<typeof ZICRC1TransferRequest>;
+
+export const ZShowICRC1TransferConfirmRequest = z.object({
+    from: ZPrincipalStr,
+    to: ZICRC1Account,
+    totalAmount: z.string(),
+    ticker: z.string(),
+});
+export type IShowICRC1TransferConfirmRequest = z.infer<typeof ZShowICRC1TransferConfirmRequest>;
+
 // ---------- MESSAGE TYPES ------------------------------
 
 const ZMsgDomain = z.literal('internet-computer-metamask-snap');
@@ -135,23 +161,6 @@ export const ZLoginRequestMsg = z.object({
     type: z.literal('login_request')
 });
 export type ILoginRequestMsg = z.infer<typeof ZLoginRequestMsg>;
-
-
-export const ZICRC1Account = z.object({
-    owner: ZPrincipalStr,
-    subaccount: z.optional(ZICRC1Subaccount),
-});
-export type IICRC1Account = z.infer<typeof ZICRC1Account>;
-
-// TODO: also add timestamp
-const ZICRC1TransferRequest = z.object({
-    canisterId: ZPrincipalStr,
-    to: ZICRC1Account,
-    amount: z.bigint(),
-    memo: z.optional(z.instanceof(Uint8Array)),
-    created_at_time: z.optional(ZTimestamp),
-});
-export type IICRC1TransferRequest = z.infer<typeof ZICRC1TransferRequest>;
 
 export const ZWalletSiteICRC1TransferMsg = z.object({
     domain: ZMsgDomain,
