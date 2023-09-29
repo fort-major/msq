@@ -12,6 +12,7 @@ export const SNAP_METHODS = {
         requestLogout: 'identity_requestLogout',
         requestLink: 'identity_requestLink',
         requestUnlink: 'identity_requestUnlink',
+        getLinks: 'identity_getLinks',
     },
     state: {
         protected_getOriginData: 'state_protected_getOriginData',

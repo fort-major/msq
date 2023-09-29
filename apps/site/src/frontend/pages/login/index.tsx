@@ -93,7 +93,7 @@ export function LoginPage() {
 
         let mainOriginData = await client.getOriginData(referrerOrigin);
 
-        if (!mainOriginData) {
+        if (mainOriginData?.identitiesTotal === 0) {
             await client.register(referrerOrigin);
             mainOriginData = await client.getOriginData(referrerOrigin);
         }
@@ -106,8 +106,14 @@ export function LoginPage() {
             [referrerOrigin]: { ...mainOriginData!, identities }
         };
 
-        const promises2 = mainOriginData!.links.map(async link => {
-            const linkedOrigin = await client.getOriginData(link);
+        // TODO: refactor this into something more readable
+        const promises2 = mainOriginData!.linksFrom.map(async link => {
+            let linkedOrigin = await client.getOriginData(link);
+
+            if (!linkedOrigin) {
+                await client.register(link);
+                linkedOrigin = await client.getOriginData(link);
+            }
 
             const promises = Array(linkedOrigin!.identitiesTotal).fill(0)
                 .map((_, idx) => createIdentityForOrigin(client, link, idx));

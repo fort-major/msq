@@ -135,6 +135,19 @@
         "dist/"
       ],
       "type": "assets"
+    },
+    "demo_frontend_new": {
+      "dependencies": [
+        "demo_frontend"
+      ],
+      "frontend": {
+        "entrypoint": "index.html"
+      },
+      "source": [
+        "assets",
+        "dist/"
+      ],
+      "type": "assets"
     }
   },
   "defaults": {

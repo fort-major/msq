@@ -1,6 +1,6 @@
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
 import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR, zodParse } from '@fort-major/masquerade-shared';
-import { protected_handleIdentityLogin, handleIdentityLinkRequest, handleIdentityUnlinkRequest, protected_handleIdentityAdd, protected_handleStateGetOriginData, handleEntropyGet, handleIdentityLogoutRequest } from './protocols';
+import { protected_handleIdentityLogin, handleIdentityLinkRequest, handleIdentityUnlinkRequest, protected_handleIdentityAdd, protected_handleStateGetOriginData, handleEntropyGet, handleIdentityLogoutRequest, handleIdentityGetLinks } from './protocols';
 import { guardMethods as guardProtectedMethods } from './utils';
 import { protected_handleShowICRC1TransferConfirm } from './protocols/icrc1';
 
@@ -44,6 +44,11 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
         case SNAP_METHODS.identity.requestUnlink: {
             result = handleIdentityUnlinkRequest(req.params.body, origin);
+            break;
+        }
+
+        case SNAP_METHODS.identity.getLinks: {
+            result = handleIdentityGetLinks(origin);
             break;
         }
 

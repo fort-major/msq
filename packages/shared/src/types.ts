@@ -39,7 +39,8 @@ export const ZOriginData = z.object({
     // basically it allows:
     //   1. domain migrations, when users may still use their old identity to log into the new website
     //   2. website integrations, when users may use the same identity while working with both websites
-    links: z.array(ZOrigin),
+    linksFrom: z.array(ZOrigin),
+    linksTo: z.array(ZOrigin),
     // session object, exists if the user is logged in
     // TODO: should we purge this periodically? Metamask already has a lock screen with a password and stuff
     currentSession: z.optional(ZSession)

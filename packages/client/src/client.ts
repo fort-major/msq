@@ -88,6 +88,10 @@ export class SnapClient {
         return this._requestSnap(SNAP_METHODS.identity.requestUnlink, body);
     }
 
+    async getLinks(): Promise<TOrigin[]> {
+        return this._requestSnap(SNAP_METHODS.identity.getLinks);
+    }
+
     async requestICRC1Transfer(
         tokenCanisterId: Principal,
         to: { owner: Principal, subaccount?: Uint8Array | undefined },

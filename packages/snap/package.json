@@ -27,9 +27,9 @@
   },
   "homepage": "https://github.com/fort-major/masquerade#readme",
   "scripts": {
-    "prod:build": "pnpm run version:set && mm-snap build -s src/index.ts && mm-snap manifest --fix",
+    "prod:build": "tsc && pnpm run version:set && mm-snap build -s src/index.ts && mm-snap manifest --fix",
     "prod:pub": "pnpm run prod:build && npm publish",
-    "dev:build": "mm-snap build -s src/index.ts",
+    "dev:build": "tsc && mm-snap build -s src/index.ts",
     "dev": "mm-snap watch -s src/index.ts -d dist",
     "version:set": "node ../../set-version.js"
   },

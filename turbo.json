@@ -6,6 +6,7 @@
     ],
     "pipeline": {
         "prod:build": {
+            "cache": false,
             "dependsOn": [
                 "^prod:build"
             ],
@@ -19,6 +20,7 @@
             ]
         },
         "dev:build": {
+            "cache": false,
             "dependsOn": [
                 "^dev:build"
             ],

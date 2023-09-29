@@ -3,15 +3,17 @@ import { Principal } from "@dfinity/principal";
 import { SnapClient } from "@fort-major/masquerade-client";
 import { createSignal, onMount } from "solid-js";
 import { Backend, createBackendActor } from "../../backend";
-import { ErrorCode, err } from "@fort-major/masquerade-shared";
+import { ErrorCode, TOrigin, err } from "@fort-major/masquerade-shared";
 
 export const IndexPage = () => {
     const [snapClient, setSnapClient] = createSignal<SnapClient | null>();
     const [actor, setActor] = createSignal<ActorSubclass<Backend> | null>(null);
     const [principal, setPrincipal] = createSignal<Principal>(Principal.anonymous());
+    const [links, setLinks] = createSignal<TOrigin[]>([]);
 
     onMount(async () => {
         const client = await SnapClient.create({ snapId: 'local:http://localhost:8081' });
+        setLinks(await client.getLinks());
 
         setSnapClient(client);
     });
@@ -32,9 +34,6 @@ export const IndexPage = () => {
         }
 
         const agent = new HttpAgent({ host: 'http://localhost:8080', identity });
-
-        console.log(agent);
-
         setActor(createBackendActor(agent));
 
         await agent.fetchRootKey().catch((err) => {
@@ -45,9 +44,6 @@ export const IndexPage = () => {
         });
 
         const principal = await agent.getPrincipal();
-
-        console.log(principal.toText());
-
         setPrincipal(principal);
     };
 
@@ -95,11 +91,39 @@ export const IndexPage = () => {
         console.log('transfer success', blockId);
     };
 
+    const linkMaskBtn = () => {
+        const l = links();
+
+        return (
+            <>
+                <button onClick={onLink}>
+                    Link to <b>localhost1</b>
+                </button>
+                {l.length > 0 && (
+                    <button onClick={onUnlink}>
+                        Unlink from <b>localhost1</b>
+                    </button>
+                )}
+            </>
+        )
+    }
+
+    const onLink = async () => {
+        await snapClient()!.requestLink('http://localhost1:5173');
+        setLinks(await snapClient()!.getLinks());
+    }
+
+    const onUnlink = async () => {
+        await snapClient()!.requestUnlink('http://localhost1:5173');
+        setLinks(await snapClient()!.getLinks());
+    }
+
     return (
         <main>
             {snapClient() && authBtn()}
             {snapClient() && canisterCallBtns()}
             {snapClient() && icpTransferButton()}
+            {snapClient() && linkMaskBtn()}
         </main>
     );
 }

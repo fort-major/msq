@@ -3,8 +3,6 @@ const fs = require('fs');
 let fileEsm = fs.readFileSync('dist/esm/index.js', 'utf8');
 let fileCjs = fs.readFileSync('dist/cjs/index.js', 'utf8');
 
-console.log(process.env);
-
 for (let v of Object.keys(process.env)) {
     if (!v.startsWith('MSQ_')) continue;
 

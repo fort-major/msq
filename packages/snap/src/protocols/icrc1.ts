@@ -18,6 +18,7 @@ export async function protected_handleShowICRC1TransferConfirm(bodyCBOR: string)
                 text(body.to.subaccount ? bytesToHex(body.to.subaccount) : 'Default subaccount'),
                 text('**Total amount:**'),
                 text(`${body.totalAmount} ${body.ticker}`),
+                divider(),
                 heading("🚨 BE CAREFUL! 🚨"),
                 text("This action is irreversible. You won't be able to recover your funds!"),
                 divider(),

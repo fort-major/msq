@@ -1,11 +1,10 @@
 import { IOriginData, ZStateGetOriginDataRequest, fromCBOR, zodParse } from "@fort-major/masquerade-shared";
-import { persistStateLocal, retrieveStateLocal } from "../utils";
+import { StateManager } from "../state";
 
 
 export async function protected_handleStateGetOriginData(bodyCBOR: string): Promise<IOriginData | undefined> {
     const body = zodParse(ZStateGetOriginDataRequest, fromCBOR(bodyCBOR));
+    const manager = await StateManager.make();
 
-    const state = await retrieveStateLocal();
-
-    return state.originData[body.origin];
+    return manager.getOriginData(body.origin);
 }
