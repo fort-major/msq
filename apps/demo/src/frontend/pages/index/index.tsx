@@ -16,10 +16,25 @@ export const IndexPage = () => {
         setLinks(await client.getLinks());
 
         setSnapClient(client);
+
+        if (await client.isAuthorized()) {
+            const identity = (await client.requestLogin())!;
+            setPrincipal(await identity.getPrincipal());
+
+            const agent = new HttpAgent({ host: 'http://localhost:8080', identity });
+            setActor(createBackendActor(agent));
+
+            await agent.fetchRootKey().catch((err) => {
+                console.warn(
+                    "Unable to fetch root key. Check to ensure that your local replica is running"
+                );
+                console.error(err);
+            });
+        }
     });
 
     const authBtn = () => {
-        const mode = principal().toText() === Principal.anonymous().toText() ? 'login' : 'logout';
+        const mode = principal().toText() == Principal.anonymous().toText() ? 'login' : 'logout';
         const fn = mode === 'login' ? onLogin : onLogout;
 
         return <button onClick={fn}>{mode}</button>;
@@ -43,8 +58,7 @@ export const IndexPage = () => {
             console.error(err);
         });
 
-        const principal = await agent.getPrincipal();
-        setPrincipal(principal);
+        setPrincipal(identity.getPrincipal());
     };
 
     const onLogout = async () => {
@@ -120,6 +134,7 @@ export const IndexPage = () => {
 
     return (
         <main>
+            <h3>Hello, {principal().toText()}</h3>
             {snapClient() && authBtn()}
             {snapClient() && canisterCallBtns()}
             {snapClient() && icpTransferButton()}

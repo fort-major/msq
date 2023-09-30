@@ -1,6 +1,7 @@
 import { divider, heading, panel, text } from "@metamask/snaps-ui";
-import { TOrigin, ZIdentityAddRequest, ZIdentityLoginRequest, ZIdentityLinkRequest, ZIdentityUnlinkRequest, fromCBOR, unreacheable, zodParse, originToHostname } from "@fort-major/masquerade-shared";
+import { TOrigin, ZIdentityAddRequest, ZIdentityLoginRequest, ZIdentityLinkRequest, ZIdentityUnlinkRequest, fromCBOR, unreacheable, zodParse, originToHostname, err, ErrorCode, strToBytes, ZIdentitySignRequest, IIdentityGetLoginOptionsResponse, ZIdentityGetLoginOptionsRequest, ZIdentityGetPublicKeyRequest } from "@fort-major/masquerade-shared";
 import { StateManager } from "../state";
+import { getSignIdentity, isMasquerade } from "../utils";
 
 export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<true> {
     const body = zodParse(ZIdentityAddRequest, fromCBOR(bodyCBOR));
@@ -33,6 +34,38 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
     await manager.persist();
 
     return true;
+}
+
+export async function protected_handleIdentityGetLoginOptions(bodyCBOR: string): Promise<IIdentityGetLoginOptionsResponse> {
+    const body = zodParse(ZIdentityGetLoginOptionsRequest, fromCBOR(bodyCBOR));
+    const manager = await StateManager.make();
+
+    const result: IIdentityGetLoginOptionsResponse = [];
+
+    let origin = body.forOrigin;
+    let originData = manager.getOriginData(origin);
+
+    let options = await Promise.all(Array(originData.identitiesTotal).fill(0).map(async (_, idx) => {
+        const identity = await getSignIdentity(origin, idx);
+
+        return identity.getPrincipal().toText();
+    }));
+
+    result.push([origin, options]);
+
+    for (origin of originData.linksFrom) {
+        originData = manager.getOriginData(origin);
+
+        options = await Promise.all(Array(originData.identitiesTotal).fill(0).map(async (_, idx) => {
+            const identity = await getSignIdentity(origin, idx);
+
+            return identity.getPrincipal().toText();
+        }));
+
+        result.push([origin, options]);
+    }
+
+    return result;
 }
 
 export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<boolean> {
@@ -71,6 +104,42 @@ export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<bool
     await manager.persist();
 
     return true;
+}
+
+export async function handleIdentitySign(bodyCBOR: string, origin: TOrigin): Promise<ArrayBuffer> {
+    const body = zodParse(ZIdentitySignRequest, fromCBOR(bodyCBOR));
+    const manager = await StateManager.make();
+    let session = manager.getOriginData(origin).currentSession;
+
+    if (!session) {
+        if (isMasquerade(origin)) {
+            session = { deriviationOrigin: origin, identityId: 0, timestampMs: 0n };
+        } else {
+            err(ErrorCode.UNAUTHORIZED, 'Log in first');
+        }
+    }
+
+    const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
+
+    return identity.sign(body.challenge);
+}
+
+export async function handleIdentityGetPublicKey(bodyCBOR: string, origin: TOrigin): Promise<ArrayBuffer> {
+    const body = zodParse(ZIdentityGetPublicKeyRequest, fromCBOR(bodyCBOR));
+    const manager = await StateManager.make();
+    let session = manager.getOriginData(origin).currentSession;
+
+    if (!session) {
+        if (isMasquerade(origin)) {
+            session = { deriviationOrigin: origin, identityId: 0, timestampMs: 0n };
+        } else {
+            err(ErrorCode.UNAUTHORIZED, 'Log in first');
+        }
+    }
+
+    const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
+
+    return identity.getPublicKey().toRaw();
 }
 
 export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigin): Promise<boolean> {

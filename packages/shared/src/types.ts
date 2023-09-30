@@ -75,6 +75,14 @@ export type IStateGetOriginDataRequest = z.infer<typeof ZStateGetOriginDataReque
 
 // ----------- IDENTITY PROTOCOL RELATED TYPES ---------
 
+export const ZIdentityGetLoginOptionsRequest = z.object({
+    forOrigin: ZOrigin
+});
+export type IIdentityGetLoginOptionsRequest = z.infer<typeof ZIdentityGetLoginOptionsRequest>;
+
+export const ZIdentityGetLoginOptionsResponse = z.array(z.tuple([ZOrigin, z.array(ZPrincipalStr)]));
+export type IIdentityGetLoginOptionsResponse = z.infer<typeof ZIdentityGetLoginOptionsResponse>;
+
 export const ZIdentityAddRequest = z.object({
     toOrigin: ZOrigin
 });
@@ -89,6 +97,17 @@ export const ZIdentityLoginRequest = z.object({
 export type IIdentityLoginRequest = z.infer<typeof ZIdentityLoginRequest>;
 
 
+export const ZIdentitySignRequest = z.object({
+    challenge: ZBlob,
+    salt: z.optional(z.instanceof(Uint8Array)),
+});
+export type IIdentitySignRequest = z.infer<typeof ZIdentitySignRequest>;
+
+export const ZIdentityGetPublicKeyRequest = z.object({
+    salt: z.optional(z.instanceof(Uint8Array)),
+});
+export type IIdentityGetPublicKeyRequest = z.infer<typeof ZIdentityGetPublicKeyRequest>;
+
 export const ZIdentityLinkRequest = z.object({
     withOrigin: ZOrigin,
 });
@@ -99,14 +118,6 @@ export const ZIdentityUnlinkRequest = z.object({
     withOrigin: ZOrigin,
 });
 export type IIdentityUnlinkRequest = z.infer<typeof ZIdentityUnlinkRequest>;
-
-
-// ----------- ENTROPY PROTOCOL RELATED TYPES -----------
-
-export const ZEntropyGetRequest = z.object({
-    salt: z.instanceof(Uint8Array)
-});
-export type IEntropyGetRequest = z.infer<typeof ZEntropyGetRequest>;
 
 // ----------- ICRC1 PROTOCOL RELATED TYPES -------------
 
@@ -148,7 +159,7 @@ export type ILoginSiteReadyMsg = z.infer<typeof ZLoginSiteReadyMsg>;
 export const ZLoginResultMsg = z.object({
     domain: ZMsgDomain,
     type: z.literal('login_result'),
-    result: z.optional(z.string()),
+    result: z.boolean(),
 });
 export type ILoginResultMsg = z.infer<typeof ZLoginResultMsg>;
 

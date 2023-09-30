@@ -2,10 +2,8 @@
 Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
-* refactor state
-* add second demo site and check mask linking
+* add aes encryption
 * add a dictionary for origins
-* make it so, when you login, the identity is stored in local storage, and each time you login again, the client would check if the session exists and if so, it would reuse the identity from the last time, but if there is no session, then it will redirect
 * security critical code isolation
 * refactor SNAP_METHODS
 * tests

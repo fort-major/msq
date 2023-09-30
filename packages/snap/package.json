@@ -39,6 +39,7 @@
     "envify": "4.1.0"
   },
   "dependencies": {
+    "@dfinity/identity-secp256k1": "0.19.3",
     "@metamask/snaps-ui": "^1.0.2",
     "@fort-major/masquerade-shared": "workspace:*"
   }

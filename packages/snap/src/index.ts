@@ -1,8 +1,9 @@
 import { OnRpcRequestHandler } from '@metamask/snaps-types';
 import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR, zodParse } from '@fort-major/masquerade-shared';
-import { protected_handleIdentityLogin, handleIdentityLinkRequest, handleIdentityUnlinkRequest, protected_handleIdentityAdd, protected_handleStateGetOriginData, handleEntropyGet, handleIdentityLogoutRequest, handleIdentityGetLinks } from './protocols';
 import { guardMethods as guardProtectedMethods } from './utils';
 import { protected_handleShowICRC1TransferConfirm } from './protocols/icrc1';
+import { handleSessionExists, protected_handleStateGetOriginData } from './protocols/state';
+import { handleIdentityGetLinks, handleIdentityGetPublicKey, handleIdentityLinkRequest, handleIdentityLogoutRequest, handleIdentitySign, handleIdentityUnlinkRequest, protected_handleIdentityAdd, protected_handleIdentityGetLoginOptions, protected_handleIdentityLogin } from './protocols/identity';
 
 
 export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => {
@@ -21,6 +22,11 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
             break;
         }
 
+        case SNAP_METHODS.state.sessionExists: {
+            result = handleSessionExists(origin);
+            break;
+        }
+
         // ------ IDENTITY RELATED METHODS --------
         case SNAP_METHODS.identity.protected_add: {
             result = protected_handleIdentityAdd(req.params.body);
@@ -29,6 +35,21 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
         case SNAP_METHODS.identity.protected_login: {
             result = protected_handleIdentityLogin(req.params.body);
+            break;
+        }
+
+        case SNAP_METHODS.identity.protected_getLoginOptions: {
+            result = protected_handleIdentityGetLoginOptions(req.params.body);
+            break;
+        }
+
+        case SNAP_METHODS.identity.sign: {
+            result = handleIdentitySign(req.params.body, origin);
+            break;
+        }
+
+        case SNAP_METHODS.identity.getPublicKey: {
+            result = handleIdentityGetPublicKey(req.params.body, origin);
             break;
         }
 
@@ -49,12 +70,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
         case SNAP_METHODS.identity.getLinks: {
             result = handleIdentityGetLinks(origin);
-            break;
-        }
-
-        // ------ ENTROPY RELATED METHODS ---------
-        case SNAP_METHODS.entropy.get: {
-            result = handleEntropyGet(req.params.body, origin);
             break;
         }
 

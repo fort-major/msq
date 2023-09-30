@@ -2,13 +2,13 @@ import { IcrcLedgerCanister, IcrcMetadataResponseEntries, IcrcValue } from "@dfi
 import { Account } from "@dfinity/ledger/dist/candid/icrc1_ledger";
 import { Principal } from "@dfinity/principal";
 import { InternalSnapClient } from "@fort-major/masquerade-client/dist/esm/internal";
-import { ErrorCode, IICRC1TransferRequest, IWalletSiteICRC1TransferResultMsg, IWalletSiteReadyMsg, ZWalletSiteICRC1TransferMsg, bytesToHex, err, originToHostname, unreacheable } from "@fort-major/masquerade-shared";
+import { ErrorCode, IICRC1TransferRequest, IWalletSiteICRC1TransferResultMsg, IWalletSiteReadyMsg, ZWalletSiteICRC1TransferMsg, bytesToHex, err, originToHostname, strToBytes, unreacheable } from "@fort-major/masquerade-shared";
 import { createEventSignal } from "@solid-primitives/event-listener";
 import { useNavigate } from "@solidjs/router";
 import bigDecimal from "js-big-decimal";
 import { createEffect, createSignal } from "solid-js";
-import { createIdentityForCanisterId } from "../../utils";
 import { HttpAgent } from "@dfinity/agent";
+import { MasqueradeIdentity } from "@fort-major/masquerade-client/src/identity";
 
 enum WalletPageState {
     WaitingForTransferRequest,
@@ -93,7 +93,8 @@ export function WalletPage() {
         const client = await InternalSnapClient.create({ snapId: 'local:http://localhost:8081' });
         setSnapClient(client);
 
-        const identity = await createIdentityForCanisterId(client, req.canisterId, 0);
+        const salt = `icrc-1\n${req.canisterId}\n0`;
+        const identity = await MasqueradeIdentity.create(client.getInner(), strToBytes(salt));
         const agent = new HttpAgent({ host: 'http://localhost:8080', identity });
 
         await agent.fetchRootKey();

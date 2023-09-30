@@ -1,5 +1,5 @@
-import { IIdentityAddRequest, IIdentityLoginRequest, IOriginData, IShowICRC1TransferConfirmRequest, IStateGetOriginDataRequest, SNAP_METHODS, TIdentityId, TOrigin } from "@fort-major/masquerade-shared";
-import { SnapClient } from "./client";
+import { IIdentityAddRequest, IIdentityGetLoginOptionsRequest, IIdentityGetLoginOptionsResponse, IIdentityLoginRequest, IOriginData, IShowICRC1TransferConfirmRequest, IStateGetOriginDataRequest, SNAP_METHODS, TIdentityId, TOrigin } from "@fort-major/masquerade-shared";
+import { MasqueradeClient } from "./client";
 
 export interface IInternalSnapClientParams {
     snapId?: string | undefined,
@@ -10,9 +10,13 @@ export interface IInternalSnapClientParams {
 
 export class InternalSnapClient {
     static async create(params?: IInternalSnapClientParams): Promise<InternalSnapClient> {
-        const inner = await SnapClient.create(params);
+        const inner = await MasqueradeClient.create(params);
 
         return new InternalSnapClient(inner);
+    }
+
+    getInner() {
+        return this.inner;
     }
 
     async register(toOrigin: TOrigin): Promise<true> {
@@ -27,19 +31,23 @@ export class InternalSnapClient {
         return this.inner._requestSnap(SNAP_METHODS.identity.protected_login, body);
     }
 
+    async getLoginOptions(forOrigin: TOrigin): Promise<IIdentityGetLoginOptionsResponse> {
+        const body: IIdentityGetLoginOptionsRequest = {
+            forOrigin
+        };
+
+        return this.inner._requestSnap(SNAP_METHODS.identity.protected_getLoginOptions, body);
+    }
+
     async getOriginData(origin: TOrigin): Promise<IOriginData | null> {
         const body: IStateGetOriginDataRequest = { origin };
 
         return this.inner._requestSnap(SNAP_METHODS.state.protected_getOriginData, body);
     }
 
-    async getEntropy(salt: Uint8Array): Promise<Uint8Array> {
-        return this.inner.getEntropy(salt);
-    }
-
     async showICRC1TransferConfirm(body: IShowICRC1TransferConfirmRequest): Promise<boolean> {
         return this.inner._requestSnap(SNAP_METHODS.icrc1.protected_showTransferConfirm, body);
     }
 
-    constructor(private inner: SnapClient) { }
+    constructor(private inner: MasqueradeClient) { }
 }

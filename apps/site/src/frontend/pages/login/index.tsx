@@ -3,7 +3,6 @@ import { createEffect, createSignal } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { InternalSnapClient } from "@fort-major/masquerade-client/dist/esm/internal";
 import { ErrorCode, ILoginResultMsg, ILoginSiteReadyMsg, IOriginData, TIdentityId, TOrigin, ZLoginRequestMsg, err, originToHostname } from "@fort-major/masquerade-shared";
-import { createIdentityForOrigin } from "../../utils";
 import { Ed25519KeyIdentity } from "@dfinity/identity";
 
 enum LoginPageState {
@@ -21,7 +20,7 @@ const referrerOrigin = (new URL(document.referrer)).origin;
 export function LoginPage() {
     const [state, setState] = createSignal(LoginPageState.WaitingForLoginRequest);
     const [snapClient, setSnapClient] = createSignal<InternalSnapClient | null>(null);
-    const [availableOrigins, setAvailableOrigins] = createSignal<Record<TOrigin, IAvailableOrigin> | null>(null);
+    const [availableOrigins, setAvailableOrigins] = createSignal<[TOrigin, string[]][] | null>(null);
     const [deriviationOrigin, setDeriviationOrigin] = createSignal<string | undefined>(undefined);
     const [identityId, setIdentityId] = createSignal<number | null>(null);
     const [referrerWindow, setReferrerWindow] = createSignal<MessageEventSource | null>(null);
@@ -64,7 +63,7 @@ export function LoginPage() {
             const failMsg: ILoginResultMsg = {
                 domain: 'internet-computer-metamask-snap',
                 type: 'login_result',
-                result: undefined
+                result: false
             };
 
             referrerWindow()!.postMessage(failMsg, { targetOrigin: referrerOrigin });
@@ -83,50 +82,11 @@ export function LoginPage() {
         const client = await InternalSnapClient.create({ snapId: 'local:http://localhost:8081' });
         setSnapClient(client);
 
-        await fetchAvailableOrigins();
+        const loginOptions = await client.getLoginOptions(referrerOrigin);
+        setAvailableOrigins(loginOptions);
 
         setState(LoginPageState.WaitingForUserInput);
     };
-
-    const fetchAvailableOrigins = async () => {
-        const client = snapClient()!;
-
-        let mainOriginData = await client.getOriginData(referrerOrigin);
-
-        if (mainOriginData?.identitiesTotal === 0) {
-            await client.register(referrerOrigin);
-            mainOriginData = await client.getOriginData(referrerOrigin);
-        }
-
-        const promises1 = Array(mainOriginData!.identitiesTotal).fill(0)
-            .map((_, idx) => createIdentityForOrigin(client, referrerOrigin, idx));
-        const identities = await Promise.all(promises1);
-
-        const availOrigins: Record<TOrigin, IAvailableOrigin> = {
-            [referrerOrigin]: { ...mainOriginData!, identities }
-        };
-
-        // TODO: refactor this into something more readable
-        const promises2 = mainOriginData!.linksFrom.map(async link => {
-            let linkedOrigin = await client.getOriginData(link);
-
-            if (!linkedOrigin) {
-                await client.register(link);
-                linkedOrigin = await client.getOriginData(link);
-            }
-
-            const promises = Array(linkedOrigin!.identitiesTotal).fill(0)
-                .map((_, idx) => createIdentityForOrigin(client, link, idx));
-
-            const identities = await Promise.all(promises);
-
-            availOrigins[link] = { ...linkedOrigin!, identities };
-        });
-
-        await Promise.all(promises2);
-
-        setAvailableOrigins(availOrigins);
-    }
 
     createEffect(connectWallet, state());
 
@@ -143,14 +103,13 @@ export function LoginPage() {
 
         await client.login(referrerOrigin, id, deriviationOrig);
 
-        const identity = availOrigins[deriviationOrig].identities[id];
-
         const msg: ILoginResultMsg = {
             domain: 'internet-computer-metamask-snap',
             type: 'login_result',
-            result: JSON.stringify(identity.toJSON())
+            result: true
         };
         referrerWindow()!.postMessage(msg, { targetOrigin: referrerOrigin });
+        window.onbeforeunload = null;
 
         window.close();
     };
@@ -159,9 +118,10 @@ export function LoginPage() {
         const msg: ILoginResultMsg = {
             domain: 'internet-computer-metamask-snap',
             type: 'login_result',
-            result: undefined
+            result: false
         };
         referrerWindow()?.postMessage(msg, { targetOrigin: referrerOrigin });
+        window.onbeforeunload = null;
 
         window.close();
     };
@@ -191,22 +151,20 @@ export function LoginPage() {
 
         const availOrigins = availableOrigins()!;
 
-        const selection = Object.keys(availOrigins).map(origin => {
-            const identities = availOrigins[origin].identities
-                .map(id => id.getPrincipal())
-                .map((prin, idx) =>
-                    <button
-                        style={{ "border-color": origin === deriviationOrigin() && idx === identityId() ? 'blue' : undefined }}
-                        onClick={() => onIdentitySelect(origin, idx)}
-                    >
-                        {prin.toText()}
-                    </button>
-                );
+        const selection = availOrigins.map(([origin, principals]) => {
+            const principalBtns = principals.map((it, idx) => (
+                <button
+                    style={{ "border-color": origin === deriviationOrigin() && idx === identityId() ? 'blue' : undefined }}
+                    onClick={() => onIdentitySelect(origin, idx)}
+                >
+                    {it}
+                </button>
+            ));
 
             return (
                 <div>
                     <h3>Identities from ${originToHostname(origin)}</h3>
-                    {identities}
+                    {principalBtns}
                 </div>
             );
         })

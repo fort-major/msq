@@ -72,7 +72,7 @@ const DEFAULT_STATE: IState = {
 };
 
 export const DEFAULT_ORIGIN_DATA: IOriginData = {
-    identitiesTotal: 0,
+    identitiesTotal: 1,
     currentSession: undefined,
     linksFrom: [],
     linksTo: [],

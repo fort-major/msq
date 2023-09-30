@@ -8,6 +8,10 @@ export const SNAP_METHODS = {
     identity: {
         protected_add: 'identity_protected_add',
         protected_login: 'identity_protected_login',
+        protected_getLoginOptions: 'identity_protected_getLoginOptions',
+
+        sign: 'identity_sign',
+        getPublicKey: 'identity_getPublicKey',
 
         requestLogout: 'identity_requestLogout',
         requestLink: 'identity_requestLink',
@@ -16,9 +20,7 @@ export const SNAP_METHODS = {
     },
     state: {
         protected_getOriginData: 'state_protected_getOriginData',
-    },
-    entropy: {
-        get: 'entropy_get',
+        sessionExists: 'state_sessionExists',
     },
     icrc1: {
         protected_showTransferConfirm: 'icrc1_protected_showTransferConfirm'
@@ -26,13 +28,14 @@ export const SNAP_METHODS = {
 };
 
 export enum ErrorCode {
-    UNKOWN = 'UNKNOWN',
-    INVALID_RPC_METHOD = 'INVALID_RPC_METHOD',
-    INVALID_INPUT = 'INVALID_INPUT',
-    IC_ERROR = 'IC_ERROR',
-    PROTECTED_METHOD = 'PROTECTED_METHOD',
-    ICRC1_ERROR = 'ICRC1_ERROR',
-    METAMASK_ERROR = 'METAMASK_ERROR',
+    UNKOWN = 'MSQ_UNKNOWN',
+    INVALID_RPC_METHOD = 'MSQ_INVALID_RPC_METHOD',
+    INVALID_INPUT = 'MSQ_INVALID_INPUT',
+    IC_ERROR = 'MSQ_IC_ERROR',
+    PROTECTED_METHOD = 'MSQ_PROTECTED_METHOD',
+    ICRC1_ERROR = 'MSQ_ICRC1_ERROR',
+    METAMASK_ERROR = 'MSQ_METAMASK_ERROR',
+    UNAUTHORIZED = 'MSQ_UNAUTHORIZED',
 }
 
 export function err(code: ErrorCode, msg: string): never {

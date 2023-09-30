@@ -1,22 +1,31 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import { IMetaMaskEthereumProvider } from "./types";
-import { ErrorCode, IEntropyGetRequest, IIdentityLinkRequest, IIdentityUnlinkRequest, ILoginRequestMsg, ILoginSiteMsg, IWalletSiteICRC1TransferMsg, IWalletSiteMsg, Principal, SNAP_METHODS, TOrigin, ZLoginSiteMsg, ZWalletSiteMsg, debugStringify, delay, err, fromCBOR, toCBOR, zodParse } from "@fort-major/masquerade-shared";
-import { Identity } from "@dfinity/agent";
+import { ErrorCode, IIdentityLinkRequest, IIdentityUnlinkRequest, ILoginRequestMsg, ILoginSiteMsg, IWalletSiteICRC1TransferMsg, IWalletSiteMsg, Principal, SNAP_METHODS, TOrigin, ZLoginSiteMsg, ZWalletSiteMsg, debugStringify, delay, err, fromCBOR, toCBOR, zodParse } from "@fort-major/masquerade-shared";
+import { Identity, SignIdentity } from "@dfinity/agent";
 import { Ed25519KeyIdentity } from "@dfinity/identity";
 import { SNAP_ID, SNAP_SITE_ORIGIN, SNAP_VERSION } from ".";
+import { MasqueradeIdentity } from "./identity";
 
 const DEFAULT_SHOULD_BE_FLASK = false;
 const DEFAULT_DEBUG = false;
 
-export interface ISnapClientParams {
+export interface IMasqueradeClientParams {
     snapId?: string | undefined,
     snapVersion?: string | undefined,
     shouldBeFlask?: boolean | undefined,
     debug?: boolean | undefined,
 }
 
-export class SnapClient {
-    async requestLogin(): Promise<Identity | null> {
+export class MasqueradeClient {
+    async isAuthorized(): Promise<boolean> {
+        return await this._requestSnap(SNAP_METHODS.state.sessionExists);
+    }
+
+    async requestLogin(): Promise<SignIdentity | null> {
+        if (await this.isAuthorized()) {
+            return MasqueradeIdentity.create(this);
+        }
+
         return new Promise(async (res, rej) => {
             const url = new URL("/login", SNAP_SITE_ORIGIN);
 
@@ -52,13 +61,11 @@ export class SnapClient {
                 }
 
                 if (loginSiteMsg.type === 'login_result') {
-                    if (loginSiteMsg.result === undefined) {
+                    if (!loginSiteMsg.result) {
                         return res(null);
                     }
 
-                    const identity = Ed25519KeyIdentity.fromJSON(loginSiteMsg.result);
-
-                    return res(identity);
+                    return MasqueradeIdentity.create(this).then(res);
                 }
             });
 
@@ -155,12 +162,6 @@ export class SnapClient {
         });
     }
 
-    async getEntropy(salt: Uint8Array): Promise<Uint8Array> {
-        const body: IEntropyGetRequest = { salt };
-
-        return this._requestSnap(SNAP_METHODS.entropy.get, body);
-    }
-
     async _requestSnap<T, R>(method: string, body?: T): Promise<R> {
         const params = {
             snapId: this.snapId,
@@ -185,7 +186,7 @@ export class SnapClient {
         return decodedResponse;
     }
 
-    static async create(params?: ISnapClientParams): Promise<SnapClient> {
+    static async create(params?: IMasqueradeClientParams): Promise<MasqueradeClient> {
         const provider = await detectEthereumProvider<IMetaMaskEthereumProvider>({ mustBeMetaMask: true });
         const version = await provider?.request<string>({ method: 'web3_clientVersion' });
         const isFlask = version?.includes('flask');
@@ -212,7 +213,7 @@ export class SnapClient {
             err(ErrorCode.METAMASK_ERROR, 'The user denied connection request!');
         }
 
-        return new SnapClient(provider, snapId, params?.debug);;
+        return new MasqueradeClient(provider, snapId, params?.debug);;
     }
 
     private constructor(
