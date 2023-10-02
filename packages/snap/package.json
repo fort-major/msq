@@ -34,13 +34,13 @@
     "version:set": "node ../../set-version.js"
   },
   "devDependencies": {
-    "@metamask/snaps-cli": "^1.0.2",
-    "@metamask/snaps-types": "^1.0.2",
+    "@metamask/snaps-cli": "1.0.2",
+    "@metamask/snaps-types": "1.0.2",
     "envify": "4.1.0"
   },
   "dependencies": {
     "@dfinity/identity-secp256k1": "0.19.3",
-    "@metamask/snaps-ui": "^1.0.2",
+    "@metamask/snaps-ui": "1.0.2",
     "@fort-major/masquerade-shared": "workspace:*"
   }
 }

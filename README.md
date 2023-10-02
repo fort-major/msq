@@ -2,8 +2,6 @@
 Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
-* add aes encryption
-* add a dictionary for origins
 * security critical code isolation
 * refactor SNAP_METHODS
 * tests

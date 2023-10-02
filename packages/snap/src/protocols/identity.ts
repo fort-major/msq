@@ -86,7 +86,7 @@ export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<bool
                 heading('🔒 Log out request 🔒'),
                 text(`**${originToHostname(origin)}** wants you to log out.`),
                 divider(),
-                text(`You will become anonymous, but **${originToHostname(origin)}** may still track your actions and call canisters on your behalf!`),
+                text(`You will become anonymous, but **${originToHostname(origin)}** may still track your actions!`),
                 divider(),
                 text('**Proceed?** 🚀')
             ])
@@ -198,9 +198,10 @@ export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOri
             type: 'confirmation',
             content: panel([
                 heading('🎭 Mask Unlink Request 🎭'),
-                text(`**${originToHostname(origin)}** wants you to unlink your masks from **${originToHostname(body.withOrigin)}**`),
+                text(`**${originToHostname(origin)}** wants you to unlink your masks from **${originToHostname(body.withOrigin)}**.`),
                 divider(),
-                text(`You will no longer be able to log in to **${originToHostname(body.withOrigin)}** using masks you use on **${originToHostname(origin)}**`),
+                text(`You will no longer be able to log in to **${originToHostname(body.withOrigin)}** using masks you use on **${originToHostname(origin)}**.`),
+                text(`You will be logged out from **${originToHostname(body.withOrigin)}**, if you're currently logged in using one of the linked masks.`),
                 divider(),
                 text('Proceed? 🚀')
             ])
@@ -212,8 +213,17 @@ export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOri
         return false;
     }
 
-    // otherwise update the links lists and return true
+    // otherwise update the links lists 
     manager.unlink(origin, body.withOrigin);
+
+    // and then try de-authorizing from the target origin
+    const targetOriginData = manager.getOriginData(body.withOrigin);
+    if (targetOriginData.currentSession) {
+        if (targetOriginData.currentSession.deriviationOrigin === origin) {
+            targetOriginData.currentSession = undefined;
+        }
+    }
+
     await manager.persist();
 
     return true;
