@@ -8,16 +8,19 @@ export class MasqueradeIdentity extends SignIdentity {
     private constructor(
         private client: MasqueradeClient,
         private publicKey: Secp256k1PublicKey,
-        private salt: Uint8Array | undefined
+        public readonly salt: Uint8Array | undefined
     ) {
         super();
     }
 
-    public static async create(client: MasqueradeClient, salt?: Uint8Array | undefined): Promise<MasqueradeIdentity> {
+    public static async create(
+        client: MasqueradeClient,
+        salt?: Uint8Array | undefined
+    ): Promise<MasqueradeIdentity> {
         const body: IIdentityGetPublicKeyRequest = {
             salt
         };
-        const rawPubkey: ArrayBuffer = await client._requestSnap(SNAP_METHODS.identity.getPublicKey, body);
+        const rawPubkey: ArrayBuffer = await client._requestSnap(SNAP_METHODS.public.identity.getPublicKey, body);
 
         return new MasqueradeIdentity(client, Secp256k1PublicKey.fromRaw(rawPubkey), salt);
     }
@@ -33,9 +36,9 @@ export class MasqueradeIdentity extends SignIdentity {
     sign(blob: ArrayBuffer): Promise<Signature> {
         const body: IIdentitySignRequest = {
             challenge: blob,
-            salt: this.salt,
+            salt: this.salt
         };
 
-        return this.client._requestSnap(SNAP_METHODS.identity.sign, body);
+        return this.client._requestSnap(SNAP_METHODS.public.identity.sign, body);
     }
 }

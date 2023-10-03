@@ -2,11 +2,10 @@
 Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
-* security critical code isolation
-* refactor SNAP_METHODS
 * tests
 * comment code
 * lint & prettier
+* readme update + inner readmes
 
 ## Local development
 This project is managed with `pnpm` and `turborepo`.
@@ -22,6 +21,7 @@ You would need a file called `.env.dev` in the root folder.
 By default (if you're running dfx on :8080 and change nothing) its content should be equal to the content of `example.env` file.
 If you change any devserver host (snap, snap website or demo website), then you should also change it in `.env.dev`.
 If you want to deploy this in production, then you would need another file, called `.env.prod`. 
+DFX env variables (starting with "CANISTER_ID_") are propagated to vite automatically. The same goes for env variables starting with "MSQ_".
 
 ### Build
 * `pnpm run build`

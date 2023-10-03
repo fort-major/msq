@@ -1,4 +1,4 @@
-import { ErrorCode, SNAP_METHODS, TIdentityId, TOrigin, bytesToHex, err, hexToBytes, strToBytes } from "@fort-major/masquerade-shared";
+import { ErrorCode, SNAP_METHODS, TIdentityId, TOrigin, TProtectedSnapMethodsKind, bytesToHex, err, hexToBytes, strToBytes } from "@fort-major/masquerade-shared";
 import { Secp256k1KeyIdentity } from "@dfinity/identity-secp256k1";
 
 // this is executed during the 'verify' build step process
@@ -8,16 +8,8 @@ if (!process.env.MSQ_SNAP_SITE_ORIGIN) {
     throw new Error(`Bad build: snap site origin is '${process.env.MSQ_SNAP_SITE_ORIGIN}'`);
 }
 
-// protected methods are those which could be executed only 
-// from the Masquerade website
-// TODO: MAKE THIS AUTOMATIC
-const PROTECTED_METHODS = [
-    SNAP_METHODS.identity.protected_add,
-    SNAP_METHODS.identity.protected_login,
-    SNAP_METHODS.identity.protected_getLoginOptions,
-    SNAP_METHODS.state.protected_getOriginData,
-    SNAP_METHODS.icrc1.protected_showTransferConfirm,
-];
+const PROTECTED_METHODS = Object.keys(SNAP_METHODS.protected)
+    .flatMap(key => Object.values(SNAP_METHODS.protected[key as TProtectedSnapMethodsKind]));
 
 export function guardMethods(method: string, origin: TOrigin) {
     // let other methods pass
@@ -40,7 +32,8 @@ export function isMasquerade(origin: TOrigin): boolean {
 
 export async function getSignIdentity(origin: TOrigin, identityId: TIdentityId, salt?: Uint8Array | undefined) {
     const s = salt ? bytesToHex(salt) : "";
-    const saltStr = `\x0aidentity-sign\n${s}`;
+    // shared prefix may be used in following updates
+    const saltStr = `\x0aidentity-sign\nshared\n${s}`;
     const entropy = await getEntropy(origin, identityId, strToBytes(saltStr));
 
     return Secp256k1KeyIdentity.fromSecretKey(entropy);

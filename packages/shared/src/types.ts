@@ -96,7 +96,6 @@ export const ZIdentityLoginRequest = z.object({
 });
 export type IIdentityLoginRequest = z.infer<typeof ZIdentityLoginRequest>;
 
-
 export const ZIdentitySignRequest = z.object({
     challenge: ZBlob,
     salt: z.optional(z.instanceof(Uint8Array)),

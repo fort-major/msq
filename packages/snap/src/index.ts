@@ -2,7 +2,7 @@ import { OnRpcRequestHandler } from '@metamask/snaps-types';
 import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR, zodParse } from '@fort-major/masquerade-shared';
 import { guardMethods as guardProtectedMethods } from './utils';
 import { protected_handleShowICRC1TransferConfirm } from './protocols/icrc1';
-import { handleSessionExists, protected_handleStateGetOriginData } from './protocols/state';
+import { handleStateSessionExists } from './protocols/state';
 import { handleIdentityGetLinks, handleIdentityGetPublicKey, handleIdentityLinkRequest, handleIdentityLogoutRequest, handleIdentitySign, handleIdentityUnlinkRequest, protected_handleIdentityAdd, protected_handleIdentityGetLoginOptions, protected_handleIdentityLogin } from './protocols/identity';
 
 
@@ -16,71 +16,66 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
     let result: Promise<any>;
 
     switch (request.method) {
-        // ------ STATE RELATED METHODS -----------
-        case SNAP_METHODS.state.protected_getOriginData: {
-            result = protected_handleStateGetOriginData(req.params.body);
-            break;
-        }
 
-        case SNAP_METHODS.state.sessionExists: {
-            result = handleSessionExists(origin);
-            break;
-        }
+        // ------ Protected methods ------
 
-        // ------ IDENTITY RELATED METHODS --------
-        case SNAP_METHODS.identity.protected_add: {
+        case SNAP_METHODS.protected.identity.add: {
             result = protected_handleIdentityAdd(req.params.body);
             break;
         }
 
-        case SNAP_METHODS.identity.protected_login: {
+        case SNAP_METHODS.protected.identity.login: {
             result = protected_handleIdentityLogin(req.params.body);
             break;
         }
 
-        case SNAP_METHODS.identity.protected_getLoginOptions: {
+        case SNAP_METHODS.protected.identity.getLoginOptions: {
             result = protected_handleIdentityGetLoginOptions(req.params.body);
             break;
         }
 
-        case SNAP_METHODS.identity.sign: {
-            result = handleIdentitySign(req.params.body, origin);
-            break;
-        }
-
-        case SNAP_METHODS.identity.getPublicKey: {
-            result = handleIdentityGetPublicKey(req.params.body, origin);
-            break;
-        }
-
-        case SNAP_METHODS.identity.requestLogout: {
-            result = handleIdentityLogoutRequest(origin);
-            break;
-        }
-
-        case SNAP_METHODS.identity.requestLink: {
-            result = handleIdentityLinkRequest(req.params.body, origin);
-            break;
-        }
-
-        case SNAP_METHODS.identity.requestUnlink: {
-            result = handleIdentityUnlinkRequest(req.params.body, origin);
-            break;
-        }
-
-        case SNAP_METHODS.identity.getLinks: {
-            result = handleIdentityGetLinks(origin);
-            break;
-        }
-
-        // ------ ICRC1 RELATED METHODS -----------
-
-        case SNAP_METHODS.icrc1.protected_showTransferConfirm: {
+        case SNAP_METHODS.protected.icrc1.showTransferConfirm: {
             result = protected_handleShowICRC1TransferConfirm(req.params.body);
             break;
         }
 
-        // ----------------------------------------
+        // ------ Public Methods ------ 
+
+        case SNAP_METHODS.public.identity.sign: {
+            result = handleIdentitySign(req.params.body, origin);
+            break;
+        }
+
+        case SNAP_METHODS.public.identity.getPublicKey: {
+            result = handleIdentityGetPublicKey(req.params.body, origin);
+            break;
+        }
+
+        case SNAP_METHODS.public.identity.requestLogout: {
+            result = handleIdentityLogoutRequest(origin);
+            break;
+        }
+
+        case SNAP_METHODS.public.identity.requestLink: {
+            result = handleIdentityLinkRequest(req.params.body, origin);
+            break;
+        }
+
+        case SNAP_METHODS.public.identity.requestUnlink: {
+            result = handleIdentityUnlinkRequest(req.params.body, origin);
+            break;
+        }
+
+        case SNAP_METHODS.public.identity.getLinks: {
+            result = handleIdentityGetLinks(origin);
+            break;
+        }
+
+        case SNAP_METHODS.public.state.sessionExists: {
+            result = handleStateSessionExists(origin);
+            break;
+        }
+
 
         default: {
             err(ErrorCode.INVALID_RPC_METHOD, request.method);

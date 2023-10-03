@@ -2,17 +2,12 @@ import { createEventSignal } from "@solid-primitives/event-listener";
 import { createEffect, createSignal } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { InternalSnapClient } from "@fort-major/masquerade-client/dist/esm/internal";
-import { ErrorCode, ILoginResultMsg, ILoginSiteReadyMsg, IOriginData, TIdentityId, TOrigin, ZLoginRequestMsg, err, originToHostname } from "@fort-major/masquerade-shared";
-import { Ed25519KeyIdentity } from "@dfinity/identity";
+import { ErrorCode, ILoginResultMsg, ILoginSiteReadyMsg, TIdentityId, TOrigin, ZLoginRequestMsg, err, originToHostname } from "@fort-major/masquerade-shared";
 
 enum LoginPageState {
     WaitingForLoginRequest,
     ConnectingWallet,
     WaitingForUserInput
-}
-
-interface IAvailableOrigin extends IOriginData {
-    identities: Ed25519KeyIdentity[]
 }
 
 const referrerOrigin = (new URL(document.referrer)).origin;
@@ -79,7 +74,10 @@ export function LoginPage() {
             return;
         }
 
-        const client = await InternalSnapClient.create({ snapId: 'local:http://localhost:8081' });
+        const client = await InternalSnapClient.create({
+            snapId: import.meta.env.VITE_MSQ_SNAP_ID,
+            snapVersion: import.meta.env.VITE_MSQ_SNAP_VERSION,
+        });
         setSnapClient(client);
 
         const loginOptions = await client.getLoginOptions(referrerOrigin);
@@ -92,7 +90,6 @@ export function LoginPage() {
 
     const onLogin = async () => {
         const client = snapClient()!;
-        const availOrigins = availableOrigins()!;
         const id = identityId()!;
 
         let deriviationOrig = deriviationOrigin();

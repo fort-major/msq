@@ -12,7 +12,7 @@ export const IndexPage = () => {
     const [links, setLinks] = createSignal<TOrigin[]>([]);
 
     onMount(async () => {
-        const client = await SnapClient.create({ snapId: 'local:http://localhost:8081' });
+        const client = await SnapClient.create({ snapId: import.meta.env.VITE_MSQ_SNAP_ID });
         setLinks(await client.getLinks());
 
         setSnapClient(client);
@@ -21,7 +21,7 @@ export const IndexPage = () => {
             const identity = (await client.requestLogin())!;
             setPrincipal(await identity.getPrincipal());
 
-            const agent = new HttpAgent({ host: 'http://localhost:8080', identity });
+            const agent = new HttpAgent({ host: import.meta.env.VITE_MSQ_DFX_NETWORK_HOST, identity });
             setActor(createBackendActor(agent));
 
             await agent.fetchRootKey().catch((err) => {
@@ -48,7 +48,7 @@ export const IndexPage = () => {
             err(ErrorCode.UNKOWN, 'user denied login');
         }
 
-        const agent = new HttpAgent({ host: 'http://localhost:8080', identity });
+        const agent = new HttpAgent({ host: import.meta.env.VITE_MSQ_DFX_NETWORK_HOST, identity });
         setActor(createBackendActor(agent));
 
         await agent.fetchRootKey().catch((err) => {

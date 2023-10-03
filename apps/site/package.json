@@ -4,9 +4,10 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "prod:build": "pnpm run version:set && tsc && vite build",
-    "dev:build": "tsc && vite build",
-    "dev": "vite --mode dev",
+    "prod:build": "pnpm run propagateEnv && pnpm run version:set && tsc && vite build",
+    "dev:build": "pnpm run propagateEnv && tsc && vite build",
+    "dev": "pnpm run propagateEnv && vite --mode dev",
+    "propagateEnv": "node ../../propagate-env.js",
     "version:set": "node ../../set-version.js"
   },
   "devDependencies": {

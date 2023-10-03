@@ -21,8 +21,6 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
     const originData = manager.getOriginData(body.toOrigin);
     if (originData.identitiesTotal === 0) { unreacheable('login - no origin data found') }
 
-    console.log('LOGIN', originData);
-
     const timestamp = (new Date()).getTime();
     originData.currentSession = {
         deriviationOrigin: body.withDeriviationOrigin || body.toOrigin,
@@ -143,6 +141,11 @@ export async function handleIdentityGetPublicKey(bodyCBOR: string, origin: TOrig
 }
 
 export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigin): Promise<boolean> {
+    // WARNING: do not remove this, Masquerade website should never share its keys to other websites
+    if (isMasquerade(origin)) {
+        unreacheable('Unable to link the Masquerade website to other sites');
+    }
+
     const body = zodParse(ZIdentityLinkRequest, fromCBOR(bodyCBOR));
     const manager = await StateManager.make();
 

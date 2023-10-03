@@ -5,27 +5,32 @@ export * from './types';
 export * from './encoding';
 
 export const SNAP_METHODS = {
-    identity: {
-        protected_add: 'identity_protected_add',
-        protected_login: 'identity_protected_login',
-        protected_getLoginOptions: 'identity_protected_getLoginOptions',
-
-        sign: 'identity_sign',
-        getPublicKey: 'identity_getPublicKey',
-
-        requestLogout: 'identity_requestLogout',
-        requestLink: 'identity_requestLink',
-        requestUnlink: 'identity_requestUnlink',
-        getLinks: 'identity_getLinks',
+    protected: {
+        identity: {
+            add: 'protected_identity_add',
+            login: 'protected_identity_login',
+            getLoginOptions: 'protected_identity_getLoginOptions'
+        },
+        icrc1: {
+            showTransferConfirm: 'protected_icrc1_showTransferConfirm'
+        }
     },
-    state: {
-        protected_getOriginData: 'state_protected_getOriginData',
-        sessionExists: 'state_sessionExists',
-    },
-    icrc1: {
-        protected_showTransferConfirm: 'icrc1_protected_showTransferConfirm'
+    public: {
+        identity: {
+            sign: 'public_identity_sign',
+            getPublicKey: 'public_identity_getPublicKey',
+
+            requestLogout: 'public_identity_requestLogout',
+            requestLink: 'public_identity_requestLink',
+            requestUnlink: 'public_identity_requestUnlink',
+            getLinks: 'public_identity_getLinks'
+        },
+        state: {
+            sessionExists: 'public_state_sessionExists'
+        }
     }
 };
+export type TProtectedSnapMethodsKind = keyof typeof SNAP_METHODS.protected;
 
 export enum ErrorCode {
     UNKOWN = 'MSQ_UNKNOWN',

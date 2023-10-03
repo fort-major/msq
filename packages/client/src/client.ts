@@ -1,8 +1,7 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import { IMetaMaskEthereumProvider } from "./types";
 import { ErrorCode, IIdentityLinkRequest, IIdentityUnlinkRequest, ILoginRequestMsg, ILoginSiteMsg, IWalletSiteICRC1TransferMsg, IWalletSiteMsg, Principal, SNAP_METHODS, TOrigin, ZLoginSiteMsg, ZWalletSiteMsg, debugStringify, delay, err, fromCBOR, toCBOR, zodParse } from "@fort-major/masquerade-shared";
-import { Identity, SignIdentity } from "@dfinity/agent";
-import { Ed25519KeyIdentity } from "@dfinity/identity";
+import { SignIdentity } from "@dfinity/agent";
 import { SNAP_ID, SNAP_SITE_ORIGIN, SNAP_VERSION } from ".";
 import { MasqueradeIdentity } from "./identity";
 
@@ -18,7 +17,7 @@ export interface IMasqueradeClientParams {
 
 export class MasqueradeClient {
     async isAuthorized(): Promise<boolean> {
-        return await this._requestSnap(SNAP_METHODS.state.sessionExists);
+        return await this._requestSnap(SNAP_METHODS.public.state.sessionExists);
     }
 
     async requestLogin(): Promise<SignIdentity | null> {
@@ -80,23 +79,23 @@ export class MasqueradeClient {
     }
 
     async requestLogout(): Promise<boolean> {
-        return this._requestSnap(SNAP_METHODS.identity.requestLogout);
+        return this._requestSnap(SNAP_METHODS.public.identity.requestLogout);
     }
 
     async requestLink(withOrigin: TOrigin): Promise<boolean> {
         const body: IIdentityLinkRequest = { withOrigin };
 
-        return this._requestSnap(SNAP_METHODS.identity.requestLink, body);
+        return this._requestSnap(SNAP_METHODS.public.identity.requestLink, body);
     }
 
     async requestUnlink(withOrigin: TOrigin): Promise<boolean> {
         const body: IIdentityUnlinkRequest = { withOrigin };
 
-        return this._requestSnap(SNAP_METHODS.identity.requestUnlink, body);
+        return this._requestSnap(SNAP_METHODS.public.identity.requestUnlink, body);
     }
 
     async getLinks(): Promise<TOrigin[]> {
-        return this._requestSnap(SNAP_METHODS.identity.getLinks);
+        return this._requestSnap(SNAP_METHODS.public.identity.getLinks);
     }
 
     async requestICRC1Transfer(

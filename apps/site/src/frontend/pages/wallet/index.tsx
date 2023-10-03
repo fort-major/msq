@@ -2,13 +2,13 @@ import { IcrcLedgerCanister, IcrcMetadataResponseEntries, IcrcValue } from "@dfi
 import { Account } from "@dfinity/ledger/dist/candid/icrc1_ledger";
 import { Principal } from "@dfinity/principal";
 import { InternalSnapClient } from "@fort-major/masquerade-client/dist/esm/internal";
-import { ErrorCode, IICRC1TransferRequest, IWalletSiteICRC1TransferResultMsg, IWalletSiteReadyMsg, ZWalletSiteICRC1TransferMsg, bytesToHex, err, originToHostname, strToBytes, unreacheable } from "@fort-major/masquerade-shared";
+import { ErrorCode, IICRC1TransferRequest, IWalletSiteICRC1TransferResultMsg, IWalletSiteReadyMsg, ZWalletSiteICRC1TransferMsg, bytesToHex, err, originToHostname, unreacheable } from "@fort-major/masquerade-shared";
 import { createEventSignal } from "@solid-primitives/event-listener";
 import { useNavigate } from "@solidjs/router";
 import bigDecimal from "js-big-decimal";
 import { createEffect, createSignal } from "solid-js";
 import { HttpAgent } from "@dfinity/agent";
-import { MasqueradeIdentity } from "@fort-major/masquerade-client/src/identity";
+import { makeCanisterIdIdentity } from "../../utils";
 
 enum WalletPageState {
     WaitingForTransferRequest,
@@ -90,12 +90,14 @@ export function WalletPage() {
 
         const req = transferRequest()!;
 
-        const client = await InternalSnapClient.create({ snapId: 'local:http://localhost:8081' });
+        const client = await InternalSnapClient.create({
+            snapId: import.meta.env.VITE_MSQ_SNAP_ID,
+            snapVersion: import.meta.env.VITE_MSQ_SNAP_VERSION,
+        });
         setSnapClient(client);
 
-        const salt = `icrc-1\n${req.canisterId}\n0`;
-        const identity = await MasqueradeIdentity.create(client.getInner(), strToBytes(salt));
-        const agent = new HttpAgent({ host: 'http://localhost:8080', identity });
+        const identity = makeCanisterIdIdentity(client.getInner(), req.canisterId);
+        const agent = new HttpAgent({ host: import.meta.env.VITE_MSQ_DFX_NETWORK_HOST, identity });
 
         await agent.fetchRootKey();
         setUserPrincipal(await agent.getPrincipal());

@@ -4,13 +4,14 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "prod:build": "pnpm run version:set && tsc && vite build",
-    "dev:build": "tsc && vite build",
-    "dev": "vite --mode dev",
+    "prod:build": "pnpm run propagateEnv && pnpm run version:set && tsc && vite build",
+    "dev:build": "pnpm run propagateEnv && tsc && vite build",
+    "dev": "pnpm run propagateEnv && vite --mode dev",
     "dev:gen": "dfx generate",
     "dev:nns": "dfx nns install",
     "dev:start": "dfx start --clean",
-    "dev:deploy": "dfx deploy demo_backend && node propagate-env.js",
+    "dev:deploy": "dfx deploy demo_backend",
+    "propagateEnv": "node ../../propagate-env.js",
     "cargo:repair": "cargo build --target=wasm32-unknown-unknown",
     "version:set": "node ../../set-version.js"
   },
