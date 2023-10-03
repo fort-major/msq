@@ -18,6 +18,11 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
     const body = zodParse(ZIdentityLoginRequest, fromCBOR(bodyCBOR));
     const manager = await StateManager.make();
 
+    if (!!body.withDeriviationOrigin && body.withDeriviationOrigin !== body.toOrigin) {
+        if (!manager.linkExists(body.withDeriviationOrigin, body.toOrigin))
+            err(ErrorCode.UNAUTHORIZED, 'Unable to login without a link');
+    }
+
     const originData = manager.getOriginData(body.toOrigin);
     if (originData.identitiesTotal === 0) { unreacheable('login - no origin data found') }
 
@@ -148,6 +153,10 @@ export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigi
 
     const body = zodParse(ZIdentityLinkRequest, fromCBOR(bodyCBOR));
     const manager = await StateManager.make();
+
+    if (body.withOrigin === origin) {
+        err(ErrorCode.INVALID_INPUT, 'Unable to link to itself');
+    }
 
     // if there is already a link exists, just return true as if we did all the rest of the function
     if (manager.linkExists(origin, body.withOrigin)) {

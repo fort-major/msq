@@ -9,13 +9,13 @@ export async function protected_handleShowICRC1TransferConfirm(bodyCBOR: string)
         params: {
             type: 'confirmation',
             content: panel([
-                heading(`🔁 Confirm ${body.ticker} Transfer (ICRC-1) 🔁`),
+                heading(`💳 Confirm ${body.ticker} Transfer (ICRC-1) 💳`),
                 text('**From:**'),
                 text(body.from),
                 text('**To principal ID:**'),
                 text(body.to.owner),
                 text('**To subaccount ID:**'),
-                text(body.to.subaccount ? bytesToHex(body.to.subaccount) : 'Default subaccount'),
+                text(body.to.subaccount ? bytesToHex(body.to.subaccount) : 'Default subaccount ID'),
                 text('**Total amount:**'),
                 text(`${body.totalAmount} ${body.ticker}`),
                 divider(),

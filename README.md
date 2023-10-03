@@ -3,6 +3,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 * tests
+* statistics
 * comment code
 * lint & prettier
 * readme update + inner readmes
