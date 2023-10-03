@@ -1,5 +1,5 @@
-import { IcrcLedgerCanister, IcrcMetadataResponseEntries, IcrcValue } from "@dfinity/ledger";
-import { Account } from "@dfinity/ledger/dist/candid/icrc1_ledger";
+import { IcrcLedgerCanister, IcrcMetadataResponseEntries, IcrcValue } from "@dfinity/ledger-icrc";
+import { Account } from "@dfinity/ledger-icrc/dist/candid/icrc_ledger";
 import { Principal } from "@dfinity/principal";
 import { InternalSnapClient } from "@fort-major/masquerade-client/dist/esm/internal";
 import { ErrorCode, IICRC1TransferRequest, IWalletSiteICRC1TransferResultMsg, IWalletSiteReadyMsg, ZWalletSiteICRC1TransferMsg, bytesToHex, err, originToHostname, unreacheable } from "@fort-major/masquerade-shared";

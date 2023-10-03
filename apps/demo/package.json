@@ -27,8 +27,6 @@
     "solid-styled-components": "0.28.5",
     "nanostores": "0.9.3",
     "@nanostores/solid": "0.4.2",
-    "@fort-major/masquerade-client": "workspace:*",
-    "@fort-major/masquerade-shared": "workspace:*",
-    "@dfinity/ledger": "0.0.15"
+    "@fort-major/masquerade-client": "workspace:*"
   }
 }

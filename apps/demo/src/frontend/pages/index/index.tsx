@@ -3,13 +3,12 @@ import { Principal } from "@dfinity/principal";
 import { SnapClient } from "@fort-major/masquerade-client";
 import { createSignal, onMount } from "solid-js";
 import { Backend, createBackendActor } from "../../backend";
-import { ErrorCode, TOrigin, err } from "@fort-major/masquerade-shared";
 
 export const IndexPage = () => {
     const [snapClient, setSnapClient] = createSignal<SnapClient | null>();
     const [actor, setActor] = createSignal<ActorSubclass<Backend> | null>(null);
     const [principal, setPrincipal] = createSignal<Principal>(Principal.anonymous());
-    const [links, setLinks] = createSignal<TOrigin[]>([]);
+    const [links, setLinks] = createSignal<string[]>([]);
 
     onMount(async () => {
         const client = await SnapClient.create({ snapId: import.meta.env.VITE_MSQ_SNAP_ID });
@@ -45,7 +44,7 @@ export const IndexPage = () => {
         const identity = await client.requestLogin();
 
         if (!identity) {
-            err(ErrorCode.UNKOWN, 'user denied login');
+            throw new Error(`[Login denied]`);
         }
 
         const agent = new HttpAgent({ host: import.meta.env.VITE_MSQ_DFX_NETWORK_HOST, identity });
