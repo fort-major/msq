@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": "./",
     "outDir": "dist",
     "target": "ESNext",
     "module": "commonjs",
@@ -21,6 +21,8 @@
     }
   ],
   "exclude": [
-    "./test"
+    ".turbo",
+    "dist",
+    "node_modules"
   ]
 }

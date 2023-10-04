@@ -1,18 +1,9 @@
 import { installSnap } from '@metamask/snaps-jest';
-import { IIdentityGetLoginOptionsRequest, IIdentityLoginRequest, SNAP_METHODS, ZIdentityGetLoginOptionsResponse, fromCBOR, toCBOR, zodParse } from '@fort-major/masquerade-shared';
-import { Json } from '@metamask/snaps-types';
+import { IIdentityGetLoginOptionsRequest, IIdentityLinkRequest, IIdentityLoginRequest, IIdentityUnlinkRequest, SNAP_METHODS, ZIdentityGetLoginOptionsResponse, fromCBOR, toCBOR, zodParse } from '@fort-major/masquerade-shared';
+import { MASQUERADE_SNAP_SITE, ok } from './utils';
 
-function ok(resp: { result: Json } | { error: Json }): Json {
-    const er = (resp as { error: Json }).error;
 
-    if (er) throw new Error(JSON.stringify(er));
-
-    return (resp as { result: Json }).result;
-}
-
-const MASQUERADE_SNAP_SITE = 'http://localhost:8000';
-
-describe('Masquerade snap', () => {
+describe('Authentication', () => {
     it('should have no session by default', async () => {
         const snap = await installSnap();
 
@@ -101,7 +92,17 @@ describe('Masquerade snap', () => {
     });
 
     it("should have no links by default", async () => {
+        const snap = await installSnap();
 
+        const snapResp1 = await snap.request({
+            origin: 'http://localhost:8081',
+            method: SNAP_METHODS.public.identity.getLinks,
+            params: { body: toCBOR(undefined) }
+        });
+
+        expect(ok(snapResp1.response)).toBe(toCBOR([]));
+
+        await snap.close();
     });
 
     it("shouldn't be possible to login via another website, without a link", async () => {
@@ -123,4 +124,86 @@ describe('Masquerade snap', () => {
 
         await snap.close();
     });
+
+    it("should be possible to create a link, login via another website, logout, remove link and not being able to login anymore", async () => {
+        const snap = await installSnap();
+        const site = 'http://localhost:8081';
+        const anotherSite = 'http://localhost:8082';
+
+        // create link
+        const req1: IIdentityLinkRequest = {
+            withOrigin: anotherSite
+        };
+
+        const snapResp1Promise = snap.request({
+            origin: site,
+            method: SNAP_METHODS.public.identity.requestLink,
+            params: { body: toCBOR(req1) }
+        });
+
+        const ui = await snapResp1Promise.getInterface();
+        await ui.ok();
+
+        const snapResp1 = await snapResp1Promise;
+
+        expect(ok(snapResp1.response)).toBe(toCBOR(true));
+
+        // login
+        const req2: IIdentityLoginRequest = {
+            toOrigin: anotherSite,
+            withDeriviationOrigin: site,
+            withIdentityId: 0
+        };
+
+        const snapResp2 = await snap.request({
+            origin: MASQUERADE_SNAP_SITE,
+            method: SNAP_METHODS.protected.identity.login,
+            params: { body: toCBOR(req2) },
+        });
+
+        expect(ok(snapResp2.response)).toBe(toCBOR(true));
+
+        // logout
+        const snapResp3Promise = snap.request({
+            origin: anotherSite,
+            method: SNAP_METHODS.public.identity.requestLogout,
+            params: { body: toCBOR(undefined) }
+        });
+
+        const ui3 = await snapResp3Promise.getInterface();
+        await ui3.ok();
+
+        const snapResp3 = await snapResp3Promise;
+
+        expect(ok(snapResp3.response)).toBe(toCBOR(true));
+
+        // remove link
+        const req4: IIdentityUnlinkRequest = {
+            withOrigin: anotherSite
+        };
+
+        const snapResp4Promise = snap.request({
+            origin: site,
+            method: SNAP_METHODS.public.identity.requestUnlink,
+            params: { body: toCBOR(req4) }
+        });
+
+        const ui4 = await snapResp4Promise.getInterface();
+        await ui4.ok();
+
+        const snapResp4 = await snapResp4Promise;
+
+        expect(ok(snapResp4.response)).toBe(toCBOR(true));
+
+        // try login again
+        const snapResp5 = await snap.request({
+            origin: MASQUERADE_SNAP_SITE,
+            method: SNAP_METHODS.protected.identity.login,
+            params: { body: toCBOR(req2) },
+        });
+
+        expect(() => ok(snapResp5.response)).toThrowError();
+
+        await snap.close();
+    })
 });

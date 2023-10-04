@@ -1,5 +1,5 @@
 import { divider, heading, panel, text } from "@metamask/snaps-ui";
-import { TOrigin, ZIdentityAddRequest, ZIdentityLoginRequest, ZIdentityLinkRequest, ZIdentityUnlinkRequest, fromCBOR, unreacheable, zodParse, originToHostname, err, ErrorCode, strToBytes, ZIdentitySignRequest, IIdentityGetLoginOptionsResponse, ZIdentityGetLoginOptionsRequest, ZIdentityGetPublicKeyRequest } from "@fort-major/masquerade-shared";
+import { TOrigin, ZIdentityAddRequest, ZIdentityLoginRequest, ZIdentityLinkRequest, ZIdentityUnlinkRequest, fromCBOR, unreacheable, zodParse, originToHostname, err, ErrorCode, strToBytes, ZIdentitySignRequest, IIdentityGetLoginOptionsResponse, ZIdentityGetLoginOptionsRequest, ZIdentityGetPublicKeyRequest, bytesToHex } from "@fort-major/masquerade-shared";
 import { StateManager } from "../state";
 import { getSignIdentity, isMasquerade } from "../utils";
 
@@ -146,11 +146,6 @@ export async function handleIdentityGetPublicKey(bodyCBOR: string, origin: TOrig
 }
 
 export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigin): Promise<boolean> {
-    // WARNING: do not remove this, Masquerade website should never share its keys to other websites
-    if (isMasquerade(origin)) {
-        unreacheable('Unable to link the Masquerade website to other sites');
-    }
-
     const body = zodParse(ZIdentityLinkRequest, fromCBOR(bodyCBOR));
     const manager = await StateManager.make();
 

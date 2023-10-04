@@ -31,24 +31,27 @@ export function isMasquerade(origin: TOrigin): boolean {
 }
 
 export async function getSignIdentity(origin: TOrigin, identityId: TIdentityId, salt?: Uint8Array | undefined) {
-    const s = salt ? bytesToHex(salt) : "";
     // shared prefix may be used in following updates
-    const saltStr = `\x0aidentity-sign\nshared\n${s}`;
-    const entropy = await getEntropy(origin, identityId, strToBytes(saltStr));
+    const entropy = await getEntropy(origin, identityId, "identity-sign\nshared", salt);
 
     return Secp256k1KeyIdentity.fromSecretKey(entropy);
 }
 
-export async function getEntropy(origin: TOrigin, identityId: TIdentityId, salt: Uint8Array): Promise<ArrayBuffer> {
+async function getEntropy(origin: TOrigin, identityId: TIdentityId, internalSalt: string, customSalt: Uint8Array | undefined): Promise<ArrayBuffer> {
     const entropyPre: string = await snap.request({
         method: "snap_getEntropy",
         params: {
             version: 1,
-            salt: `\x0amasquerade-snap\n${origin}\n${identityId}`
+            salt: `\x0amasquerade-snap\n${origin}\n${identityId}\n${internalSalt}`
         }
     });
 
-    const entropyPreBytes = new Uint8Array([...hexToBytes(entropyPre.slice(2)), ...salt]);
+    let entropyPreBytes: Uint8Array;
+    if (customSalt === undefined) {
+        entropyPreBytes = new Uint8Array([...hexToBytes(entropyPre.slice(2))]);
+    } else {
+        entropyPreBytes = new Uint8Array([...hexToBytes(entropyPre.slice(2)), ...customSalt]);
+    }
 
     return crypto.subtle.digest('SHA-256', entropyPreBytes);
 }
