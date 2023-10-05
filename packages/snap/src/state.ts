@@ -1,8 +1,8 @@
-import { IOriginData, IState, toCBOR, fromCBOR, TOrigin, unreacheable, zodParse, ZState } from "@fort-major/masquerade-shared";
+import { IOriginData, IState, TOrigin, unreacheable, zodParse, ZState } from "@fort-major/masquerade-shared";
 
 export class StateManager {
     public getOriginData(origin: TOrigin): IOriginData {
-        return this.state.originData[origin] || DEFAULT_ORIGIN_DATA;
+        return this.state.originData[origin] || makeDefaultOriginData();
     }
 
     public setOriginData(origin: TOrigin, data: IOriginData) {
@@ -23,6 +23,13 @@ export class StateManager {
     public link(from: TOrigin, to: TOrigin) {
         const fromOriginData = this.getOriginData(from);
         const toOriginData = this.getOriginData(to);
+
+        if (fromOriginData.linksTo.includes(to)) {
+            unreacheable(`Unable to add an existing TO link: ${from} -> ${to}`);
+        }
+        if (toOriginData.linksFrom.includes(from)) {
+            unreacheable(`Unable to add an existing FROM link: ${from} -> ${to}`);
+        }
 
         fromOriginData.linksTo.push(to);
         toOriginData.linksFrom.push(from);
@@ -48,7 +55,7 @@ export class StateManager {
     }
 
     public addIdentity(origin: TOrigin) {
-        const originData = this.state.originData[origin] || DEFAULT_ORIGIN_DATA;
+        const originData = this.state.originData[origin] || makeDefaultOriginData();
         originData.identitiesTotal += 1;
 
         this.state.originData[origin] = originData;
@@ -67,16 +74,16 @@ export class StateManager {
     }
 }
 
-const DEFAULT_STATE: IState = {
+const makeDefaultState: () => IState = () => ({
     originData: {}
-};
+});
 
-export const DEFAULT_ORIGIN_DATA: IOriginData = {
+const makeDefaultOriginData: () => IOriginData = () => ({
     identitiesTotal: 1,
     currentSession: undefined,
     linksFrom: [],
     linksTo: [],
-};
+});
 
 export async function retrieveStateLocal(): Promise<IState> {
     let state = await snap.request({
@@ -87,14 +94,13 @@ export async function retrieveStateLocal(): Promise<IState> {
     });
 
     if (!state) {
-        await persistStateLocal(DEFAULT_STATE);
-        return DEFAULT_STATE;
+        const s = makeDefaultState();
+        await persistStateLocal(s);
+
+        return s;
     }
 
-    // @ts-expect-error
-    const data = fromCBOR(state.data);
-
-    return zodParse(ZState, data);
+    return zodParse(ZState, state.data);
 }
 
 export async function persistStateLocal(state: IState): Promise<void> {
@@ -102,7 +108,8 @@ export async function persistStateLocal(state: IState): Promise<void> {
         method: "snap_manageState",
         params: {
             operation: "update",
-            newState: { data: toCBOR(state) },
+            // @ts-expect-error
+            newState: { data: state },
         }
     });
 }

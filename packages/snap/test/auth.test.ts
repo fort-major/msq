@@ -1,5 +1,5 @@
 import { installSnap } from '@metamask/snaps-jest';
-import { IIdentityGetLoginOptionsRequest, IIdentityLinkRequest, IIdentityLoginRequest, IIdentityUnlinkRequest, SNAP_METHODS, ZIdentityGetLoginOptionsResponse, fromCBOR, toCBOR, zodParse } from '@fort-major/masquerade-shared';
+import { IIdentityGetLoginOptionsRequest, IIdentityGetLoginOptionsResponse, IIdentityLinkRequest, IIdentityLoginRequest, IIdentityUnlinkRequest, SNAP_METHODS, ZIdentityGetLoginOptionsResponse, fromCBOR, toCBOR, zodParse } from '@fort-major/masquerade-shared';
 import { MASQUERADE_SNAP_SITE, ok } from './utils';
 
 
@@ -44,7 +44,7 @@ describe('Authentication', () => {
         // login
         const req: IIdentityLoginRequest = {
             toOrigin: 'http://localhost:8081',
-            withDeriviationOrigin: 'http://localhost:8081',
+            withLinkedOrigin: 'http://localhost:8081',
             withIdentityId: 0
         };
 
@@ -105,12 +105,12 @@ describe('Authentication', () => {
         await snap.close();
     });
 
-    it("shouldn't be possible to login via another website, without a link", async () => {
+    it("shouldn't be possible to login via another website without a link", async () => {
         const snap = await installSnap();
 
         const req: IIdentityLoginRequest = {
             toOrigin: 'http://localhost:8081',
-            withDeriviationOrigin: 'http://localhost:8082',
+            withLinkedOrigin: 'http://localhost:8082',
             withIdentityId: 0
         };
 
@@ -151,7 +151,7 @@ describe('Authentication', () => {
         // login
         const req2: IIdentityLoginRequest = {
             toOrigin: anotherSite,
-            withDeriviationOrigin: site,
+            withLinkedOrigin: site,
             withIdentityId: 0
         };
 
@@ -205,5 +205,67 @@ describe('Authentication', () => {
         expect(() => ok(snapResp5.response)).toThrowError();
 
         await snap.close();
-    })
+    });
+
+    it("many links should work fine", async () => {
+        const snap = await installSnap();
+        const site = "https://dfinity.org"
+
+        // create links
+        for (let i = 0; i < 10; i++) {
+            const req: IIdentityLinkRequest = {
+                withOrigin: `https://site-${i}.com`
+            };
+
+            const respPromise = snap.request({
+                origin: site,
+                method: SNAP_METHODS.public.identity.requestLink,
+                params: { body: toCBOR(req) }
+            });
+
+            const ui = await respPromise.getInterface();
+            await ui.ok();
+
+            const resp = await respPromise;
+
+            expect(ok(resp.response)).toBe(toCBOR(true));
+        }
+
+        // login via linked site
+        for (let i = 0; i < 10; i++) {
+            const s = `https://site-${i}.com`;
+
+            const req1: IIdentityGetLoginOptionsRequest = {
+                forOrigin: s
+            };
+
+            const resp1 = await snap.request({
+                origin: MASQUERADE_SNAP_SITE,
+                method: SNAP_METHODS.protected.identity.getLoginOptions,
+                params: { body: toCBOR(req1) }
+            });
+
+            const options: IIdentityGetLoginOptionsResponse = fromCBOR(ok(resp1.response) as string)
+
+            expect(options.length).toBe(2);
+            expect(options[0][0]).toBe(s);
+            expect(options[1][0]).toBe(site);
+
+            const req2: IIdentityLoginRequest = {
+                toOrigin: s,
+                withLinkedOrigin: site,
+                withIdentityId: 0
+            };
+
+            const resp2 = await snap.request({
+                origin: MASQUERADE_SNAP_SITE,
+                method: SNAP_METHODS.protected.identity.login,
+                params: { body: toCBOR(req2) }
+            });
+
+            expect(ok(resp2.response)).toBe(toCBOR(true));
+        }
+
+        await snap.close();
+    });
 });

@@ -26,7 +26,7 @@ export class InternalSnapClient {
     }
 
     async login(toOrigin: TOrigin, withIdentityId: TIdentityId, withDeriviationOrigin: TOrigin = toOrigin): Promise<true> {
-        const body: IIdentityLoginRequest = { toOrigin, withDeriviationOrigin, withIdentityId };
+        const body: IIdentityLoginRequest = { toOrigin, withLinkedOrigin: withDeriviationOrigin, withIdentityId };
 
         return this.inner._requestSnap(SNAP_METHODS.protected.identity.login, body);
     }

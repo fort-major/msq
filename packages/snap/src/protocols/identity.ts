@@ -1,6 +1,6 @@
 import { divider, heading, panel, text } from "@metamask/snaps-ui";
 import { TOrigin, ZIdentityAddRequest, ZIdentityLoginRequest, ZIdentityLinkRequest, ZIdentityUnlinkRequest, fromCBOR, unreacheable, zodParse, originToHostname, err, ErrorCode, strToBytes, ZIdentitySignRequest, IIdentityGetLoginOptionsResponse, ZIdentityGetLoginOptionsRequest, ZIdentityGetPublicKeyRequest, bytesToHex } from "@fort-major/masquerade-shared";
-import { StateManager } from "../state";
+import { StateManager, retrieveStateLocal } from "../state";
 import { getSignIdentity, isMasquerade } from "../utils";
 
 export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<true> {
@@ -18,8 +18,8 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
     const body = zodParse(ZIdentityLoginRequest, fromCBOR(bodyCBOR));
     const manager = await StateManager.make();
 
-    if (!!body.withDeriviationOrigin && body.withDeriviationOrigin !== body.toOrigin) {
-        if (!manager.linkExists(body.withDeriviationOrigin, body.toOrigin))
+    if (!!body.withLinkedOrigin && body.withLinkedOrigin !== body.toOrigin) {
+        if (!manager.linkExists(body.withLinkedOrigin, body.toOrigin))
             err(ErrorCode.UNAUTHORIZED, 'Unable to login without a link');
     }
 
@@ -28,9 +28,9 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
 
     const timestamp = (new Date()).getTime();
     originData.currentSession = {
-        deriviationOrigin: body.withDeriviationOrigin || body.toOrigin,
+        deriviationOrigin: body.withLinkedOrigin || body.toOrigin,
         identityId: body.withIdentityId,
-        timestampMs: BigInt(timestamp)
+        timestampMs: timestamp
     }
 
     manager.setOriginData(body.toOrigin, originData);
@@ -45,25 +45,28 @@ export async function protected_handleIdentityGetLoginOptions(bodyCBOR: string):
 
     const result: IIdentityGetLoginOptionsResponse = [];
 
-    let origin = body.forOrigin;
-    let originData = manager.getOriginData(origin);
+    const originData = manager.getOriginData(body.forOrigin);
 
-    let options = await Promise.all(Array(originData.identitiesTotal).fill(0).map(async (_, idx) => {
-        const identity = await getSignIdentity(origin, idx);
+    let options = [];
+    for (let i = 0; i < originData.identitiesTotal; i++) {
+        const identity = await getSignIdentity(body.forOrigin, i);
+        const principal = identity.getPrincipal().toText();
 
-        return identity.getPrincipal().toText();
-    }));
+        options.push(principal);
+    }
 
-    result.push([origin, options]);
+    result.push([body.forOrigin, options]);
 
-    for (origin of originData.linksFrom) {
-        originData = manager.getOriginData(origin);
+    for (let origin of originData.linksFrom) {
+        const linkedOriginData = manager.getOriginData(origin);
 
-        options = await Promise.all(Array(originData.identitiesTotal).fill(0).map(async (_, idx) => {
-            const identity = await getSignIdentity(origin, idx);
+        let options = [];
+        for (let i = 0; i < linkedOriginData.identitiesTotal; i++) {
+            const identity = await getSignIdentity(origin, i);
+            const principal = identity.getPrincipal().toText();
 
-            return identity.getPrincipal().toText();
-        }));
+            options.push(principal);
+        }
 
         result.push([origin, options]);
     }
@@ -116,7 +119,7 @@ export async function handleIdentitySign(bodyCBOR: string, origin: TOrigin): Pro
 
     if (!session) {
         if (isMasquerade(origin)) {
-            session = { deriviationOrigin: origin, identityId: 0, timestampMs: 0n };
+            session = { deriviationOrigin: origin, identityId: 0, timestampMs: 0 };
         } else {
             err(ErrorCode.UNAUTHORIZED, 'Log in first');
         }
@@ -134,7 +137,7 @@ export async function handleIdentityGetPublicKey(bodyCBOR: string, origin: TOrig
 
     if (!session) {
         if (isMasquerade(origin)) {
-            session = { deriviationOrigin: origin, identityId: 0, timestampMs: 0n };
+            session = { deriviationOrigin: origin, identityId: 0, timestampMs: 0 };
         } else {
             err(ErrorCode.UNAUTHORIZED, 'Log in first');
         }
@@ -149,7 +152,7 @@ export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigi
     const body = zodParse(ZIdentityLinkRequest, fromCBOR(bodyCBOR));
     const manager = await StateManager.make();
 
-    if (body.withOrigin === origin) {
+    if (origin === body.withOrigin) {
         err(ErrorCode.INVALID_INPUT, 'Unable to link to itself');
     }
 

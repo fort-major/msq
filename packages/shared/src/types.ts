@@ -10,7 +10,7 @@ export type TOrigin = z.infer<typeof ZOrigin>;
 
 
 // Timestamp in millis
-export const ZTimestamp = z.bigint();
+export const ZTimestamp = z.number().nonnegative();
 export type TTimestamp = z.infer<typeof ZTimestamp>;
 
 
@@ -92,7 +92,7 @@ export type IIdentityAddRequest = z.infer<typeof ZIdentityAddRequest>;
 export const ZIdentityLoginRequest = z.object({
     toOrigin: ZOrigin,
     withIdentityId: ZIdentityId,
-    withDeriviationOrigin: z.optional(ZOrigin),
+    withLinkedOrigin: z.optional(ZOrigin),
 });
 export type IIdentityLoginRequest = z.infer<typeof ZIdentityLoginRequest>;
 
@@ -132,7 +132,7 @@ const ZICRC1TransferRequest = z.object({
     to: ZICRC1Account,
     amount: z.bigint(),
     memo: z.optional(z.instanceof(Uint8Array)),
-    created_at_time: z.optional(ZTimestamp),
+    created_at_time: z.optional(z.bigint()),
 });
 export type IICRC1TransferRequest = z.infer<typeof ZICRC1TransferRequest>;
 
