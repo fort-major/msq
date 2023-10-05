@@ -1,6 +1,14 @@
 {
   "canisters": {
-    "site_frontend": {
+    "masquerade_backend": {
+      "candid": "src/backend/can.did",
+      "package": "masquerade_backend",
+      "type": "rust"
+    },
+    "masquerade_frontend": {
+      "dependencies": [
+        "masquerade_backend"
+      ],
       "frontend": {
         "entrypoint": "index.html"
       },

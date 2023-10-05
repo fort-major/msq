@@ -1,4 +1,4 @@
-import { IIdentityAddRequest, IIdentityGetLoginOptionsRequest, IIdentityGetLoginOptionsResponse, IIdentityLoginRequest, IOriginData, IShowICRC1TransferConfirmRequest, IStateGetOriginDataRequest, SNAP_METHODS, TIdentityId, TOrigin } from "@fort-major/masquerade-shared";
+import { IIdentityAddRequest, IIdentityGetLoginOptionsRequest, IIdentityGetLoginOptionsResponse, IIdentityLoginRequest, IOriginData, IShowICRC1TransferConfirmRequest, IStateGetOriginDataRequest, IStatistics, SNAP_METHODS, TIdentityId, TOrigin } from "@fort-major/masquerade-shared";
 import { MasqueradeClient } from "./client";
 
 export interface IInternalSnapClientParams {
@@ -41,6 +41,14 @@ export class InternalSnapClient {
 
     async showICRC1TransferConfirm(body: IShowICRC1TransferConfirmRequest): Promise<boolean> {
         return this.inner._requestSnap(SNAP_METHODS.protected.icrc1.showTransferConfirm, body);
+    }
+
+    async getStats(): Promise<IStatistics> {
+        return this.inner._requestSnap(SNAP_METHODS.protected.statistics.get);
+    }
+
+    async resetStats(): Promise<true> {
+        return this.inner._requestSnap(SNAP_METHODS.protected.statistics.reset);
     }
 
     constructor(private inner: MasqueradeClient) { }

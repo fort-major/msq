@@ -1,0 +1,10 @@
+type Statistics = record {
+    timestamp : nat64;
+    dev : nat64;
+    prod : nat64;
+};
+
+service : {
+    "increment_stats" : (nat64, nat64) -> ();
+    "get_stats" : () -> (vec Statistics) query;
+};

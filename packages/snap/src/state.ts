@@ -1,4 +1,4 @@
-import { IOriginData, IState, TOrigin, unreacheable, zodParse, ZState } from "@fort-major/masquerade-shared";
+import { IOriginData, IState, IStatistics, TOrigin, unreacheable, zodParse, ZState } from "@fort-major/masquerade-shared";
 
 export class StateManager {
     public getOriginData(origin: TOrigin): IOriginData {
@@ -72,10 +72,48 @@ export class StateManager {
     public async persist() {
         return await persistStateLocal(this.state);
     }
+
+    public incrementStats(origin: TOrigin) {
+        const url = new URL(origin);
+
+        let kind: 'prod' | 'dev' = 'prod';
+
+        if (url.protocol === 'http') {
+            kind = 'dev';
+        } else if (IP_V4.test(url.hostname)) {
+            kind = 'dev';
+        } else if (url.hostname.includes('localhost')) {
+            kind = 'dev';
+        }
+
+        this.state.statistics[kind] += 1;
+    }
+
+    public getStats(): IStatistics {
+        return this.state.statistics;
+    }
+
+    public resetStats() {
+        const now = Date.now();
+
+        this.state.statistics = {
+            lastResetTimestamp: now,
+            dev: 0,
+            prod: 0,
+        };
+    }
 }
 
+const IP_V4 = /^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/gm;
+
 const makeDefaultState: () => IState = () => ({
-    originData: {}
+    version: 1,
+    originData: {},
+    statistics: {
+        lastResetTimestamp: Date.now(),
+        dev: 0,
+        prod: 0,
+    }
 });
 
 const makeDefaultOriginData: () => IOriginData = () => ({

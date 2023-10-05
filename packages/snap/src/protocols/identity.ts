@@ -8,6 +8,7 @@ export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<tru
     const manager = await StateManager.make();
 
     manager.addIdentity(body.toOrigin);
+    manager.incrementStats(body.toOrigin);
 
     await manager.persist();
 
@@ -34,6 +35,7 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
     }
 
     manager.setOriginData(body.toOrigin, originData);
+    manager.incrementStats(body.toOrigin);
     await manager.persist();
 
     return true;
@@ -42,6 +44,8 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
 export async function protected_handleIdentityGetLoginOptions(bodyCBOR: string): Promise<IIdentityGetLoginOptionsResponse> {
     const body = zodParse(ZIdentityGetLoginOptionsRequest, fromCBOR(bodyCBOR));
     const manager = await StateManager.make();
+
+    manager.incrementStats(body.forOrigin);
 
     const result: IIdentityGetLoginOptionsResponse = [];
 
@@ -70,6 +74,8 @@ export async function protected_handleIdentityGetLoginOptions(bodyCBOR: string):
 
         result.push([origin, options]);
     }
+
+    await manager.persist();
 
     return result;
 }
@@ -107,6 +113,7 @@ export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<bool
     // otherwise, remove the session and return true
     originData.currentSession = undefined;
     manager.setOriginData(origin, originData);
+    manager.incrementStats(origin);
     await manager.persist();
 
     return true;
@@ -127,6 +134,9 @@ export async function handleIdentitySign(bodyCBOR: string, origin: TOrigin): Pro
 
     const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
 
+    manager.incrementStats(origin);
+    await manager.persist();
+
     return identity.sign(body.challenge);
 }
 
@@ -144,6 +154,9 @@ export async function handleIdentityGetPublicKey(bodyCBOR: string, origin: TOrig
     }
 
     const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
+
+    manager.incrementStats(origin);
+    await manager.persist();
 
     return identity.getPublicKey().toRaw();
 }
@@ -187,6 +200,7 @@ export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigi
 
     // otherwise update the links list and return true
     manager.link(origin, body.withOrigin);
+    manager.incrementStats(origin);
     await manager.persist();
 
     return true;
@@ -234,6 +248,7 @@ export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOri
         }
     }
 
+    manager.incrementStats(origin);
     await manager.persist();
 
     return true;
@@ -242,6 +257,9 @@ export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOri
 export async function handleIdentityGetLinks(origin: TOrigin): Promise<TOrigin[]> {
     const manager = await StateManager.make();
     const originData = manager.getOriginData(origin);
+
+    manager.incrementStats(origin);
+    await manager.persist();
 
     return originData.linksTo;
 }

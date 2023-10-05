@@ -13,6 +13,10 @@ export const SNAP_METHODS = {
         },
         icrc1: {
             showTransferConfirm: 'protected_icrc1_showTransferConfirm'
+        },
+        statistics: {
+            get: 'protected_statistics_get',
+            reset: 'protected_statistics_reset',
         }
     },
     public: {

@@ -47,15 +47,24 @@ export const ZOriginData = z.object({
 });
 export type IOriginData = z.infer<typeof ZOriginData>;
 
+export const ZStatistics = z.object({
+    lastResetTimestamp: z.number().nonnegative(),
+    dev: z.number().nonnegative(),
+    prod: z.number().nonnegative(),
+});
+export type IStatistics = z.infer<typeof ZStatistics>;
+
 
 // Snap state that is stored in encrypted form on user's device
 // TODO: [when vetKeys are ready] - persist it on-chain
 export const ZState = z.object({
+    version: z.number().nonnegative(),
     // other origins data
     originData: z.record(ZOrigin, z.optional(ZOriginData)),
+    // statistics
+    statistics: ZStatistics,
 });
 export type IState = z.infer<typeof ZState>;
-
 
 export const ZSnapRPCRequest = z.object({
     method: z.string(),
@@ -137,6 +146,7 @@ const ZICRC1TransferRequest = z.object({
 export type IICRC1TransferRequest = z.infer<typeof ZICRC1TransferRequest>;
 
 export const ZShowICRC1TransferConfirmRequest = z.object({
+    requestOrigin: ZOrigin,
     from: ZPrincipalStr,
     to: ZICRC1Account,
     totalAmount: z.string(),

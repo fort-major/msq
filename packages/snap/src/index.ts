@@ -4,6 +4,7 @@ import { guardMethods as guardProtectedMethods } from './utils';
 import { protected_handleShowICRC1TransferConfirm } from './protocols/icrc1';
 import { handleStateSessionExists } from './protocols/state';
 import { handleIdentityGetLinks, handleIdentityGetPublicKey, handleIdentityLinkRequest, handleIdentityLogoutRequest, handleIdentitySign, handleIdentityUnlinkRequest, protected_handleIdentityAdd, protected_handleIdentityGetLoginOptions, protected_handleIdentityLogin } from './protocols/identity';
+import { protected_handleStatisticsGet, protected_handleStatisticsReset } from './protocols/statistics';
 
 
 export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => {
@@ -36,6 +37,16 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
         case SNAP_METHODS.protected.icrc1.showTransferConfirm: {
             result = protected_handleShowICRC1TransferConfirm(req.params.body);
+            break;
+        }
+
+        case SNAP_METHODS.protected.statistics.get: {
+            result = protected_handleStatisticsGet();
+            break;
+        }
+
+        case SNAP_METHODS.protected.statistics.reset: {
+            result = protected_handleStatisticsReset();
             break;
         }
 
