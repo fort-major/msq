@@ -10,6 +10,7 @@ describe('Protected methods', () => {
         // show icrc1 confirm window
         const req1: IShowICRC1TransferConfirmRequest = {
             from: 'aaaaa-aa',
+            requestOrigin: 'http://site.com',
             ticker: 'ICP',
             to: {
                 owner: 'aaaaa-aa',

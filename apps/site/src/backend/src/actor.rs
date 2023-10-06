@@ -1,16 +1,21 @@
 use std::cell::RefCell;
 
-use candid::CandidType;
-use ic_cdk::{api::time, query, update};
+use candid::{CandidType, Deserialize};
+use ic_cdk::{
+    api::time,
+    post_upgrade, pre_upgrade, query,
+    storage::{stable_restore, stable_save},
+    update,
+};
 
-#[derive(Clone, Copy, CandidType)]
+#[derive(Clone, Copy, CandidType, Deserialize)]
 struct Statistics {
     timestamp: u64,
     dev: u64,
     prod: u64,
 }
 
-#[derive(Default)]
+#[derive(Default, CandidType, Deserialize)]
 struct State {
     statistics: Vec<Statistics>,
 }
@@ -58,4 +63,23 @@ fn increment_stats(dev: u64, prod: u64) {
 #[query]
 fn get_stats() -> Vec<Statistics> {
     STATE.with(|s| s.borrow().statistics.clone())
+}
+
+#[pre_upgrade]
+fn pre_upgrade_hook() {
+    STATE.with(|s| {
+        let state = s.replace(State::default());
+
+        stable_save((state,)).expect("Unable to save data in stable memory");
+    });
+}
+
+#[post_upgrade]
+fn post_upgrade_hook() {
+    STATE.with(|s| {
+        let (state,): (State,) =
+            stable_restore().expect("Unable to restore data from stable memory");
+
+        s.replace(state);
+    });
 }

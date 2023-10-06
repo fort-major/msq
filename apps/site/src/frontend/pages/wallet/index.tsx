@@ -145,6 +145,7 @@ export function WalletPage() {
         const totalAmount = total.divide(decimalsForText).getPrettyValue();
 
         const agreed = await snapClient()!.showICRC1TransferConfirm({
+            requestOrigin: referrerOrigin,
             from: userPrincipal()!.toText(),
             to: req.to,
             totalAmount,

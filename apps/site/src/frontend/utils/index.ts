@@ -1,7 +1,9 @@
+import { ActorSubclass } from "@dfinity/agent";
 import { MasqueradeClient } from "@fort-major/masquerade-client/src/client";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client/src/identity";
 import { InternalSnapClient } from "@fort-major/masquerade-client/src/internal";
 import { strToBytes } from "@fort-major/masquerade-shared";
+import { Backend } from "../backend";
 
 export function makeCanisterIdIdentity(client: MasqueradeClient, canisterId: string): Promise<MasqueradeIdentity> {
     const salt = `icrc-1\n${canisterId}\n0`;
@@ -10,7 +12,7 @@ export function makeCanisterIdIdentity(client: MasqueradeClient, canisterId: str
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
 
-export async function handleStatistics(client: InternalSnapClient) {
+export async function handleStatistics(actor: ActorSubclass<Backend>, client: InternalSnapClient) {
     const stats = await client.getStats();
     const now = Date.now();
 
@@ -18,5 +20,5 @@ export async function handleStatistics(client: InternalSnapClient) {
 
     await client.resetStats();
 
-    // TODO: send stats to the canister
+    await actor.increment_stats(BigInt(stats.dev), BigInt(stats.prod));
 }

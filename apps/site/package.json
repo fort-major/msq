@@ -7,7 +7,10 @@
     "prod:build": "pnpm run propagateEnv && pnpm run version:set && tsc && vite build",
     "dev:build": "pnpm run propagateEnv && tsc && vite build",
     "dev": "pnpm run propagateEnv && vite --mode dev",
+    "dev:gen": "dfx generate",
+    "dev:deploy": "dfx deploy masquerade_backend",
     "propagateEnv": "node ../../propagate-env.js",
+    "cargo:repair": "cargo build --target=wasm32-unknown-unknown",
     "version:set": "node ../../set-version.js"
   },
   "devDependencies": {
