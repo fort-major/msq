@@ -32,6 +32,8 @@
     "dev:build": "tsc && mm-snap build -s src/index.ts",
     "dev": "mm-snap watch -s src/index.ts -d dist",
     "test": "jest",
+    "lint": "eslint --fix src --ext .ts --ext .tsx",
+    "format": "pnpm exec prettier src/**/*.{ts,tsx} --write",
     "version:set": "node ../../set-version.js"
   },
   "devDependencies": {

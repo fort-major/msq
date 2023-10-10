@@ -10,6 +10,8 @@
     "prod:build": "pnpm run version:set && tsc && tsc -p tsconfig.cjs.json",
     "prod:pub": "pnpm run prod:build && npm publish",
     "dev:build": "tsc && tsc -p tsconfig.cjs.json",
+    "lint": "eslint --fix src --ext .ts --ext .tsx",
+    "format": "pnpm exec prettier src/**/*.{ts,tsx} --write",
     "version:set": "node ../../set-version.js"
   },
   "dependencies": {

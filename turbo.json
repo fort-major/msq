@@ -52,6 +52,15 @@
         "cargo:repair": {
             "cache": false
         },
-        "lint": {}
+        "lint": {
+            "dependsOn": [
+                "^lint"
+            ]
+        },
+        "format": {
+            "dependsOn": [
+                "^format"
+            ]
+        }
     }
 }

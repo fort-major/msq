@@ -124,29 +124,19 @@
       "type": "rust"
     },
     "demo_frontend": {
-      "dependencies": [
-        "demo_backend"
-      ],
+      "dependencies": ["demo_backend"],
       "frontend": {
         "entrypoint": "index.html"
       },
-      "source": [
-        "assets",
-        "dist/"
-      ],
+      "source": ["assets", "dist/"],
       "type": "assets"
     },
     "demo_frontend_new": {
-      "dependencies": [
-        "demo_frontend"
-      ],
+      "dependencies": ["demo_frontend"],
       "frontend": {
         "entrypoint": "index.html"
       },
-      "source": [
-        "assets",
-        "dist/"
-      ],
+      "source": ["assets", "dist/"],
       "type": "assets"
     }
   },

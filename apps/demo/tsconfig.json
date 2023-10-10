@@ -16,15 +16,11 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js"
   },
-  "types": [
-    "vite/client"
-  ],
+  "types": ["vite/client"],
   "references": [
     {
       "path": "../../packages/client"
     }
   ],
-  "include": [
-    "./src",
-  ]
+  "include": ["./src"]
 }

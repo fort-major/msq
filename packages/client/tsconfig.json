@@ -13,12 +13,10 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "exclude": [
-    "./dist"
-  ],
+  "exclude": ["./dist"],
   "references": [
     {
       "path": "../shared"
     }
-  ],
+  ]
 }

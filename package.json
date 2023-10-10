@@ -9,17 +9,30 @@
     "dev:nns": "turbo dev:nns",
     "dev:gen": "turbo dev:gen",
     "test": "dotenv -e .env.dev -- turbo test",
+    "lint": "turbo lint",
+    "format": "turbo format",
     "cargo:repair": "turbo cargo:repair"
   },
   "dependencies": {
-    "@dfinity/identity": "0.19.3",
     "@dfinity/agent": "^0.19.3",
     "@dfinity/candid": "^0.19.3",
+    "@dfinity/identity": "0.19.3",
     "@dfinity/principal": "^0.19.3",
     "zod": "^3.22.2"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.7.5",
+    "@typescript-eslint/parser": "^6.7.5",
+    "eslint": "^8.51.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-standard-with-typescript": "^39.1.1",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-n": "^15.0.0 || ^16.0.0 ",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-solid": "^0.13.0",
     "glob": "^10.3.4",
-    "typescript": "^5.2.2"
+    "prettier": "3.0.3",
+    "typescript": "^5.2.2",
+    "vite-plugin-eslint": "^1.8.1"
   }
 }

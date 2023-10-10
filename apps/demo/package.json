@@ -13,6 +13,8 @@
     "dev:deploy": "dfx deploy demo_backend",
     "propagateEnv": "node ../../propagate-env.js",
     "cargo:repair": "cargo build --target=wasm32-unknown-unknown",
+    "lint": "eslint --fix src --ext .ts --ext .tsx",
+    "format": "pnpm exec prettier src/**/*.{ts,tsx} --write",
     "version:set": "node ../../set-version.js"
   },
   "devDependencies": {

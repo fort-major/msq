@@ -20,9 +20,5 @@
       "path": "../shared"
     }
   ],
-  "exclude": [
-    ".turbo",
-    "dist",
-    "node_modules"
-  ]
+  "exclude": [".turbo", "dist", "node_modules"]
 }

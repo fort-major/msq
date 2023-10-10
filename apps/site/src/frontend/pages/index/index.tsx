@@ -1,3 +1,3 @@
 export const IndexPage = () => {
-    return undefined;
-}
+  return undefined;
+};

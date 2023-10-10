@@ -6,15 +6,11 @@
       "type": "rust"
     },
     "masquerade_frontend": {
-      "dependencies": [
-        "masquerade_backend"
-      ],
+      "dependencies": ["masquerade_backend"],
       "frontend": {
         "entrypoint": "index.html"
       },
-      "source": [
-        "dist"
-      ],
+      "source": ["dist"],
       "type": "assets"
     }
   },
