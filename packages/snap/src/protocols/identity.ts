@@ -15,15 +15,32 @@ import {
   type IIdentityGetLoginOptionsResponse,
   ZIdentityGetLoginOptionsRequest,
   ZIdentityGetPublicKeyRequest,
+  IIdentityAddRequest,
+  IIdentityLoginRequest,
+  IIdentitySignRequest,
+  IIdentityGetPublicKeyRequest,
+  IIdentityLinkRequest,
+  IIdentityUnlinkRequest,
 } from "@fort-major/masquerade-shared";
 import { StateManager } from "../state";
 import { getSignIdentity, isMasquerade } from "../utils";
 
+/**
+ * ## Creates a new identity (mask) for the user to authorize with on some website
+ *
+ * @param bodyCBOR - {@link IIdentityAddRequest} - origin of the target website
+ * @returns always returns true
+ *
+ * @category Protected
+ */
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export async function protected_handleIdentityAdd(
   bodyCBOR: string,
 ): Promise<true> {
-  const body = zodParse(ZIdentityAddRequest, fromCBOR(bodyCBOR));
+  const body: IIdentityAddRequest = zodParse(
+    ZIdentityAddRequest,
+    fromCBOR(bodyCBOR),
+  );
   const manager = await StateManager.make();
 
   manager.addIdentity(body.toOrigin);
@@ -34,11 +51,22 @@ export async function protected_handleIdentityAdd(
   return true;
 }
 
+/**
+ * ## Creates a new session on the provided website
+ *
+ * @param bodyCBOR - {@link IIdentityLoginRequest}
+ * @returns always returns true
+ *
+ * @category Protected
+ */
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export async function protected_handleIdentityLogin(
   bodyCBOR: string,
 ): Promise<true> {
-  const body = zodParse(ZIdentityLoginRequest, fromCBOR(bodyCBOR));
+  const body: IIdentityLoginRequest = zodParse(
+    ZIdentityLoginRequest,
+    fromCBOR(bodyCBOR),
+  );
   const manager = await StateManager.make();
 
   if (
@@ -68,6 +96,17 @@ export async function protected_handleIdentityLogin(
   return true;
 }
 
+/**
+ * ## Returns login options of the user for a particular website
+ *
+ * These options always contain at least one way for a user to authorize.
+ * Includes both: options from the target origin and options from all linked origins
+ *
+ * @param bodyCBOR - {@link IIdentityGetLoginOptionsRequest}
+ * @returns - {@link IIdentityGetLoginOptionsResponse}
+ *
+ * @category Protected
+ */
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export async function protected_handleIdentityGetLoginOptions(
   bodyCBOR: string,
@@ -110,6 +149,17 @@ export async function protected_handleIdentityGetLoginOptions(
   return result;
 }
 
+/**
+ * ## Proposes the user to log out
+ *
+ * Opens a pop-up window for a user to confirm, whether or not they want to log out from the current website.
+ * If the user agrees, then the session is deleted.
+ *
+ * @param origin - {@link TOrigin}
+ * @returns - whether the user did log out
+ *
+ * @category Shows Pop-Up
+ */
 export async function handleIdentityLogoutRequest(
   origin: TOrigin,
 ): Promise<boolean> {
@@ -155,11 +205,29 @@ export async function handleIdentityLogoutRequest(
   return true;
 }
 
+/**
+ * ## Signs an arbitrary message with the chosen user key pair
+ *
+ * There is a separate Secp256k1 key pair for each user, for each origin, for each user's identity (mask). In other words, key pairs are scoped.
+ * Moreover, each key pair can be used to derive more signing key pairs for arbitrary purposes.
+ *
+ * Only works if the user is logged in.
+ *
+ * @see {@link handleIdentityGetPublicKey}
+ * @see {@link getSignIdentity}
+ *
+ * @param bodyCBOR - {@link IIdentitySignRequest}
+ * @param origin - {@link TOrigin}
+ * @returns Secp256k1 signature of the provided payload
+ */
 export async function handleIdentitySign(
   bodyCBOR: string,
   origin: TOrigin,
 ): Promise<ArrayBuffer> {
-  const body = zodParse(ZIdentitySignRequest, fromCBOR(bodyCBOR));
+  const body: IIdentitySignRequest = zodParse(
+    ZIdentitySignRequest,
+    fromCBOR(bodyCBOR),
+  );
   const manager = await StateManager.make();
   let session = manager.getOriginData(origin).currentSession;
 
@@ -183,11 +251,29 @@ export async function handleIdentitySign(
   return await identity.sign(body.challenge);
 }
 
+/**
+ * ## Returns a public key of the corresponding key pair
+ *
+ * There is a separate Secp256k1 key pair for each user, for each origin, for each user's identity (mask). In other words, key pairs are scoped.
+ * Moreover, each key pair can be used to derive more signing key pairs for arbitrary purposes.
+ *
+ * Only works if the user is logged in.
+ *
+ * @see {@link handleIdentitySign}
+ * @see {@link getSignIdentity}
+ *
+ * @param bodyCBOR - {@link IIdentityGetPublicKeyRequest}
+ * @param origin - {@link TOrigin}
+ * @returns Secp256k1 public key in raw format
+ */
 export async function handleIdentityGetPublicKey(
   bodyCBOR: string,
   origin: TOrigin,
 ): Promise<ArrayBuffer> {
-  const body = zodParse(ZIdentityGetPublicKeyRequest, fromCBOR(bodyCBOR));
+  const body: IIdentityGetPublicKeyRequest = zodParse(
+    ZIdentityGetPublicKeyRequest,
+    fromCBOR(bodyCBOR),
+  );
   const manager = await StateManager.make();
   let session = manager.getOriginData(origin).currentSession;
 
@@ -211,11 +297,30 @@ export async function handleIdentityGetPublicKey(
   return identity.getPublicKey().toRaw();
 }
 
+/**
+ * ## Proposes the user to link their masks from this website to another website
+ *
+ * One can only propose to link masks __from their own__ website, not the other way.
+ * This is useful in two scenarios:
+ *  - domain name migration - when a website is rebranded and moves to another domain, this functionality allows users to continue using their old identities
+ *  - website integration - when two websites want their users to interact with them using the same identities
+ *
+ * @see {@link handleIdentityUnlinkRequest}
+ *
+ * @param bodyCBOR - {@link IIdentityLinkRequest}
+ * @param origin - {@link TOrigin}
+ * @returns whether or not the user allowed linking
+ *
+ * @category Shows Pop-Up
+ */
 export async function handleIdentityLinkRequest(
   bodyCBOR: string,
   origin: TOrigin,
 ): Promise<boolean> {
-  const body = zodParse(ZIdentityLinkRequest, fromCBOR(bodyCBOR));
+  const body: IIdentityLinkRequest = zodParse(
+    ZIdentityLinkRequest,
+    fromCBOR(bodyCBOR),
+  );
   const manager = await StateManager.make();
 
   if (origin === body.withOrigin) {
@@ -279,11 +384,27 @@ export async function handleIdentityLinkRequest(
   return true;
 }
 
+/**
+ * ## Proposes the user to unlink their identities on this website from another website
+ *
+ * If the user is logged in to the target website, they will be logged out.
+ *
+ * @see {@link handleIdentityLinkRequest}
+ *
+ * @param bodyCBOR - {@link IIdentityUnlinkRequest}
+ * @param origin - {@link TOrigin}
+ * @returns whether the user agreed to unlink
+ *
+ * @category Shows Pop-Up
+ */
 export async function handleIdentityUnlinkRequest(
   bodyCBOR: string,
   origin: TOrigin,
 ): Promise<boolean> {
-  const body = zodParse(ZIdentityUnlinkRequest, fromCBOR(bodyCBOR));
+  const body: IIdentityUnlinkRequest = zodParse(
+    ZIdentityUnlinkRequest,
+    fromCBOR(bodyCBOR),
+  );
   const manager = await StateManager.make();
 
   // if there is already no link exists, just return true as if we did all the rest of the function
@@ -344,6 +465,12 @@ export async function handleIdentityUnlinkRequest(
   return true;
 }
 
+/**
+ * ## Returns a list of websites with which the user linked their identities from the current website
+ *
+ * @param origin - {@link TOrigin}
+ * @returns array of {@link TOrigin}
+ */
 export async function handleIdentityGetLinks(
   origin: TOrigin,
 ): Promise<TOrigin[]> {
@@ -354,4 +481,21 @@ export async function handleIdentityGetLinks(
   await manager.persist();
 
   return originData.linksTo;
+}
+
+/**
+ * Returns `true` if the user is logged in current website
+ *
+ * @param origin - {@link TOrigin}
+ * @returns
+ */
+export async function handleIdentitySessionExists(
+  origin: TOrigin,
+): Promise<boolean> {
+  const manager = await StateManager.make();
+
+  manager.incrementStats(origin);
+  await manager.persist();
+
+  return manager.getOriginData(origin).currentSession !== undefined;
 }

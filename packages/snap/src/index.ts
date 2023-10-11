@@ -9,12 +9,12 @@ import {
 } from "@fort-major/masquerade-shared";
 import { guardMethods as guardProtectedMethods } from "./utils";
 import { protected_handleShowICRC1TransferConfirm } from "./protocols/icrc1";
-import { handleStateSessionExists } from "./protocols/state";
 import {
   handleIdentityGetLinks,
   handleIdentityGetPublicKey,
   handleIdentityLinkRequest,
   handleIdentityLogoutRequest,
+  handleIdentitySessionExists,
   handleIdentitySign,
   handleIdentityUnlinkRequest,
   protected_handleIdentityAdd,
@@ -26,6 +26,12 @@ import {
   protected_handleStatisticsReset,
 } from "./protocols/statistics";
 
+/**
+ * Snap main entrypoint. Expects a JSON-RPC request with `params` field of type `{ body: hex_cbor_encoded_body }`.
+ * All inputs are validated with {@link https://github.com/colinhacks/zod | zod}.
+ *
+ * @see {@link https://docs.metamask.io/snaps/ | Metamask Snap Documentation}
+ */
 export const onRpcRequest: OnRpcRequestHandler = async ({
   origin,
   request,
@@ -103,8 +109,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       break;
     }
 
-    case SNAP_METHODS.public.state.sessionExists: {
-      result = handleStateSessionExists(origin);
+    case SNAP_METHODS.public.identity.sessionExists: {
+      result = handleIdentitySessionExists(origin);
       break;
     }
 

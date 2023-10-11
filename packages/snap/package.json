@@ -34,7 +34,8 @@
     "test": "jest",
     "lint": "eslint --fix src --ext .ts --ext .tsx",
     "format": "pnpm exec prettier src/**/*.{ts,tsx} --write",
-    "version:set": "node ../../set-version.js"
+    "version:set": "node ../../set-version.js",
+    "doc": "typedoc src/**/*.{ts,tsx}"
   },
   "devDependencies": {
     "@metamask/snaps-cli": "^1.0.2",

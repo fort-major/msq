@@ -203,7 +203,7 @@ export function WalletPage() {
       to,
       amount: req.amount,
       memo: req.memo,
-      created_at_time: req.created_at_time,
+      created_at_time: req.createdAt ?? BigInt(Date.now() * 1000000),
     });
 
     const successMsg: IWalletSiteICRC1TransferResultMsg = {

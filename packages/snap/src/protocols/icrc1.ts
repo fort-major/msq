@@ -1,4 +1,5 @@
 import {
+  IShowICRC1TransferConfirmRequest,
   ZShowICRC1TransferConfirmRequest,
   bytesToHex,
   fromCBOR,
@@ -8,11 +9,23 @@ import {
 import { divider, heading, panel, text } from "@metamask/snaps-ui";
 import { StateManager } from "../state";
 
+/**
+ * ## Shows a confirmation pop-up for a user to finally commit to the transfer
+ *
+ * @param bodyCBOR - {@link IShowICRC1TransferConfirmRequest} - CBOR-encoded transfer details
+ * @returns - {@link boolean} - whether or not a user confirmed the transfer
+ *
+ * @category Protected
+ * @category Shows Pop-Up
+ */
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export async function protected_handleShowICRC1TransferConfirm(
   bodyCBOR: string,
 ): Promise<boolean> {
-  const body = zodParse(ZShowICRC1TransferConfirmRequest, fromCBOR(bodyCBOR));
+  const body: IShowICRC1TransferConfirmRequest = zodParse(
+    ZShowICRC1TransferConfirmRequest,
+    fromCBOR(bodyCBOR),
+  );
 
   const agreed = await snap.request({
     method: "snap_dialog",

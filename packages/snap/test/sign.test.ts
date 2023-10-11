@@ -5,11 +5,9 @@ import {
   IIdentityLoginRequest,
   IIdentitySignRequest,
   SNAP_METHODS,
-  ZIdentityGetLoginOptionsResponse,
   bytesToHex,
   fromCBOR,
   toCBOR,
-  zodParse,
 } from "@fort-major/masquerade-shared";
 import { MASQUERADE_SNAP_SITE, ok } from "./utils";
 
@@ -157,7 +155,7 @@ describe("Signatures", () => {
         params: { body: toCBOR(req) },
       });
 
-      const signature = fromCBOR(ok(resp.response) as string);
+      const signature: Uint8Array = fromCBOR(ok(resp.response) as string);
 
       const re1: IIdentityGetPublicKeyRequest = {
         salt: new Uint8Array([i]),
@@ -169,7 +167,7 @@ describe("Signatures", () => {
         params: { body: toCBOR(re1) },
       });
 
-      const pubkey = fromCBOR(ok(resp1.response) as string);
+      const pubkey: Uint8Array = fromCBOR(ok(resp1.response) as string);
 
       signaturesAndPubkeys.push([signature, pubkey]);
     }
@@ -177,7 +175,7 @@ describe("Signatures", () => {
     const signatures = new Set();
     const pubkeys = new Set();
 
-    for (let [s, p] of signaturesAndPubkeys) {
+    for (const [s, p] of signaturesAndPubkeys) {
       signatures.add(toCBOR(s));
       pubkeys.add(toCBOR(p));
     }

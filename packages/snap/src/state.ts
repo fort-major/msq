@@ -8,7 +8,16 @@ import {
   ZState,
 } from "@fort-major/masquerade-shared";
 
+/**
+ * Provides a higher-level interface for interacting with the snap's state.
+ *
+ * @keywords state, memory, data, persistence
+ */
 export class StateManager {
+  /**
+   * @param origin - origin to get data about
+   * @returns - existing links, current session and a total number of user identities
+   */
   public getOriginData(origin: TOrigin): IOriginData {
     return this.state.originData[origin] ?? makeDefaultOriginData();
   }

@@ -18,10 +18,24 @@ if (process.env.MSQ_SNAP_SITE_ORIGIN === undefined) {
   );
 }
 
+/**
+ * A complete and automatically generated list of all protected methods
+ *
+ * @see {@link SNAP_METHODS}
+ */
 const PROTECTED_METHODS = Object.keys(SNAP_METHODS.protected).flatMap((key) =>
   Object.values(SNAP_METHODS.protected[key as TProtectedSnapMethodsKind]),
 );
 
+/**
+ * ## Checks if the method is protected - can only be called from the Masquerade website
+ *
+ * If not - throws an error
+ *
+ * @param method
+ * @param origin
+ * @returns
+ */
 export function guardMethods(method: string, origin: TOrigin): void {
   // let other methods pass
   if (!PROTECTED_METHODS.includes(method)) {
@@ -37,10 +51,29 @@ export function guardMethods(method: string, origin: TOrigin): void {
   }
 }
 
+/**
+ * Checks if the provided origin is of the Masquerade website
+ *
+ * @param origin
+ * @returns
+ */
 export function isMasquerade(origin: TOrigin): boolean {
   return origin === JSON.parse(process.env.MSQ_SNAP_SITE_ORIGIN as string);
 }
 
+/**
+ * Derives a signing key pair from the provided arguments
+ *
+ * The key pair is different for each user, each origin, each user's identity and can be customized with salt
+ *
+ * @see {@link handleIdentitySign}
+ * @see {@link handleIdentityGetPublicKey}
+ *
+ * @param origin
+ * @param identityId
+ * @param salt
+ * @returns
+ */
 export async function getSignIdentity(
   origin: TOrigin,
   identityId: TIdentityId,

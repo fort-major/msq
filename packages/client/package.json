@@ -12,6 +12,7 @@
     "dev:build": "tsc && tsc -p tsconfig.cjs.json && node inline-env-vars.js",
     "lint": "eslint --fix src --ext .ts --ext .tsx",
     "format": "pnpm exec prettier src/**/*.{ts,tsx} --write",
+    "doc": "typedoc src/**/*.{ts,tsx}",
     "version:set": "node ../../set-version.js"
   },
   "devDependencies": {

@@ -11,6 +11,7 @@
     "test": "dotenv -e .env.dev -- turbo test",
     "lint": "turbo lint",
     "format": "turbo format",
+    "doc": "turbo doc",
     "cargo:repair": "turbo cargo:repair"
   },
   "dependencies": {
@@ -32,6 +33,7 @@
     "eslint-plugin-solid": "^0.13.0",
     "glob": "^10.3.4",
     "prettier": "3.0.3",
+    "typedoc": "^0.25.2",
     "typescript": "^5.2.2",
     "vite-plugin-eslint": "^1.8.1"
   }

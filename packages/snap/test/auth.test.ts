@@ -19,7 +19,7 @@ describe("Authentication", () => {
 
     const { response } = await snap.request({
       origin: "http://localhost:8080",
-      method: SNAP_METHODS.public.state.sessionExists,
+      method: SNAP_METHODS.public.identity.sessionExists,
       params: { body: toCBOR(undefined) },
     });
 
@@ -72,7 +72,7 @@ describe("Authentication", () => {
     // check session
     const snapResp2 = await snap.request({
       origin: "http://localhost:8081",
-      method: SNAP_METHODS.public.state.sessionExists,
+      method: SNAP_METHODS.public.identity.sessionExists,
       params: { body: toCBOR(undefined) },
     });
 
@@ -95,7 +95,7 @@ describe("Authentication", () => {
     // check session once again
     const snapResp4 = await snap.request({
       origin: "http://localhost:8081",
-      method: SNAP_METHODS.public.state.sessionExists,
+      method: SNAP_METHODS.public.identity.sessionExists,
       params: { body: toCBOR(undefined) },
     });
 

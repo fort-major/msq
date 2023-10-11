@@ -4,6 +4,13 @@ import { type TOrigin } from "./types";
 export * from "./types";
 export * from "./encoding";
 
+/**
+ * ## Enumerates all available Masquerade snap methods
+ *
+ * There are two kinds of methods:
+ *  - __public__ - these methods can be called from any origin, but all changes and data are scoped to that origin
+ *  - __protected__ - these methods can only be called from the Masquerade website
+ */
 export const SNAP_METHODS = {
   protected: {
     identity: {
@@ -28,9 +35,7 @@ export const SNAP_METHODS = {
       requestLink: "public_identity_requestLink",
       requestUnlink: "public_identity_requestUnlink",
       getLinks: "public_identity_getLinks",
-    },
-    state: {
-      sessionExists: "public_state_sessionExists",
+      sessionExists: "public_identity_sessionExists",
     },
   },
 };

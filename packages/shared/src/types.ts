@@ -3,62 +3,82 @@ import z from "zod";
 export const ZPrincipalStr = z.string();
 export const ZICRC1Subaccount = z.instanceof(Uint8Array);
 
-// Website origin passed from Metamask
-export const ZOrigin = z.string().url();
+/**
+ * Website origin, for example `https://google.com`
+ */
 export type TOrigin = z.infer<typeof ZOrigin>;
+export const ZOrigin = z.string().url();
 
-// Timestamp in millis
-export const ZTimestamp = z.number().nonnegative();
+/**
+ * Timestamp in millis
+ */
 export type TTimestamp = z.infer<typeof ZTimestamp>;
+export const ZTimestamp = z.number().nonnegative();
 
-// Blob of bytes
-export const ZBlob = z.instanceof(ArrayBuffer).or(z.instanceof(Uint8Array));
+/**
+ * Blob of bytes
+ */
 export type TBlob = z.infer<typeof ZBlob>;
+export const ZBlob = z.instanceof(ArrayBuffer).or(z.instanceof(Uint8Array));
 
-// Identity ID
-// Just a number that allows user to switch their entire set of identities on all sites + all payment identities
-export const ZIdentityId = z.number().int().nonnegative();
+/**
+ * Identity ID
+ */
 export type TIdentityId = z.infer<typeof ZIdentityId>;
+export const ZIdentityId = z.number().int().nonnegative();
 
+/**
+ * Session object
+ */
+export type ISession = z.infer<typeof ZSession>;
 export const ZSession = z.object({
+  /** chosen user identity ID (unique for each website) */
   identityId: ZIdentityId,
+  /** an origin used for key deriviation (actual or linked) */
   deriviationOrigin: ZOrigin,
+  /** logged in timestamp */
   timestampMs: ZTimestamp,
 });
-export type ISession = z.infer<typeof ZSession>;
 
+/**
+ * Various data for each website the user interacts with
+ */
+export type IOriginData = z.infer<typeof ZOriginData>;
 export const ZOriginData = z.object({
-  // how many identities does a user have on this website
+  /** how many identities does a user have on this website */
   identitiesTotal: ZIdentityId,
-  // which websites shared the user's identity with this website
-  // basically it allows:
-  //   1. domain migrations, when users may still use their old identity to log into the new website
-  //   2. website integrations, when users may use the same identity while working with both websites
+  /** which websites shared the user's identity with this website */
   linksFrom: z.array(ZOrigin),
+  /** to which websites the user shared their identities from this website */
   linksTo: z.array(ZOrigin),
-  // session object, exists if the user is logged in
-  // TODO: should we purge this periodically? Metamask already has a lock screen with a password and stuff
+  /** session object, exists if the user is logged in */
   currentSession: z.optional(ZSession),
 });
-export type IOriginData = z.infer<typeof ZOriginData>;
 
+/**
+ * Anonimized and squashed activities the user does with Masquerade
+ */
+export type IStatistics = z.infer<typeof ZStatistics>;
 export const ZStatistics = z.object({
+  /** when was the last time the user sent the stats to the server */
   lastResetTimestamp: z.number().nonnegative(),
+  /** how many activities were performed in any development environment */
   dev: z.number().nonnegative(),
+  /** how many activities were performed in any production environment */
   prod: z.number().nonnegative(),
 });
-export type IStatistics = z.infer<typeof ZStatistics>;
 
-// Snap state that is stored in encrypted form on user's device
-// TODO: [when vetKeys are ready] - persist it on-chain
+/**
+ * Snap state that is stored in encrypted form on user's device
+ */
+export type IState = z.infer<typeof ZState>;
 export const ZState = z.object({
+  /** version of the state, for future migrations */
   version: z.number().nonnegative(),
-  // other origins data
+  /** user data on each origin */
   originData: z.record(ZOrigin, z.optional(ZOriginData)),
-  // statistics
   statistics: ZStatistics,
 });
-export type IState = z.infer<typeof ZState>;
 
 export const ZSnapRPCRequest = z.object({
   method: z.string(),
@@ -67,15 +87,6 @@ export const ZSnapRPCRequest = z.object({
   }),
 });
 export type ISnapRpcRequest = z.infer<typeof ZSnapRPCRequest>;
-
-// -------------- STATE PROTOCOL RELATED TYPES --------------
-
-export const ZStateGetOriginDataRequest = z.object({
-  origin: ZOrigin,
-});
-export type IStateGetOriginDataRequest = z.infer<
-  typeof ZStateGetOriginDataRequest
->;
 
 // ----------- IDENTITY PROTOCOL RELATED TYPES ---------
 
@@ -99,8 +110,11 @@ export const ZIdentityAddRequest = z.object({
 export type IIdentityAddRequest = z.infer<typeof ZIdentityAddRequest>;
 
 export const ZIdentityLoginRequest = z.object({
+  /** Origin of the website to log in to */
   toOrigin: ZOrigin,
+  /** Identity (mask) id of the user to use */
   withIdentityId: ZIdentityId,
+  /** Linked origin, if the user wants to use it to log in */
   withLinkedOrigin: z.optional(ZOrigin),
 });
 export type IIdentityLoginRequest = z.infer<typeof ZIdentityLoginRequest>;
@@ -136,13 +150,12 @@ export const ZICRC1Account = z.object({
 });
 export type IICRC1Account = z.infer<typeof ZICRC1Account>;
 
-// TODO: also add timestamp
 const ZICRC1TransferRequest = z.object({
   canisterId: ZPrincipalStr,
   to: ZICRC1Account,
   amount: z.bigint(),
   memo: z.optional(z.instanceof(Uint8Array)),
-  created_at_time: z.optional(z.bigint()),
+  createdAt: z.optional(z.bigint()),
 });
 export type IICRC1TransferRequest = z.infer<typeof ZICRC1TransferRequest>;
 
