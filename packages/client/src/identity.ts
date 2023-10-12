@@ -28,23 +28,13 @@ export class MasqueradeIdentity extends SignIdentity {
    * @param salt - (optional) {@link Uint8Array} - salt for custom key deriviation
    * @returns
    */
-  public static async create(
-    client: MasqueradeClient,
-    salt?: Uint8Array | undefined,
-  ): Promise<MasqueradeIdentity> {
+  public static async create(client: MasqueradeClient, salt?: Uint8Array | undefined): Promise<MasqueradeIdentity> {
     const body: IIdentityGetPublicKeyRequest = {
       salt,
     };
-    const rawPubkey: ArrayBuffer = await client._requestSnap(
-      SNAP_METHODS.public.identity.getPublicKey,
-      body,
-    );
+    const rawPubkey: ArrayBuffer = await client._requestSnap(SNAP_METHODS.public.identity.getPublicKey, body);
 
-    return new MasqueradeIdentity(
-      client,
-      Secp256k1PublicKey.fromRaw(rawPubkey),
-      salt,
-    );
+    return new MasqueradeIdentity(client, Secp256k1PublicKey.fromRaw(rawPubkey), salt);
   }
 
   /**
@@ -94,9 +84,6 @@ export class MasqueradeIdentity extends SignIdentity {
       salt: this.salt,
     };
 
-    return await this.client._requestSnap(
-      SNAP_METHODS.public.identity.sign,
-      body,
-    );
+    return await this.client._requestSnap(SNAP_METHODS.public.identity.sign, body);
   }
 }

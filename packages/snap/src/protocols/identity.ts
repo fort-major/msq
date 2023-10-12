@@ -34,13 +34,8 @@ import { getSignIdentity, isMasquerade } from "../utils";
  * @category Protected
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export async function protected_handleIdentityAdd(
-  bodyCBOR: string,
-): Promise<true> {
-  const body: IIdentityAddRequest = zodParse(
-    ZIdentityAddRequest,
-    fromCBOR(bodyCBOR),
-  );
+export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<true> {
+  const body: IIdentityAddRequest = zodParse(ZIdentityAddRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
 
   manager.addIdentity(body.toOrigin);
@@ -60,19 +55,11 @@ export async function protected_handleIdentityAdd(
  * @category Protected
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export async function protected_handleIdentityLogin(
-  bodyCBOR: string,
-): Promise<true> {
-  const body: IIdentityLoginRequest = zodParse(
-    ZIdentityLoginRequest,
-    fromCBOR(bodyCBOR),
-  );
+export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<true> {
+  const body: IIdentityLoginRequest = zodParse(ZIdentityLoginRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
 
-  if (
-    body.withLinkedOrigin !== undefined &&
-    body.withLinkedOrigin !== body.toOrigin
-  ) {
+  if (body.withLinkedOrigin !== undefined && body.withLinkedOrigin !== body.toOrigin) {
     if (!manager.linkExists(body.withLinkedOrigin, body.toOrigin))
       err(ErrorCode.UNAUTHORIZED, "Unable to login without a link");
   }
@@ -160,9 +147,7 @@ export async function protected_handleIdentityGetLoginOptions(
  *
  * @category Shows Pop-Up
  */
-export async function handleIdentityLogoutRequest(
-  origin: TOrigin,
-): Promise<boolean> {
+export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<boolean> {
   const manager = await StateManager.make();
   const originData = manager.getOriginData(origin);
 
@@ -180,11 +165,7 @@ export async function handleIdentityLogoutRequest(
         heading("🔒 Log out request 🔒"),
         text(`**${originToHostname(origin)}** wants you to log out.`),
         divider(),
-        text(
-          `You will become anonymous, but **${originToHostname(
-            origin,
-          )}** may still track your actions!`,
-        ),
+        text(`You will become anonymous, but **${originToHostname(origin)}** may still track your actions!`),
         divider(),
         text("**Proceed?** 🚀"),
       ]),
@@ -220,14 +201,8 @@ export async function handleIdentityLogoutRequest(
  * @param origin - {@link TOrigin}
  * @returns Secp256k1 signature of the provided payload
  */
-export async function handleIdentitySign(
-  bodyCBOR: string,
-  origin: TOrigin,
-): Promise<ArrayBuffer> {
-  const body: IIdentitySignRequest = zodParse(
-    ZIdentitySignRequest,
-    fromCBOR(bodyCBOR),
-  );
+export async function handleIdentitySign(bodyCBOR: string, origin: TOrigin): Promise<ArrayBuffer> {
+  const body: IIdentitySignRequest = zodParse(ZIdentitySignRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
   let session = manager.getOriginData(origin).currentSession;
 
@@ -239,11 +214,7 @@ export async function handleIdentitySign(
     }
   }
 
-  const identity = await getSignIdentity(
-    session.deriviationOrigin,
-    session.identityId,
-    body.salt,
-  );
+  const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
 
   manager.incrementStats(origin);
   await manager.persist();
@@ -266,14 +237,8 @@ export async function handleIdentitySign(
  * @param origin - {@link TOrigin}
  * @returns Secp256k1 public key in raw format
  */
-export async function handleIdentityGetPublicKey(
-  bodyCBOR: string,
-  origin: TOrigin,
-): Promise<ArrayBuffer> {
-  const body: IIdentityGetPublicKeyRequest = zodParse(
-    ZIdentityGetPublicKeyRequest,
-    fromCBOR(bodyCBOR),
-  );
+export async function handleIdentityGetPublicKey(bodyCBOR: string, origin: TOrigin): Promise<ArrayBuffer> {
+  const body: IIdentityGetPublicKeyRequest = zodParse(ZIdentityGetPublicKeyRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
   let session = manager.getOriginData(origin).currentSession;
 
@@ -285,11 +250,7 @@ export async function handleIdentityGetPublicKey(
     }
   }
 
-  const identity = await getSignIdentity(
-    session.deriviationOrigin,
-    session.identityId,
-    body.salt,
-  );
+  const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
 
   manager.incrementStats(origin);
   await manager.persist();
@@ -313,14 +274,8 @@ export async function handleIdentityGetPublicKey(
  *
  * @category Shows Pop-Up
  */
-export async function handleIdentityLinkRequest(
-  bodyCBOR: string,
-  origin: TOrigin,
-): Promise<boolean> {
-  const body: IIdentityLinkRequest = zodParse(
-    ZIdentityLinkRequest,
-    fromCBOR(bodyCBOR),
-  );
+export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigin): Promise<boolean> {
+  const body: IIdentityLinkRequest = zodParse(ZIdentityLinkRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
 
   if (origin === body.withOrigin) {
@@ -340,11 +295,7 @@ export async function handleIdentityLinkRequest(
       content: panel([
         heading("🎭 Mask Link Request 🎭"),
         text(
-          `**${originToHostname(
-            origin,
-          )}** wants you to reveal your masks to **${originToHostname(
-            body.withOrigin,
-          )}**.`,
+          `**${originToHostname(origin)}** wants you to reveal your masks to **${originToHostname(body.withOrigin)}**.`,
         ),
         text(
           `You will be able to log in to **${originToHostname(
@@ -354,17 +305,11 @@ export async function handleIdentityLinkRequest(
         divider(),
         heading("🚨 BE CAREFUL! 🚨"),
         text(
-          `**${originToHostname(
-            body.withOrigin,
-          )}** will be able to call **${originToHostname(
+          `**${originToHostname(body.withOrigin)}** will be able to call **${originToHostname(
             origin,
           )}**'s canisters on your behalf without notice!`,
         ),
-        text(
-          `Only proceed if **${originToHostname(
-            origin,
-          )}** explicitly proposed this action to you.`,
-        ),
+        text(`Only proceed if **${originToHostname(origin)}** explicitly proposed this action to you.`),
         divider(),
         text("Proceed? 🚀"),
       ]),
@@ -397,14 +342,8 @@ export async function handleIdentityLinkRequest(
  *
  * @category Shows Pop-Up
  */
-export async function handleIdentityUnlinkRequest(
-  bodyCBOR: string,
-  origin: TOrigin,
-): Promise<boolean> {
-  const body: IIdentityUnlinkRequest = zodParse(
-    ZIdentityUnlinkRequest,
-    fromCBOR(bodyCBOR),
-  );
+export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOrigin): Promise<boolean> {
+  const body: IIdentityUnlinkRequest = zodParse(ZIdentityUnlinkRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
 
   // if there is already no link exists, just return true as if we did all the rest of the function
@@ -420,9 +359,7 @@ export async function handleIdentityUnlinkRequest(
       content: panel([
         heading("🎭 Mask Unlink Request 🎭"),
         text(
-          `**${originToHostname(
-            origin,
-          )}** wants you to unlink your masks from **${originToHostname(
+          `**${originToHostname(origin)}** wants you to unlink your masks from **${originToHostname(
             body.withOrigin,
           )}**.`,
         ),
@@ -471,9 +408,7 @@ export async function handleIdentityUnlinkRequest(
  * @param origin - {@link TOrigin}
  * @returns array of {@link TOrigin}
  */
-export async function handleIdentityGetLinks(
-  origin: TOrigin,
-): Promise<TOrigin[]> {
+export async function handleIdentityGetLinks(origin: TOrigin): Promise<TOrigin[]> {
   const manager = await StateManager.make();
   const originData = manager.getOriginData(origin);
 
@@ -489,9 +424,7 @@ export async function handleIdentityGetLinks(
  * @param origin - {@link TOrigin}
  * @returns
  */
-export async function handleIdentitySessionExists(
-  origin: TOrigin,
-): Promise<boolean> {
+export async function handleIdentitySessionExists(origin: TOrigin): Promise<boolean> {
   const manager = await StateManager.make();
 
   manager.incrementStats(origin);

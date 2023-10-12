@@ -6,6 +6,8 @@ import {
   unreacheable,
   zodParse,
   ZState,
+  fromCBOR,
+  toCBOR,
 } from "@fort-major/masquerade-shared";
 
 /**
@@ -27,15 +29,10 @@ export class StateManager {
   }
 
   public linkExists(from: TOrigin, to: TOrigin): boolean {
-    const fromHasToLink =
-      this.state.originData[from]?.linksTo?.includes(to) ?? false;
-    const toHasFromLink =
-      this.state.originData[to]?.linksFrom?.includes(from) ?? false;
+    const fromHasToLink = this.state.originData[from]?.linksTo?.includes(to) ?? false;
+    const toHasFromLink = this.state.originData[to]?.linksFrom?.includes(from) ?? false;
 
-    if (
-      (fromHasToLink && !toHasFromLink) ||
-      (!fromHasToLink && toHasFromLink)
-    ) {
+    if ((fromHasToLink && !toHasFromLink) || (!fromHasToLink && toHasFromLink)) {
       unreacheable("There should always be two sides of a link");
     }
 
@@ -67,8 +64,7 @@ export class StateManager {
     const fromIdx = fromOriginData.linksTo.findIndex((it) => it === to);
     const toIdx = toOriginData.linksFrom.findIndex((it) => it === from);
 
-    if (fromIdx === -1 || toIdx === -1)
-      unreacheable("To unlink there should be a link");
+    if (fromIdx === -1 || toIdx === -1) unreacheable("To unlink there should be a link");
 
     fromOriginData.linksTo.splice(fromIdx, 1);
     toOriginData.linksFrom.splice(toIdx, 1);
@@ -127,8 +123,7 @@ export class StateManager {
   }
 }
 
-const IP_V4 =
-  /^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/gm;
+const IP_V4 = /^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/gm;
 
 const makeDefaultState: () => IState = () => ({
   version: 1,
@@ -162,7 +157,7 @@ export async function retrieveStateLocal(): Promise<IState> {
     return s;
   }
 
-  return zodParse(ZState, state.data);
+  return zodParse(ZState, fromCBOR(state.data as string));
 }
 
 export async function persistStateLocal(state: IState): Promise<void> {
@@ -170,8 +165,7 @@ export async function persistStateLocal(state: IState): Promise<void> {
     method: "snap_manageState",
     params: {
       operation: "update",
-      // @ts-expect-error - state should be always JSON-compatible
-      newState: { data: state },
+      newState: { data: toCBOR(state) },
     },
   });
 }

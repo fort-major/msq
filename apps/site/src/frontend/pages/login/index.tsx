@@ -11,6 +11,8 @@ import {
   err,
   originToHostname,
 } from "@fort-major/masquerade-shared";
+import { BoopAvatar } from "../../components/boop-avatar";
+import { Principal } from "@dfinity/principal";
 
 enum LoginPageState {
   WaitingForLoginRequest,
@@ -18,23 +20,16 @@ enum LoginPageState {
   WaitingForUserInput,
 }
 
-const referrerOrigin = new URL(document.referrer).origin;
-
 export function LoginPage() {
   const [state, setState] = createSignal(LoginPageState.WaitingForLoginRequest);
-  const [snapClient, setSnapClient] = createSignal<InternalSnapClient | null>(
-    null,
-  );
-  const [availableOrigins, setAvailableOrigins] = createSignal<
-    [TOrigin, string[]][] | null
-  >(null);
-  const [deriviationOrigin, setDeriviationOrigin] = createSignal<
-    string | undefined
-  >(undefined);
+  const [snapClient, setSnapClient] = createSignal<InternalSnapClient | null>(null);
+  const [availableOrigins, setAvailableOrigins] = createSignal<[TOrigin, string[]][] | null>(null);
+  const [deriviationOrigin, setDeriviationOrigin] = createSignal<string | undefined>(undefined);
   const [identityId, setIdentityId] = createSignal<number | null>(null);
-  const [referrerWindow, setReferrerWindow] =
-    createSignal<MessageEventSource | null>(null);
+  const [referrerWindow, setReferrerWindow] = createSignal<MessageEventSource | null>(null);
   const message = createEventSignal(window, "message");
+
+  const referrerOrigin = new URL(document.referrer).origin;
 
   const awaitLoginRequest = () => {
     if (state() !== LoginPageState.WaitingForLoginRequest) {
@@ -152,10 +147,7 @@ export function LoginPage() {
     );
   };
 
-  const onIdentitySelect = (
-    deriviationOrigin: TOrigin,
-    identityId: TIdentityId,
-  ) => {
+  const onIdentitySelect = (deriviationOrigin: TOrigin, identityId: TIdentityId) => {
     setDeriviationOrigin(deriviationOrigin);
     setIdentityId(identityId);
   };
@@ -167,13 +159,11 @@ export function LoginPage() {
       const principalBtns = principals.map((it, idx) => (
         <button
           style={{
-            "border-color":
-              origin === deriviationOrigin() && idx === identityId()
-                ? "blue"
-                : undefined,
+            "border-color": origin === deriviationOrigin() && idx === identityId() ? "blue" : undefined,
           }}
           onClick={() => onIdentitySelect(origin, idx)}
         >
+          <BoopAvatar principal={Principal.fromText(it)} size={60} eyesAngle={90} />
           {it}
         </button>
       ));
@@ -194,15 +184,15 @@ export function LoginPage() {
       <div>
         <h1>{originToHostname(referrerOrigin)} wants you to log in</h1>
         {statusText()}
-        {state() === LoginPageState.WaitingForUserInput ?? (
-          <>
+        <Switch>
+          <Match when={state() === LoginPageState.WaitingForUserInput}>
             {selection()}
             <div>
               <button onClick={onLogin}>Continue</button>
               <button onClick={onCancel}>Cancel</button>
             </div>
-          </>
-        )}
+          </Match>
+        </Switch>
       </div>
     </main>
   );

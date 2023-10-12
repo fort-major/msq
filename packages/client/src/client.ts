@@ -161,10 +161,7 @@ export class MasqueradeClient {
   async requestLink(withOrigin: TOrigin): Promise<boolean> {
     const body: IIdentityLinkRequest = { withOrigin };
 
-    return await this._requestSnap(
-      SNAP_METHODS.public.identity.requestLink,
-      body,
-    );
+    return await this._requestSnap(SNAP_METHODS.public.identity.requestLink, body);
   }
 
   /**
@@ -181,10 +178,7 @@ export class MasqueradeClient {
   async requestUnlink(withOrigin: TOrigin): Promise<boolean> {
     const body: IIdentityUnlinkRequest = { withOrigin };
 
-    return await this._requestSnap(
-      SNAP_METHODS.public.identity.requestUnlink,
-      body,
-    );
+    return await this._requestSnap(SNAP_METHODS.public.identity.requestUnlink, body);
   }
 
   /**
@@ -300,9 +294,7 @@ export class MasqueradeClient {
     const decodedResponse: R = fromCBOR(response);
 
     if (this.debug) {
-      console.log(
-        `Received ${debugStringify(decodedResponse)} from the wallet`,
-      );
+      console.log(`Received ${debugStringify(decodedResponse)} from the wallet`);
     }
 
     return decodedResponse;
@@ -322,9 +314,7 @@ export class MasqueradeClient {
    * @param params - {@link IMasqueradeClientParams}
    * @returns - an initialized {@link MasqueradeClient} object that can be used right away
    */
-  static async create(
-    params?: IMasqueradeClientParams,
-  ): Promise<MasqueradeClient> {
+  static async create(params?: IMasqueradeClientParams): Promise<MasqueradeClient> {
     const provider = await detectEthereumProvider<IMetaMaskEthereumProvider>({
       mustBeMetaMask: true,
     });

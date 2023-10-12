@@ -23,8 +23,7 @@ export const strToBytes = (str: string): Uint8Array => textEncoder.encode(str);
  * @param bytes
  * @returns
  */
-export const bytesToStr = (bytes: Uint8Array): string =>
-  textDecoder.decode(bytes);
+export const bytesToStr = (bytes: Uint8Array): string => textDecoder.decode(bytes);
 
 /**
  * ## Encodes {@link Uint8Array} into hex-string
@@ -90,9 +89,5 @@ export function fromCBOR<T>(hex: string): T {
  * @returns
  */
 export function debugStringify(obj: unknown): string {
-  return JSON.stringify(
-    obj,
-    (key, value) => (typeof value === "bigint" ? value.toString() : value),
-    2,
-  );
+  return JSON.stringify(obj, (key, value) => (typeof value === "bigint" ? value.toString() : value), 2);
 }

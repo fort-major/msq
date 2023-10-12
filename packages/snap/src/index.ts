@@ -1,12 +1,5 @@
 import type { OnRpcRequestHandler } from "@metamask/snaps-types";
-import {
-  ErrorCode,
-  SNAP_METHODS,
-  ZSnapRPCRequest,
-  err,
-  toCBOR,
-  zodParse,
-} from "@fort-major/masquerade-shared";
+import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR, zodParse } from "@fort-major/masquerade-shared";
 import { guardMethods as guardProtectedMethods } from "./utils";
 import { protected_handleShowICRC1TransferConfirm } from "./protocols/icrc1";
 import {
@@ -21,10 +14,7 @@ import {
   protected_handleIdentityGetLoginOptions,
   protected_handleIdentityLogin,
 } from "./protocols/identity";
-import {
-  protected_handleStatisticsGet,
-  protected_handleStatisticsReset,
-} from "./protocols/statistics";
+import { protected_handleStatisticsGet, protected_handleStatisticsReset } from "./protocols/statistics";
 
 /**
  * Snap main entrypoint. Expects a JSON-RPC request with `params` field of type `{ body: hex_cbor_encoded_body }`.
@@ -32,10 +22,7 @@ import {
  *
  * @see {@link https://docs.metamask.io/snaps/ | Metamask Snap Documentation}
  */
-export const onRpcRequest: OnRpcRequestHandler = async ({
-  origin,
-  request,
-}) => {
+export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => {
   const req = zodParse(ZSnapRPCRequest, request);
 
   // restrict access to protected methods to be only executed

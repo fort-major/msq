@@ -5,25 +5,18 @@ import { InternalSnapClient } from "@fort-major/masquerade-client/src/internal";
 import { strToBytes } from "@fort-major/masquerade-shared";
 import { Backend } from "../backend";
 
-export function makeCanisterIdIdentity(
-  client: MasqueradeClient,
-  canisterId: string,
-): Promise<MasqueradeIdentity> {
+export function makeCanisterIdIdentity(client: MasqueradeClient, canisterId: string): Promise<MasqueradeIdentity> {
   const salt = `icrc-1\n${canisterId}\n0`;
   return MasqueradeIdentity.create(client, strToBytes(salt));
 }
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
 
-export async function handleStatistics(
-  actor: ActorSubclass<Backend>,
-  client: InternalSnapClient,
-) {
+export async function handleStatistics(actor: ActorSubclass<Backend>, client: InternalSnapClient) {
   const stats = await client.getStats();
   const now = Date.now();
 
-  if (stats.dev + stats.prod < 1000 || now - stats.lastResetTimestamp < ONE_DAY)
-    return;
+  if (stats.dev + stats.prod < 1000 || now - stats.lastResetTimestamp < ONE_DAY) return;
 
   await client.resetStats();
 

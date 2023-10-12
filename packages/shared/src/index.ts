@@ -69,10 +69,7 @@ export async function delay(ms: number): Promise<void> {
 }
 
 // ZodError do not work properly inside a snap, so we rethrow them here
-export function zodParse<S extends ZodType>(
-  schema: S,
-  obj: unknown,
-): z.infer<typeof schema> {
+export function zodParse<S extends ZodType>(schema: S, obj: unknown): z.infer<typeof schema> {
   try {
     return schema.parse(obj);
   } catch (e) {

@@ -13,9 +13,7 @@ import { Secp256k1KeyIdentity } from "@dfinity/identity-secp256k1";
 // when the snap is evaluated in SES
 // if it passes during the build step, it will also pass in runtime
 if (process.env.MSQ_SNAP_SITE_ORIGIN === undefined) {
-  throw new Error(
-    `Bad build: snap site origin is '${process.env.MSQ_SNAP_SITE_ORIGIN}'`,
-  );
+  throw new Error(`Bad build: snap site origin is '${process.env.MSQ_SNAP_SITE_ORIGIN}'`);
 }
 
 /**
@@ -80,12 +78,7 @@ export async function getSignIdentity(
   salt?: Uint8Array | undefined,
 ): Promise<Secp256k1KeyIdentity> {
   // shared prefix may be used in following updates
-  const entropy = await getEntropy(
-    origin,
-    identityId,
-    "identity-sign\nshared",
-    salt,
-  );
+  const entropy = await getEntropy(origin, identityId, "identity-sign\nshared", salt);
 
   return Secp256k1KeyIdentity.fromSecretKey(entropy);
 }
@@ -108,10 +101,7 @@ async function getEntropy(
   if (customSalt === undefined) {
     entropyPreBytes = new Uint8Array([...hexToBytes(entropyPre.slice(2))]);
   } else {
-    entropyPreBytes = new Uint8Array([
-      ...hexToBytes(entropyPre.slice(2)),
-      ...customSalt,
-    ]);
+    entropyPreBytes = new Uint8Array([...hexToBytes(entropyPre.slice(2)), ...customSalt]);
   }
 
   return await crypto.subtle.digest("SHA-256", entropyPreBytes);

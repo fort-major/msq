@@ -19,13 +19,8 @@ import { StateManager } from "../state";
  * @category Shows Pop-Up
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export async function protected_handleShowICRC1TransferConfirm(
-  bodyCBOR: string,
-): Promise<boolean> {
-  const body: IShowICRC1TransferConfirmRequest = zodParse(
-    ZShowICRC1TransferConfirmRequest,
-    fromCBOR(bodyCBOR),
-  );
+export async function protected_handleShowICRC1TransferConfirm(bodyCBOR: string): Promise<boolean> {
+  const body: IShowICRC1TransferConfirmRequest = zodParse(ZShowICRC1TransferConfirmRequest, fromCBOR(bodyCBOR));
 
   const agreed = await snap.request({
     method: "snap_dialog",
@@ -38,20 +33,14 @@ export async function protected_handleShowICRC1TransferConfirm(
         text("**To principal ID:**"),
         text(body.to.owner),
         text("**To subaccount ID:**"),
-        text(
-          body.to.subaccount !== undefined
-            ? bytesToHex(body.to.subaccount)
-            : "Default subaccount ID",
-        ),
+        text(body.to.subaccount !== undefined ? bytesToHex(body.to.subaccount) : "Default subaccount ID"),
         text("**Total amount:**"),
         text(`${body.totalAmount} ${body.ticker}`),
         text("**Initiator:**"),
         text(`🌐 ${originToHostname(body.requestOrigin)}`),
         divider(),
         heading("🚨 BE CAREFUL! 🚨"),
-        text(
-          "This action is irreversible. You won't be able to recover your funds!",
-        ),
+        text("This action is irreversible. You won't be able to recover your funds!"),
         divider(),
         text("**Proceed?** 🚀"),
       ]),

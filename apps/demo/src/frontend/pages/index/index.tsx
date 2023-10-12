@@ -7,9 +7,7 @@ import { type Backend, createBackendActor } from "../../backend";
 export const IndexPage = () => {
   const [snapClient, setSnapClient] = createSignal<SnapClient | null>();
   const [actor, setActor] = createSignal<ActorSubclass<Backend> | null>(null);
-  const [principal, setPrincipal] = createSignal<Principal>(
-    Principal.anonymous(),
-  );
+  const [principal, setPrincipal] = createSignal<Principal>(Principal.anonymous());
   const [links, setLinks] = createSignal<string[]>([]);
 
   onMount(async () => {
@@ -31,19 +29,14 @@ export const IndexPage = () => {
       setActor(createBackendActor(agent));
 
       await agent.fetchRootKey().catch((err) => {
-        console.warn(
-          "Unable to fetch root key. Check to ensure that your local replica is running",
-        );
+        console.warn("Unable to fetch root key. Check to ensure that your local replica is running");
         console.error(err);
       });
     }
   });
 
   const authBtn = () => {
-    const mode =
-      principal().toText() == Principal.anonymous().toText()
-        ? "login"
-        : "logout";
+    const mode = principal().toText() == Principal.anonymous().toText() ? "login" : "logout";
     const fn = mode === "login" ? onLogin : onLogout;
 
     return <button onClick={fn}>{mode}</button>;
@@ -64,9 +57,7 @@ export const IndexPage = () => {
     setActor(createBackendActor(agent));
 
     await agent.fetchRootKey().catch((err) => {
-      console.warn(
-        "Unable to fetch root key. Check to ensure that your local replica is running",
-      );
+      console.warn("Unable to fetch root key. Check to ensure that your local replica is running");
       console.error(err);
     });
 

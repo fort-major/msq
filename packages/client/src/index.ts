@@ -1,7 +1,4 @@
-export {
-  MasqueradeClient as SnapClient,
-  type IMasqueradeClientParams as ISnapClientParams,
-} from "./client";
+export { MasqueradeClient as SnapClient, type IMasqueradeClientParams as ISnapClientParams } from "./client";
 
 // these env variables are inlined during build process
 // see ../inline-env-vars.js

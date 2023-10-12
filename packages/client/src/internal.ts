@@ -19,9 +19,7 @@ export interface IInternalSnapClientParams {
 }
 
 export class InternalSnapClient {
-  static async create(
-    params?: IInternalSnapClientParams,
-  ): Promise<InternalSnapClient> {
+  static async create(params?: IInternalSnapClientParams): Promise<InternalSnapClient> {
     const inner = await MasqueradeClient.create(params);
 
     return new InternalSnapClient(inner);
@@ -34,10 +32,7 @@ export class InternalSnapClient {
   async register(toOrigin: TOrigin): Promise<true> {
     const body: IIdentityAddRequest = { toOrigin };
 
-    return await this.inner._requestSnap(
-      SNAP_METHODS.protected.identity.add,
-      body,
-    );
+    return await this.inner._requestSnap(SNAP_METHODS.protected.identity.add, body);
   }
 
   async login(
@@ -51,32 +46,19 @@ export class InternalSnapClient {
       withIdentityId,
     };
 
-    return await this.inner._requestSnap(
-      SNAP_METHODS.protected.identity.login,
-      body,
-    );
+    return await this.inner._requestSnap(SNAP_METHODS.protected.identity.login, body);
   }
 
-  async getLoginOptions(
-    forOrigin: TOrigin,
-  ): Promise<IIdentityGetLoginOptionsResponse> {
+  async getLoginOptions(forOrigin: TOrigin): Promise<IIdentityGetLoginOptionsResponse> {
     const body: IIdentityGetLoginOptionsRequest = {
       forOrigin,
     };
 
-    return await this.inner._requestSnap(
-      SNAP_METHODS.protected.identity.getLoginOptions,
-      body,
-    );
+    return await this.inner._requestSnap(SNAP_METHODS.protected.identity.getLoginOptions, body);
   }
 
-  async showICRC1TransferConfirm(
-    body: IShowICRC1TransferConfirmRequest,
-  ): Promise<boolean> {
-    return await this.inner._requestSnap(
-      SNAP_METHODS.protected.icrc1.showTransferConfirm,
-      body,
-    );
+  async showICRC1TransferConfirm(body: IShowICRC1TransferConfirmRequest): Promise<boolean> {
+    return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.showTransferConfirm, body);
   }
 
   async getStats(): Promise<IStatistics> {
@@ -84,9 +66,7 @@ export class InternalSnapClient {
   }
 
   async resetStats(): Promise<true> {
-    return await this.inner._requestSnap(
-      SNAP_METHODS.protected.statistics.reset,
-    );
+    return await this.inner._requestSnap(SNAP_METHODS.protected.statistics.reset);
   }
 
   constructor(private readonly inner: MasqueradeClient) {}

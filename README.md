@@ -44,3 +44,19 @@ DFX env variables (starting with "CANISTER_ID_") are propagated to vite automati
 
 * (opt) `npm login` - don't forget to log in to your npm account
 * `pnpm run pub`
+
+### Test
+
+* `pnpm run test`
+
+### Lint with eslint
+
+* `pnpm run lint`
+
+### Format with prettier
+
+* `pnpm run format`
+
+### Render documentation with typedoc
+
+* `pnpm run doc`

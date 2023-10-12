@@ -1,8 +1,4 @@
-import {
-  IcrcLedgerCanister,
-  IcrcMetadataResponseEntries,
-  IcrcValue,
-} from "@dfinity/ledger-icrc";
+import { IcrcLedgerCanister, IcrcMetadataResponseEntries, IcrcValue } from "@dfinity/ledger-icrc";
 import { Account } from "@dfinity/ledger-icrc/dist/candid/icrc_ledger";
 import { Principal } from "@dfinity/principal";
 import { InternalSnapClient } from "@fort-major/masquerade-client/dist/esm/internal";
@@ -29,23 +25,15 @@ enum WalletPageState {
   WaitingForUserInput,
 }
 
-const referrerOrigin = new URL(document.referrer).origin;
-
 export function WalletPage() {
-  const [state, setState] = createSignal<WalletPageState>(
-    WalletPageState.WaitingForTransferRequest,
-  );
-  const [userPrincipal, setUserPrincipal] = createSignal<Principal | null>(
-    null,
-  );
-  const [snapClient, setSnapClient] = createSignal<InternalSnapClient | null>(
-    null,
-  );
+  const referrerOrigin = new URL(document.referrer).origin;
+
+  const [state, setState] = createSignal<WalletPageState>(WalletPageState.WaitingForTransferRequest);
+  const [userPrincipal, setUserPrincipal] = createSignal<Principal | null>(null);
+  const [snapClient, setSnapClient] = createSignal<InternalSnapClient | null>(null);
   const [actor, setActor] = createSignal<IcrcLedgerCanister | null>(null);
-  const [referrerWindow, setReferrerWindow] =
-    createSignal<MessageEventSource | null>(null);
-  const [transferRequest, setTransferRequest] =
-    createSignal<IICRC1TransferRequest | null>(null);
+  const [referrerWindow, setReferrerWindow] = createSignal<MessageEventSource | null>(null);
+  const [transferRequest, setTransferRequest] = createSignal<IICRC1TransferRequest | null>(null);
 
   const [tokenName, setTokenName] = createSignal<string | null>(null);
   const [tokenSymbol, setTokenSymbol] = createSignal<string | null>(null);
@@ -131,15 +119,8 @@ export function WalletPage() {
     });
     setActor(actor);
 
-    const promises: [
-      Promise<Record<string | IcrcMetadataResponseEntries, IcrcValue>>,
-      Promise<bigint>,
-    ] = [
-      actor
-        .metadata({ certified: true })
-        .then((it) =>
-          it.reduce((prev, cur) => ({ ...prev, [cur[0]]: cur[1] }), {}),
-        ),
+    const promises: [Promise<Record<string | IcrcMetadataResponseEntries, IcrcValue>>, Promise<bigint>] = [
+      actor.metadata({ certified: true }).then((it) => it.reduce((prev, cur) => ({ ...prev, [cur[0]]: cur[1] }), {})),
       actor.balance({ certified: true, owner: await agent.getPrincipal() }),
     ];
 
@@ -147,18 +128,10 @@ export function WalletPage() {
 
     setUserBalance(balance);
 
-    const tokenName = (
-      metadata[IcrcMetadataResponseEntries.NAME] as { Text: string }
-    ).Text;
-    const tokenSymbol = (
-      metadata[IcrcMetadataResponseEntries.SYMBOL] as { Text: string }
-    ).Text;
-    const tokenFee = (
-      metadata[IcrcMetadataResponseEntries.FEE] as { Nat: bigint }
-    ).Nat;
-    const tokenDecimals = (
-      metadata[IcrcMetadataResponseEntries.DECIMALS] as { Nat: bigint }
-    ).Nat;
+    const tokenName = (metadata[IcrcMetadataResponseEntries.NAME] as { Text: string }).Text;
+    const tokenSymbol = (metadata[IcrcMetadataResponseEntries.SYMBOL] as { Text: string }).Text;
+    const tokenFee = (metadata[IcrcMetadataResponseEntries.FEE] as { Nat: bigint }).Nat;
+    const tokenDecimals = (metadata[IcrcMetadataResponseEntries.DECIMALS] as { Nat: bigint }).Nat;
 
     setTokenName(tokenName);
     setTokenSymbol(tokenSymbol);
@@ -181,9 +154,7 @@ export function WalletPage() {
       subaccount: req.to.subaccount ? [req.to.subaccount] : [],
     };
 
-    const decimalsForText = new bigDecimal(
-      Math.pow(10, Number(tokenDecimals())),
-    );
+    const decimalsForText = new bigDecimal(Math.pow(10, Number(tokenDecimals())));
     const total = new bigDecimal(req.amount + tokenFee()!);
     const totalAmount = total.divide(decimalsForText).getPrettyValue();
 
@@ -233,9 +204,7 @@ export function WalletPage() {
     const fee = tokenFee();
     if (fee === null) return undefined;
 
-    const decimalsForText = new bigDecimal(
-      Math.pow(10, Number(tokenDecimals())),
-    );
+    const decimalsForText = new bigDecimal(Math.pow(10, Number(tokenDecimals())));
     const feeForText = new bigDecimal(fee);
 
     return feeForText.divide(decimalsForText).getPrettyValue();
@@ -245,9 +214,7 @@ export function WalletPage() {
     const req = transferRequest();
     if (req === null) return undefined;
 
-    const decimalsForText = new bigDecimal(
-      Math.pow(10, Number(tokenDecimals())),
-    );
+    const decimalsForText = new bigDecimal(Math.pow(10, Number(tokenDecimals())));
     const amountForText = new bigDecimal(req.amount);
 
     return amountForText.divide(decimalsForText).getPrettyValue();
@@ -260,25 +227,18 @@ export function WalletPage() {
     const fee = tokenFee();
     if (fee === null) return undefined;
 
-    const decimalsForText = new bigDecimal(
-      Math.pow(10, Number(tokenDecimals())),
-    );
+    const decimalsForText = new bigDecimal(Math.pow(10, Number(tokenDecimals())));
     const feeForText = new bigDecimal(fee);
     const amountForText = new bigDecimal(req.amount);
 
-    return amountForText
-      .add(feeForText)
-      .divide(decimalsForText)
-      .getPrettyValue();
+    return amountForText.add(feeForText).divide(decimalsForText).getPrettyValue();
   };
 
   const balanceText = () => {
     const balance = userBalance();
     if (balance === null) return undefined;
 
-    const decimalsForText = new bigDecimal(
-      Math.pow(10, Number(tokenDecimals())),
-    );
+    const decimalsForText = new bigDecimal(Math.pow(10, Number(tokenDecimals())));
     const balanceForText = new bigDecimal(balance);
 
     return balanceForText.divide(decimalsForText).getPrettyValue();
@@ -313,8 +273,7 @@ export function WalletPage() {
     return (
       <>
         <h2>
-          {originToHostname(referrerOrigin)} wants you to transfer{" "}
-          {tokenSymbol()} ({tokenName()})
+          {originToHostname(referrerOrigin)} wants you to transfer {tokenSymbol()} ({tokenName()})
         </h2>
         <div>
           <div>
@@ -327,24 +286,13 @@ export function WalletPage() {
           <div>
             <span>To</span>
             <input type="text" value={req.to.owner} />
-            <input
-              type="text"
-              value={
-                req.to.subaccount
-                  ? bytesToHex(req.to.subaccount)
-                  : "Default subaccount"
-              }
-            />
+            <input type="text" value={req.to.subaccount ? bytesToHex(req.to.subaccount) : "Default subaccount"} />
           </div>
           <div>
             <span>Total amount</span>
-            <input
-              type="text"
-              value={`${totalDeductedText()} ${tokenSymbol()}`}
-            />
+            <input type="text" value={`${totalDeductedText()} ${tokenSymbol()}`} />
             <p>
-              {amountText()} {tokenSymbol()} (requested amount) +{" "}
-              {tokenFeeText()} {tokenSymbol()} (canister fee)
+              {amountText()} {tokenSymbol()} (requested amount) + {tokenFeeText()} {tokenSymbol()} (canister fee)
             </p>
             {!enoughFunds && <p>Not enough funds!</p>}
           </div>
