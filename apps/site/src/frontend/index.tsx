@@ -7,6 +7,8 @@ import { Router, Route, Routes } from "@solidjs/router";
 import { IndexPage } from "./pages/index/index";
 import { LoginPage } from "./pages/login";
 import { WalletPage } from "./pages/wallet";
+import { Header } from "./components/header";
+import { Root, Page } from "./styles";
 
 const root = document.getElementById("root");
 
@@ -18,13 +20,18 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 
 render(
   () => (
-    <Router>
-      <Routes>
-        <Route path="/" component={IndexPage} />
-        <Route path="/login" component={LoginPage} />
-        <Route path="/wallet" component={WalletPage} />
-      </Routes>
-    </Router>
+    <Root>
+      <Header />
+      <Page>
+        <Router>
+          <Routes>
+            <Route path="/" component={IndexPage} />
+            <Route path="/login" component={LoginPage} />
+            <Route path="/wallet" component={WalletPage} />
+          </Routes>
+        </Router>
+      </Page>
+    </Root>
   ),
   root!,
 );

@@ -180,20 +180,18 @@ export function LoginPage() {
   };
 
   return (
-    <main>
-      <div>
-        <h1>{originToHostname(referrerOrigin)} wants you to log in</h1>
-        {statusText()}
-        <Switch>
-          <Match when={state() === LoginPageState.WaitingForUserInput}>
-            {selection()}
-            <div>
-              <button onClick={onLogin}>Continue</button>
-              <button onClick={onCancel}>Cancel</button>
-            </div>
-          </Match>
-        </Switch>
-      </div>
-    </main>
+    <div>
+      <h1>{originToHostname(referrerOrigin)} wants you to log in</h1>
+      {statusText()}
+      <Switch>
+        <Match when={state() === LoginPageState.WaitingForUserInput}>
+          {selection()}
+          <div>
+            <button onClick={onLogin}>Continue</button>
+            <button onClick={onCancel}>Cancel</button>
+          </div>
+        </Match>
+      </Switch>
+    </div>
   );
 }

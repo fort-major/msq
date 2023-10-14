@@ -8,3 +8,8 @@ interface ImportMeta {
     VITE_CANISTER_ID_MASQUERADE_BACKEND: string;
   };
 }
+
+declare module "*.svg" {
+  const content: string;
+  export default content;
+}
