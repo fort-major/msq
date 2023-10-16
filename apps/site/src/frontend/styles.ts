@@ -20,6 +20,12 @@ export const Page = styled.main`
   display: flex;
 `;
 
+export const CabinetContent = styled.section`
+  position: relative;
+  left: 350px;
+  top: 60px;
+`;
+
 export function styledRef(it: unknown): string {
   return it as string;
 }

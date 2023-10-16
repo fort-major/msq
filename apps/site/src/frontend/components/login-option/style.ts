@@ -1,4 +1,5 @@
 import { styled } from "solid-styled-components";
+import { COLOR_GRAY } from "../../styles";
 
 export const LoginOptionWrapper = styled.div`
   display: flex;
@@ -8,6 +9,12 @@ export const LoginOptionWrapper = styled.div`
   align-self: stretch;
 
   cursor: pointer;
+
+  &:hover {
+    background-color: ${COLOR_GRAY};
+    border-bottom-left-radius: 30px;
+    border-top-left-radius: 30px;
+  }
 `;
 
 export const LoginOptionContent = styled.div`

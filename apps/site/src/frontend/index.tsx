@@ -3,12 +3,13 @@
 
 /* @refresh reload */
 import { render } from "solid-js/web";
-import { Router, Route, Routes } from "@solidjs/router";
-import { IndexPage } from "./pages/index/index";
+import { Router, Route, Routes, Navigate } from "@solidjs/router";
 import { LoginPage } from "./pages/login";
 import { WalletPage } from "./pages/wallet";
 import { Header } from "./components/header";
-import { Root, Page } from "./styles";
+import { Root, Page, CabinetContent } from "./styles";
+import { MyMasksPage } from "./pages/cabinet/my-masks";
+import { CabinetNav } from "./components/cabinet-nav";
 
 const root = document.getElementById("root");
 
@@ -25,7 +26,11 @@ render(
       <Page>
         <Router>
           <Routes>
-            <Route path="/" component={IndexPage} />
+            <Route path="*" element={<Navigate href={"/"} />} />
+            <Route path="/my-masks" component={MyMasksPage} />
+            <Route path="/my-assets" component={MyMasksPage} />
+            <Route path="/my-sessions" component={MyMasksPage} />
+            <Route path="/my-links" component={MyMasksPage} />
             <Route path="/login" component={LoginPage} />
             <Route path="/wallet" component={WalletPage} />
           </Routes>

@@ -2,6 +2,7 @@ import { styled } from "solid-styled-components";
 
 export const LoginHeadingSection = styled.section`
   position: fixed;
+  z-index: 9;
   bottom: 80px;
   left: 40px;
 
