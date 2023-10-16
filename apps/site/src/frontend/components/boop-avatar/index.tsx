@@ -1,12 +1,12 @@
 import { Principal } from "@dfinity/principal";
 import { Background, Body, EyePupil, EyeWhite, Eyes, Face, Mouth, MouthWrapper } from "./style";
+import { colors } from "../../utils/colors";
 
 export interface IBoopAvatarProps {
   /**
-   * - First byte - background color
-   * - Second byte - body color
-   * - Third byte - body angle
-   * - Forth byte - face expression (mouth type)
+   * - First byte - body color
+   * - Second byte - body angle
+   * - Third byte - face expression (mouth type)
    */
   principal: Principal;
   size: number;
@@ -21,25 +21,19 @@ function principalToBytes(principal: Principal): number[] {
 }
 
 const ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
-const COLORS = ["#FF7425", "#FBFF1B", "#15E3FF", "#5FFF3F", "#4047FF", "#FF41FF"];
 
 function getColors(principalBytes: number[]): [string, string] {
-  const bgIdx = principalBytes[0] % COLORS.length;
-  let bodyIdx = principalBytes[1] % COLORS.length;
+  const bodyIdx = principalBytes[0] % colors.length;
 
-  if (bgIdx === bodyIdx) {
-    bodyIdx = (bodyIdx + 1) % COLORS.length;
-  }
-
-  return [COLORS[bgIdx], COLORS[bodyIdx]];
+  return ["#ffffff", colors[bodyIdx]];
 }
 
 function getBodyAngle(principalBytes: number[]): number {
-  return ANGLES[principalBytes[2] % ANGLES.length];
+  return ANGLES[principalBytes[1] % ANGLES.length];
 }
 
 function getFaceExpression(principalBytes: number[]): 1 | 2 | 3 {
-  return (principalBytes[3] % 3) as 1 | 2 | 3;
+  return ((principalBytes[2] % 3) + 1) as 1 | 2 | 3;
 }
 
 export function BoopAvatar(props: IBoopAvatarProps) {

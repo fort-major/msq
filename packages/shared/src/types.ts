@@ -45,8 +45,8 @@ export const ZSession = z.object({
  */
 export type IOriginData = z.infer<typeof ZOriginData>;
 export const ZOriginData = z.object({
-  /** how many identities does a user have on this website */
-  identitiesTotal: ZIdentityId,
+  /** how many identities (and their pseudonyms) does a user have on this website */
+  masks: z.array(z.string().nonempty()),
   /** which websites shared the user's identity with this website */
   linksFrom: z.array(ZOrigin),
   /** to which websites the user shared their identities from this website */
@@ -95,7 +95,9 @@ export const ZIdentityGetLoginOptionsRequest = z.object({
 });
 export type IIdentityGetLoginOptionsRequest = z.infer<typeof ZIdentityGetLoginOptionsRequest>;
 
-export const ZIdentityGetLoginOptionsResponse = z.array(z.tuple([ZOrigin, z.array(ZPrincipalStr)]));
+export const ZIdentityGetLoginOptionsResponse = z.array(
+  z.tuple([ZOrigin, z.array(z.tuple([ZPrincipalStr, z.string()]))]),
+);
 export type IIdentityGetLoginOptionsResponse = z.infer<typeof ZIdentityGetLoginOptionsResponse>;
 
 export const ZIdentityAddRequest = z.object({

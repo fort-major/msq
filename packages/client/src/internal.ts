@@ -29,7 +29,7 @@ export class InternalSnapClient {
     return this.inner;
   }
 
-  async register(toOrigin: TOrigin): Promise<true> {
+  async register(toOrigin: TOrigin): Promise<boolean> {
     const body: IIdentityAddRequest = { toOrigin };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.identity.add, body);

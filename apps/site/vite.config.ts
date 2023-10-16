@@ -1,10 +1,9 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
 import solid from "vite-plugin-solid";
-import eslint from "vite-plugin-eslint";
 
 export default defineConfig({
-  plugins: [solid(), eslint()],
+  plugins: [solid()],
   server: {
     port: 8000,
   },

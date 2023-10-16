@@ -32,13 +32,29 @@ import { getSignIdentity, isMasquerade } from "../utils";
  * @returns always returns true
  *
  * @category Protected
+ * @category Shows Pop-Up
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<true> {
+export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<boolean> {
   const body: IIdentityAddRequest = zodParse(ZIdentityAddRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
 
-  manager.addIdentity(body.toOrigin);
+  const agreed = await snap.request({
+    method: "snap_dialog",
+    params: {
+      type: "confirmation",
+      content: panel([
+        heading("🔒 Confirm Mask Creation 🔒"),
+        text(`Are you sure you want to create another mask for **${originToHostname(body.toOrigin)}**?`),
+        divider(),
+        text("**Agree?** 🚀"),
+      ]),
+    },
+  });
+
+  if (!agreed) return false;
+
+  await manager.addIdentity(body.toOrigin);
   manager.incrementStats(body.toOrigin);
 
   await manager.persist();
@@ -64,8 +80,8 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
       err(ErrorCode.UNAUTHORIZED, "Unable to login without a link");
   }
 
-  const originData = manager.getOriginData(body.toOrigin);
-  if (originData.identitiesTotal === 0) {
+  const originData = await manager.getOriginData(body.toOrigin);
+  if (originData.masks.length === 0) {
     unreacheable("login - no origin data found");
   }
 
@@ -105,27 +121,30 @@ export async function protected_handleIdentityGetLoginOptions(
 
   const result: IIdentityGetLoginOptionsResponse = [];
 
-  const originData = manager.getOriginData(body.forOrigin);
+  const originData = await manager.getOriginData(body.forOrigin);
 
-  const options = [];
-  for (let i = 0; i < originData.identitiesTotal; i++) {
+  const options: [string, string][] = [];
+  for (let i = 0; i < originData.masks.length; i++) {
     const identity = await getSignIdentity(body.forOrigin, i);
     const principal = identity.getPrincipal().toText();
+    const pseudonym = originData.masks[i];
 
-    options.push(principal);
+    options.push([principal, pseudonym]);
   }
 
   result.push([body.forOrigin, options]);
 
   for (const origin of originData.linksFrom) {
-    const linkedOriginData = manager.getOriginData(origin);
+    const linkedOriginData = await manager.getOriginData(origin);
 
-    const options = [];
-    for (let i = 0; i < linkedOriginData.identitiesTotal; i++) {
+    const options: [string, string][] = [];
+
+    for (let i = 0; i < linkedOriginData.masks.length; i++) {
       const identity = await getSignIdentity(origin, i);
       const principal = identity.getPrincipal().toText();
+      const pseudonym = linkedOriginData.masks[i];
 
-      options.push(principal);
+      options.push([principal, pseudonym]);
     }
 
     result.push([origin, options]);
@@ -149,7 +168,7 @@ export async function protected_handleIdentityGetLoginOptions(
  */
 export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<boolean> {
   const manager = await StateManager.make();
-  const originData = manager.getOriginData(origin);
+  const originData = await manager.getOriginData(origin);
 
   // if we're not authorized anyway - just return true
   if (originData.currentSession === undefined) {
@@ -204,7 +223,7 @@ export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<bool
 export async function handleIdentitySign(bodyCBOR: string, origin: TOrigin): Promise<ArrayBuffer> {
   const body: IIdentitySignRequest = zodParse(ZIdentitySignRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
-  let session = manager.getOriginData(origin).currentSession;
+  let session = (await manager.getOriginData(origin)).currentSession;
 
   if (session === undefined) {
     if (isMasquerade(origin)) {
@@ -240,7 +259,7 @@ export async function handleIdentitySign(bodyCBOR: string, origin: TOrigin): Pro
 export async function handleIdentityGetPublicKey(bodyCBOR: string, origin: TOrigin): Promise<ArrayBuffer> {
   const body: IIdentityGetPublicKeyRequest = zodParse(ZIdentityGetPublicKeyRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
-  let session = manager.getOriginData(origin).currentSession;
+  let session = (await manager.getOriginData(origin)).currentSession;
 
   if (session === undefined) {
     if (isMasquerade(origin)) {
@@ -389,7 +408,7 @@ export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOri
   manager.unlink(origin, body.withOrigin);
 
   // and then try de-authorizing from the target origin
-  const targetOriginData = manager.getOriginData(body.withOrigin);
+  const targetOriginData = await manager.getOriginData(body.withOrigin);
   if (targetOriginData.currentSession !== undefined) {
     if (targetOriginData.currentSession.deriviationOrigin === origin) {
       targetOriginData.currentSession = undefined;
@@ -410,7 +429,7 @@ export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOri
  */
 export async function handleIdentityGetLinks(origin: TOrigin): Promise<TOrigin[]> {
   const manager = await StateManager.make();
-  const originData = manager.getOriginData(origin);
+  const originData = await manager.getOriginData(origin);
 
   manager.incrementStats(origin);
   await manager.persist();
@@ -430,5 +449,5 @@ export async function handleIdentitySessionExists(origin: TOrigin): Promise<bool
   manager.incrementStats(origin);
   await manager.persist();
 
-  return manager.getOriginData(origin).currentSession !== undefined;
+  return (await manager.getOriginData(origin)).currentSession !== undefined;
 }

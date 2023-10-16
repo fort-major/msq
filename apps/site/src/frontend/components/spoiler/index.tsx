@@ -1,4 +1,4 @@
-import { JSXElement, children } from "solid-js";
+import { JSXElement, Match, Switch, children, createSignal } from "solid-js";
 import { SpoilerChildren, SpoilerHeader, SpoilerIcon, SpoilerWrapper } from "./style";
 import ChevronUpSVG from "#assets/chevron-up.svg";
 
@@ -8,16 +8,26 @@ export interface ISpoilerProps {
 }
 
 export function Spoiler(props: ISpoilerProps) {
+  const [open, setOpen] = createSignal(true);
+
   const c = children(() => props.children);
   const h = children(() => props.header);
 
+  const toggle = () => {
+    setOpen((prev) => !prev);
+  };
+
   return (
     <SpoilerWrapper>
-      <SpoilerHeader>
+      <SpoilerHeader onClick={toggle}>
         {h()}
-        <SpoilerIcon src={ChevronUpSVG} alt="show/hide" />
+        <SpoilerIcon classList={{ closed: !open() }} src={ChevronUpSVG} alt="show/hide" />
       </SpoilerHeader>
-      <SpoilerChildren>{c()}</SpoilerChildren>
+      <Switch>
+        <Match when={open()}>
+          <SpoilerChildren>{c()}</SpoilerChildren>
+        </Match>
+      </Switch>
     </SpoilerWrapper>
   );
 }

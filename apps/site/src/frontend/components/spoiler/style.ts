@@ -4,7 +4,6 @@ export const SpoilerWrapper = styled.div`
   display: flex;
   width: 100%;
   max-width: 600px;
-  padding-top: 25px;
   flex-flow: column nowrap;
   align-items: flex-start;
   gap: 25px;
@@ -14,10 +13,13 @@ export const SpoilerWrapper = styled.div`
 
 export const SpoilerHeader = styled.div`
   display: flex;
-  padding-right: 0px;
+  padding-top: 25px;
+  padding-right: 20px;
   justify-content: space-between;
   align-items: center;
   align-self: stretch;
+
+  cursor: pointer;
 `;
 
 export const SpoilerIcon = styled.img`
@@ -27,6 +29,10 @@ export const SpoilerIcon = styled.img`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  &.closed {
+    transform: rotate(180deg);
+  }
 `;
 
 export const SpoilerChildren = styled.div`

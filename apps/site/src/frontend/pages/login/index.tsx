@@ -1,18 +1,22 @@
 import { createEventSignal } from "@solid-primitives/event-listener";
-import { Match, Switch, createEffect, createSignal } from "solid-js";
+import { For, Match, Switch, createEffect, createSignal } from "solid-js";
 import { InternalSnapClient } from "@fort-major/masquerade-client/dist/esm/internal";
 import {
   ErrorCode,
   ILoginResultMsg,
   ILoginSiteReadyMsg,
-  TIdentityId,
   TOrigin,
   ZLoginRequestMsg,
   err,
   originToHostname,
 } from "@fort-major/masquerade-shared";
-import { BoopAvatar } from "../../components/boop-avatar";
-import { Principal } from "@dfinity/principal";
+import { DismissBtn, LoginHeadingSection, LoginOptionsSection, LoginOptionsWrapper, LoginPageHeader } from "./style";
+import { Spoiler } from "../../components/spoiler";
+import { Accent, Title } from "../../components/typography/style";
+import { LoginOption } from "../../components/login-option";
+import { AddNewMaskBtn } from "../../components/add-new-mask-btn";
+import { Divider } from "../../components/divider/style";
+import ChevtonUpSvg from "#assets/chevron-up.svg";
 
 enum LoginPageState {
   WaitingForLoginRequest,
@@ -23,9 +27,7 @@ enum LoginPageState {
 export function LoginPage() {
   const [state, setState] = createSignal(LoginPageState.WaitingForLoginRequest);
   const [snapClient, setSnapClient] = createSignal<InternalSnapClient | null>(null);
-  const [availableOrigins, setAvailableOrigins] = createSignal<[TOrigin, string[]][] | null>(null);
-  const [deriviationOrigin, setDeriviationOrigin] = createSignal<string | undefined>(undefined);
-  const [identityId, setIdentityId] = createSignal<number | null>(null);
+  const [availableOrigins, setAvailableOrigins] = createSignal<[TOrigin, [string, string][]][] | null>(null);
   const [referrerWindow, setReferrerWindow] = createSignal<MessageEventSource | null>(null);
   const message = createEventSignal(window, "message");
 
@@ -97,30 +99,33 @@ export function LoginPage() {
 
   createEffect(connectWallet);
 
-  const onLogin = async () => {
+  const onLogin = async (loginOrigin: string, identityId: number) => {
     const client = snapClient()!;
-    const id = identityId()!;
 
-    let deriviationOrig = deriviationOrigin();
-
-    if (!deriviationOrig) {
-      deriviationOrig = referrerOrigin;
-    }
-
-    await client.login(referrerOrigin, id, deriviationOrig);
+    await client.login(referrerOrigin, identityId, loginOrigin);
 
     const msg: ILoginResultMsg = {
       domain: "internet-computer-metamask-snap",
       type: "login_result",
       result: true,
     };
+
     referrerWindow()!.postMessage(msg, { targetOrigin: referrerOrigin });
     window.onbeforeunload = null;
 
     window.close();
   };
 
-  const onCancel = async () => {
+  const onAddNewMask = async () => {
+    const client = snapClient()!;
+
+    await client.register(referrerOrigin);
+
+    const loginOptions = await client.getLoginOptions(referrerOrigin);
+    setAvailableOrigins(loginOptions);
+  };
+
+  const onDismiss = async () => {
     const msg: ILoginResultMsg = {
       domain: "internet-computer-metamask-snap",
       type: "login_result",
@@ -132,66 +137,48 @@ export function LoginPage() {
     window.close();
   };
 
-  const statusText = () => {
-    const s = state();
-
-    return (
-      <Switch>
-        <Match when={s === LoginPageState.WaitingForLoginRequest}>
-          <p>Waiting for ${originToHostname(referrerOrigin)}...</p>
-        </Match>
-        <Match when={s === LoginPageState.ConnectingWallet}>
-          <p>Connecting to your wallet...</p>
-        </Match>
-      </Switch>
-    );
-  };
-
-  const onIdentitySelect = (deriviationOrigin: TOrigin, identityId: TIdentityId) => {
-    setDeriviationOrigin(deriviationOrigin);
-    setIdentityId(identityId);
-  };
-
-  const selection = () => {
-    const availOrigins = availableOrigins()!;
-
-    const selection = availOrigins.map(([origin, principals]) => {
-      const principalBtns = principals.map((it, idx) => (
-        <button
-          style={{
-            "border-color": origin === deriviationOrigin() && idx === identityId() ? "blue" : undefined,
-          }}
-          onClick={() => onIdentitySelect(origin, idx)}
-        >
-          <BoopAvatar principal={Principal.fromText(it)} size={60} eyesAngle={90} />
-          {it}
-        </button>
-      ));
-
-      return (
-        <div>
-          <h3>Identities from ${originToHostname(origin)}</h3>
-          {principalBtns}
-        </div>
-      );
-    });
-
-    return <div>{selection}</div>;
-  };
-
   return (
-    <div>
-      <h1>{originToHostname(referrerOrigin)} wants you to log in</h1>
-      {statusText()}
-      <Switch>
-        <Match when={state() === LoginPageState.WaitingForUserInput}>
-          {selection()}
-          <div>
-            <button onClick={onLogin}>Continue</button>
-            <button onClick={onCancel}>Cancel</button>
-          </div>
-        </Match>
-      </Switch>
-    </div>
+    <>
+      <LoginHeadingSection>
+        <DismissBtn onClick={onDismiss}>
+          <img src={ChevtonUpSvg} alt="<" />
+          <span>Dismiss</span>
+        </DismissBtn>
+        <LoginPageHeader>Choose a Mask to wear</LoginPageHeader>
+        <Title>
+          <Accent>{originToHostname(referrerOrigin)}</Accent> wants you to log in
+        </Title>
+      </LoginHeadingSection>
+      <LoginOptionsWrapper>
+        <LoginOptionsSection>
+          <For each={availableOrigins()}>
+            {([origin, principals]) => (
+              <Spoiler
+                header={
+                  <Title>
+                    Masks from <Accent>{originToHostname(origin)}</Accent>
+                  </Title>
+                }
+              >
+                <For each={principals}>
+                  {([principal, pseudonym], idx) => (
+                    <>
+                      <Divider />
+                      <LoginOption pseudonym={pseudonym} principal={principal} onClick={() => onLogin(origin, idx())} />
+                    </>
+                  )}
+                </For>
+                <Switch>
+                  <Match when={origin === referrerOrigin}>
+                    <Divider />
+                    <AddNewMaskBtn onClick={onAddNewMask} />
+                  </Match>
+                </Switch>
+              </Spoiler>
+            )}
+          </For>
+        </LoginOptionsSection>
+      </LoginOptionsWrapper>
+    </>
   );
 }

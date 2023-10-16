@@ -8,7 +8,9 @@ import {
   ZState,
   fromCBOR,
   toCBOR,
+  TIdentityId,
 } from "@fort-major/masquerade-shared";
+import { generateRandomPseudonym, getSignIdentity } from "./utils";
 
 /**
  * Provides a higher-level interface for interacting with the snap's state.
@@ -20,8 +22,15 @@ export class StateManager {
    * @param origin - origin to get data about
    * @returns - existing links, current session and a total number of user identities
    */
-  public getOriginData(origin: TOrigin): IOriginData {
-    return this.state.originData[origin] ?? makeDefaultOriginData();
+  public async getOriginData(origin: TOrigin): Promise<IOriginData> {
+    let originData = this.state.originData[origin];
+
+    if (originData === undefined) {
+      const pseudonym = await this.makePseudonym(origin, 0);
+      originData = makeDefaultOriginData(pseudonym);
+    }
+
+    return originData;
   }
 
   public setOriginData(origin: TOrigin, data: IOriginData): void {
@@ -39,9 +48,9 @@ export class StateManager {
     return fromHasToLink;
   }
 
-  public link(from: TOrigin, to: TOrigin): void {
-    const fromOriginData = this.getOriginData(from);
-    const toOriginData = this.getOriginData(to);
+  public async link(from: TOrigin, to: TOrigin): Promise<void> {
+    const fromOriginData = await this.getOriginData(from);
+    const toOriginData = await this.getOriginData(to);
 
     if (fromOriginData.linksTo.includes(to)) {
       unreacheable(`Unable to add an existing TO link: ${from} -> ${to}`);
@@ -57,9 +66,9 @@ export class StateManager {
     this.setOriginData(to, toOriginData);
   }
 
-  public unlink(from: TOrigin, to: TOrigin): void {
-    const fromOriginData = this.getOriginData(from);
-    const toOriginData = this.getOriginData(to);
+  public async unlink(from: TOrigin, to: TOrigin): Promise<void> {
+    const fromOriginData = await this.getOriginData(from);
+    const toOriginData = await this.getOriginData(to);
 
     const fromIdx = fromOriginData.linksTo.findIndex((it) => it === to);
     const toIdx = toOriginData.linksFrom.findIndex((it) => it === from);
@@ -73,11 +82,27 @@ export class StateManager {
     this.setOriginData(to, toOriginData);
   }
 
-  public addIdentity(origin: TOrigin): void {
-    const originData = this.state.originData[origin] ?? makeDefaultOriginData();
-    originData.identitiesTotal += 1;
+  public async addIdentity(origin: TOrigin): Promise<void> {
+    let originData = this.state.originData[origin];
+
+    if (originData === undefined) {
+      const pseudonym = await this.makePseudonym(origin, 0);
+      originData = makeDefaultOriginData(pseudonym);
+    }
+
+    const pseudonym = await this.makePseudonym(origin, originData.masks.length);
+    originData.masks.push(pseudonym);
 
     this.state.originData[origin] = originData;
+  }
+
+  private async makePseudonym(origin: TOrigin, identityId: TIdentityId): Promise<string> {
+    const identity = await getSignIdentity(origin, identityId);
+    const principal = identity.getPrincipal().toUint8Array();
+    const seed1 = principal[3];
+    const seed2 = principal[4];
+
+    return generateRandomPseudonym(seed1, seed2);
   }
 
   constructor(private readonly state: IState) {}
@@ -135,8 +160,8 @@ const makeDefaultState: () => IState = () => ({
   },
 });
 
-const makeDefaultOriginData: () => IOriginData = () => ({
-  identitiesTotal: 1,
+const makeDefaultOriginData: (pseudonym: string) => IOriginData = (pseudonym) => ({
+  masks: [pseudonym],
   currentSession: undefined,
   linksFrom: [],
   linksTo: [],
