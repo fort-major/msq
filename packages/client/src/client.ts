@@ -5,20 +5,21 @@ import {
   type IIdentityLinkRequest,
   type IIdentityUnlinkRequest,
   type ILoginRequestMsg,
-  type ILoginSiteMsg,
-  type IWalletSiteICRC1TransferMsg,
-  type IWalletSiteMsg,
+  type IICRC1TransferRequestMsg,
   type Principal,
   SNAP_METHODS,
   type TOrigin,
-  ZLoginSiteMsg,
-  ZWalletSiteMsg,
   debugStringify,
   delay,
   err,
   fromCBOR,
   toCBOR,
   zodParse,
+  ILoginResultMsg,
+  ZRequestReceivedMsg,
+  ZLoginRequestMsg,
+  ZLoginResultMsg,
+  ZICRC1TransferResultMsg,
 } from "@fort-major/masquerade-shared";
 import { type SignIdentity } from "@dfinity/agent";
 import { SNAP_ID, SNAP_SITE_ORIGIN, SNAP_VERSION } from ".";
@@ -64,67 +65,68 @@ export class MasqueradeClient {
    *
    * @returns - {@link MasqueradeIdentity} if the login was a success, `null` otherwise
    */
-  async requestLogin(): Promise<SignIdentity | null> {
+  async requestLogin(): Promise<MasqueradeIdentity | null> {
     if (await this.isAuthorized()) {
-      return await MasqueradeIdentity.create(this);
+      return MasqueradeIdentity.create(this);
     }
 
-    // eslint-disable-next-line no-async-promise-executor
-    return await new Promise(async (resolve, reject) => {
+    const loginResult = await new Promise<boolean>(async (resolve, reject) => {
       const url = new URL("/login", SNAP_SITE_ORIGIN);
-
       const childWindow = window.open(url, "_blank");
 
       if (childWindow === null) {
         err(ErrorCode.UNKOWN, "Unable to open a new browser window");
       }
 
-      let receivedReady = false;
+      let loginRequestReceived = false;
 
       const loginRequestMsg: ILoginRequestMsg = {
-        domain: "internet-computer-metamask-snap",
+        domain: "msq",
         type: "login_request",
       };
 
-      window.addEventListener("message", async (msg) => {
+      function handleMsg(msg: MessageEvent) {
         if (msg.origin !== SNAP_SITE_ORIGIN) {
           return;
         }
 
-        let loginSiteMsg: ILoginSiteMsg;
-
         try {
-          loginSiteMsg = zodParse(ZLoginSiteMsg, msg.data);
-        } catch (e) {
-          reject(e);
-          return;
-        }
-
-        if (loginSiteMsg.type === "login_site_ready") {
-          receivedReady = true;
-          return;
-        }
-
-        if (loginSiteMsg.type === "login_result") {
-          if (!loginSiteMsg.result) {
-            resolve(null);
+          if (!loginRequestReceived) {
+            ZRequestReceivedMsg.parse(msg.data);
+            loginRequestReceived = true;
             return;
           }
 
-          await MasqueradeIdentity.create(this).then(resolve);
-        }
-      });
+          // try parsing until it happens
+          try {
+            let loginResultMsg = ZLoginResultMsg.parse(msg.data);
+            resolve(loginResultMsg.result);
 
-      while (!receivedReady) {
-        await delay(500);
+            window.removeEventListener("message", handleMsg);
+          } catch (_) {
+            return;
+          }
+        } catch (e) {
+          reject(e);
+
+          window.removeEventListener("message", handleMsg);
+        }
+      }
+
+      window.addEventListener("message", handleMsg);
+
+      while (!loginRequestReceived) {
+        await delay(100);
 
         try {
-          childWindow.postMessage(loginRequestMsg, SNAP_SITE_ORIGIN);
+          childWindow!.postMessage(loginRequestMsg, SNAP_SITE_ORIGIN);
         } catch (e) {
           /* ignore */
         }
       }
     });
+
+    return loginResult ? MasqueradeIdentity.create(this) : null;
   }
 
   /**
@@ -219,17 +221,16 @@ export class MasqueradeClient {
     // eslint-disable-next-line no-async-promise-executor
     return await new Promise<bigint | null>(async (resolve, reject) => {
       const url = new URL("/wallet", SNAP_SITE_ORIGIN);
-
       const childWindow = window.open(url, "_blank");
 
       if (childWindow === null) {
         err(ErrorCode.UNKOWN, "Unable to open a new browser window");
       }
 
-      let receivedReady = false;
+      let transferRequestReceived = false;
 
-      const transferRequestMsg: IWalletSiteICRC1TransferMsg = {
-        domain: "internet-computer-metamask-snap",
+      const transferRequestMsg: IICRC1TransferRequestMsg = {
+        domain: "msq",
         type: "transfer_icrc1_request",
         request: {
           canisterId: tokenCanisterId.toText(),
@@ -240,35 +241,41 @@ export class MasqueradeClient {
         },
       };
 
-      window.addEventListener("message", (msg) => {
+      function handleMsg(msg: MessageEvent) {
         if (msg.origin !== SNAP_SITE_ORIGIN) {
           return;
         }
 
-        let walletSiteMsg: IWalletSiteMsg;
-
         try {
-          walletSiteMsg = zodParse(ZWalletSiteMsg, msg.data);
+          if (!transferRequestReceived) {
+            ZRequestReceivedMsg.parse(msg.data);
+            transferRequestReceived = true;
+            return;
+          }
+
+          // try parsing until it happens
+          try {
+            const resultMsg = ZICRC1TransferResultMsg.parse(msg.data);
+            resolve(resultMsg.result ?? null);
+
+            window.removeEventListener("message", handleMsg);
+          } catch (_) {
+            return;
+          }
         } catch (e) {
           reject(e);
-          return;
-        }
 
-        if (walletSiteMsg.type === "wallet_site_ready") {
-          receivedReady = true;
-          return;
+          window.removeEventListener("message", handleMsg);
         }
+      }
 
-        if (walletSiteMsg.type === "transfer_icrc1_result") {
-          resolve(walletSiteMsg.result ?? null);
-        }
-      });
+      window.addEventListener("message", handleMsg);
 
-      while (!receivedReady) {
-        await delay(500);
+      while (!transferRequestReceived) {
+        await delay(100);
 
         try {
-          childWindow.postMessage(transferRequestMsg, SNAP_SITE_ORIGIN);
+          childWindow!.postMessage(transferRequestMsg, SNAP_SITE_ORIGIN);
         } catch (e) {
           /* ignore */
         }
@@ -323,7 +330,7 @@ export class MasqueradeClient {
       err(ErrorCode.METAMASK_ERROR, "Install MetaMask");
     }
 
-    const version = await provider.request<string>({
+    const version = await provider!.request<string>({
       method: "web3_clientVersion",
     });
     const isFlask = version?.includes("flask");
@@ -334,14 +341,14 @@ export class MasqueradeClient {
       err(ErrorCode.METAMASK_ERROR, "Install MetaMask Flask");
     }
 
-    await provider.request({
+    await provider!.request({
       method: "wallet_requestSnaps",
       params: {
         [snapId]: { version: snapVersion },
       },
     });
 
-    return new MasqueradeClient(provider, snapId, params?.debug);
+    return new MasqueradeClient(provider!, snapId, params?.debug);
   }
 
   private constructor(

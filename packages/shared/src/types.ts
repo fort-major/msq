@@ -117,14 +117,8 @@ export type IIdentityLoginRequest = z.infer<typeof ZIdentityLoginRequest>;
 
 export const ZIdentitySignRequest = z.object({
   challenge: ZBlob,
-  salt: z.optional(z.instanceof(Uint8Array)),
 });
 export type IIdentitySignRequest = z.infer<typeof ZIdentitySignRequest>;
-
-export const ZIdentityGetPublicKeyRequest = z.object({
-  salt: z.optional(z.instanceof(Uint8Array)),
-});
-export type IIdentityGetPublicKeyRequest = z.infer<typeof ZIdentityGetPublicKeyRequest>;
 
 export const ZIdentityLinkRequest = z.object({
   withOrigin: ZOrigin,
@@ -164,13 +158,19 @@ export type IShowICRC1TransferConfirmRequest = z.infer<typeof ZShowICRC1Transfer
 
 // ---------- MESSAGE TYPES ------------------------------
 
-const ZMsgDomain = z.literal("internet-computer-metamask-snap");
+export const ZMsgDomain = z.literal("msq");
 
-export const ZLoginSiteReadyMsg = z.object({
+export const ZRequestReceivedMsg = z.object({
   domain: ZMsgDomain,
-  type: z.literal("login_site_ready"),
+  type: z.literal("request_received"),
 });
-export type ILoginSiteReadyMsg = z.infer<typeof ZLoginSiteReadyMsg>;
+export type IRequestReceivedMsg = z.infer<typeof ZRequestReceivedMsg>;
+
+export const ZLoginRequestMsg = z.object({
+  domain: ZMsgDomain,
+  type: z.literal("login_request"),
+});
+export type ILoginRequestMsg = z.infer<typeof ZLoginRequestMsg>;
 
 export const ZLoginResultMsg = z.object({
   domain: ZMsgDomain,
@@ -179,34 +179,16 @@ export const ZLoginResultMsg = z.object({
 });
 export type ILoginResultMsg = z.infer<typeof ZLoginResultMsg>;
 
-export const ZLoginSiteMsg = z.discriminatedUnion("type", [ZLoginSiteReadyMsg, ZLoginResultMsg]);
-export type ILoginSiteMsg = z.infer<typeof ZLoginSiteMsg>;
-
-export const ZLoginRequestMsg = z.object({
-  domain: ZMsgDomain,
-  type: z.literal("login_request"),
-});
-export type ILoginRequestMsg = z.infer<typeof ZLoginRequestMsg>;
-
-export const ZWalletSiteICRC1TransferMsg = z.object({
+export const ZICRC1TransferRequestMsg = z.object({
   domain: ZMsgDomain,
   type: z.literal("transfer_icrc1_request"),
   request: ZICRC1TransferRequest,
 });
-export type IWalletSiteICRC1TransferMsg = z.infer<typeof ZWalletSiteICRC1TransferMsg>;
+export type IICRC1TransferRequestMsg = z.infer<typeof ZICRC1TransferRequestMsg>;
 
-export const ZWalletSiteReadyMsg = z.object({
-  domain: ZMsgDomain,
-  type: z.literal("wallet_site_ready"),
-});
-export type IWalletSiteReadyMsg = z.infer<typeof ZWalletSiteReadyMsg>;
-
-export const ZWalletSiteICRC1TransferResultMsg = z.object({
+export const ZICRC1TransferResultMsg = z.object({
   domain: ZMsgDomain,
   type: z.literal("transfer_icrc1_result"),
   result: z.optional(z.bigint()),
 });
-export type IWalletSiteICRC1TransferResultMsg = z.infer<typeof ZWalletSiteICRC1TransferResultMsg>;
-
-export const ZWalletSiteMsg = z.discriminatedUnion("type", [ZWalletSiteReadyMsg, ZWalletSiteICRC1TransferResultMsg]);
-export type IWalletSiteMsg = z.infer<typeof ZWalletSiteMsg>;
+export type IICRC1TransferResultMsg = z.infer<typeof ZICRC1TransferResultMsg>;

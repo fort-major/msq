@@ -1,4 +1,6 @@
-export { MasqueradeClient as SnapClient, type IMasqueradeClientParams as ISnapClientParams } from "./client";
+export { MasqueradeClient, type IMasqueradeClientParams } from "./client";
+export { InternalSnapClient, IInternalSnapClientParams } from "./internal";
+export { MasqueradeIdentity } from "./identity";
 
 // these env variables are inlined during build process
 // see ../inline-env-vars.js

@@ -1,15 +1,5 @@
-import { createEventSignal } from "@solid-primitives/event-listener";
 import { For, Match, Switch, createEffect, createSignal } from "solid-js";
-import { InternalSnapClient } from "@fort-major/masquerade-client/dist/esm/internal";
-import {
-  ErrorCode,
-  ILoginResultMsg,
-  ILoginSiteReadyMsg,
-  TOrigin,
-  ZLoginRequestMsg,
-  err,
-  originToHostname,
-} from "@fort-major/masquerade-shared";
+import { TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { DismissBtn, LoginHeadingSection, LoginOptionsSection, LoginOptionsWrapper, LoginPageHeader } from "./style";
 import { Spoiler } from "../../components/spoiler";
 import { Accent, Title } from "../../components/typography/style";
@@ -17,124 +7,45 @@ import { LoginOption } from "../../components/login-option";
 import { AddNewMaskBtn } from "../../components/add-new-mask-btn";
 import { Divider } from "../../components/divider/style";
 import ChevtonUpSvg from "#assets/chevron-up.svg";
-
-enum LoginPageState {
-  WaitingForLoginRequest,
-  ConnectingWallet,
-  WaitingForUserInput,
-}
+import { useStore } from "@nanostores/solid";
+import { $snapClient } from "../../store/user";
+import { $loginRequestMsg, referrerOrigin, sendLoginResult } from "../../store/messages";
+import { $router } from "../..";
 
 export function LoginPage() {
-  const [state, setState] = createSignal(LoginPageState.WaitingForLoginRequest);
-  const [snapClient, setSnapClient] = createSignal<InternalSnapClient | null>(null);
-  const [availableOrigins, setAvailableOrigins] = createSignal<[TOrigin, [string, string][]][] | null>(null);
-  const [referrerWindow, setReferrerWindow] = createSignal<MessageEventSource | null>(null);
-  const message = createEventSignal(window, "message");
+  const [loginOptions, setLoginOptions] = createSignal<[TOrigin, [string, string][]][] | null>(null);
+  const snapClient = useStore($snapClient);
+  const loginRequest = useStore($loginRequestMsg);
 
-  const referrerOrigin = new URL(document.referrer).origin;
+  if (referrerOrigin === null) {
+    $router.open("/");
+  }
 
-  const awaitLoginRequest = () => {
-    if (state() !== LoginPageState.WaitingForLoginRequest) {
+  createEffect(() => {
+    if (snapClient() === null || loginRequest() === null) {
       return;
     }
 
-    const msg = message();
-
-    if (!msg) {
-      return;
-    }
-
-    if (msg.origin !== referrerOrigin) {
-      return;
-    }
-
-    // we only expect one single kind of message here
-    ZLoginRequestMsg.parse(msg.data);
-
-    // if login request received, send back ready
-    if (!msg.source) {
-      err(ErrorCode.UNKOWN, "No message source found");
-    }
-
-    const readyMsg: ILoginSiteReadyMsg = {
-      domain: "internet-computer-metamask-snap",
-      type: "login_site_ready",
-    };
-
-    msg.source.postMessage(readyMsg, { targetOrigin: referrerOrigin });
-
-    setReferrerWindow(msg.source);
-
-    window.onbeforeunload = () => {
-      const failMsg: ILoginResultMsg = {
-        domain: "internet-computer-metamask-snap",
-        type: "login_result",
-        result: false,
-      };
-
-      referrerWindow()!.postMessage(failMsg, { targetOrigin: referrerOrigin });
-    };
-
-    setState(LoginPageState.ConnectingWallet);
-  };
-
-  createEffect(awaitLoginRequest);
-
-  const connectWallet = async () => {
-    if (state() !== LoginPageState.ConnectingWallet) {
-      return;
-    }
-
-    const client = await InternalSnapClient.create({
-      snapId: import.meta.env.VITE_MSQ_SNAP_ID,
-      snapVersion: import.meta.env.VITE_MSQ_SNAP_VERSION,
-    });
-    setSnapClient(client);
-
-    const loginOptions = await client.getLoginOptions(referrerOrigin);
-    setAvailableOrigins(loginOptions);
-
-    setState(LoginPageState.WaitingForUserInput);
-  };
-
-  createEffect(connectWallet);
+    snapClient()!.getLoginOptions(referrerOrigin!).then(setLoginOptions);
+  });
 
   const onLogin = async (loginOrigin: string, identityId: number) => {
-    const client = snapClient()!;
+    await snapClient()!.login(referrerOrigin!, identityId, loginOrigin);
 
-    await client.login(referrerOrigin, identityId, loginOrigin);
-
-    const msg: ILoginResultMsg = {
-      domain: "internet-computer-metamask-snap",
-      type: "login_result",
-      result: true,
-    };
-
-    referrerWindow()!.postMessage(msg, { targetOrigin: referrerOrigin });
-    window.onbeforeunload = null;
-
-    window.close();
+    sendLoginResult(true, 0);
   };
 
   const onAddNewMask = async () => {
     const client = snapClient()!;
 
-    await client.register(referrerOrigin);
+    await client.register(referrerOrigin!);
 
-    const loginOptions = await client.getLoginOptions(referrerOrigin);
-    setAvailableOrigins(loginOptions);
+    const loginOptions = await client.getLoginOptions(referrerOrigin!);
+    setLoginOptions(loginOptions);
   };
 
   const onDismiss = async () => {
-    const msg: ILoginResultMsg = {
-      domain: "internet-computer-metamask-snap",
-      type: "login_result",
-      result: false,
-    };
-    referrerWindow()?.postMessage(msg, { targetOrigin: referrerOrigin });
-    window.onbeforeunload = null;
-
-    window.close();
+    sendLoginResult(false, 0);
   };
 
   return (
@@ -146,39 +57,47 @@ export function LoginPage() {
         </DismissBtn>
         <LoginPageHeader>Choose a Mask to wear</LoginPageHeader>
         <Title>
-          <Accent>{originToHostname(referrerOrigin)}</Accent> wants you to log in
+          <Accent>{originToHostname(referrerOrigin!)}</Accent> wants you to log in
         </Title>
       </LoginHeadingSection>
-      <LoginOptionsWrapper>
-        <LoginOptionsSection>
-          <For each={availableOrigins()}>
-            {([origin, principals]) => (
-              <Spoiler
-                header={
-                  <Title>
-                    Masks from <Accent>{originToHostname(origin)}</Accent>
-                  </Title>
-                }
-              >
-                <For each={principals}>
-                  {([principal, pseudonym], idx) => (
-                    <>
-                      <Divider />
-                      <LoginOption pseudonym={pseudonym} principal={principal} onClick={() => onLogin(origin, idx())} />
-                    </>
-                  )}
-                </For>
-                <Switch>
-                  <Match when={origin === referrerOrigin}>
-                    <Divider />
-                    <AddNewMaskBtn onClick={onAddNewMask} />
-                  </Match>
-                </Switch>
-              </Spoiler>
-            )}
-          </For>
-        </LoginOptionsSection>
-      </LoginOptionsWrapper>
+      <Switch fallback={<p>Loading...</p>}>
+        <Match when={loginRequest() !== null && snapClient() !== null}>
+          <LoginOptionsWrapper>
+            <LoginOptionsSection>
+              <For each={loginOptions()}>
+                {([origin, principals]) => (
+                  <Spoiler
+                    header={
+                      <Title>
+                        Masks from <Accent>{originToHostname(origin)}</Accent>
+                      </Title>
+                    }
+                  >
+                    <For each={principals}>
+                      {([principal, pseudonym], idx) => (
+                        <>
+                          <Divider />
+                          <LoginOption
+                            pseudonym={pseudonym}
+                            principal={principal}
+                            onClick={() => onLogin(origin, idx())}
+                          />
+                        </>
+                      )}
+                    </For>
+                    <Switch>
+                      <Match when={origin === referrerOrigin}>
+                        <Divider />
+                        <AddNewMaskBtn onClick={onAddNewMask} />
+                      </Match>
+                    </Switch>
+                  </Spoiler>
+                )}
+              </For>
+            </LoginOptionsSection>
+          </LoginOptionsWrapper>
+        </Match>
+      </Switch>
     </>
   );
 }

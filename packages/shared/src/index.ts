@@ -50,6 +50,7 @@ export enum ErrorCode {
   ICRC1_ERROR = "MSQ_ICRC1_ERROR",
   METAMASK_ERROR = "MSQ_METAMASK_ERROR",
   UNAUTHORIZED = "MSQ_UNAUTHORIZED",
+  SECURITY_VIOLATION = "MSQ_SECURITY_VIOLATION",
 }
 
 export function err(code: ErrorCode, msg: string): never {

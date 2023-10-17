@@ -1,17 +1,17 @@
 import { type ActorSubclass, HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
-import { SnapClient } from "@fort-major/masquerade-client";
+import { MasqueradeClient } from "@fort-major/masquerade-client";
 import { createSignal, onMount } from "solid-js";
 import { type Backend, createBackendActor } from "../../backend";
 
 export const IndexPage = () => {
-  const [snapClient, setSnapClient] = createSignal<SnapClient | null>();
+  const [snapClient, setSnapClient] = createSignal<MasqueradeClient | null>();
   const [actor, setActor] = createSignal<ActorSubclass<Backend> | null>(null);
   const [principal, setPrincipal] = createSignal<Principal>(Principal.anonymous());
   const [links, setLinks] = createSignal<string[]>([]);
 
   onMount(async () => {
-    const client = await SnapClient.create({
+    const client = await MasqueradeClient.create({
       snapId: import.meta.env.VITE_MSQ_SNAP_ID,
     });
     setLinks(await client.getLinks());

@@ -2,13 +2,13 @@
 (window as any).global = window;
 
 /* @refresh reload */
-import { render } from "solid-js/web";
-import { Router, Route, Routes, Navigate } from "@solidjs/router";
 import { LoginPage } from "./pages/login";
-import { WalletPage } from "./pages/wallet";
+import { Match, Switch, render } from "solid-js/web";
 import { Header } from "./components/header";
 import { Root, Page, CabinetContent } from "./styles";
 import { MyMasksPage } from "./pages/cabinet/my-masks";
+import { createRouter } from "@nanostores/router";
+import { useStore } from "@nanostores/solid";
 import { CabinetNav } from "./components/cabinet-nav";
 
 const root = document.getElementById("root");
@@ -19,24 +19,52 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
-render(
-  () => (
+export const $router = createRouter({
+  myMasks: "/my-masks",
+  myAssets: "/my-assets",
+  mySessions: "/my-sessions",
+  myLinks: "/my-links",
+
+  login: "/login",
+});
+
+export function Router() {
+  const page = useStore($router);
+
+  const cabinet = (
+    <>
+      <CabinetNav />
+      <CabinetContent>
+        <Switch fallback={<p>404</p>}>
+          <Match when={page()?.route === "myMasks"}>
+            <MyMasksPage />
+          </Match>
+          <Match when={page()?.route === "myAssets"}>
+            <MyMasksPage />
+          </Match>
+          <Match when={page()?.route === "mySessions"}>
+            <MyMasksPage />
+          </Match>
+          <Match when={page()?.route === "myLinks"}>
+            <MyMasksPage />
+          </Match>
+        </Switch>
+      </CabinetContent>
+    </>
+  );
+
+  return (
     <Root>
       <Header />
       <Page>
-        <Router>
-          <Routes>
-            <Route path="*" element={<Navigate href={"/"} />} />
-            <Route path="/my-masks" component={MyMasksPage} />
-            <Route path="/my-assets" component={MyMasksPage} />
-            <Route path="/my-sessions" component={MyMasksPage} />
-            <Route path="/my-links" component={MyMasksPage} />
-            <Route path="/login" component={LoginPage} />
-            <Route path="/wallet" component={WalletPage} />
-          </Routes>
-        </Router>
+        <Switch fallback={cabinet}>
+          <Match when={page()?.route === "login"}>
+            <LoginPage />
+          </Match>
+        </Switch>
       </Page>
     </Root>
-  ),
-  root!,
-);
+  );
+}
+
+render(Router, root!);

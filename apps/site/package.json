@@ -16,21 +16,20 @@
     "version:set": "node ../../set-version.js"
   },
   "devDependencies": {
+    "dotenv": "16.3.1",
     "vite": "4.4.9",
-    "vite-plugin-solid": "2.7.0",
-    "dotenv": "16.3.1"
+    "vite-plugin-solid": "2.7.0"
   },
   "dependencies": {
     "@dfinity/ledger-icrc": "1.0.0",
-    "js-big-decimal": "2.0.4",
-    "solid-js": "1.7.12",
-    "@solidjs/router": "0.8.3",
-    "@solid-primitives/event-listener": "2.3.0",
-    "solid-styled-components": "0.28.5",
-    "nanostores": "0.9.3",
-    "@nanostores/solid": "0.4.2",
     "@fort-major/masquerade-client": "workspace:*",
     "@fort-major/masquerade-shared": "workspace:*",
+    "@nanostores/router": "^0.11.0",
+    "@nanostores/solid": "0.4.2",
+    "js-big-decimal": "2.0.4",
+    "nanostores": "0.9.3",
+    "solid-js": "1.7.12",
+    "solid-styled-components": "0.28.5",
     "tweetnacl": "1.0.3"
   }
 }

@@ -1,6 +1,5 @@
 import { installSnap } from "@metamask/snaps-jest";
 import {
-  IIdentityGetPublicKeyRequest,
   IIdentityLinkRequest,
   IIdentityLoginRequest,
   IIdentitySignRequest,
@@ -27,14 +26,10 @@ describe("Signatures", () => {
 
     expect(() => ok(resp1.response)).toThrowError();
 
-    const req2: IIdentityGetPublicKeyRequest = {
-      salt: new Uint8Array([1, 3, 3, 7]),
-    };
-
     const resp2 = await snap.request({
       origin: "https://google.com",
       method: SNAP_METHODS.public.identity.getPublicKey,
-      params: { body: toCBOR(req2) },
+      params: { body: toCBOR(undefined) },
     });
 
     expect(() => ok(resp2.response)).toThrowError();
@@ -119,69 +114,6 @@ describe("Signatures", () => {
     const signature2: Uint8Array = fromCBOR(ok(resp3.response) as string);
 
     expect(toCBOR(signature1)).toBe(toCBOR(signature2));
-
-    await snap.close();
-  });
-
-  it("different salt produces different signatures and pubkeys", async () => {
-    const snap = await installSnap();
-    const site = "http://localhost:8080";
-
-    // login
-    const req1: IIdentityLoginRequest = {
-      toOrigin: site,
-      withIdentityId: 0,
-    };
-
-    const resp1 = await snap.request({
-      origin: MASQUERADE_SNAP_SITE,
-      method: SNAP_METHODS.protected.identity.login,
-      params: { body: toCBOR(req1) },
-    });
-
-    expect(ok(resp1.response)).toBe(toCBOR(true));
-
-    const signaturesAndPubkeys: [Uint8Array, Uint8Array][] = [];
-
-    for (let i = 0; i < 10; i++) {
-      const req: IIdentitySignRequest = {
-        challenge: new Uint8Array([1, 2, 3, 4]),
-        salt: new Uint8Array([i]),
-      };
-
-      const resp = await snap.request({
-        origin: site,
-        method: SNAP_METHODS.public.identity.sign,
-        params: { body: toCBOR(req) },
-      });
-
-      const signature: Uint8Array = fromCBOR(ok(resp.response) as string);
-
-      const re1: IIdentityGetPublicKeyRequest = {
-        salt: new Uint8Array([i]),
-      };
-
-      const resp1 = await snap.request({
-        origin: site,
-        method: SNAP_METHODS.public.identity.getPublicKey,
-        params: { body: toCBOR(re1) },
-      });
-
-      const pubkey: Uint8Array = fromCBOR(ok(resp1.response) as string);
-
-      signaturesAndPubkeys.push([signature, pubkey]);
-    }
-
-    const signatures = new Set();
-    const pubkeys = new Set();
-
-    for (const [s, p] of signaturesAndPubkeys) {
-      signatures.add(toCBOR(s));
-      pubkeys.add(toCBOR(p));
-    }
-
-    expect(signatures.size).toBe(10);
-    expect(pubkeys.size).toBe(10);
 
     await snap.close();
   });
@@ -308,14 +240,10 @@ describe("Signatures", () => {
     expect(ok(resp3.response)).toBe(toCBOR(true));
 
     // get pubkeys
-    const req4: IIdentityGetPublicKeyRequest = {
-      salt: new Uint8Array([1, 2, 3]),
-    };
-
     const resp4 = await snap.request({
       origin: site,
       method: SNAP_METHODS.public.identity.getPublicKey,
-      params: { body: toCBOR(req4) },
+      params: { body: toCBOR(undefined) },
     });
 
     const pubkey1 = bytesToHex(fromCBOR(ok(resp4.response) as string));
@@ -323,7 +251,7 @@ describe("Signatures", () => {
     const resp5 = await snap.request({
       origin: anotherSite,
       method: SNAP_METHODS.public.identity.getPublicKey,
-      params: { body: toCBOR(req4) },
+      params: { body: toCBOR(undefined) },
     });
 
     const pubkey2 = bytesToHex(fromCBOR(ok(resp5.response) as string));

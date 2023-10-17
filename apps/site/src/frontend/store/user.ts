@@ -1,13 +1,21 @@
-import { Principal } from "@dfinity/principal";
 import { atom } from "nanostores";
-import { IState } from "@fort-major/masquerade-shared";
+import { MasqueradeIdentity, InternalSnapClient } from "@fort-major/masquerade-client";
 
-export interface IUser {
-  principal: Principal;
-  state: IState;
-}
+export const $identity = atom<MasqueradeIdentity | null>(null);
+export const $snapClient = atom<InternalSnapClient | null>(null);
 
-export const $user = atom<IUser | null>(null);
-export function setUser(user: IUser) {
-  $user.set(user);
+export async function $initUserStores() {
+  if ($identity.get() !== null && $snapClient.get() !== null) {
+    return;
+  }
+
+  const client = await InternalSnapClient.create({
+    snapId: import.meta.env.VITE_MSQ_SNAP_ID,
+    snapVersion: import.meta.env.VITE_MSQ_SNAP_VERSION,
+  });
+
+  const identity = await MasqueradeIdentity.create(client.getInner());
+
+  $identity.set(identity);
+  $snapClient.set(client);
 }

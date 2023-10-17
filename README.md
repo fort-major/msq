@@ -4,7 +4,8 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* comment code
+* frontend
+* refine security: freeze deps versions
 * readme update + inner readmes
 
 ## Local development
