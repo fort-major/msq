@@ -8,6 +8,7 @@ import {
   SNAP_METHODS,
   type TIdentityId,
   type TOrigin,
+  IStateGetAllOriginDataResponse,
 } from "@fort-major/masquerade-shared";
 import { MasqueradeClient } from "./client";
 
@@ -55,6 +56,10 @@ export class InternalSnapClient {
     };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.identity.getLoginOptions, body);
+  }
+
+  async getAllOrigindata(): Promise<IStateGetAllOriginDataResponse> {
+    return await this.inner._requestSnap(SNAP_METHODS.protected.state.getAllOriginData);
   }
 
   async showICRC1TransferConfirm(body: IShowICRC1TransferConfirmRequest): Promise<boolean> {

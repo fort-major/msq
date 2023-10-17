@@ -25,7 +25,7 @@ const ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
 function getColors(principalBytes: number[]): [string, string] {
   const bodyIdx = principalBytes[0] % colors.length;
 
-  return ["#ffffff", colors[bodyIdx]];
+  return ["#1E1F28", colors[bodyIdx]];
 }
 
 function getBodyAngle(principalBytes: number[]): number {

@@ -25,6 +25,9 @@ export const SNAP_METHODS = {
       get: "protected_statistics_get",
       reset: "protected_statistics_reset",
     },
+    state: {
+      getAllOriginData: "protected_state_getAllOriginData",
+    },
   },
   public: {
     identity: {

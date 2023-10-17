@@ -37,7 +37,7 @@ export const Body = styled.div<{ color: string; width: number; height: number; a
 export const Face = styled.div<{ bodyAngle: number }>`
   position: absolute;
 
-  bottom: 10%;
+  bottom: 15%;
   left: 50%;
   -webkit-transform: translateX(-50%);
   transform: translateX(-50%) rotate(${(props) => 15 - props.bodyAngle}deg);

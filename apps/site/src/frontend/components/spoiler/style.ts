@@ -6,7 +6,6 @@ export const SpoilerWrapper = styled.div`
   max-width: 600px;
   flex-flow: column nowrap;
   align-items: flex-start;
-  gap: 25px;
 
   border-top: 1px solid #fff;
 `;
@@ -14,6 +13,7 @@ export const SpoilerWrapper = styled.div`
 export const SpoilerHeader = styled.div`
   display: flex;
   padding-top: 25px;
+  padding-bottom: 25px;
   padding-right: 20px;
   justify-content: space-between;
   align-items: center;

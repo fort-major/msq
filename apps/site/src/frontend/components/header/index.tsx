@@ -1,7 +1,6 @@
 import LogoSvg from "#assets/logo.svg";
 import { styled } from "solid-styled-components";
 import { COLOR_BG, COLOR_GRAY, HEADER_HEIGHT } from "../../styles";
-import { $initUserStores } from "../../store/user";
 
 const HeaderDiv = styled.header`
   position: fixed;
@@ -25,8 +24,6 @@ const HeaderDiv = styled.header`
 `;
 
 export function Header() {
-  $initUserStores();
-
   return (
     <HeaderDiv>
       <img src={LogoSvg} alt="Masquerade Logo" />

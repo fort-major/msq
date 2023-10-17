@@ -95,9 +95,10 @@ export const ZIdentityGetLoginOptionsRequest = z.object({
 });
 export type IIdentityGetLoginOptionsRequest = z.infer<typeof ZIdentityGetLoginOptionsRequest>;
 
-export const ZIdentityGetLoginOptionsResponse = z.array(
-  z.tuple([ZOrigin, z.array(z.tuple([ZPrincipalStr, z.string()]))]),
-);
+export const ZMask = z.tuple([ZPrincipalStr, z.string()]);
+export type IMask = z.infer<typeof ZMask>;
+
+export const ZIdentityGetLoginOptionsResponse = z.array(z.tuple([ZOrigin, z.array(ZMask)]));
 export type IIdentityGetLoginOptionsResponse = z.infer<typeof ZIdentityGetLoginOptionsResponse>;
 
 export const ZIdentityAddRequest = z.object({
@@ -129,6 +130,11 @@ export const ZIdentityUnlinkRequest = z.object({
   withOrigin: ZOrigin,
 });
 export type IIdentityUnlinkRequest = z.infer<typeof ZIdentityUnlinkRequest>;
+
+// ----------- STATE PROTOCOL RELATED TYPES -------------
+
+export const ZStateGetAllOriginDataResponse = z.record(ZOrigin, z.optional(ZOriginData));
+export type IStateGetAllOriginDataResponse = z.infer<typeof ZStateGetAllOriginDataResponse>;
 
 // ----------- ICRC1 PROTOCOL RELATED TYPES -------------
 

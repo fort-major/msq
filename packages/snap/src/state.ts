@@ -37,6 +37,10 @@ export class StateManager {
     this.state.originData[origin] = data;
   }
 
+  public getAllOriginData(): { [x: TOrigin]: IOriginData | undefined } {
+    return this.state.originData;
+  }
+
   public linkExists(from: TOrigin, to: TOrigin): boolean {
     const fromHasToLink = this.state.originData[from]?.linksTo?.includes(to) ?? false;
     const toHasFromLink = this.state.originData[to]?.linksFrom?.includes(from) ?? false;

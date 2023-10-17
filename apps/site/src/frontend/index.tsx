@@ -5,11 +5,11 @@
 import { LoginPage } from "./pages/login";
 import { Match, Switch, render } from "solid-js/web";
 import { Header } from "./components/header";
-import { Root, Page, CabinetContent } from "./styles";
-import { MyMasksPage } from "./pages/cabinet/my-masks";
+import { Root, Page } from "./styles";
 import { createRouter } from "@nanostores/router";
 import { useStore } from "@nanostores/solid";
-import { CabinetNav } from "./components/cabinet-nav";
+import { lazy } from "solid-js";
+const Cabinet = lazy(() => import("./pages/cabinet"));
 
 const root = document.getElementById("root");
 
@@ -31,33 +31,11 @@ export const $router = createRouter({
 export function Router() {
   const page = useStore($router);
 
-  const cabinet = (
-    <>
-      <CabinetNav />
-      <CabinetContent>
-        <Switch fallback={<p>404</p>}>
-          <Match when={page()?.route === "myMasks"}>
-            <MyMasksPage />
-          </Match>
-          <Match when={page()?.route === "myAssets"}>
-            <MyMasksPage />
-          </Match>
-          <Match when={page()?.route === "mySessions"}>
-            <MyMasksPage />
-          </Match>
-          <Match when={page()?.route === "myLinks"}>
-            <MyMasksPage />
-          </Match>
-        </Switch>
-      </CabinetContent>
-    </>
-  );
-
   return (
     <Root>
       <Header />
       <Page>
-        <Switch fallback={cabinet}>
+        <Switch fallback={<Cabinet />}>
           <Match when={page()?.route === "login"}>
             <LoginPage />
           </Match>

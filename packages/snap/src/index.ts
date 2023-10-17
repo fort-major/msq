@@ -15,6 +15,7 @@ import {
   protected_handleIdentityLogin,
 } from "./protocols/identity";
 import { protected_handleStatisticsGet, protected_handleStatisticsReset } from "./protocols/statistics";
+import { protected_handleStateGetAllOrigindata } from "./protocols/state";
 
 /**
  * Snap main entrypoint. Expects a JSON-RPC request with `params` field of type `{ body: hex_cbor_encoded_body }`.
@@ -61,6 +62,11 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
     case SNAP_METHODS.protected.statistics.reset: {
       result = protected_handleStatisticsReset();
+      break;
+    }
+
+    case SNAP_METHODS.protected.state.getAllOriginData: {
+      result = protected_handleStateGetAllOrigindata();
       break;
     }
 
