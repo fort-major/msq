@@ -9,6 +9,8 @@ import {
   type TIdentityId,
   type TOrigin,
   IStateGetAllOriginDataResponse,
+  IIdentityEditPseudonymRequest,
+  IMask,
 } from "@fort-major/masquerade-shared";
 import { MasqueradeClient } from "./client";
 
@@ -30,7 +32,7 @@ export class InternalSnapClient {
     return this.inner;
   }
 
-  async register(toOrigin: TOrigin): Promise<boolean> {
+  async register(toOrigin: TOrigin): Promise<IMask | null> {
     const body: IIdentityAddRequest = { toOrigin };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.identity.add, body);
@@ -58,8 +60,18 @@ export class InternalSnapClient {
     return await this.inner._requestSnap(SNAP_METHODS.protected.identity.getLoginOptions, body);
   }
 
-  async getAllOrigindata(): Promise<IStateGetAllOriginDataResponse> {
+  async getAllOriginData(): Promise<IStateGetAllOriginDataResponse> {
     return await this.inner._requestSnap(SNAP_METHODS.protected.state.getAllOriginData);
+  }
+
+  async editPseudonym(origin: TOrigin, identityId: TIdentityId, newPseudonym: string): Promise<void> {
+    const body: IIdentityEditPseudonymRequest = {
+      origin,
+      identityId,
+      newPseudonym,
+    };
+
+    return await this.inner._requestSnap(SNAP_METHODS.protected.identity.editPseudonym, body);
   }
 
   async showICRC1TransferConfirm(body: IShowICRC1TransferConfirmRequest): Promise<boolean> {

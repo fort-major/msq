@@ -2,14 +2,14 @@
 (window as any).global = window;
 
 /* @refresh reload */
-import { LoginPage } from "./pages/login";
-import { Match, Switch, render } from "solid-js/web";
+import { render } from "solid-js/web";
 import { Header } from "./components/header";
 import { Root, Page } from "./styles";
-import { createRouter } from "@nanostores/router";
-import { useStore } from "@nanostores/solid";
+import { Routes, Route, Router } from "@solidjs/router";
 import { lazy } from "solid-js";
-const Cabinet = lazy(() => import("./pages/cabinet"));
+import { MyMasksPage } from "./pages/cabinet/my-masks";
+import { GlobalStore } from "./store/global";
+import { LoginPage } from "./pages/integration/login";
 
 const root = document.getElementById("root");
 
@@ -19,30 +19,29 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
-export const $router = createRouter({
-  myMasks: "/my-masks",
-  myAssets: "/my-assets",
-  mySessions: "/my-sessions",
-  myLinks: "/my-links",
-
-  login: "/login",
-});
-
-export function Router() {
-  const page = useStore($router);
+export function App() {
+  const CabinetRoot = lazy(() => import("./pages/cabinet"));
+  const IntegrationRoot = lazy(() => import("./pages/integration"));
 
   return (
     <Root>
       <Header />
       <Page>
-        <Switch fallback={<Cabinet />}>
-          <Match when={page()?.route === "login"}>
-            <LoginPage />
-          </Match>
-        </Switch>
+        <GlobalStore>
+          <Router>
+            <Routes>
+              <Route path="/integration" component={IntegrationRoot}>
+                <Route path="/login" component={LoginPage} />
+              </Route>
+              <Route path="/cabinet" component={CabinetRoot}>
+                <Route path="/my-masks" component={MyMasksPage} />
+              </Route>
+            </Routes>
+          </Router>
+        </GlobalStore>
       </Page>
     </Root>
   );
 }
 
-render(Router, root!);
+render(App, root!);

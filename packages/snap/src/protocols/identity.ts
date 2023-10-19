@@ -19,6 +19,8 @@ import {
   IIdentitySignRequest,
   IIdentityLinkRequest,
   IIdentityUnlinkRequest,
+  ZIdentityEditPseudonymRequest,
+  IMask,
 } from "@fort-major/masquerade-shared";
 import { StateManager } from "../state";
 import { getSignIdentity, isMasquerade } from "../utils";
@@ -33,7 +35,7 @@ import { getSignIdentity, isMasquerade } from "../utils";
  * @category Shows Pop-Up
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<boolean> {
+export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<IMask | null> {
   const body: IIdentityAddRequest = zodParse(ZIdentityAddRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
 
@@ -50,14 +52,14 @@ export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<boo
     },
   });
 
-  if (!agreed) return false;
+  if (!agreed) return null;
 
-  await manager.addIdentity(body.toOrigin);
+  const newMask = await manager.addIdentity(body.toOrigin);
   manager.incrementStats(body.toOrigin);
 
   await manager.persist();
 
-  return true;
+  return newMask;
 }
 
 /**
@@ -120,37 +122,26 @@ export async function protected_handleIdentityGetLoginOptions(
   const result: IIdentityGetLoginOptionsResponse = [];
 
   const originData = await manager.getOriginData(body.forOrigin);
-
-  const options: [string, string][] = [];
-  for (let i = 0; i < originData.masks.length; i++) {
-    const identity = await getSignIdentity(body.forOrigin, i);
-    const principal = identity.getPrincipal().toText();
-    const pseudonym = originData.masks[i];
-
-    options.push([principal, pseudonym]);
-  }
-
-  result.push([body.forOrigin, options]);
+  result.push([body.forOrigin, originData.masks]);
 
   for (const origin of originData.linksFrom) {
     const linkedOriginData = await manager.getOriginData(origin);
 
-    const options: [string, string][] = [];
-
-    for (let i = 0; i < linkedOriginData.masks.length; i++) {
-      const identity = await getSignIdentity(origin, i);
-      const principal = identity.getPrincipal().toText();
-      const pseudonym = linkedOriginData.masks[i];
-
-      options.push([principal, pseudonym]);
-    }
-
-    result.push([origin, options]);
+    result.push([origin, linkedOriginData.masks]);
   }
 
   await manager.persist();
 
   return result;
+}
+
+export async function protected_handleIdentityEditPseudonym(bodyCBOR: string): Promise<void> {
+  const body = zodParse(ZIdentityEditPseudonymRequest, fromCBOR(bodyCBOR));
+  const manager = await StateManager.make();
+
+  manager.editPseudonym(body.origin, body.identityId, body.newPseudonym);
+
+  await manager.persist();
 }
 
 /**

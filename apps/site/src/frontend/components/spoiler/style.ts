@@ -3,7 +3,6 @@ import { styled } from "solid-styled-components";
 export const SpoilerWrapper = styled.div`
   display: flex;
   width: 100%;
-  max-width: 600px;
   flex-flow: column nowrap;
   align-items: flex-start;
 

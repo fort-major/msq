@@ -1,5 +1,4 @@
-import { useStore } from "@nanostores/solid";
-import { $router } from "../..";
+import { useLocation, useNavigate } from "@solidjs/router";
 import { CabinetNavItem, CabinetNavItemDot, CabinetNavItemText, CabinetNavWrapper } from "./styles";
 import { Match, Switch } from "solid-js";
 
@@ -10,8 +9,10 @@ interface IItemProps {
 }
 
 const Item = (props: IItemProps) => {
+  const navigate = useNavigate();
+
   return (
-    <CabinetNavItem onClick={() => $router.open(props.url)}>
+    <CabinetNavItem onClick={() => navigate(props.url)}>
       <Switch>
         <Match when={props.active}>
           <CabinetNavItemDot />
@@ -23,14 +24,14 @@ const Item = (props: IItemProps) => {
 };
 
 export function CabinetNav() {
-  const page = useStore($router);
+  const location = useLocation();
 
   return (
     <CabinetNavWrapper>
-      <Item title="My Masks" url="/my-masks" active={page()?.route === "myMasks"} />
-      <Item title="My Assets" url="/my-assets" active={page()?.route === "myAssets"} />
-      <Item title="My Sessions" url="/my-sessions" active={page()?.route === "mySessions"} />
-      <Item title="My Links" url="/my-links" active={page()?.route === "myLinks"} />
+      <Item title="My Masks" url="/cabinet/my-masks" active={location.pathname === "/cabinet/my-masks"} />
+      <Item title="My Assets" url="/cabinet/my-assets" active={location.pathname === "/cabinet/my-assets"} />
+      <Item title="My Sessions" url="/cabinet/my-sessions" active={location.pathname === "/cabinet/my-sessions"} />
+      <Item title="My Links" url="/cabinet/my-links" active={location.pathname === "/cabinet/my-links"} />
     </CabinetNavWrapper>
   );
 }

@@ -22,7 +22,7 @@ import {
   ZICRC1TransferResultMsg,
 } from "@fort-major/masquerade-shared";
 import { type SignIdentity } from "@dfinity/agent";
-import { SNAP_ID, SNAP_SITE_ORIGIN, SNAP_VERSION } from ".";
+import { SNAP_ID, SNAP_SITE_ORIGIN as MASQUERADE_SITE_ORIGIN, SNAP_VERSION } from ".";
 import { MasqueradeIdentity } from "./identity";
 
 const DEFAULT_SHOULD_BE_FLASK = false;
@@ -70,8 +70,10 @@ export class MasqueradeClient {
       return MasqueradeIdentity.create(this);
     }
 
+    const self = this;
+
     const loginResult = await new Promise<boolean>(async (resolve, reject) => {
-      const url = new URL("/login", SNAP_SITE_ORIGIN);
+      const url = new URL("/integration/login", MASQUERADE_SITE_ORIGIN);
       const childWindow = window.open(url, "_blank");
 
       if (childWindow === null) {
@@ -86,14 +88,23 @@ export class MasqueradeClient {
       };
 
       function handleMsg(msg: MessageEvent) {
-        if (msg.origin !== SNAP_SITE_ORIGIN) {
+        if (msg.origin !== MASQUERADE_SITE_ORIGIN || !msg.isTrusted) {
           return;
+        }
+
+        if (self.debug) {
+          console.log(msg);
         }
 
         try {
           if (!loginRequestReceived) {
             ZRequestReceivedMsg.parse(msg.data);
             loginRequestReceived = true;
+
+            if (self.debug) {
+              console.log("received ready msg, waiting for the result...");
+            }
+
             return;
           }
 
@@ -119,7 +130,7 @@ export class MasqueradeClient {
         await delay(100);
 
         try {
-          childWindow!.postMessage(loginRequestMsg, SNAP_SITE_ORIGIN);
+          childWindow!.postMessage(loginRequestMsg, MASQUERADE_SITE_ORIGIN);
         } catch (e) {
           /* ignore */
         }
@@ -218,9 +229,11 @@ export class MasqueradeClient {
     memo?: Uint8Array | undefined,
     createdAt?: bigint | undefined,
   ): Promise<bigint | null> {
+    const self = this;
+
     // eslint-disable-next-line no-async-promise-executor
     return await new Promise<bigint | null>(async (resolve, reject) => {
-      const url = new URL("/wallet", SNAP_SITE_ORIGIN);
+      const url = new URL("/wallet", MASQUERADE_SITE_ORIGIN);
       const childWindow = window.open(url, "_blank");
 
       if (childWindow === null) {
@@ -242,8 +255,12 @@ export class MasqueradeClient {
       };
 
       function handleMsg(msg: MessageEvent) {
-        if (msg.origin !== SNAP_SITE_ORIGIN) {
+        if (msg.origin !== MASQUERADE_SITE_ORIGIN || !msg.isTrusted) {
           return;
+        }
+
+        if (self.debug) {
+          console.log(msg);
         }
 
         try {
@@ -275,7 +292,7 @@ export class MasqueradeClient {
         await delay(100);
 
         try {
-          childWindow!.postMessage(transferRequestMsg, SNAP_SITE_ORIGIN);
+          childWindow!.postMessage(transferRequestMsg, MASQUERADE_SITE_ORIGIN);
         } catch (e) {
           /* ignore */
         }
@@ -348,7 +365,7 @@ export class MasqueradeClient {
       },
     });
 
-    return new MasqueradeClient(provider!, snapId, params?.debug);
+    return new MasqueradeClient(provider!, snapId, params?.debug ?? false);
   }
 
   private constructor(

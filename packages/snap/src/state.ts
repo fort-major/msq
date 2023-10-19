@@ -9,6 +9,9 @@ import {
   fromCBOR,
   toCBOR,
   TIdentityId,
+  IMask,
+  err,
+  ErrorCode,
 } from "@fort-major/masquerade-shared";
 import { generateRandomPseudonym, getSignIdentity } from "./utils";
 
@@ -26,8 +29,8 @@ export class StateManager {
     let originData = this.state.originData[origin];
 
     if (originData === undefined) {
-      const pseudonym = await this.makePseudonym(origin, 0);
-      originData = makeDefaultOriginData(pseudonym);
+      const mask = await this.makeMask(origin, 0);
+      originData = makeDefaultOriginData(mask);
     }
 
     return originData;
@@ -39,6 +42,20 @@ export class StateManager {
 
   public getAllOriginData(): { [x: TOrigin]: IOriginData | undefined } {
     return this.state.originData;
+  }
+
+  public editPseudonym(origin: TOrigin, identityId: TIdentityId, newPseudonym: string) {
+    const originData = this.state.originData[origin];
+
+    if (originData === undefined) {
+      err(ErrorCode.INVALID_INPUT, `No origin data exists ${origin}`);
+    }
+
+    if (originData.masks.length <= identityId) {
+      err(ErrorCode.INVALID_INPUT, `No mask exists ${identityId}`);
+    }
+
+    originData.masks[identityId].pseudonym = newPseudonym;
   }
 
   public linkExists(from: TOrigin, to: TOrigin): boolean {
@@ -86,27 +103,30 @@ export class StateManager {
     this.setOriginData(to, toOriginData);
   }
 
-  public async addIdentity(origin: TOrigin): Promise<void> {
+  public async addIdentity(origin: TOrigin): Promise<IMask> {
     let originData = this.state.originData[origin];
 
     if (originData === undefined) {
-      const pseudonym = await this.makePseudonym(origin, 0);
-      originData = makeDefaultOriginData(pseudonym);
+      const mask = await this.makeMask(origin, 0);
+      originData = makeDefaultOriginData(mask);
     }
 
-    const pseudonym = await this.makePseudonym(origin, originData.masks.length);
-    originData.masks.push(pseudonym);
+    const mask = await this.makeMask(origin, originData.masks.length);
+    originData.masks.push(mask);
 
     this.state.originData[origin] = originData;
+
+    return mask;
   }
 
-  private async makePseudonym(origin: TOrigin, identityId: TIdentityId): Promise<string> {
+  private async makeMask(origin: TOrigin, identityId: TIdentityId): Promise<IMask> {
     const identity = await getSignIdentity(origin, identityId);
-    const principal = identity.getPrincipal().toUint8Array();
-    const seed1 = principal[3];
-    const seed2 = principal[4];
+    const principal = identity.getPrincipal();
+    const prinBytes = principal.toUint8Array();
+    const seed1 = prinBytes[3];
+    const seed2 = prinBytes[4];
 
-    return generateRandomPseudonym(seed1, seed2);
+    return { pseudonym: generateRandomPseudonym(seed1, seed2), principal: principal.toText() };
   }
 
   constructor(private readonly state: IState) {}
@@ -164,8 +184,8 @@ const makeDefaultState: () => IState = () => ({
   },
 });
 
-const makeDefaultOriginData: (pseudonym: string) => IOriginData = (pseudonym) => ({
-  masks: [pseudonym],
+const makeDefaultOriginData: (mask: IMask) => IOriginData = (mask) => ({
+  masks: [mask],
   currentSession: undefined,
   linksFrom: [],
   linksTo: [],

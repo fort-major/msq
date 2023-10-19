@@ -1,20 +1,23 @@
 import { styled } from "solid-styled-components";
 import { COLOR_GRAY } from "../../styles";
 
-export const LoginOptionWrapper = styled.div`
+export const LoginOptionWrapper = styled.div<{ editable?: boolean | undefined }>`
   display: flex;
-  padding-right: 0px;
+  padding-right: 20px;
   align-items: center;
   gap: 15px;
   align-self: stretch;
 
-  cursor: pointer;
-
-  &:hover {
-    background-color: ${COLOR_GRAY};
-    border-bottom-left-radius: 30px;
-    border-top-left-radius: 30px;
-  }
+  ${(props) =>
+    !props.editable
+      ? `  
+      cursor: pointer;
+      &:hover {
+        background-color: ${COLOR_GRAY};
+        border-bottom-left-radius: 30px;
+        border-top-left-radius: 30px;
+      }`
+      : ""}
 `;
 
 export const LoginOptionContent = styled.div`
@@ -26,6 +29,25 @@ export const LoginOptionContent = styled.div`
 `;
 
 export const LoginOptionPseudonym = styled.h4`
+  align-self: stretch;
+  color: #fff;
+
+  font-family:
+    DM Sans,
+    sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 100%; /* 16px */
+  letter-spacing: -0.32px;
+`;
+
+export const LoginOptionPseudonymEdit = styled.input`
+  background-color: ${COLOR_GRAY};
+  border: none;
+  padding: 5px;
+  border-radius: 3px;
+
   align-self: stretch;
   color: #fff;
 
@@ -55,4 +77,14 @@ export const LoginOptionPrincipal = styled.p`
   line-height: 120%; /* 14.4px */
 
   opacity: 0.4;
+`;
+
+export const LoginOptionIcon = styled.img`
+  opacity: 0.6;
+
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${COLOR_GRAY};
+  }
 `;

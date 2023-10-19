@@ -1,6 +1,6 @@
 import { AddNewMaskBtnIconWrapper, AddNewMaskBtnText, AddNewMaskBtnWrapper } from "./style";
 import PlusSvg from "#assets/plus.svg";
-import { ErrorCode, err } from "@fort-major/masquerade-shared";
+import { assertEventSafe } from "../../utils";
 
 export interface IAddNewMaskBtnProps {
   onClick: () => void;
@@ -8,9 +8,7 @@ export interface IAddNewMaskBtnProps {
 
 export function AddNewMaskBtn(props: IAddNewMaskBtnProps) {
   const handleClick = (e: MouseEvent) => {
-    if (!e.isTrusted) {
-      err(ErrorCode.SECURITY_VIOLATION, "No automation is allowed!");
-    }
+    assertEventSafe(e);
 
     props.onClick();
   };

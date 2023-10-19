@@ -40,13 +40,16 @@ export const ZSession = z.object({
   timestampMs: ZTimestamp,
 });
 
+export type IMask = z.infer<typeof ZMask>;
+export const ZMask = z.object({ pseudonym: z.string().nonempty(), principal: ZPrincipalStr });
+
 /**
  * Various data for each website the user interacts with
  */
 export type IOriginData = z.infer<typeof ZOriginData>;
 export const ZOriginData = z.object({
-  /** how many identities (and their pseudonyms) does a user have on this website */
-  masks: z.array(z.string().nonempty()),
+  /** identities (and their pseudonyms) a user has on this website */
+  masks: z.array(ZMask),
   /** which websites shared the user's identity with this website */
   linksFrom: z.array(ZOrigin),
   /** to which websites the user shared their identities from this website */
@@ -95,9 +98,6 @@ export const ZIdentityGetLoginOptionsRequest = z.object({
 });
 export type IIdentityGetLoginOptionsRequest = z.infer<typeof ZIdentityGetLoginOptionsRequest>;
 
-export const ZMask = z.tuple([ZPrincipalStr, z.string()]);
-export type IMask = z.infer<typeof ZMask>;
-
 export const ZIdentityGetLoginOptionsResponse = z.array(z.tuple([ZOrigin, z.array(ZMask)]));
 export type IIdentityGetLoginOptionsResponse = z.infer<typeof ZIdentityGetLoginOptionsResponse>;
 
@@ -130,6 +130,13 @@ export const ZIdentityUnlinkRequest = z.object({
   withOrigin: ZOrigin,
 });
 export type IIdentityUnlinkRequest = z.infer<typeof ZIdentityUnlinkRequest>;
+
+export const ZIdentityEditPseudonymRequest = z.object({
+  origin: ZOrigin,
+  identityId: ZIdentityId,
+  newPseudonym: z.string().nonempty(),
+});
+export type IIdentityEditPseudonymRequest = z.infer<typeof ZIdentityEditPseudonymRequest>;
 
 // ----------- STATE PROTOCOL RELATED TYPES -------------
 

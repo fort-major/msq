@@ -17,6 +17,7 @@ export const SNAP_METHODS = {
       add: "protected_identity_add",
       login: "protected_identity_login",
       getLoginOptions: "protected_identity_getLoginOptions",
+      editPseudonym: "protected_identity_editPseudonym",
     },
     icrc1: {
       showTransferConfirm: "protected_icrc1_showTransferConfirm",

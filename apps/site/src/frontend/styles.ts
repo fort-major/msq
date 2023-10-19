@@ -23,7 +23,10 @@ export const Page = styled.main`
 export const CabinetContent = styled.section`
   position: relative;
   left: 350px;
-  top: 60px;
+  margin-top: 60px;
+
+  width: 100%;
+  max-width: 880px;
 `;
 
 export function styledRef(it: unknown): string {

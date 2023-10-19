@@ -9,3 +9,13 @@ export const MyMasksHeader = styled.h2`
   font-weight: 600;
   line-height: 90%; /* 72px */
 `;
+
+export const MyMasksContent = styled.section`
+  margin-top: 40px;
+  margin-bottom: 80px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 40px;
+`;

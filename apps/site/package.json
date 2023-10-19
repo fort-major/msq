@@ -24,10 +24,8 @@
     "@dfinity/ledger-icrc": "1.0.0",
     "@fort-major/masquerade-client": "workspace:*",
     "@fort-major/masquerade-shared": "workspace:*",
-    "@nanostores/router": "^0.11.0",
-    "@nanostores/solid": "0.4.2",
+    "@solidjs/router": "0.8.3",
     "js-big-decimal": "2.0.4",
-    "nanostores": "0.9.3",
     "solid-js": "1.7.12",
     "solid-styled-components": "0.28.5",
     "tweetnacl": "1.0.3"

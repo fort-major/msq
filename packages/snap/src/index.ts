@@ -11,6 +11,7 @@ import {
   handleIdentitySign,
   handleIdentityUnlinkRequest,
   protected_handleIdentityAdd,
+  protected_handleIdentityEditPseudonym,
   protected_handleIdentityGetLoginOptions,
   protected_handleIdentityLogin,
 } from "./protocols/identity";
@@ -47,6 +48,11 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
     case SNAP_METHODS.protected.identity.getLoginOptions: {
       result = protected_handleIdentityGetLoginOptions(req.params.body);
+      break;
+    }
+
+    case SNAP_METHODS.protected.identity.editPseudonym: {
+      result = protected_handleIdentityEditPseudonym(req.params.body);
       break;
     }
 

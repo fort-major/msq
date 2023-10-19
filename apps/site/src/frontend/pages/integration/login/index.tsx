@@ -1,38 +1,43 @@
 import { For, Match, Switch, createEffect, createSignal } from "solid-js";
-import { TOrigin, originToHostname } from "@fort-major/masquerade-shared";
+import { IMask, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { DismissBtn, LoginHeadingSection, LoginOptionsSection, LoginOptionsWrapper, LoginPageHeader } from "./style";
-import { Spoiler } from "../../components/spoiler";
-import { Accent, Title } from "../../components/typography/style";
-import { LoginOption } from "../../components/login-option";
-import { AddNewMaskBtn } from "../../components/add-new-mask-btn";
-import { Divider } from "../../components/divider/style";
-import ChevtonUpSvg from "#assets/chevron-up.svg";
-import { useStore } from "@nanostores/solid";
-import { $snapClient } from "../../store/user";
-import { $loginRequestMsg, referrerOrigin, sendLoginResult } from "../../store/messages";
-import { $router } from "../..";
+import { useMasqueradeClient } from "../../../store/global";
+import { referrerOrigin, sendLoginResult, useLoginRequestMsg, useReferrerWindow } from "../../../store/integration";
+import { useNavigate } from "@solidjs/router";
+import ChevronUpSvg from "#assets/chevron-up.svg";
+import { Accent, Title } from "../../../components/typography/style";
+import { Divider } from "../../../components/divider/style";
+import { LoginOption } from "../../../components/login-option";
+import { AddNewMaskBtn } from "../../../components/add-new-mask-btn";
+import { Spoiler } from "../../../components/spoiler";
 
 export function LoginPage() {
-  const [loginOptions, setLoginOptions] = createSignal<[TOrigin, [string, string][]][] | null>(null);
-  const snapClient = useStore($snapClient);
-  const loginRequest = useStore($loginRequestMsg);
+  const [loginOptions, setLoginOptions] = createSignal<[TOrigin, IMask[]][] | null>(null);
+  const snapClient = useMasqueradeClient();
+  const loginRequest = useLoginRequestMsg();
+  const [referrerWindow] = useReferrerWindow();
+  const navigate = useNavigate();
 
-  if (referrerOrigin === null) {
-    $router.open("/");
+  if (referrerOrigin === null || referrerOrigin === window.location.origin) {
+    navigate("/");
   }
 
-  createEffect(() => {
-    if (snapClient() === null || loginRequest() === null) {
+  createEffect(async () => {
+    if (snapClient() === undefined || loginRequest() === undefined) {
       return;
     }
 
-    snapClient()!.getLoginOptions(referrerOrigin!).then(setLoginOptions);
+    const loginOptions = await snapClient()!.getLoginOptions(referrerOrigin!);
+
+    console.log("GOT LOGIN OPS", loginOptions);
+
+    setLoginOptions(loginOptions);
   });
 
   const onLogin = async (loginOrigin: string, identityId: number) => {
     await snapClient()!.login(referrerOrigin!, identityId, loginOrigin);
 
-    sendLoginResult(true, 0);
+    sendLoginResult(referrerWindow()!, true, 0);
   };
 
   const onAddNewMask = async () => {
@@ -44,15 +49,15 @@ export function LoginPage() {
     setLoginOptions(loginOptions);
   };
 
-  const onDismiss = async () => {
-    sendLoginResult(false, 0);
+  const onDismiss = () => {
+    sendLoginResult(referrerWindow()!, false, 0);
   };
 
   return (
     <>
       <LoginHeadingSection>
         <DismissBtn onClick={onDismiss}>
-          <img src={ChevtonUpSvg} alt="<" />
+          <img src={ChevronUpSvg} alt="<" />
           <span>Dismiss</span>
         </DismissBtn>
         <LoginPageHeader>Choose a Mask to wear</LoginPageHeader>
@@ -74,12 +79,12 @@ export function LoginPage() {
                     }
                   >
                     <For each={principals}>
-                      {([principal, pseudonym], idx) => (
+                      {(mask, idx) => (
                         <>
                           <Divider />
                           <LoginOption
-                            pseudonym={pseudonym}
-                            principal={principal}
+                            pseudonym={mask.pseudonym}
+                            principal={mask.principal}
                             onClick={() => onLogin(origin, idx())}
                           />
                         </>
