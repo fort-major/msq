@@ -14,6 +14,7 @@ import {
   protected_handleIdentityEditPseudonym,
   protected_handleIdentityGetLoginOptions,
   protected_handleIdentityLogin,
+  protected_handleIdentityStopSession,
 } from "./protocols/identity";
 import { protected_handleStatisticsGet, protected_handleStatisticsReset } from "./protocols/statistics";
 import { protected_handleStateGetAllOrigindata } from "./protocols/state";
@@ -53,6 +54,11 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
     case SNAP_METHODS.protected.identity.editPseudonym: {
       result = protected_handleIdentityEditPseudonym(req.params.body);
+      break;
+    }
+
+    case SNAP_METHODS.protected.identity.stopSession: {
+      result = protected_handleIdentityStopSession(req.params.body);
       break;
     }
 

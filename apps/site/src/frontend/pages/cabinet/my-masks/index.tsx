@@ -1,13 +1,15 @@
-import { MyMasksContent, MyMasksHeader } from "./style";
-import { For, Show, createEffect } from "solid-js";
+import { MyMasksContent, SpoilerHeading } from "./style";
+import { For, Show } from "solid-js";
 import { Spoiler } from "../../../components/spoiler";
-import { Accent, Title } from "../../../components/typography/style";
+import { Accent, Subtitle, Title } from "../../../components/typography/style";
 import { TIdentityId, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { LoginOption } from "../../../components/login-option";
 import { AddNewMaskBtn } from "../../../components/add-new-mask-btn";
 import { useAllOriginData } from "../../../store/cabinet";
 import { useMasqueradeClient } from "../../../store/global";
 import { produce } from "solid-js/store";
+import { CabinetHeading } from "../../../styles";
+import { Divider } from "../../../components/divider/style";
 
 export function MyMasksPage() {
   const client = useMasqueradeClient();
@@ -33,27 +35,32 @@ export function MyMasksPage() {
 
   return (
     <>
-      <MyMasksHeader>My Masks</MyMasksHeader>
+      <CabinetHeading>My Masks</CabinetHeading>
       <MyMasksContent>
         <Show when={fetched()} fallback={<p>Loading...</p>}>
           <For fallback={<p>You have no masks yet</p>} each={allOriginData}>
             {(entry) => (
               <Spoiler
                 header={
-                  <Title>
-                    Masks from <Accent>{originToHostname(entry[0])}</Accent>
-                  </Title>
+                  <SpoilerHeading>
+                    <Subtitle>Masks from</Subtitle>
+                    <Accent size={24}>{originToHostname(entry[0])}</Accent>
+                  </SpoilerHeading>
                 }
               >
                 <For each={entry[1]!.masks}>
                   {(mask, idx) => (
-                    <LoginOption
-                      pseudonym={mask.pseudonym}
-                      principal={mask.principal}
-                      onEdit={(newValue) => editPseudonym(entry[0], idx(), newValue)}
-                    />
+                    <>
+                      <Divider />
+                      <LoginOption
+                        pseudonym={mask.pseudonym}
+                        principal={mask.principal}
+                        onEdit={(newValue) => editPseudonym(entry[0], idx(), newValue)}
+                      />
+                    </>
                   )}
                 </For>
+                <Divider />
                 <AddNewMaskBtn onClick={() => addNewMask(entry[0])} />
               </Spoiler>
             )}

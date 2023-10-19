@@ -10,6 +10,7 @@ import { lazy } from "solid-js";
 import { MyMasksPage } from "./pages/cabinet/my-masks";
 import { GlobalStore } from "./store/global";
 import { LoginPage } from "./pages/integration/login";
+import { MySessionsPage } from "./pages/cabinet/my-sessions";
 
 const root = document.getElementById("root");
 
@@ -35,6 +36,7 @@ export function App() {
               </Route>
               <Route path="/cabinet" component={CabinetRoot}>
                 <Route path="/my-masks" component={MyMasksPage} />
+                <Route path="/my-sessions" component={MySessionsPage} />
               </Route>
             </Routes>
           </Router>

@@ -1,8 +1,10 @@
 import { styled } from "solid-styled-components";
 
 export const COLOR_GRAY = "#2F2F38";
+export const COLOR_LIGHTGRAY = "#676767";
 export const COLOR_BG = "#0A0B15";
 export const COLOR_ACCENT = "#E0FF25";
+export const COLOR_GREEN = "#23EC1E";
 
 export const HEADER_HEIGHT = 80;
 
@@ -29,6 +31,12 @@ export const CabinetContent = styled.section`
   max-width: 880px;
 `;
 
-export function styledRef(it: unknown): string {
-  return it as string;
-}
+export const CabinetHeading = styled.h2`
+  color: #fff;
+
+  font-family: DM Sans;
+  font-size: 80px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 90%; /* 72px */
+`;

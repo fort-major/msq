@@ -138,6 +138,11 @@ export const ZIdentityEditPseudonymRequest = z.object({
 });
 export type IIdentityEditPseudonymRequest = z.infer<typeof ZIdentityEditPseudonymRequest>;
 
+export const ZIdentityStopSessionRequest = z.object({
+  origin: ZOrigin,
+});
+export type IIdentityStopSessionRequest = z.infer<typeof ZIdentityStopSessionRequest>;
+
 // ----------- STATE PROTOCOL RELATED TYPES -------------
 
 export const ZStateGetAllOriginDataResponse = z.record(ZOrigin, z.optional(ZOriginData));

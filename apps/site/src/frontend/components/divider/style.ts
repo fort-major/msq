@@ -7,3 +7,10 @@ export const Divider = styled.div`
 
   background-color: ${COLOR_GRAY};
 `;
+
+export const VerticalDivider = styled.div<{ height: number }>`
+  height: ${(props) => props.height}px;
+  width: 1px;
+
+  background-color: ${COLOR_GRAY};
+`;

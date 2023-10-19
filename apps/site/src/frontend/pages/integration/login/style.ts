@@ -31,6 +31,10 @@ export const LoginOptionsWrapper = styled.div`
 export const LoginOptionsSection = styled.section`
   max-width: 600px;
   width: 100%;
+
+  & > div:not(:nth-of-type(1)) {
+    margin-top: 40px;
+  }
 `;
 
 export const DismissBtn = styled.button`

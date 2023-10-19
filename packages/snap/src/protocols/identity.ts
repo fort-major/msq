@@ -21,6 +21,7 @@ import {
   IIdentityUnlinkRequest,
   ZIdentityEditPseudonymRequest,
   IMask,
+  ZIdentityStopSessionRequest,
 } from "@fort-major/masquerade-shared";
 import { StateManager } from "../state";
 import { getSignIdentity, isMasquerade } from "../utils";
@@ -142,6 +143,12 @@ export async function protected_handleIdentityEditPseudonym(bodyCBOR: string): P
   manager.editPseudonym(body.origin, body.identityId, body.newPseudonym);
 
   await manager.persist();
+}
+
+export function protected_handleIdentityStopSession(bodyCBOR: string): Promise<boolean> {
+  const body = zodParse(ZIdentityStopSessionRequest, fromCBOR(bodyCBOR));
+
+  return handleIdentityLogoutRequest(body.origin);
 }
 
 /**
@@ -329,7 +336,7 @@ export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigi
   }
 
   // otherwise update the links list and return true
-  manager.link(origin, body.withOrigin);
+  await manager.link(origin, body.withOrigin);
   manager.incrementStats(origin);
   await manager.persist();
 
@@ -393,7 +400,7 @@ export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOri
   }
 
   // otherwise update the links lists
-  manager.unlink(origin, body.withOrigin);
+  await manager.unlink(origin, body.withOrigin);
 
   // and then try de-authorizing from the target origin
   const targetOriginData = await manager.getOriginData(body.withOrigin);
