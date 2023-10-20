@@ -22,6 +22,9 @@ import {
   ZIdentityEditPseudonymRequest,
   IMask,
   ZIdentityStopSessionRequest,
+  ZIdentityUnlinkOneRequest,
+  toCBOR,
+  ZIdentityUnlinkAllRequest,
 } from "@fort-major/masquerade-shared";
 import { StateManager } from "../state";
 import { getSignIdentity, isMasquerade } from "../utils";
@@ -149,6 +152,59 @@ export function protected_handleIdentityStopSession(bodyCBOR: string): Promise<b
   const body = zodParse(ZIdentityStopSessionRequest, fromCBOR(bodyCBOR));
 
   return handleIdentityLogoutRequest(body.origin);
+}
+
+export function protected_handleIdentityUnlinkOne(bodyCBOR: string): Promise<boolean> {
+  const body = zodParse(ZIdentityUnlinkOneRequest, fromCBOR(bodyCBOR));
+
+  return handleIdentityUnlinkRequest(toCBOR({ withOrigin: body.withOrigin } as IIdentityUnlinkRequest), body.origin);
+}
+
+export async function protected_handleIdentityUnlinkAll(bodyCBOR: string): Promise<boolean> {
+  const body = zodParse(ZIdentityUnlinkAllRequest, fromCBOR(bodyCBOR));
+
+  const agreed = await snap.request({
+    method: "snap_dialog",
+    params: {
+      type: "confirmation",
+      content: panel([
+        heading("🎭 Mask Unlink Request 🎭"),
+        text(`**${originToHostname(body.origin)}** wants you to unlink your masks from **all other websites**.`),
+        divider(),
+        text(
+          `You will no longer be able to log in to **these websites** using masks you use on **${originToHostname(
+            body.origin,
+          )}**.`,
+        ),
+        text(
+          "You will be logged out from **these websites**, if you're currently logged in using one of the linked masks.",
+        ),
+        divider(),
+        text("Proceed? 🚀"),
+      ]),
+    },
+  });
+
+  if (!agreed) return false;
+
+  const manager = await StateManager.make();
+  const oldLinks = await manager.unlinkAll(body.origin);
+
+  for (let withOrigin of oldLinks) {
+    const targetOriginData = await manager.getOriginData(withOrigin);
+
+    if (targetOriginData.currentSession !== undefined) {
+      if (targetOriginData.currentSession.deriviationOrigin === body.origin) {
+        targetOriginData.currentSession = undefined;
+      }
+    }
+
+    manager.setOriginData(withOrigin, targetOriginData);
+  }
+
+  await manager.persist();
+
+  return true;
 }
 
 /**
@@ -409,6 +465,7 @@ export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOri
       targetOriginData.currentSession = undefined;
     }
   }
+  manager.setOriginData(body.withOrigin, targetOriginData);
 
   manager.incrementStats(origin);
   await manager.persist();

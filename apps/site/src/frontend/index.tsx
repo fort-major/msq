@@ -11,6 +11,7 @@ import { MyMasksPage } from "./pages/cabinet/my-masks";
 import { GlobalStore } from "./store/global";
 import { LoginPage } from "./pages/integration/login";
 import { MySessionsPage } from "./pages/cabinet/my-sessions";
+import { MyLinksPage } from "./pages/cabinet/my-links";
 
 const root = document.getElementById("root");
 
@@ -37,6 +38,7 @@ export function App() {
               <Route path="/cabinet" component={CabinetRoot}>
                 <Route path="/my-masks" component={MyMasksPage} />
                 <Route path="/my-sessions" component={MySessionsPage} />
+                <Route path="/my-links" component={MyLinksPage} />
               </Route>
             </Routes>
           </Router>

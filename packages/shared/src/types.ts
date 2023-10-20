@@ -143,6 +143,17 @@ export const ZIdentityStopSessionRequest = z.object({
 });
 export type IIdentityStopSessionRequest = z.infer<typeof ZIdentityStopSessionRequest>;
 
+export const ZIdentityUnlinkOneRequest = z.object({
+  origin: ZOrigin,
+  withOrigin: ZOrigin,
+});
+export type IIdentityUnlinkOneRequest = z.infer<typeof ZIdentityUnlinkOneRequest>;
+
+export const ZIdentityUnlinkAllRequest = z.object({
+  origin: ZOrigin,
+});
+export type IIdentityUnlinkAllRequest = z.infer<typeof ZIdentityUnlinkAllRequest>;
+
 // ----------- STATE PROTOCOL RELATED TYPES -------------
 
 export const ZStateGetAllOriginDataResponse = z.record(ZOrigin, z.optional(ZOriginData));

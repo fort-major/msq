@@ -15,6 +15,8 @@ import {
   protected_handleIdentityGetLoginOptions,
   protected_handleIdentityLogin,
   protected_handleIdentityStopSession,
+  protected_handleIdentityUnlinkAll,
+  protected_handleIdentityUnlinkOne,
 } from "./protocols/identity";
 import { protected_handleStatisticsGet, protected_handleStatisticsReset } from "./protocols/statistics";
 import { protected_handleStateGetAllOrigindata } from "./protocols/state";
@@ -59,6 +61,16 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
     case SNAP_METHODS.protected.identity.stopSession: {
       result = protected_handleIdentityStopSession(req.params.body);
+      break;
+    }
+
+    case SNAP_METHODS.protected.identity.unlinkOne: {
+      result = protected_handleIdentityUnlinkOne(req.params.body);
+      break;
+    }
+
+    case SNAP_METHODS.protected.identity.unlinkAll: {
+      result = protected_handleIdentityUnlinkAll(req.params.body);
       break;
     }
 

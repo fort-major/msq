@@ -12,6 +12,8 @@ import {
   IIdentityEditPseudonymRequest,
   IMask,
   IIdentityStopSessionRequest,
+  IIdentityUnlinkOneRequest,
+  IIdentityUnlinkAllRequest,
 } from "@fort-major/masquerade-shared";
 import { MasqueradeClient } from "./client";
 
@@ -81,6 +83,23 @@ export class InternalSnapClient {
     };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.identity.stopSession, body);
+  }
+
+  async unlinkOne(origin: TOrigin, withOrigin: TOrigin): Promise<boolean> {
+    const body: IIdentityUnlinkOneRequest = {
+      origin,
+      withOrigin,
+    };
+
+    return await this.inner._requestSnap(SNAP_METHODS.protected.identity.unlinkOne, body);
+  }
+
+  async unlinkAll(origin: TOrigin): Promise<boolean> {
+    const body: IIdentityUnlinkAllRequest = {
+      origin,
+    };
+
+    return await this.inner._requestSnap(SNAP_METHODS.protected.identity.unlinkAll, body);
   }
 
   async showICRC1TransferConfirm(body: IShowICRC1TransferConfirmRequest): Promise<boolean> {

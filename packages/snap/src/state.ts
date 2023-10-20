@@ -103,6 +103,26 @@ export class StateManager {
     this.setOriginData(to, toOriginData);
   }
 
+  public async unlinkAll(from: TOrigin): Promise<TOrigin[]> {
+    const fromOriginData = await this.getOriginData(from);
+
+    for (let fromIdx = 0; fromIdx < fromOriginData.linksTo.length; fromIdx++) {
+      const to = fromOriginData.linksTo[fromIdx];
+
+      const toOriginData = await this.getOriginData(to);
+      const toIdx = toOriginData.linksFrom.findIndex((it) => it === from);
+
+      toOriginData.linksFrom.splice(toIdx, 1);
+      this.setOriginData(to, toOriginData);
+    }
+
+    const oldLinks = fromOriginData.linksTo;
+    fromOriginData.linksTo = [];
+    this.setOriginData(from, fromOriginData);
+
+    return oldLinks;
+  }
+
   public async addIdentity(origin: TOrigin): Promise<IMask> {
     let originData = this.state.originData[origin];
 
