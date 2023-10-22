@@ -72,14 +72,23 @@ export function isMasquerade(origin: TOrigin): boolean {
  * @param salt
  * @returns
  */
-export async function getSignIdentity(origin: TOrigin, identityId: TIdentityId): Promise<Secp256k1KeyIdentity> {
+export async function getSignIdentity(
+  origin: TOrigin,
+  identityId: TIdentityId,
+  salt: Uint8Array,
+): Promise<Secp256k1KeyIdentity> {
   // shared prefix may be used in following updates
-  const entropy = await getEntropy(origin, identityId, "identity-sign\nshared");
+  const entropy = await getEntropy(origin, identityId, "identity-sign\nshared", salt);
 
   return Secp256k1KeyIdentity.fromSecretKey(entropy);
 }
 
-async function getEntropy(origin: TOrigin, identityId: TIdentityId, internalSalt: string): Promise<ArrayBuffer> {
+async function getEntropy(
+  origin: TOrigin,
+  identityId: TIdentityId,
+  internalSalt: string,
+  externalSalt: Uint8Array,
+): Promise<ArrayBuffer> {
   const entropyPre: string = await snap.request({
     method: "snap_getEntropy",
     params: {
@@ -88,7 +97,7 @@ async function getEntropy(origin: TOrigin, identityId: TIdentityId, internalSalt
     },
   });
 
-  let entropyPreBytes = new Uint8Array([...hexToBytes(entropyPre.slice(2))]);
+  let entropyPreBytes = new Uint8Array([...hexToBytes(entropyPre.slice(2)), ...externalSalt]);
   return await crypto.subtle.digest("SHA-256", entropyPreBytes);
 }
 

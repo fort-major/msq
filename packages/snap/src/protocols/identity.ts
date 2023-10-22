@@ -25,6 +25,7 @@ import {
   ZIdentityUnlinkOneRequest,
   toCBOR,
   ZIdentityUnlinkAllRequest,
+  ZIdentityGetPublicKeyRequest,
 } from "@fort-major/masquerade-shared";
 import { StateManager } from "../state";
 import { getSignIdentity, isMasquerade } from "../utils";
@@ -285,7 +286,7 @@ export async function handleIdentitySign(bodyCBOR: string, origin: TOrigin): Pro
     }
   }
 
-  const identity = await getSignIdentity(session.deriviationOrigin, session.identityId);
+  const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
 
   manager.incrementStats(origin);
   await manager.persist();
@@ -308,7 +309,8 @@ export async function handleIdentitySign(bodyCBOR: string, origin: TOrigin): Pro
  * @param origin - {@link TOrigin}
  * @returns Secp256k1 public key in raw format
  */
-export async function handleIdentityGetPublicKey(origin: TOrigin): Promise<ArrayBuffer> {
+export async function handleIdentityGetPublicKey(bodyCBOR: string, origin: TOrigin): Promise<ArrayBuffer> {
+  const body = zodParse(ZIdentityGetPublicKeyRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
   let session = (await manager.getOriginData(origin)).currentSession;
 
@@ -320,7 +322,7 @@ export async function handleIdentityGetPublicKey(origin: TOrigin): Promise<Array
     }
   }
 
-  const identity = await getSignIdentity(session.deriviationOrigin, session.identityId);
+  const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
 
   manager.incrementStats(origin);
   await manager.persist();

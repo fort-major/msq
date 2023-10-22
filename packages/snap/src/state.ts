@@ -140,7 +140,7 @@ export class StateManager {
   }
 
   private async makeMask(origin: TOrigin, identityId: TIdentityId): Promise<IMask> {
-    const identity = await getSignIdentity(origin, identityId);
+    const identity = await getSignIdentity(origin, identityId, new Uint8Array());
     const principal = identity.getPrincipal();
     const prinBytes = principal.toUint8Array();
     const seed1 = prinBytes[3];

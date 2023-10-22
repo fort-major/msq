@@ -102,7 +102,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
     }
 
     case SNAP_METHODS.public.identity.getPublicKey: {
-      result = handleIdentityGetPublicKey(origin);
+      result = handleIdentityGetPublicKey(req.params.body, origin);
       break;
     }
 

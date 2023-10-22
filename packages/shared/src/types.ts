@@ -118,8 +118,14 @@ export type IIdentityLoginRequest = z.infer<typeof ZIdentityLoginRequest>;
 
 export const ZIdentitySignRequest = z.object({
   challenge: ZBlob,
+  salt: z.instanceof(Uint8Array),
 });
 export type IIdentitySignRequest = z.infer<typeof ZIdentitySignRequest>;
+
+export const ZIdentityGetPublicKeyRequest = z.object({
+  salt: z.instanceof(Uint8Array),
+});
+export type IIdentityGetPublicKeyRequest = z.infer<typeof ZIdentityGetPublicKeyRequest>;
 
 export const ZIdentityLinkRequest = z.object({
   withOrigin: ZOrigin,

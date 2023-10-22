@@ -1,7 +1,7 @@
 import { type PublicKey, SignIdentity, type Signature } from "@dfinity/agent";
 import { type MasqueradeClient } from "./client";
 import { Secp256k1PublicKey } from "@dfinity/identity-secp256k1";
-import { type IIdentitySignRequest, SNAP_METHODS } from "@fort-major/masquerade-shared";
+import { type IIdentitySignRequest, SNAP_METHODS, IIdentityGetPublicKeyRequest } from "@fort-major/masquerade-shared";
 
 /**
  * ## An identity that proxies all incoming `sign` requests to the Masquerade Snap
@@ -10,6 +10,7 @@ export class MasqueradeIdentity extends SignIdentity {
   private constructor(
     private readonly client: MasqueradeClient,
     private readonly publicKey: Secp256k1PublicKey,
+    public salt: Uint8Array,
   ) {
     super();
   }
@@ -23,10 +24,14 @@ export class MasqueradeIdentity extends SignIdentity {
    * @param salt - (optional) {@link Uint8Array} - salt for custom key deriviation
    * @returns
    */
-  public static async create(client: MasqueradeClient): Promise<MasqueradeIdentity> {
-    const rawPubkey: ArrayBuffer = await client._requestSnap(SNAP_METHODS.public.identity.getPublicKey);
+  public static async create(
+    client: MasqueradeClient,
+    salt: Uint8Array = new Uint8Array(),
+  ): Promise<MasqueradeIdentity> {
+    const body: IIdentityGetPublicKeyRequest = { salt };
+    const rawPubkey: ArrayBuffer = await client._requestSnap(SNAP_METHODS.public.identity.getPublicKey, body);
 
-    return new MasqueradeIdentity(client, Secp256k1PublicKey.fromRaw(rawPubkey));
+    return new MasqueradeIdentity(client, Secp256k1PublicKey.fromRaw(rawPubkey), salt);
   }
 
   /**
@@ -60,6 +65,7 @@ export class MasqueradeIdentity extends SignIdentity {
   async sign(blob: ArrayBuffer): Promise<Signature> {
     const body: IIdentitySignRequest = {
       challenge: blob,
+      salt: this.salt,
     };
 
     return await this.client._requestSnap(SNAP_METHODS.public.identity.sign, body);
