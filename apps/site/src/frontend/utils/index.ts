@@ -1,8 +1,8 @@
-import { ActorSubclass } from "@dfinity/agent";
+import { ActorSubclass, HttpAgent, Identity } from "@dfinity/agent";
 import { InternalSnapClient } from "@fort-major/masquerade-client";
 import { Backend } from "../backend";
-import { ErrorCode, err } from "@fort-major/masquerade-shared";
-import { JSXElement, Setter } from "solid-js";
+import { ErrorCode, err, unreacheable } from "@fort-major/masquerade-shared";
+import { JSXElement } from "solid-js";
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
 
@@ -40,4 +40,82 @@ export function timestampToStr(timestampMs: number) {
   const minutes = date.getMinutes().toString().padStart(2, "0");
 
   return `${day}.${month}.${year} ${hours}:${minutes}`;
+}
+
+export async function makeAgent(identity?: Identity | undefined): Promise<HttpAgent> {
+  const agent = new HttpAgent({ host: import.meta.env.VITE_MSQ_DFX_NETWORK_HOST, identity });
+
+  if (import.meta.env.VITE_MSQ_MODE === "DEV") {
+    await agent.fetchRootKey();
+  }
+
+  return agent;
+}
+
+export class Tokens {
+  constructor(
+    public readonly symbol: string,
+    public readonly decimals: bigint,
+    public readonly qty: bigint,
+  ) {}
+
+  private static validate(...tokens: Tokens[]) {
+    const symbol = tokens[0].symbol;
+    const decimals = tokens[0].decimals;
+
+    for (let token of tokens) {
+      if (token.symbol !== symbol) unreacheable(`Different token symbols - ${symbol} !== ${token.symbol}`);
+      if (token.decimals !== decimals) unreacheable(`Different token decimals - ${decimals} !== ${token.decimals}`);
+    }
+  }
+
+  static add(a: Tokens, b: Tokens): Tokens {
+    Tokens.validate(a, b);
+
+    return new Tokens(a.symbol, a.decimals, a.qty + b.qty);
+  }
+
+  static sub(a: Tokens, b: Tokens): Tokens | null {
+    Tokens.validate(a, b);
+
+    if (a.qty < b.qty) return null;
+
+    return new Tokens(a.symbol, a.decimals, a.qty - b.qty);
+  }
+
+  static mul(a: Tokens, b: Tokens): Tokens {
+    Tokens.validate(a, b);
+
+    return new Tokens(a.symbol, a.decimals, a.qty * b.qty);
+  }
+
+  static div(a: Tokens, b: Tokens): Tokens {
+    Tokens.validate(a, b);
+
+    if (b.qty === BigInt(0)) unreacheable(`Unable to divide ${a.qty} by zero`);
+
+    return new Tokens(a.symbol, a.decimals, a.qty / b.qty);
+  }
+
+  static mod(a: Tokens, b: Tokens): Tokens {
+    Tokens.validate(a, b);
+
+    if (b.qty === BigInt(0)) unreacheable(`Unable to divide ${a.qty} by zero`);
+
+    return new Tokens(a.symbol, a.decimals, a.qty % b.qty);
+  }
+
+  toString(): string {
+    return `${this.toStringQty()} ${this.symbol}`;
+  }
+
+  toStringQty(): string {
+    const decimals = Number(this.decimals);
+    const decimalDiv = BigInt(Math.pow(10, decimals));
+
+    const head = this.qty / decimalDiv;
+    const tail = this.qty % decimalDiv;
+
+    return `${head.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}.${tail}`;
+  }
 }

@@ -1,9 +1,9 @@
 use std::cell::RefCell;
 
-use candid::{CandidType, Deserialize};
+use candid::{CandidType, Deserialize, Principal};
 use ic_cdk::{
     api::time,
-    post_upgrade, pre_upgrade, query,
+    init, post_upgrade, pre_upgrade, query,
     storage::{stable_restore, stable_save},
     update,
 };
@@ -21,7 +21,7 @@ struct State {
 }
 
 thread_local! {
-    static STATE: RefCell<State> = RefCell::default();
+    static STATE: RefCell<Option<State>> = RefCell::default();
 }
 
 const ONE_DAY: u64 = 1_000_000_000 * 60 * 60 * 24;
@@ -30,7 +30,8 @@ const ONE_DAY: u64 = 1_000_000_000 * 60 * 60 * 24;
 fn increment_stats(dev: u64, prod: u64) {
     STATE.with(|s| {
         let current_timestamp = time();
-        let mut state = s.borrow_mut();
+        let mut state_ref = s.borrow_mut();
+        let state = state_ref.as_mut().unwrap();
 
         if state.statistics.is_empty() {
             let stats = Statistics {
@@ -62,13 +63,18 @@ fn increment_stats(dev: u64, prod: u64) {
 
 #[query]
 fn get_stats() -> Vec<Statistics> {
-    STATE.with(|s| s.borrow().statistics.clone())
+    STATE.with(|s| s.borrow().as_ref().unwrap().statistics.clone())
+}
+
+#[init]
+fn init_hook() {
+    STATE.with(|s| s.replace(Some(State::default())));
 }
 
 #[pre_upgrade]
 fn pre_upgrade_hook() {
     STATE.with(|s| {
-        let state = s.replace(State::default());
+        let state = s.replace(None);
 
         stable_save((state,)).expect("Unable to save data in stable memory");
     });
@@ -77,7 +83,7 @@ fn pre_upgrade_hook() {
 #[post_upgrade]
 fn post_upgrade_hook() {
     STATE.with(|s| {
-        let (state,): (State,) =
+        let (state,): (Option<State>,) =
             stable_restore().expect("Unable to restore data from stable memory");
 
         s.replace(state);

@@ -4,6 +4,9 @@ export const MyMasksContent = styled.section`
   margin-top: 40px;
   margin-bottom: 80px;
 
+  width: 100%;
+  max-width: 880px;
+
   display: flex;
   flex-direction: column;
   align-items: flex-start;

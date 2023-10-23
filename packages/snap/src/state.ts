@@ -12,6 +12,9 @@ import {
   IMask,
   err,
   ErrorCode,
+  IAssetData,
+  TOKENS,
+  TAccountId,
 } from "@fort-major/masquerade-shared";
 import { generateRandomPseudonym, getSignIdentity } from "./utils";
 
@@ -42,6 +45,10 @@ export class StateManager {
 
   public getAllOriginData(): { [x: TOrigin]: IOriginData | undefined } {
     return this.state.originData;
+  }
+
+  public getAllAssetData(): { [x: string]: IAssetData | undefined } {
+    return this.state.assetData;
   }
 
   public editPseudonym(origin: TOrigin, identityId: TIdentityId, newPseudonym: string) {
@@ -139,6 +146,38 @@ export class StateManager {
     return mask;
   }
 
+  public addAsset(assetId: string): IAssetData {
+    let assetData = this.state.assetData[assetId];
+
+    if (assetData !== undefined) return assetData;
+
+    assetData = makeDefaultAssetData();
+
+    this.state.assetData[assetId] = assetData;
+
+    return assetData;
+  }
+
+  public addAssetAccount(assetId: string): string {
+    const assetData = this.state.assetData[assetId];
+
+    if (assetData === undefined) unreacheable(`No asset exists ${assetId}`);
+
+    const name = `Account #${assetData.accounts.length}`;
+    assetData.accounts.push(name);
+
+    return name;
+  }
+
+  public editAssetAccount(assetId: string, accountId: TAccountId, newName: string) {
+    const assetData = this.state.assetData[assetId];
+
+    if (assetData === undefined) unreacheable(`No asset exists ${assetId}`);
+    if (assetData.accounts.length <= accountId) unreacheable(`No account exists ${assetId} ${accountId}`);
+
+    assetData.accounts[accountId] = newName;
+  }
+
   private async makeMask(origin: TOrigin, identityId: TIdentityId): Promise<IMask> {
     const identity = await getSignIdentity(origin, identityId, new Uint8Array());
     const principal = identity.getPrincipal();
@@ -197,6 +236,10 @@ const IP_V4 = /^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\
 const makeDefaultState: () => IState = () => ({
   version: 1,
   originData: {},
+  assetData: Object.values(TOKENS).reduce(
+    (prev, cur) => ({ ...prev, [cur]: makeDefaultAssetData() }),
+    {} as Record<string, IAssetData>,
+  ),
   statistics: {
     lastResetTimestamp: Date.now(),
     dev: 0,
@@ -209,6 +252,10 @@ const makeDefaultOriginData: (mask: IMask) => IOriginData = (mask) => ({
   currentSession: undefined,
   linksFrom: [],
   linksTo: [],
+});
+
+const makeDefaultAssetData: () => IAssetData = () => ({
+  accounts: ["Main"],
 });
 
 export async function retrieveStateLocal(): Promise<IState> {

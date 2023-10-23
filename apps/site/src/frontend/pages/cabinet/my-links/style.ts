@@ -3,7 +3,8 @@ import { COLOR_ACCENT } from "../../../styles";
 
 export const MyLinksContent = styled.section`
   display: flex;
-  width: 880px;
+  width: 100%;
+  max-width: 880px;
   flex-direction: column;
   align-items: flex-start;
   gap: 25px;

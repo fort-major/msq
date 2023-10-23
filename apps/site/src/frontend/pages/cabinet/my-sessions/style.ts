@@ -3,7 +3,8 @@ import { COLOR_ACCENT, COLOR_GREEN, COLOR_LIGHTGRAY } from "../../../styles";
 
 export const MySessionsContent = styled.section`
   display: flex;
-  width: 880px;
+  width: 100%;
+  max-width: 880px;
   flex-direction: column;
   align-items: flex-start;
 

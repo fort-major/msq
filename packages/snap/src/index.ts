@@ -1,7 +1,12 @@
 import type { OnRpcRequestHandler } from "@metamask/snaps-types";
 import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR, zodParse } from "@fort-major/masquerade-shared";
 import { guardMethods as guardProtectedMethods } from "./utils";
-import { protected_handleShowICRC1TransferConfirm } from "./protocols/icrc1";
+import {
+  protected_handleAddAsset,
+  protected_handleAddAssetAccount,
+  protected_handleEditAssetAccount,
+  protected_handleShowICRC1TransferConfirm,
+} from "./protocols/icrc1";
 import {
   handleIdentityGetLinks,
   handleIdentityGetPublicKey,
@@ -19,7 +24,7 @@ import {
   protected_handleIdentityUnlinkOne,
 } from "./protocols/identity";
 import { protected_handleStatisticsGet, protected_handleStatisticsReset } from "./protocols/statistics";
-import { protected_handleStateGetAllOrigindata } from "./protocols/state";
+import { protected_handleStateGetAllAssetData, protected_handleStateGetAllOriginData } from "./protocols/state";
 
 /**
  * Snap main entrypoint. Expects a JSON-RPC request with `params` field of type `{ body: hex_cbor_encoded_body }`.
@@ -79,6 +84,21 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
       break;
     }
 
+    case SNAP_METHODS.protected.icrc1.addAsset: {
+      result = protected_handleAddAsset(req.params.body);
+      break;
+    }
+
+    case SNAP_METHODS.protected.icrc1.addAssetAccount: {
+      result = protected_handleAddAssetAccount(req.params.body);
+      break;
+    }
+
+    case SNAP_METHODS.protected.icrc1.editAssetAccount: {
+      result = protected_handleEditAssetAccount(req.params.body);
+      break;
+    }
+
     case SNAP_METHODS.protected.statistics.get: {
       result = protected_handleStatisticsGet();
       break;
@@ -90,7 +110,12 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
     }
 
     case SNAP_METHODS.protected.state.getAllOriginData: {
-      result = protected_handleStateGetAllOrigindata();
+      result = protected_handleStateGetAllOriginData();
+      break;
+    }
+
+    case SNAP_METHODS.protected.state.getAllAssetData: {
+      result = protected_handleStateGetAllAssetData();
       break;
     }
 

@@ -27,6 +27,9 @@ export const ZBlob = z.instanceof(ArrayBuffer).or(z.instanceof(Uint8Array));
 export type TIdentityId = z.infer<typeof ZIdentityId>;
 export const ZIdentityId = z.number().int().nonnegative();
 
+export type TAccountId = z.infer<typeof ZAccountId>;
+export const ZAccountId = z.number().int().nonnegative();
+
 /**
  * Session object
  */
@@ -71,6 +74,11 @@ export const ZStatistics = z.object({
   prod: z.number().nonnegative(),
 });
 
+export const ZAssetData = z.object({
+  accounts: z.array(z.string().nonempty()),
+});
+export type IAssetData = z.infer<typeof ZAssetData>;
+
 /**
  * Snap state that is stored in encrypted form on user's device
  */
@@ -80,6 +88,9 @@ export const ZState = z.object({
   version: z.number().nonnegative(),
   /** user data on each origin */
   originData: z.record(ZOrigin, z.optional(ZOriginData)),
+  /** accounts for each asset */
+  assetData: z.record(ZPrincipalStr, z.optional(ZAssetData)),
+  /** anonymous usage stats */
   statistics: ZStatistics,
 });
 
@@ -165,6 +176,9 @@ export type IIdentityUnlinkAllRequest = z.infer<typeof ZIdentityUnlinkAllRequest
 export const ZStateGetAllOriginDataResponse = z.record(ZOrigin, z.optional(ZOriginData));
 export type IStateGetAllOriginDataResponse = z.infer<typeof ZStateGetAllOriginDataResponse>;
 
+export const ZStateGetAllAssetDataResponse = z.record(ZPrincipalStr, z.optional(ZAssetData));
+export type IStateGetAllAssetDataResponse = z.infer<typeof ZStateGetAllAssetDataResponse>;
+
 // ----------- ICRC1 PROTOCOL RELATED TYPES -------------
 
 export const ZICRC1Account = z.object({
@@ -190,6 +204,23 @@ export const ZShowICRC1TransferConfirmRequest = z.object({
   ticker: z.string(),
 });
 export type IShowICRC1TransferConfirmRequest = z.infer<typeof ZShowICRC1TransferConfirmRequest>;
+
+export const ZICRC1AddAssetRequest = z.object({
+  assetId: ZPrincipalStr,
+});
+export type IICRC1AddAssetRequest = z.infer<typeof ZICRC1AddAssetRequest>;
+
+export const ZICRC1AddAssetAccountRequest = z.object({
+  assetId: ZPrincipalStr,
+});
+export type IICRC1AddAssetAccountRequest = z.infer<typeof ZICRC1AddAssetAccountRequest>;
+
+export const ZICRC1EditAssetAccountRequest = z.object({
+  assetId: ZPrincipalStr,
+  accountId: ZAccountId,
+  newName: z.string().nonempty(),
+});
+export type IICRC1EditAssetAccountRequest = z.infer<typeof ZICRC1EditAssetAccountRequest>;
 
 // ---------- MESSAGE TYPES ------------------------------
 

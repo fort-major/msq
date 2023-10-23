@@ -14,6 +14,11 @@ import {
   IIdentityStopSessionRequest,
   IIdentityUnlinkOneRequest,
   IIdentityUnlinkAllRequest,
+  IStateGetAllAssetDataResponse,
+  IAssetData,
+  IICRC1AddAssetRequest,
+  IICRC1AddAssetAccountRequest,
+  IICRC1EditAssetAccountRequest,
 } from "@fort-major/masquerade-shared";
 import { MasqueradeClient } from "./client";
 
@@ -65,6 +70,28 @@ export class InternalSnapClient {
 
   async getAllOriginData(): Promise<IStateGetAllOriginDataResponse> {
     return await this.inner._requestSnap(SNAP_METHODS.protected.state.getAllOriginData);
+  }
+
+  async getAllAssetData(): Promise<IStateGetAllAssetDataResponse> {
+    return await this.inner._requestSnap(SNAP_METHODS.protected.state.getAllAssetData);
+  }
+
+  async addAsset(assetId: string): Promise<IAssetData> {
+    const body: IICRC1AddAssetRequest = { assetId };
+
+    return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAsset, body);
+  }
+
+  async addAssetAccount(assetId: string): Promise<string> {
+    const body: IICRC1AddAssetAccountRequest = { assetId };
+
+    return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAssetAccount, body);
+  }
+
+  async editAssetAccount(assetId: string, accountId: number, newName: string): Promise<void> {
+    const body: IICRC1EditAssetAccountRequest = { assetId, accountId, newName };
+
+    return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.editAssetAccount, body);
   }
 
   async editPseudonym(origin: TOrigin, identityId: TIdentityId, newPseudonym: string): Promise<void> {

@@ -24,6 +24,9 @@ export const SNAP_METHODS = {
     },
     icrc1: {
       showTransferConfirm: "protected_icrc1_showTransferConfirm",
+      addAsset: "protected_icrc1_addAsset",
+      addAssetAccount: "protected_icrc1_addAssetAccount",
+      editAssetAccount: "protected_icrc1_editAssetAccount",
     },
     statistics: {
       get: "protected_statistics_get",
@@ -31,6 +34,7 @@ export const SNAP_METHODS = {
     },
     state: {
       getAllOriginData: "protected_state_getAllOriginData",
+      getAllAssetData: "protected_state_getAllAssetData",
     },
   },
   public: {
@@ -88,3 +92,17 @@ export function zodParse<S extends ZodType>(schema: S, obj: unknown): z.infer<ty
 export function originToHostname(origin: TOrigin): string {
   return new URL(origin).hostname;
 }
+
+export const TOKENS = {
+  ICP: "ryjl3-tyaaa-aaaaa-aaaba-cai",
+  ckBTC: "mxzaz-hqaaa-aaaar-qaada-cai",
+  CHAT: "2ouva-viaaa-aaaaq-aaamq-cai",
+  SONIC: "qbizb-wiaaa-aaaaq-aabwq-cai",
+  SNS1: "zfcdd-tqaaa-aaaaq-aaaga-cai",
+  OGY: "jwcfb-hyaaa-aaaaj-aac4q-cai",
+  MOD: "xsi2v-cyaaa-aaaaq-aabfq-cai",
+  GHOST: "4c4fd-caaaa-aaaaq-aaa3a-cai",
+  KINIC: "73mez-iiaaa-aaaaq-aaasq-cai",
+  HOT: "6rdgd-kyaaa-aaaaq-aaavq-cai",
+  CAT: "uf2wh-taaaa-aaaaq-aabna-cai",
+};

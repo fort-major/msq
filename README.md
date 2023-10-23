@@ -6,11 +6,12 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 * frontend
 * embed icons to make them stylable
+* Contact Us btn
 * add spinner
 * add transitions
-* cron jobs for persisting the state of the snap
-* refine security: freeze deps versions
-* stats for protected methods
+* cron jobs for persisting the state of the snap + express as annotations?
+* refine security: freeze deps versions, check all events
+* stats for protected methods + express as annotations?
 * update comments
 * update tests
 * readme update + inner readmes
