@@ -26,8 +26,9 @@ import { produce } from "solid-js/store";
 
 export function MyLinksPage() {
   const client = useMasqueradeClient();
-  const [[allOriginData, setAllOriginData]] = useAllOriginData();
-  const allOriginDataWithLinks = () => allOriginData.filter(([_, d]) => d!.linksTo.length !== 0);
+  const [allOriginData, setAllOriginData, allOriginDataFetched, allOriginDataKeys] = useAllOriginData();
+  const allOriginDataKeysWithLinks = () =>
+    allOriginDataKeys().filter((origin) => allOriginData[origin]!.linksTo.length !== 0);
 
   const unlinkOne = async (origin: TOrigin, withOrigin: TOrigin) => {
     const result = await client()!.unlinkOne(origin, withOrigin);
@@ -35,11 +36,11 @@ export function MyLinksPage() {
     if (result) {
       setAllOriginData(
         produce((data) => {
-          const from = data.find(([o]) => o === origin)!;
-          from[1]!.linksTo = from[1]!.linksTo.filter((link) => link !== withOrigin);
+          const from = data[origin]!;
+          from.linksTo = from.linksTo.filter((link) => link !== withOrigin);
 
-          const to = data.find(([o]) => o === withOrigin)!;
-          to[1]!.linksFrom = to[1]!.linksFrom.filter((link) => link !== origin);
+          const to = data[withOrigin]!;
+          to.linksFrom = to.linksFrom.filter((link) => link !== origin);
         }),
       );
     }
@@ -51,13 +52,13 @@ export function MyLinksPage() {
     if (result) {
       setAllOriginData(
         produce((data) => {
-          const from = data.find(([o]) => o === origin)!;
-          const oldLinks = from[1]!.linksTo;
-          from[1]!.linksTo = [];
+          const from = data[origin]!;
+          const oldLinks = from.linksTo;
+          from.linksTo = [];
 
           for (let withOrigin of oldLinks) {
-            const to = data.find(([o]) => o === withOrigin)!;
-            to[1]!.linksFrom = to[1]!.linksFrom.filter((link) => link !== origin);
+            const to = data[withOrigin]!;
+            to.linksFrom = to.linksFrom.filter((link) => link !== origin);
           }
         }),
       );
@@ -68,36 +69,40 @@ export function MyLinksPage() {
     <>
       <CabinetHeading>Authorized Mask Links</CabinetHeading>
       <MyLinksContent>
-        <For each={allOriginDataWithLinks()}>
-          {(entry) => (
+        <For each={allOriginDataKeysWithLinks()}>
+          {(origin) => (
             <LinksWrapper>
               <LinksInfoWrapper>
                 <LinksInfoAvatars>
                   <AvatarWrapper>
-                    <BoopAvatar size={50} principal={Principal.fromText(entry[1]!.masks[0].principal)} eyesAngle={90} />
-                    <Show when={entry[1]!.masks.length > 1}>
+                    <BoopAvatar
+                      size={50}
+                      principal={Principal.fromText(allOriginData[origin]!.masks[0].principal)}
+                      eyesAngle={90}
+                    />
+                    <Show when={allOriginData[origin]!.masks.length > 1}>
                       <AvatarCount>
-                        <AvatarCountText>+{entry[1]!.masks.length - 1}</AvatarCountText>
+                        <AvatarCountText>+{allOriginData[origin]!.masks.length - 1}</AvatarCountText>
                       </AvatarCount>
                     </Show>
                   </AvatarWrapper>
                 </LinksInfoAvatars>
                 <LinksInfoTextWrapper>
                   <Title weight={500}>
-                    You've linked your masks from <Accent>{originToHostname(entry[0])}</Accent> to:
+                    You've linked your masks from <Accent>{originToHostname(origin)}</Accent> to:
                   </Title>
                 </LinksInfoTextWrapper>
-                <UnlinkAllBtn onClick={() => unlinkAll(entry[0])}>
+                <UnlinkAllBtn onClick={() => unlinkAll(origin)}>
                   <span>Unlink All</span>
                   <img src={UnlinkBlackSvg} />
                 </UnlinkAllBtn>
               </LinksInfoWrapper>
               <LinksListWrapper>
-                <For each={entry[1]!.linksTo}>
+                <For each={allOriginData[origin]!.linksTo}>
                   {(link) => (
                     <LinksListItem>
                       <LinksListItemText>{originToHostname(link)}</LinksListItemText>
-                      <UnlinkBtn onClick={() => unlinkOne(entry[0], link)}>
+                      <UnlinkBtn onClick={() => unlinkOne(origin, link)}>
                         <img src={UnlinkSvg} />
                       </UnlinkBtn>
                     </LinksListItem>

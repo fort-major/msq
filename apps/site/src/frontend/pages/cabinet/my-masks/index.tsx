@@ -13,11 +13,11 @@ import { Divider } from "../../../components/divider/style";
 
 export function MyMasksPage() {
   const client = useMasqueradeClient();
-  const [[allOriginData, setAllOriginData], fetched] = useAllOriginData();
+  const [allOriginData, setAllOriginData, allOriginDataFetched, allOriginDataKeys] = useAllOriginData();
 
   const editPseudonym = async (origin: TOrigin, identityId: TIdentityId, newPseudonym: string) => {
     await client()!.editPseudonym(origin, identityId, newPseudonym);
-    setAllOriginData(([o]) => origin === o, 1, "masks", identityId, "pseudonym", newPseudonym);
+    setAllOriginData(origin, "masks", identityId, "pseudonym", newPseudonym);
   };
 
   const addNewMask = async (origin: TOrigin) => {
@@ -27,8 +27,7 @@ export function MyMasksPage() {
 
     setAllOriginData(
       produce((a) => {
-        const entry = a.find(([o]) => o === origin);
-        entry![1]!.masks.push(newMask);
+        a[origin]!.masks.push(newMask);
       }),
     );
   };
@@ -37,31 +36,31 @@ export function MyMasksPage() {
     <>
       <CabinetHeading>My Masks</CabinetHeading>
       <MyMasksContent>
-        <Show when={fetched()} fallback={<p>Loading...</p>}>
-          <For fallback={<p>You have no masks yet</p>} each={allOriginData}>
-            {(entry) => (
+        <Show when={allOriginDataFetched()} fallback={<p>Loading...</p>}>
+          <For fallback={<p>You have no masks yet</p>} each={allOriginDataKeys()}>
+            {(origin) => (
               <Spoiler
                 header={
                   <SpoilerHeading>
                     <Subtitle>Masks from</Subtitle>
-                    <Accent size={24}>{originToHostname(entry[0])}</Accent>
+                    <Accent size={24}>{originToHostname(origin)}</Accent>
                   </SpoilerHeading>
                 }
               >
-                <For each={entry[1]!.masks}>
+                <For each={allOriginData[origin]!.masks}>
                   {(mask, idx) => (
                     <>
                       <Divider />
                       <LoginOption
                         pseudonym={mask.pseudonym}
                         principal={mask.principal}
-                        onEdit={(newValue) => editPseudonym(entry[0], idx(), newValue)}
+                        onEdit={(newValue) => editPseudonym(origin, idx(), newValue)}
                       />
                     </>
                   )}
                 </For>
                 <Divider />
-                <AddNewMaskBtn onClick={() => addNewMask(entry[0])} />
+                <AddNewMaskBtn onClick={() => addNewMask(origin)} />
               </Spoiler>
             )}
           </For>

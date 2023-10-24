@@ -40,3 +40,7 @@ export const CabinetHeading = styled.h2`
   font-weight: 600;
   line-height: 90%; /* 72px */
 `;
+
+export const BLINK_ANIMATION = `
+  animation: 0.5s ease-out blink;
+`;

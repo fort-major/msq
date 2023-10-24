@@ -1,130 +1,140 @@
 import { IOriginData, Principal, TAccountId, TOrigin, strToBytes, unreacheable } from "@fort-major/masquerade-shared";
-import { Accessor, createContext, createEffect, createSignal, useContext } from "solid-js";
+import { Accessor, createContext, createEffect, createMemo, createSignal, useContext } from "solid-js";
 import { SetStoreFunction, createStore } from "solid-js/store";
-import { IAssetMetadata, IChildren, getAssetMetadata, makeAgent } from "../utils";
+import { IChildren, getAssetMetadata, makeAgent } from "../utils";
 import { useMasqueradeClient } from "./global";
-import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
-import { AnonymousIdentity, HttpAgent } from "@dfinity/agent";
+import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
+import { AnonymousIdentity } from "@dfinity/agent";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 
 type IAssetDataExt = {
   accounts: {
     name: string;
-    principal: string;
+    principal?: string | undefined;
     balance: bigint;
   }[];
-  name: string;
-  symbol: string;
-  decimals: number;
-  fee: bigint;
+  metadata?:
+    | {
+        name: string;
+        symbol: string;
+        decimals: number;
+        fee: bigint;
+      }
+    | undefined;
   totalBalance: bigint;
 };
 
-export type AllOriginData = [TOrigin, IOriginData | undefined][];
-export type AllAssetData = [string, IAssetDataExt | null][];
+export type AllOriginData = Record<TOrigin, IOriginData | undefined>;
+export type AllAssetData = Record<string, IAssetDataExt | null>;
+export type AllOriginDataStore = [
+  AllOriginData,
+  SetStoreFunction<AllOriginData>,
+  Accessor<boolean>,
+  Accessor<TOrigin[]>,
+];
+export type AllAssetDataStore = [AllAssetData, SetStoreFunction<AllAssetData>, Accessor<boolean>, Accessor<string[]>];
 
 interface ICabinetContext {
-  allOriginData: [AllOriginData, SetStoreFunction<AllOriginData>];
-  allOriginDataFetched: Accessor<boolean>;
-  allAssetData: [AllAssetData, SetStoreFunction<AllAssetData>];
-  allAssetDataFetched: Accessor<boolean>;
+  allOriginData: AllOriginDataStore;
+  allAssetData: AllAssetDataStore;
 }
 
 const CabinetContext = createContext<ICabinetContext>();
 
-export function useAllOriginData(): [[AllOriginData, SetStoreFunction<AllOriginData>], Accessor<boolean>] {
+export function useAllOriginData(): AllOriginDataStore {
   const c = useContext(CabinetContext);
 
   if (!c) {
     unreacheable("Cabinet context is uninitialized");
   }
 
-  return [c.allOriginData, c.allOriginDataFetched];
+  return c.allOriginData;
 }
 
-export function useAllAssetData(): [[AllAssetData, SetStoreFunction<AllAssetData>], Accessor<boolean>] {
+export function useAllAssetData(): AllAssetDataStore {
   const c = useContext(CabinetContext);
 
   if (!c) {
     unreacheable("Cabinet context is uninitialized");
   }
 
-  return [c.allAssetData, c.allAssetDataFetched];
+  return c.allAssetData;
 }
 
 export function CabinetStore(props: IChildren) {
   const [allOriginDataFetched, setAllOriginDataFetched] = createSignal<boolean>(false);
-  const [allOriginData, setAllOriginData] = createStore<AllOriginData>([]);
+  const [allOriginData, setAllOriginData] = createStore<AllOriginData>({});
+  const allOriginDataKeys = createMemo(() => Object.keys(allOriginData));
 
   const [allAssetDataFetched, setAllAssetDataFetched] = createSignal<boolean>(false);
-  const [allAssetData, setAllAssetData] = createStore<AllAssetData>([]);
+  const [allAssetData, setAllAssetData] = createStore<AllAssetData>({});
+  const allAssetDataKeys = createMemo(() => Object.keys(allAssetData));
 
   const client = useMasqueradeClient();
 
   createEffect(async () => {
     if (client() !== undefined) {
-      const d = await client()!.getAllOriginData();
+      const fetchedAllOriginData = await client()!.getAllOriginData();
 
-      setAllOriginData(Object.entries(d));
+      setAllOriginData(fetchedAllOriginData);
       setAllOriginDataFetched(true);
 
-      const assetData = await client()!.getAllAssetData();
+      const fetchedAllAssetData = await client()!.getAllAssetData();
+      const allAssetDataKeys = Object.keys(fetchedAllAssetData);
 
-      const assetDataExt: AllAssetData = await Promise.all(
-        Object.entries(assetData).map(async ([assetId, data]) => {
-          let unresponsive = false;
+      const allAssetData = fetchedAllAssetData as unknown as AllAssetData;
 
-          const agent = await makeAgent(new AnonymousIdentity());
-          const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
+      for (let key of allAssetDataKeys) {
+        allAssetData[key]!.accounts = fetchedAllAssetData[key]!.accounts.map((it) => ({
+          name: it,
+          balance: BigInt(0),
+        }));
+        allAssetData[key]!.totalBalance = BigInt(0);
+      }
 
-          const metadataPromise = getAssetMetadata(ledger, assetId).catch(() => {
-            unresponsive = true;
-          }) as Promise<IAssetMetadata>;
-
-          const accountsPromises = data!.accounts.map(async (name, idx) => {
-            const identity = await MasqueradeIdentity.create(client()!.getInner(), makeIcrc1Salt(assetId, idx));
-            const principal = identity.getPrincipal();
-
-            try {
-              const balance = await ledger.balance({ certified: true, owner: principal });
-              return { name, principal: principal.toText(), balance };
-            } catch (e) {
-              unresponsive = true;
-              return { name, principal: principal.toText(), balance: BigInt(0) };
-            }
-          });
-
-          const [metadata, accounts] = await Promise.all([metadataPromise, Promise.all(accountsPromises)]);
-
-          if (unresponsive) {
-            return [assetId, null];
-          }
-
-          let totalBalance = accounts.reduce((prev, cur) => prev + cur.balance, BigInt(0));
-
-          return [
-            assetId,
-            {
-              accounts,
-              ...metadata,
-              totalBalance,
-            },
-          ];
-        }),
-      );
-
-      setAllAssetData(assetDataExt);
+      setAllAssetData(allAssetData);
       setAllAssetDataFetched(true);
+
+      const agent = await makeAgent(new AnonymousIdentity());
+
+      for (let assetId of allAssetDataKeys) {
+        const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
+
+        getAssetMetadata(ledger, assetId)
+          .then((metadata) => {
+            setAllAssetData(assetId, { metadata });
+
+            let unresponsive = false;
+
+            for (let idx = 0; idx < allAssetData[assetId]!.accounts.length; idx++) {
+              MasqueradeIdentity.create(client()!.getInner(), makeIcrc1Salt(assetId, idx)).then((identity) => {
+                const principal = identity.getPrincipal();
+
+                ledger
+                  .balance({ certified: true, owner: principal })
+                  .then((balance) => {
+                    if (unresponsive) return;
+
+                    setAllAssetData(assetId, "accounts", idx, { principal: principal.toText(), balance });
+                    setAllAssetData(assetId, "totalBalance", allAssetData[assetId]!.totalBalance + balance);
+                  })
+                  .catch(() => {
+                    setAllAssetData(assetId, null);
+                    unresponsive = true;
+                  });
+              });
+            }
+          })
+          .catch(() => setAllAssetData(assetId, null));
+      }
     }
   });
 
   return (
     <CabinetContext.Provider
       value={{
-        allOriginData: [allOriginData, setAllOriginData],
-        allOriginDataFetched,
-        allAssetData: [allAssetData, setAllAssetData],
-        allAssetDataFetched,
+        allOriginData: [allOriginData, setAllOriginData, allOriginDataFetched, allOriginDataKeys],
+        allAssetData: [allAssetData, setAllAssetData, allAssetDataFetched, allAssetDataKeys],
       }}
     >
       {props.children}

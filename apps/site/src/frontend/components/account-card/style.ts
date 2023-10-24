@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { COLOR_ACCENT, COLOR_GRAY } from "../../styles";
+import { BLINK_ANIMATION, COLOR_ACCENT, COLOR_GRAY } from "../../styles";
 
 export const AccountCardWrapper = styled.div`
   display: flex;
@@ -69,6 +69,8 @@ export const AccountCardHeaderName = styled.div`
   font-weight: 600;
   line-height: 100%; /* 16px */
   letter-spacing: -0.32px;
+
+  ${BLINK_ANIMATION};
 `;
 
 export const AccountCardHeaderEditIcon = styled.img`
@@ -94,6 +96,8 @@ export const AccountCardHeaderPrincipal = styled.p`
   line-height: 120%; /* 14.4px */
 
   opacity: 0.3;
+
+  ${BLINK_ANIMATION};
 `;
 
 export const AccountCardDivider = styled.div`

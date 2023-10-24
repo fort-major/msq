@@ -21,12 +21,12 @@ import {
 import EditSvg from "#assets/edit.svg";
 import SendBlackSvg from "#assets/send-black.svg";
 import ReceiveSvg from "#assets/receive.svg";
-import { Match, Switch, createSignal } from "solid-js";
+import { Match, Show, Switch, createSignal } from "solid-js";
 
 export interface IAccountCardProps {
   accountId: TAccountId;
   name: string;
-  principal: string;
+  principal: string | undefined;
   balance: bigint;
   decimals: number;
   symbol: string;
@@ -86,7 +86,17 @@ export function AccountCard(props: IAccountCardProps) {
             </AccountCardHeaderNameWrapper>
           </Match>
         </Switch>
-        <AccountCardHeaderPrincipal>{props.principal}</AccountCardHeaderPrincipal>
+
+        <Show
+          when={props.principal}
+          fallback={
+            <AccountCardHeaderPrincipal>
+              aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa
+            </AccountCardHeaderPrincipal>
+          }
+        >
+          <AccountCardHeaderPrincipal>{props.principal}</AccountCardHeaderPrincipal>
+        </Show>
       </AccountCardHeader>
       <AccountCardFooter>
         <AccountCardDivider />
@@ -96,10 +106,13 @@ export function AccountCard(props: IAccountCardProps) {
             <AccountCardFooterBalanceSymbol>{props.symbol}</AccountCardFooterBalanceSymbol>
           </AccountCardFooterBalance>
           <AccountCardFooterButtons>
-            <AccountCardSendBtn onClick={() => props.onSend(props.accountId)}>
+            <AccountCardSendBtn disabled={props.principal === undefined} onClick={() => props.onSend(props.accountId)}>
               <img src={SendBlackSvg} alt="send" />
             </AccountCardSendBtn>
-            <AccountCardReceiveBtn onClick={() => props.onReceive(props.principal)}>
+            <AccountCardReceiveBtn
+              disabled={props.principal === undefined}
+              onClick={() => props.onReceive(props.principal!)}
+            >
               <img src={ReceiveSvg} alt="receive" />
             </AccountCardReceiveBtn>
           </AccountCardFooterButtons>

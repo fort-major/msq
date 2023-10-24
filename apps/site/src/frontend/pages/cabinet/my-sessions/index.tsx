@@ -27,15 +27,16 @@ import { useMasqueradeClient } from "../../../store/global";
 
 export function MySessionsPage() {
   const client = useMasqueradeClient();
-  const [[allOriginData, setAllOriginData]] = useAllOriginData();
-  const sessions = () => allOriginData.filter((it) => it[1]!.currentSession !== undefined);
+  const [allOriginData, setAllOriginData, allOriginDataFetched, allOriginDataKeys] = useAllOriginData();
+  const originsWithSession = () =>
+    allOriginDataKeys().filter((origin) => allOriginData[origin]!.currentSession !== undefined);
 
   const getMaskBySession = (session: ISession): { pseudonym: string; principal: Principal } => {
-    const originData = allOriginData.find(([o]) => o === session.deriviationOrigin);
+    const originData = allOriginData[session.deriviationOrigin];
 
     if (!originData) return { pseudonym: "Error", principal: Principal.anonymous() };
 
-    const mask = originData[1]!.masks[session.identityId];
+    const mask = originData.masks[session.identityId];
 
     return { pseudonym: mask.pseudonym, principal: Principal.fromText(mask.principal) };
   };
@@ -50,7 +51,7 @@ export function MySessionsPage() {
     const result = await client()!.stopSession(origin);
 
     if (result) {
-      setAllOriginData(([o]) => o === origin, 1, "currentSession", undefined);
+      setAllOriginData(origin, "currentSession", undefined);
     }
   };
 
@@ -58,9 +59,9 @@ export function MySessionsPage() {
     <>
       <CabinetHeading>Active Authorization Sessions</CabinetHeading>
       <MySessionsContent>
-        <For each={sessions()}>
-          {(entry) => {
-            const mask = getMaskBySession(entry[1]!.currentSession!);
+        <For each={originsWithSession()}>
+          {(origin) => {
+            const mask = getMaskBySession(allOriginData[origin]!.currentSession!);
 
             return (
               <SessionWrapper>
@@ -69,9 +70,9 @@ export function MySessionsPage() {
                     <SessionWebsiteEllipse />
                   </SessionWebsiteEllipseWrapper>
                   <SessionWebsiteDataWrapper>
-                    <SessionWebsiteDataSite>{originToHostname(entry[0])}</SessionWebsiteDataSite>
+                    <SessionWebsiteDataSite>{originToHostname(origin)}</SessionWebsiteDataSite>
                     <SessionWebsiteDataTimestamp>
-                      {timestampToStr(entry[1]!.currentSession!.timestampMs)}
+                      {timestampToStr(allOriginData[origin]!.currentSession!.timestampMs)}
                     </SessionWebsiteDataTimestamp>
                   </SessionWebsiteDataWrapper>
                 </SessionWebsiteWrapper>
@@ -81,12 +82,12 @@ export function MySessionsPage() {
                   <SessionInfoDataWrapper>
                     <SessionInfoDataPseudonym>
                       {mask.pseudonym} (from{" "}
-                      <Accent>{originToHostname(entry[1]!.currentSession!.deriviationOrigin)}</Accent>)
+                      <Accent>{originToHostname(allOriginData[origin]!.currentSession!.deriviationOrigin)}</Accent>)
                     </SessionInfoDataPseudonym>
                     <SessionInfoDataPrincipal>{mask.principal.toString()}</SessionInfoDataPrincipal>
                   </SessionInfoDataWrapper>
                 </SessionInfoWrapper>
-                <LogoutBtn onClick={(e) => handleStopSession(e, entry[0])}>
+                <LogoutBtn onClick={(e) => handleStopSession(e, origin)}>
                   <img src={PowerBlackSvg} alt="stop" />
                 </LogoutBtn>
               </SessionWrapper>

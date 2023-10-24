@@ -134,3 +134,12 @@ body,
   position: relative;
   min-height: 100vh;
 }
+
+@keyframes blink {
+  0% {
+    background-color: rgba(103, 103, 103, 1);
+  }
+  100% {
+    background-color: rgba(103, 103, 103, 0);
+  }
+}

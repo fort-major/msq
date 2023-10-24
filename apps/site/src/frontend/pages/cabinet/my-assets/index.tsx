@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createSignal } from "solid-js";
+import { For, Match, Show, Switch, createEffect, createSignal } from "solid-js";
 import { makeIcrc1Salt, useAllAssetData } from "../../../store/cabinet";
 import { CabinetHeading } from "../../../styles";
 import {
@@ -28,14 +28,14 @@ import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 
 export function MyAssetsPage() {
   const client = useMasqueradeClient();
-  const [[allAssetData, setAllAssetData], allAssetDataFetched] = useAllAssetData();
+  const [allAssetData, setAllAssetData, allAssetDataFetched, allAssetDataKeys] = useAllAssetData();
   const [newAssetId, setNewAssetId] = createSignal<string>("");
   const [error, setError] = createSignal<string | undefined>();
 
   const handleEdit = async (assetId: string, accountId: TAccountId, newName: string) => {
     await client()!.editAssetAccount(assetId, accountId, newName);
 
-    setAllAssetData(([id]) => id === assetId, 1, "accounts", accountId, "name", newName);
+    setAllAssetData(assetId, "accounts", accountId, "name", newName);
   };
 
   const handleAddAccount = async (assetId: string, assetName: string, symbol: string) => {
@@ -43,7 +43,7 @@ export function MyAssetsPage() {
 
     if (name === null) return;
 
-    const accountId = allAssetData.find((it) => it[0] === assetId)![1]!.accounts.length;
+    const accountId = allAssetData[assetId]!.accounts.length;
 
     const identity = await MasqueradeIdentity.create(client()!.getInner(), makeIcrc1Salt(assetId, accountId));
     const principal = identity.getPrincipal();
@@ -54,7 +54,7 @@ export function MyAssetsPage() {
 
     const balance = await ledger.balance({ certified: true, owner: principal });
 
-    setAllAssetData(([id]) => id === assetId, 1, "accounts", accountId, {
+    setAllAssetData(assetId, "accounts", accountId, {
       name,
       principal: principal.toText(),
       balance,
@@ -66,9 +66,9 @@ export function MyAssetsPage() {
 
     const assetId = newAssetId();
 
-    const existing = allAssetData.find(([id]) => id === assetId);
-    if (existing !== undefined) {
-      setError(`Token ${existing[1]!.name} (${assetId}) already exists`);
+    const existing = allAssetData[assetId];
+    if (existing) {
+      setError(`Token ${existing.metadata?.name} (${assetId}) already exists`);
       return;
     }
 
@@ -89,14 +89,11 @@ export function MyAssetsPage() {
       const principal = identity.getPrincipal();
       const balance = await ledger.balance({ certified: true, owner: principal });
 
-      setAllAssetData(allAssetData.length, [
-        assetId,
-        {
-          ...metadata,
-          accounts: assetData.accounts.map((it) => ({ name: it, principal: principal.toText(), balance })),
-          totalBalance: balance,
-        },
-      ]);
+      setAllAssetData(assetId, {
+        ...metadata,
+        accounts: assetData.accounts.map((it) => ({ name: it, principal: principal.toText(), balance })),
+        totalBalance: balance,
+      });
     } catch (e) {
       console.error(e);
       setError(`Token ${assetId} is not a valid ICRC-1 token or unresponsive`);
@@ -107,44 +104,68 @@ export function MyAssetsPage() {
     <>
       <CabinetHeading>My Assets</CabinetHeading>
       <MyAssetsPageContent>
-        <For each={allAssetData}>
-          {(entry) => (
-            <Show when={entry[1] !== null} fallback={<p>Token canister {entry[0]} does not respond...</p>}>
+        <For each={allAssetDataKeys()}>
+          {(assetId) => (
+            <Show when={allAssetData[assetId] !== null} fallback={<p>Token canister {assetId} does not respond...</p>}>
               <Spoiler
                 header={
                   <AssetSpoilerHeader>
-                    <Title>{entry[1]!.name}</Title>
-                    <Title>
-                      {tokensToStr(entry[1]!.totalBalance, entry[1]!.decimals)} <Dim>{entry[1]!.symbol}</Dim>
-                    </Title>
+                    <Show when={allAssetData[assetId]!.metadata} fallback={<Title>{assetId}</Title>}>
+                      <Title>{allAssetData[assetId]!.metadata!.name}</Title>
+                    </Show>
+                    <Show
+                      when={allAssetData[assetId]!.metadata}
+                      fallback={
+                        <Title>
+                          0 <Dim>TOK</Dim>
+                        </Title>
+                      }
+                    >
+                      <Title>
+                        {tokensToStr(allAssetData[assetId]!.totalBalance, allAssetData[assetId]!.metadata!.decimals)}{" "}
+                        <Dim>{allAssetData[assetId]!.metadata!.symbol}</Dim>
+                      </Title>
+                    </Show>
                   </AssetSpoilerHeader>
                 }
               >
-                <AssetSpoilerContent>
-                  <AssetAccountsWrapper>
-                    <For each={entry[1]!.accounts}>
-                      {(account, idx) => (
-                        <AccountCard
-                          accountId={idx()}
-                          name={account.name}
-                          principal={account.principal}
-                          balance={account.balance}
-                          symbol={entry[1]!.symbol}
-                          decimals={entry[1]!.decimals}
-                          onSend={() => {}}
-                          onReceive={() => {}}
-                          onEdit={(newName) => handleEdit(entry[0], idx(), newName)}
-                        />
-                      )}
-                    </For>
-                  </AssetAccountsWrapper>
-                  <AssetAddAccountBtn onClick={() => handleAddAccount(entry[0], entry[1]!.name, entry[1]!.symbol)}>
-                    <AssetAddAccountBtnIconWrapper>
-                      <img src={PlusSvg} alt="add" />
-                    </AssetAddAccountBtnIconWrapper>
-                    <AssetAddAccountBtnText>Add New {entry[1]!.symbol} Account</AssetAddAccountBtnText>
-                  </AssetAddAccountBtn>
-                </AssetSpoilerContent>
+                <Show when={allAssetData[assetId]!.metadata}>
+                  <AssetSpoilerContent>
+                    <AssetAccountsWrapper>
+                      <For each={allAssetData[assetId]!.accounts}>
+                        {(account, idx) => (
+                          <AccountCard
+                            accountId={idx()}
+                            name={account.name}
+                            principal={account.principal}
+                            balance={account.balance}
+                            symbol={allAssetData[assetId]!.metadata!.symbol}
+                            decimals={allAssetData[assetId]!.metadata!.decimals}
+                            onSend={() => {}}
+                            onReceive={() => {}}
+                            onEdit={(newName) => handleEdit(assetId, idx(), newName)}
+                          />
+                        )}
+                      </For>
+                    </AssetAccountsWrapper>
+                    <AssetAddAccountBtn
+                      onClick={() =>
+                        handleAddAccount(
+                          assetId,
+                          allAssetData[assetId]!.metadata!.name,
+                          allAssetData[assetId]!.metadata!.symbol,
+                        )
+                      }
+                    >
+                      <AssetAddAccountBtnIconWrapper>
+                        <img src={PlusSvg} alt="add" />
+                      </AssetAddAccountBtnIconWrapper>
+                      <AssetAddAccountBtnText>
+                        Add New {allAssetData[assetId]!.metadata!.symbol} Account
+                      </AssetAddAccountBtnText>
+                    </AssetAddAccountBtn>
+                  </AssetSpoilerContent>
+                </Show>
               </Spoiler>
             </Show>
           )}

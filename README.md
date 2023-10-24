@@ -11,6 +11,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * add transitions
 * add disabled states during submissions
 * trim-validate all inputs
+* healthcheck function and better startup
 * cron jobs for persisting the state of the snap + express as annotations?
 * refine security: freeze deps versions, check all events
 * stats for protected methods + express as annotations?
