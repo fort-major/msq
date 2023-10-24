@@ -9,12 +9,17 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * Contact Us btn
 * add spinner
 * add transitions
+* add disabled states during submissions
+* trim-validate all inputs
 * cron jobs for persisting the state of the snap + express as annotations?
 * refine security: freeze deps versions, check all events
 * stats for protected methods + express as annotations?
+* getPseudonym + svg boops + getAvatar
 * update comments
 * update tests
 * readme update + inner readmes
+* storybook + encapsulate more comps
+* mock ICRC-1 tokens
 
 ## Local development
 

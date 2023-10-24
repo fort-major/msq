@@ -207,11 +207,15 @@ export type IShowICRC1TransferConfirmRequest = z.infer<typeof ZShowICRC1Transfer
 
 export const ZICRC1AddAssetRequest = z.object({
   assetId: ZPrincipalStr,
+  name: z.string(),
+  symbol: z.string(),
 });
 export type IICRC1AddAssetRequest = z.infer<typeof ZICRC1AddAssetRequest>;
 
 export const ZICRC1AddAssetAccountRequest = z.object({
   assetId: ZPrincipalStr,
+  name: z.string(),
+  symbol: z.string(),
 });
 export type IICRC1AddAssetAccountRequest = z.infer<typeof ZICRC1AddAssetAccountRequest>;
 

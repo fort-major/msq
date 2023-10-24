@@ -34,3 +34,14 @@ export const Accent = styled.span<{ size?: number }>`
 
   ${(props) => (props.size ? `font-size: ${props.size}px;` : "")}
 `;
+
+export const Dim = styled.span<{ size?: number }>`
+  color: rgba(255, 255, 255, 0.35);
+
+  font-family: DM Sans;
+  font-size: ${(props) => (props.size ? props.size : "20")}px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 100%; /* 20px */
+  letter-spacing: -0.4px;
+`;

@@ -1,29 +1,10 @@
-import {
-  IAssetData,
-  IOriginData,
-  Principal,
-  TAccountId,
-  TIdentityId,
-  TOrigin,
-  strToBytes,
-  unreacheable,
-} from "@fort-major/masquerade-shared";
-import {
-  Accessor,
-  children,
-  createContext,
-  createEffect,
-  createResource,
-  createSignal,
-  on,
-  onMount,
-  useContext,
-} from "solid-js";
+import { IOriginData, Principal, TAccountId, TOrigin, strToBytes, unreacheable } from "@fort-major/masquerade-shared";
+import { Accessor, createContext, createEffect, createSignal, useContext } from "solid-js";
 import { SetStoreFunction, createStore } from "solid-js/store";
-import { IChildren, makeAgent } from "../utils";
+import { IAssetMetadata, IChildren, getAssetMetadata, makeAgent } from "../utils";
 import { useMasqueradeClient } from "./global";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
-import { AnonymousIdentity } from "@dfinity/agent";
+import { AnonymousIdentity, HttpAgent } from "@dfinity/agent";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 
 type IAssetDataExt = {
@@ -34,12 +15,13 @@ type IAssetDataExt = {
   }[];
   name: string;
   symbol: string;
-  decimals: bigint;
+  decimals: number;
   fee: bigint;
+  totalBalance: bigint;
 };
 
 export type AllOriginData = [TOrigin, IOriginData | undefined][];
-export type AllAssetData = [string, IAssetDataExt | undefined][];
+export type AllAssetData = [string, IAssetDataExt | null][];
 
 interface ICabinetContext {
   allOriginData: [AllOriginData, SetStoreFunction<AllOriginData>];
@@ -87,31 +69,47 @@ export function CabinetStore(props: IChildren) {
       setAllOriginDataFetched(true);
 
       const assetData = await client()!.getAllAssetData();
-      const anonAgent = await makeAgent(new AnonymousIdentity());
 
       const assetDataExt: AllAssetData = await Promise.all(
         Object.entries(assetData).map(async ([assetId, data]) => {
-          const ledger = IcrcLedgerCanister.create({ agent: anonAgent, canisterId: Principal.from(assetId) });
-          const metadataPromise = ledger.metadata({ certified: true }) as Promise<unknown> as Promise<{
-            [x: string]: unknown;
-          }>;
-          const accountsPromises = data!.accounts.map(async (accountName, idx) => {
+          let unresponsive = false;
+
+          const agent = await makeAgent(new AnonymousIdentity());
+          const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
+
+          const metadataPromise = getAssetMetadata(ledger, assetId).catch(() => {
+            unresponsive = true;
+          }) as Promise<IAssetMetadata>;
+
+          const accountsPromises = data!.accounts.map(async (name, idx) => {
             const identity = await MasqueradeIdentity.create(client()!.getInner(), makeIcrc1Salt(assetId, idx));
             const principal = identity.getPrincipal();
 
-            const balance = await ledger.balance({ certified: true, owner: principal });
-
-            return { name: accountName, principal: principal.toText(), balance };
+            try {
+              const balance = await ledger.balance({ certified: true, owner: principal });
+              return { name, principal: principal.toText(), balance };
+            } catch (e) {
+              unresponsive = true;
+              return { name, principal: principal.toText(), balance: BigInt(0) };
+            }
           });
 
           const [metadata, accounts] = await Promise.all([metadataPromise, Promise.all(accountsPromises)]);
 
-          const name = (metadata[IcrcMetadataResponseEntries.NAME] as { Text: string }).Text;
-          const symbol = (metadata[IcrcMetadataResponseEntries.SYMBOL] as { Text: string }).Text;
-          const fee = (metadata[IcrcMetadataResponseEntries.FEE] as { Nat: bigint }).Nat;
-          const decimals = (metadata[IcrcMetadataResponseEntries.DECIMALS] as { Nat: bigint }).Nat;
+          if (unresponsive) {
+            return [assetId, null];
+          }
 
-          return [assetId, { accounts, name, symbol, fee, decimals }];
+          let totalBalance = accounts.reduce((prev, cur) => prev + cur.balance, BigInt(0));
+
+          return [
+            assetId,
+            {
+              accounts,
+              ...metadata,
+              totalBalance,
+            },
+          ];
         }),
       );
 

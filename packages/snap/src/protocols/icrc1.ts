@@ -1,6 +1,5 @@
 import {
   IAssetData,
-  IICRC1AddAssetRequest,
   IShowICRC1TransferConfirmRequest,
   ZICRC1AddAssetAccountRequest,
   ZICRC1AddAssetRequest,
@@ -59,9 +58,27 @@ export async function protected_handleShowICRC1TransferConfirm(bodyCBOR: string)
   return Boolean(agreed);
 }
 
-export async function protected_handleAddAsset(bodyCBOR: string): Promise<IAssetData> {
+export async function protected_handleAddAsset(bodyCBOR: string): Promise<IAssetData | null> {
   const body = zodParse(ZICRC1AddAssetRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
+
+  const agreed = await snap.request({
+    method: "snap_dialog",
+    params: {
+      type: "confirmation",
+      content: panel([
+        heading(`🔒 Confirm New ICRC-1 Asset 🔒`),
+        text(
+          `Are you sure you want to add **${body.name}** (**${body.symbol}**) token to your list of managed assets?`,
+        ),
+        text(`This will allow you to manage **${body.symbol}** token accounts.`),
+        divider(),
+        text("**Proceed?** 🚀"),
+      ]),
+    },
+  });
+
+  if (!agreed) return null;
 
   const assetData = manager.addAsset(body.assetId);
 
@@ -70,9 +87,25 @@ export async function protected_handleAddAsset(bodyCBOR: string): Promise<IAsset
   return assetData;
 }
 
-export async function protected_handleAddAssetAccount(bodyCBOR: string): Promise<string> {
+export async function protected_handleAddAssetAccount(bodyCBOR: string): Promise<string | null> {
   const body = zodParse(ZICRC1AddAssetAccountRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
+
+  const agreed = await snap.request({
+    method: "snap_dialog",
+    params: {
+      type: "confirmation",
+      content: panel([
+        heading(`🔒 Confirm New ${body.symbol} Account 🔒`),
+        text(`Are you sure you want to create a new **${body.name}** (**${body.symbol}**) token account?`),
+        text(`This will allow you to send and receive **${body.symbol}** tokens.`),
+        divider(),
+        text("**Proceed?** 🚀"),
+      ]),
+    },
+  });
+
+  if (!agreed) return null;
 
   const accountName = manager.addAssetAccount(body.assetId);
 

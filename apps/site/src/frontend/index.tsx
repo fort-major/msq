@@ -12,6 +12,7 @@ import { GlobalStore } from "./store/global";
 import { LoginPage } from "./pages/integration/login";
 import { MySessionsPage } from "./pages/cabinet/my-sessions";
 import { MyLinksPage } from "./pages/cabinet/my-links";
+import { MyAssetsPage } from "./pages/cabinet/my-assets";
 
 const root = document.getElementById("root");
 
@@ -39,6 +40,7 @@ export function App() {
                 <Route path="/my-masks" component={MyMasksPage} />
                 <Route path="/my-sessions" component={MySessionsPage} />
                 <Route path="/my-links" component={MyLinksPage} />
+                <Route path="/my-assets" component={MyAssetsPage} />
               </Route>
             </Routes>
           </Router>

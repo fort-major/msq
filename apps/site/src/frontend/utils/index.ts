@@ -1,8 +1,9 @@
-import { ActorSubclass, HttpAgent, Identity } from "@dfinity/agent";
+import { ActorSubclass, AnonymousIdentity, HttpAgent, Identity } from "@dfinity/agent";
 import { InternalSnapClient } from "@fort-major/masquerade-client";
 import { Backend } from "../backend";
-import { ErrorCode, err, unreacheable } from "@fort-major/masquerade-shared";
+import { ErrorCode, Principal, err, unreacheable } from "@fort-major/masquerade-shared";
 import { JSXElement } from "solid-js";
+import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
 
@@ -52,70 +53,42 @@ export async function makeAgent(identity?: Identity | undefined): Promise<HttpAg
   return agent;
 }
 
-export class Tokens {
-  constructor(
-    public readonly symbol: string,
-    public readonly decimals: bigint,
-    public readonly qty: bigint,
-  ) {}
-
-  private static validate(...tokens: Tokens[]) {
-    const symbol = tokens[0].symbol;
-    const decimals = tokens[0].decimals;
-
-    for (let token of tokens) {
-      if (token.symbol !== symbol) unreacheable(`Different token symbols - ${symbol} !== ${token.symbol}`);
-      if (token.decimals !== decimals) unreacheable(`Different token decimals - ${decimals} !== ${token.decimals}`);
-    }
+export function tokensToStr(qty: bigint, decimals: number, trimTail: boolean = true): string {
+  if (qty === BigInt(0)) {
+    return "0";
   }
 
-  static add(a: Tokens, b: Tokens): Tokens {
-    Tokens.validate(a, b);
+  const decimalDiv = BigInt(Math.pow(10, decimals));
 
-    return new Tokens(a.symbol, a.decimals, a.qty + b.qty);
+  const head = qty / decimalDiv;
+  const tail = qty % decimalDiv;
+
+  const headFormatted = head.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+
+  if (tail === BigInt(0)) {
+    return headFormatted;
   }
 
-  static sub(a: Tokens, b: Tokens): Tokens | null {
-    Tokens.validate(a, b);
+  const tailFormatted = tail.toString().padStart(decimals, "0");
+  const tailTrimmed = trimTail ? tailFormatted.slice(Math.min(decimals, 4)) : tailFormatted;
 
-    if (a.qty < b.qty) return null;
+  return `${headFormatted}.${tailTrimmed}`;
+}
 
-    return new Tokens(a.symbol, a.decimals, a.qty - b.qty);
-  }
+export interface IAssetMetadata {
+  name: string;
+  symbol: string;
+  decimals: number;
+  fee: bigint;
+}
 
-  static mul(a: Tokens, b: Tokens): Tokens {
-    Tokens.validate(a, b);
+export async function getAssetMetadata(ledger: IcrcLedgerCanister, assetId: string): Promise<IAssetMetadata> {
+  const metadata = await ledger.metadata({ certified: true });
 
-    return new Tokens(a.symbol, a.decimals, a.qty * b.qty);
-  }
+  const name = (metadata.find((it) => it[0] === IcrcMetadataResponseEntries.NAME)![1] as { Text: string }).Text;
+  const symbol = (metadata.find((it) => it[0] === IcrcMetadataResponseEntries.SYMBOL)![1] as { Text: string }).Text;
+  const fee = (metadata.find((it) => it[0] === IcrcMetadataResponseEntries.FEE)![1] as { Nat: bigint }).Nat;
+  const decimals = (metadata.find((it) => it[0] === IcrcMetadataResponseEntries.DECIMALS)![1] as { Nat: bigint }).Nat;
 
-  static div(a: Tokens, b: Tokens): Tokens {
-    Tokens.validate(a, b);
-
-    if (b.qty === BigInt(0)) unreacheable(`Unable to divide ${a.qty} by zero`);
-
-    return new Tokens(a.symbol, a.decimals, a.qty / b.qty);
-  }
-
-  static mod(a: Tokens, b: Tokens): Tokens {
-    Tokens.validate(a, b);
-
-    if (b.qty === BigInt(0)) unreacheable(`Unable to divide ${a.qty} by zero`);
-
-    return new Tokens(a.symbol, a.decimals, a.qty % b.qty);
-  }
-
-  toString(): string {
-    return `${this.toStringQty()} ${this.symbol}`;
-  }
-
-  toStringQty(): string {
-    const decimals = Number(this.decimals);
-    const decimalDiv = BigInt(Math.pow(10, decimals));
-
-    const head = this.qty / decimalDiv;
-    const tail = this.qty % decimalDiv;
-
-    return `${head.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}.${tail}`;
-  }
+  return { name, symbol, fee, decimals: Number(decimals) };
 }

@@ -76,14 +76,14 @@ export class InternalSnapClient {
     return await this.inner._requestSnap(SNAP_METHODS.protected.state.getAllAssetData);
   }
 
-  async addAsset(assetId: string): Promise<IAssetData> {
-    const body: IICRC1AddAssetRequest = { assetId };
+  async addAsset(assetId: string, assetName: string, assetSymbol: string): Promise<IAssetData | null> {
+    const body: IICRC1AddAssetRequest = { assetId, name: assetName, symbol: assetSymbol };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAsset, body);
   }
 
-  async addAssetAccount(assetId: string): Promise<string> {
-    const body: IICRC1AddAssetAccountRequest = { assetId };
+  async addAssetAccount(assetId: string, assetName: string, assetSymbol: string): Promise<string | null> {
+    const body: IICRC1AddAssetAccountRequest = { assetId, name: assetName, symbol: assetSymbol };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAssetAccount, body);
   }
