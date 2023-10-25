@@ -1,5 +1,5 @@
 import { TAccountId } from "@fort-major/masquerade-shared";
-import { assertEventSafe, tokensToStr } from "../../utils";
+import { DEFAULT_PRINCIPAL, assertEventSafe, tokensToStr } from "../../utils";
 import {
   AccountCardDivider,
   AccountCardFooter,
@@ -89,11 +89,7 @@ export function AccountCard(props: IAccountCardProps) {
 
         <Show
           when={props.principal}
-          fallback={
-            <AccountCardHeaderPrincipal>
-              aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa
-            </AccountCardHeaderPrincipal>
-          }
+          fallback={<AccountCardHeaderPrincipal>{DEFAULT_PRINCIPAL}</AccountCardHeaderPrincipal>}
         >
           <AccountCardHeaderPrincipal>{props.principal}</AccountCardHeaderPrincipal>
         </Show>

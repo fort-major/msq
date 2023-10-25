@@ -92,3 +92,5 @@ export async function getAssetMetadata(ledger: IcrcLedgerCanister, assetId: stri
 
   return { name, symbol, fee, decimals: Number(decimals) };
 }
+
+export const DEFAULT_PRINCIPAL = "aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa";

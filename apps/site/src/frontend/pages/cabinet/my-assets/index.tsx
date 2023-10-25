@@ -19,7 +19,7 @@ import { Spoiler } from "../../../components/spoiler";
 import { Dim, Title } from "../../../components/typography/style";
 import PlusSvg from "#assets/plus.svg";
 import { AccountCard } from "../../../components/account-card";
-import { assertEventSafe, getAssetMetadata, makeAgent, tokensToStr } from "../../../utils";
+import { DEFAULT_PRINCIPAL, assertEventSafe, getAssetMetadata, makeAgent, tokensToStr } from "../../../utils";
 import { Principal, TAccountId } from "@fort-major/masquerade-shared";
 import { useMasqueradeClient } from "../../../store/global";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
@@ -45,8 +45,12 @@ export function MyAssetsPage() {
 
     const accountId = allAssetData[assetId]!.accounts.length;
 
+    setAllAssetData(assetId, "accounts", accountId, { name });
+
     const identity = await MasqueradeIdentity.create(client()!.getInner(), makeIcrc1Salt(assetId, accountId));
     const principal = identity.getPrincipal();
+
+    setAllAssetData(assetId, "accounts", accountId, "principal", principal.toText());
 
     const anonIdentity = new AnonymousIdentity();
     const agent = await makeAgent(anonIdentity);
@@ -54,11 +58,7 @@ export function MyAssetsPage() {
 
     const balance = await ledger.balance({ certified: true, owner: principal });
 
-    setAllAssetData(assetId, "accounts", accountId, {
-      name,
-      principal: principal.toText(),
-      balance,
-    });
+    setAllAssetData(assetId, "accounts", accountId, "balance", balance);
   };
 
   const handleAddAsset = async (e: Event) => {
@@ -85,15 +85,22 @@ export function MyAssetsPage() {
       setNewAssetId("");
       if (assetData === null) return;
 
+      setAllAssetData(assetId, { metadata });
+      setAllAssetData(assetId, "accounts", 0, {
+        name: assetData.accounts[0],
+        balance: BigInt(0),
+        principal: DEFAULT_PRINCIPAL,
+      });
+
       const identity = await MasqueradeIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, 0));
       const principal = identity.getPrincipal();
+
+      setAllAssetData(assetId, "accounts", 0, "principal", principal.toText());
+
       const balance = await ledger.balance({ certified: true, owner: principal });
 
-      setAllAssetData(assetId, {
-        ...metadata,
-        accounts: assetData.accounts.map((it) => ({ name: it, principal: principal.toText(), balance })),
-        totalBalance: balance,
-      });
+      setAllAssetData(assetId, "totalBalance", balance);
+      setAllAssetData(assetId, "accounts", 0, "balance", balance);
     } catch (e) {
       console.error(e);
       setError(`Token ${assetId} is not a valid ICRC-1 token or unresponsive`);
