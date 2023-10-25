@@ -1,4 +1,11 @@
-import { IOriginData, Principal, TAccountId, TOrigin, strToBytes, unreacheable } from "@fort-major/masquerade-shared";
+import {
+  IOriginDataExternal,
+  Principal,
+  TAccountId,
+  TOrigin,
+  strToBytes,
+  unreacheable,
+} from "@fort-major/masquerade-shared";
 import { Accessor, createContext, createEffect, createMemo, createSignal, useContext } from "solid-js";
 import { SetStoreFunction, createStore } from "solid-js/store";
 import { IChildren, getAssetMetadata, makeAgent } from "../utils";
@@ -24,7 +31,7 @@ type IAssetDataExt = {
   totalBalance: bigint;
 };
 
-export type AllOriginData = Record<TOrigin, IOriginData | undefined>;
+export type AllOriginData = Record<TOrigin, IOriginDataExternal | undefined>;
 export type AllAssetData = Record<string, IAssetDataExt | null>;
 export type AllOriginDataStore = [
   AllOriginData,

@@ -29,8 +29,6 @@ export function LoginPage() {
 
     const loginOptions = await snapClient()!.getLoginOptions(referrerOrigin!);
 
-    console.log("GOT LOGIN OPS", loginOptions);
-
     setLoginOptions(loginOptions);
   });
 

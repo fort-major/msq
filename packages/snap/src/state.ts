@@ -17,6 +17,7 @@ import {
   TAccountId,
 } from "@fort-major/masquerade-shared";
 import { generateRandomPseudonym, getSignIdentity } from "./utils";
+import debounce from "lodash.debounce";
 
 /**
  * Provides a higher-level interface for interacting with the snap's state.
@@ -58,16 +59,16 @@ export class StateManager {
       err(ErrorCode.INVALID_INPUT, `No origin data exists ${origin}`);
     }
 
-    if (originData.masks.length <= identityId) {
+    if (Object.keys(originData.masks).length <= identityId) {
       err(ErrorCode.INVALID_INPUT, `No mask exists ${identityId}`);
     }
 
-    originData.masks[identityId].pseudonym = newPseudonym;
+    originData.masks[identityId]!.pseudonym = newPseudonym;
   }
 
   public linkExists(from: TOrigin, to: TOrigin): boolean {
-    const fromHasToLink = this.state.originData[from]?.linksTo?.includes(to) ?? false;
-    const toHasFromLink = this.state.originData[to]?.linksFrom?.includes(from) ?? false;
+    const fromHasToLink = this.state.originData[from]?.linksTo[to] ?? false;
+    const toHasFromLink = this.state.originData[to]?.linksFrom[from] ?? false;
 
     if ((fromHasToLink && !toHasFromLink) || (!fromHasToLink && toHasFromLink)) {
       unreacheable("There should always be two sides of a link");
@@ -80,15 +81,15 @@ export class StateManager {
     const fromOriginData = await this.getOriginData(from);
     const toOriginData = await this.getOriginData(to);
 
-    if (fromOriginData.linksTo.includes(to)) {
+    if (fromOriginData.linksTo[to]) {
       unreacheable(`Unable to add an existing TO link: ${from} -> ${to}`);
     }
-    if (toOriginData.linksFrom.includes(from)) {
+    if (toOriginData.linksFrom[from]) {
       unreacheable(`Unable to add an existing FROM link: ${from} -> ${to}`);
     }
 
-    fromOriginData.linksTo.push(to);
-    toOriginData.linksFrom.push(from);
+    fromOriginData.linksTo[to] = true;
+    toOriginData.linksFrom[from] = true;
 
     this.setOriginData(from, fromOriginData);
     this.setOriginData(to, toOriginData);
@@ -98,13 +99,15 @@ export class StateManager {
     const fromOriginData = await this.getOriginData(from);
     const toOriginData = await this.getOriginData(to);
 
-    const fromIdx = fromOriginData.linksTo.findIndex((it) => it === to);
-    const toIdx = toOriginData.linksFrom.findIndex((it) => it === from);
+    if (!fromOriginData.linksTo[to]) {
+      unreacheable(`Unable to delete a non-existing TO link: ${from} -> ${to}`);
+    }
+    if (!toOriginData.linksFrom[from]) {
+      unreacheable(`Unable to delete a non-existing FROM link: ${from} -> ${to}`);
+    }
 
-    if (fromIdx === -1 || toIdx === -1) unreacheable("To unlink there should be a link");
-
-    fromOriginData.linksTo.splice(fromIdx, 1);
-    toOriginData.linksFrom.splice(toIdx, 1);
+    delete fromOriginData.linksTo[to];
+    delete toOriginData.linksFrom[from];
 
     this.setOriginData(from, fromOriginData);
     this.setOriginData(to, toOriginData);
@@ -112,19 +115,16 @@ export class StateManager {
 
   public async unlinkAll(from: TOrigin): Promise<TOrigin[]> {
     const fromOriginData = await this.getOriginData(from);
+    const oldLinks = Object.keys(fromOriginData.linksTo);
 
-    for (let fromIdx = 0; fromIdx < fromOriginData.linksTo.length; fromIdx++) {
-      const to = fromOriginData.linksTo[fromIdx];
-
+    for (let to of oldLinks) {
       const toOriginData = await this.getOriginData(to);
-      const toIdx = toOriginData.linksFrom.findIndex((it) => it === from);
+      delete toOriginData.linksFrom[from];
 
-      toOriginData.linksFrom.splice(toIdx, 1);
       this.setOriginData(to, toOriginData);
     }
 
-    const oldLinks = fromOriginData.linksTo;
-    fromOriginData.linksTo = [];
+    fromOriginData.linksTo = {};
     this.setOriginData(from, fromOriginData);
 
     return oldLinks;
@@ -138,8 +138,9 @@ export class StateManager {
       originData = makeDefaultOriginData(mask);
     }
 
-    const mask = await this.makeMask(origin, originData.masks.length);
-    originData.masks.push(mask);
+    const identityId = Object.keys(originData.masks).length;
+    const mask = await this.makeMask(origin, identityId);
+    originData.masks[identityId] = mask;
 
     this.state.originData[origin] = originData;
 
@@ -163,8 +164,9 @@ export class StateManager {
 
     if (assetData === undefined) unreacheable(`No asset exists ${assetId}`);
 
-    const name = `Account #${assetData.accounts.length}`;
-    assetData.accounts.push(name);
+    const accountId = Object.keys(assetData.accounts).length;
+    const name = `Account #${accountId}`;
+    assetData.accounts[accountId] = name;
 
     return name;
   }
@@ -173,7 +175,7 @@ export class StateManager {
     const assetData = this.state.assetData[assetId];
 
     if (assetData === undefined) unreacheable(`No asset exists ${assetId}`);
-    if (assetData.accounts.length <= accountId) unreacheable(`No account exists ${assetId} ${accountId}`);
+    if (Object.keys(assetData.accounts).length <= accountId) unreacheable(`No account exists ${assetId} ${accountId}`);
 
     assetData.accounts[accountId] = newName;
   }
@@ -191,13 +193,13 @@ export class StateManager {
   constructor(private readonly state: IState) {}
 
   public static async make(): Promise<StateManager> {
-    const state = await retrieveStateLocal();
+    const state = await retrieveStateWrapped();
 
     return new StateManager(state);
   }
 
-  public async persist(): Promise<void> {
-    await persistStateLocal(this.state);
+  public static schedulePersist(): void {
+    persistStateLocal();
   }
 
   public incrementStats(origin: TOrigin): void {
@@ -233,55 +235,97 @@ export class StateManager {
 
 const IP_V4 = /^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/gm;
 
-const makeDefaultState: () => IState = () => ({
-  version: 1,
-  originData: {},
-  assetData: Object.values(TOKENS).reduce(
-    (prev, cur) => ({ ...prev, [cur]: makeDefaultAssetData() }),
-    {} as Record<string, IAssetData>,
-  ),
-  statistics: {
-    lastResetTimestamp: Date.now(),
-    dev: 0,
-    prod: 0,
-  },
-});
-
-const makeDefaultOriginData: (mask: IMask) => IOriginData = (mask) => ({
-  masks: [mask],
-  currentSession: undefined,
-  linksFrom: [],
-  linksTo: [],
-});
-
-const makeDefaultAssetData: () => IAssetData = () => ({
-  accounts: ["Main"],
-});
-
-export async function retrieveStateLocal(): Promise<IState> {
-  const state = await snap.request({
-    method: "snap_manageState",
-    params: {
-      operation: "get",
+function makeDefaultState(): IState {
+  return {
+    version: 1,
+    originData: {},
+    assetData: Object.values(TOKENS).reduce(
+      (prev, cur) => ({ ...prev, [cur]: makeDefaultAssetData() }),
+      {} as Record<string, IAssetData>,
+    ),
+    statistics: {
+      lastResetTimestamp: Date.now(),
+      dev: 0,
+      prod: 0,
     },
-  });
-
-  if (state == null) {
-    const s = makeDefaultState();
-    await persistStateLocal(s);
-
-    return s;
-  }
-
-  return zodParse(ZState, fromCBOR(state.data as string));
+  };
 }
 
-export async function persistStateLocal(state: IState): Promise<void> {
-  await snap.request({
+function makeDefaultOriginData(mask: IMask): IOriginData {
+  return {
+    masks: { 0: mask },
+    currentSession: undefined,
+    linksFrom: {},
+    linksTo: {},
+  };
+}
+
+function makeDefaultAssetData(): IAssetData {
+  return {
+    accounts: { 0: "Main" },
+  };
+}
+
+let STATE: IState | null = null;
+let LAST_STATE_PERSIST_TIMESTAMP = 0;
+let STATE_UPDATE_TIMESTAMP = 0;
+
+async function retrieveStateWrapped(): Promise<IState> {
+  if (STATE === null) {
+    const state = await snap.request({
+      method: "snap_manageState",
+      params: {
+        operation: "get",
+      },
+    });
+
+    if (state == null) {
+      const s = makeDefaultState();
+      STATE = s;
+    } else {
+      STATE = zodParse(ZState, fromCBOR(state.data as string));
+    }
+  }
+
+  return createDeepOnChangeProxy(STATE, () => {
+    STATE_UPDATE_TIMESTAMP = Date.now();
+  }) as IState;
+}
+
+let proxyCache = new WeakMap();
+
+function createDeepOnChangeProxy(target: any, onChange: () => void): unknown {
+  return new Proxy(target, {
+    get(target, property) {
+      const item = target[property];
+      if (item && typeof item === "object") {
+        if (proxyCache.has(item)) return proxyCache.get(item);
+        const proxy = createDeepOnChangeProxy(item, onChange);
+        proxyCache.set(item, proxy);
+        return proxy;
+      }
+      return item;
+    },
+    set(target, property, newValue) {
+      target[property] = newValue;
+      onChange();
+      return true;
+    },
+  });
+}
+
+function persistStateLocal(): void {
+  if (LAST_STATE_PERSIST_TIMESTAMP >= STATE_UPDATE_TIMESTAMP) return;
+
+  zodParse(ZState, STATE);
+
+  LAST_STATE_PERSIST_TIMESTAMP = Date.now();
+
+  snap.request({
     method: "snap_manageState",
     params: {
       operation: "update",
-      newState: { data: toCBOR(state) },
+      newState: { data: toCBOR(STATE) },
     },
   });
 }

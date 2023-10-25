@@ -42,6 +42,7 @@
     "@metamask/snaps-jest": "^1.0.0",
     "@metamask/snaps-types": "^1.0.2",
     "@types/jest": "29.5.4",
+    "@types/lodash.debounce": "^4.0.8",
     "@types/node": "20.7.1",
     "cbor-x": "1.5.4",
     "envify": "4.1.0",
@@ -51,6 +52,7 @@
   "dependencies": {
     "@dfinity/identity-secp256k1": "0.19.3",
     "@fort-major/masquerade-shared": "workspace:*",
-    "@metamask/snaps-ui": "1.0.2"
+    "@metamask/snaps-ui": "1.0.2",
+    "lodash.debounce": "^4.0.8"
   }
 }

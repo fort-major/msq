@@ -14,14 +14,10 @@ import {
   err,
   fromCBOR,
   toCBOR,
-  zodParse,
-  ILoginResultMsg,
   ZRequestReceivedMsg,
-  ZLoginRequestMsg,
   ZLoginResultMsg,
   ZICRC1TransferResultMsg,
 } from "@fort-major/masquerade-shared";
-import { type SignIdentity } from "@dfinity/agent";
 import { SNAP_ID, SNAP_SITE_ORIGIN as MASQUERADE_SITE_ORIGIN, SNAP_VERSION } from ".";
 import { MasqueradeIdentity } from "./identity";
 

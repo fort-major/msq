@@ -25,6 +25,7 @@ import {
 } from "./protocols/identity";
 import { protected_handleStatisticsGet, protected_handleStatisticsReset } from "./protocols/statistics";
 import { protected_handleStateGetAllAssetData, protected_handleStateGetAllOriginData } from "./protocols/state";
+import { StateManager } from "./state";
 
 /**
  * Snap main entrypoint. Expects a JSON-RPC request with `params` field of type `{ body: hex_cbor_encoded_body }`.
@@ -160,6 +161,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
       err(ErrorCode.INVALID_RPC_METHOD, request.method);
     }
   }
+
+  StateManager.schedulePersist();
 
   return toCBOR(await result);
 };

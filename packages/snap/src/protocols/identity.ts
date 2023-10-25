@@ -62,8 +62,6 @@ export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<IMa
   const newMask = await manager.addIdentity(body.toOrigin);
   manager.incrementStats(body.toOrigin);
 
-  await manager.persist();
-
   return newMask;
 }
 
@@ -86,7 +84,7 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
   }
 
   const originData = await manager.getOriginData(body.toOrigin);
-  if (originData.masks.length === 0) {
+  if (Object.keys(originData.masks).length === 0) {
     unreacheable("login - no origin data found");
   }
 
@@ -99,7 +97,6 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
 
   manager.setOriginData(body.toOrigin, originData);
   manager.incrementStats(body.toOrigin);
-  await manager.persist();
 
   return true;
 }
@@ -127,15 +124,13 @@ export async function protected_handleIdentityGetLoginOptions(
   const result: IIdentityGetLoginOptionsResponse = [];
 
   const originData = await manager.getOriginData(body.forOrigin);
-  result.push([body.forOrigin, originData.masks]);
+  result.push([body.forOrigin, Object.values(originData.masks) as IMask[]]);
 
-  for (const origin of originData.linksFrom) {
+  for (const origin of Object.keys(originData.linksFrom)) {
     const linkedOriginData = await manager.getOriginData(origin);
 
-    result.push([origin, linkedOriginData.masks]);
+    result.push([origin, Object.values(linkedOriginData.masks) as IMask[]]);
   }
-
-  await manager.persist();
 
   return result;
 }
@@ -145,8 +140,6 @@ export async function protected_handleIdentityEditPseudonym(bodyCBOR: string): P
   const manager = await StateManager.make();
 
   manager.editPseudonym(body.origin, body.identityId, body.newPseudonym);
-
-  await manager.persist();
 }
 
 export function protected_handleIdentityStopSession(bodyCBOR: string): Promise<boolean> {
@@ -203,8 +196,6 @@ export async function protected_handleIdentityUnlinkAll(bodyCBOR: string): Promi
     manager.setOriginData(withOrigin, targetOriginData);
   }
 
-  await manager.persist();
-
   return true;
 }
 
@@ -253,7 +244,6 @@ export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<bool
   originData.currentSession = undefined;
   manager.setOriginData(origin, originData);
   manager.incrementStats(origin);
-  await manager.persist();
 
   return true;
 }
@@ -289,7 +279,6 @@ export async function handleIdentitySign(bodyCBOR: string, origin: TOrigin): Pro
   const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
 
   manager.incrementStats(origin);
-  await manager.persist();
 
   return await identity.sign(body.challenge);
 }
@@ -325,7 +314,6 @@ export async function handleIdentityGetPublicKey(bodyCBOR: string, origin: TOrig
   const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
 
   manager.incrementStats(origin);
-  await manager.persist();
 
   return identity.getPublicKey().toRaw();
 }
@@ -396,7 +384,6 @@ export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigi
   // otherwise update the links list and return true
   await manager.link(origin, body.withOrigin);
   manager.incrementStats(origin);
-  await manager.persist();
 
   return true;
 }
@@ -470,7 +457,6 @@ export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOri
   manager.setOriginData(body.withOrigin, targetOriginData);
 
   manager.incrementStats(origin);
-  await manager.persist();
 
   return true;
 }
@@ -486,9 +472,8 @@ export async function handleIdentityGetLinks(origin: TOrigin): Promise<TOrigin[]
   const originData = await manager.getOriginData(origin);
 
   manager.incrementStats(origin);
-  await manager.persist();
 
-  return originData.linksTo;
+  return Object.keys(originData.linksTo);
 }
 
 /**
@@ -501,7 +486,6 @@ export async function handleIdentitySessionExists(origin: TOrigin): Promise<bool
   const manager = await StateManager.make();
 
   manager.incrementStats(origin);
-  await manager.persist();
 
   return (await manager.getOriginData(origin)).currentSession !== undefined;
 }

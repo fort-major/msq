@@ -52,12 +52,20 @@ export const ZMask = z.object({ pseudonym: z.string().nonempty(), principal: ZPr
 export type IOriginData = z.infer<typeof ZOriginData>;
 export const ZOriginData = z.object({
   /** identities (and their pseudonyms) a user has on this website */
-  masks: z.array(ZMask),
+  masks: z.record(z.string().nonempty(), z.optional(ZMask)),
   /** which websites shared the user's identity with this website */
-  linksFrom: z.array(ZOrigin),
+  linksFrom: z.record(ZOrigin, z.optional(z.literal(true))),
   /** to which websites the user shared their identities from this website */
-  linksTo: z.array(ZOrigin),
+  linksTo: z.record(ZOrigin, z.optional(z.literal(true))),
   /** session object, exists if the user is logged in */
+  currentSession: z.optional(ZSession),
+});
+
+export type IOriginDataExternal = z.infer<typeof ZOriginDataExternal>;
+export const ZOriginDataExternal = z.object({
+  masks: z.array(ZMask),
+  linksFrom: z.array(ZOrigin),
+  linksTo: z.array(ZOrigin),
   currentSession: z.optional(ZSession),
 });
 
@@ -74,13 +82,24 @@ export const ZStatistics = z.object({
   prod: z.number().nonnegative(),
 });
 
+export type IAssetData = z.infer<typeof ZAssetData>;
 export const ZAssetData = z.object({
+  accounts: z.record(z.string().nonempty(), z.string().nonempty()),
+});
+
+export const ZAssetDataExternal = z.object({
   accounts: z.array(z.string().nonempty()),
 });
-export type IAssetData = z.infer<typeof ZAssetData>;
+export type IAssetDataExternal = z.infer<typeof ZAssetDataExternal>;
 
 /**
- * Snap state that is stored in encrypted form on user's device
+ * Snap state that is stored in encrypted form on user's device.
+ *
+ * !!! WARNING !!!
+ * The state is only allowed to consist of records. No arrays. No classes. No recursion.
+ * Only plain key-value pairs nested in each other.
+ * This is required because of our deepProxy implementation.
+ * If you break this rule, our state won't persist after mutations.
  */
 export type IState = z.infer<typeof ZState>;
 export const ZState = z.object({
@@ -173,10 +192,10 @@ export type IIdentityUnlinkAllRequest = z.infer<typeof ZIdentityUnlinkAllRequest
 
 // ----------- STATE PROTOCOL RELATED TYPES -------------
 
-export const ZStateGetAllOriginDataResponse = z.record(ZOrigin, z.optional(ZOriginData));
+export const ZStateGetAllOriginDataResponse = z.record(ZOrigin, z.optional(ZOriginDataExternal));
 export type IStateGetAllOriginDataResponse = z.infer<typeof ZStateGetAllOriginDataResponse>;
 
-export const ZStateGetAllAssetDataResponse = z.record(ZPrincipalStr, z.optional(ZAssetData));
+export const ZStateGetAllAssetDataResponse = z.record(ZPrincipalStr, z.optional(ZAssetDataExternal));
 export type IStateGetAllAssetDataResponse = z.infer<typeof ZStateGetAllAssetDataResponse>;
 
 // ----------- ICRC1 PROTOCOL RELATED TYPES -------------

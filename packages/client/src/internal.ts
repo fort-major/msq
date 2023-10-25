@@ -15,7 +15,7 @@ import {
   IIdentityUnlinkOneRequest,
   IIdentityUnlinkAllRequest,
   IStateGetAllAssetDataResponse,
-  IAssetData,
+  IAssetDataExternal,
   IICRC1AddAssetRequest,
   IICRC1AddAssetAccountRequest,
   IICRC1EditAssetAccountRequest,
@@ -76,7 +76,7 @@ export class InternalSnapClient {
     return await this.inner._requestSnap(SNAP_METHODS.protected.state.getAllAssetData);
   }
 
-  async addAsset(assetId: string, assetName: string, assetSymbol: string): Promise<IAssetData | null> {
+  async addAsset(assetId: string, assetName: string, assetSymbol: string): Promise<IAssetDataExternal | null> {
     const body: IICRC1AddAssetRequest = { assetId, name: assetName, symbol: assetSymbol };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAsset, body);

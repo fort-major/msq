@@ -28,7 +28,5 @@ export async function protected_handleStatisticsReset(): Promise<true> {
 
   manager.resetStats();
 
-  await manager.persist();
-
   return true;
 }

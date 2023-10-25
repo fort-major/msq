@@ -1,5 +1,5 @@
 import {
-  IAssetData,
+  IAssetDataExternal,
   IShowICRC1TransferConfirmRequest,
   ZICRC1AddAssetAccountRequest,
   ZICRC1AddAssetRequest,
@@ -53,12 +53,11 @@ export async function protected_handleShowICRC1TransferConfirm(bodyCBOR: string)
 
   const manager = await StateManager.make();
   manager.incrementStats(body.requestOrigin);
-  await manager.persist();
 
   return Boolean(agreed);
 }
 
-export async function protected_handleAddAsset(bodyCBOR: string): Promise<IAssetData | null> {
+export async function protected_handleAddAsset(bodyCBOR: string): Promise<IAssetDataExternal | null> {
   const body = zodParse(ZICRC1AddAssetRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
 
@@ -80,11 +79,11 @@ export async function protected_handleAddAsset(bodyCBOR: string): Promise<IAsset
 
   if (!agreed) return null;
 
-  const assetData = manager.addAsset(body.assetId);
+  const assetDataExternal: IAssetDataExternal = {
+    accounts: Object.values(manager.addAsset(body.assetId).accounts),
+  };
 
-  await manager.persist();
-
-  return assetData;
+  return assetDataExternal;
 }
 
 export async function protected_handleAddAssetAccount(bodyCBOR: string): Promise<string | null> {
@@ -109,8 +108,6 @@ export async function protected_handleAddAssetAccount(bodyCBOR: string): Promise
 
   const accountName = manager.addAssetAccount(body.assetId);
 
-  await manager.persist();
-
   return accountName;
 }
 
@@ -119,6 +116,4 @@ export async function protected_handleEditAssetAccount(bodyCBOR: string): Promis
   const manager = await StateManager.make();
 
   manager.editAssetAccount(body.assetId, body.accountId, body.newName);
-
-  await manager.persist();
 }
