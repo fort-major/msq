@@ -106,3 +106,5 @@ export const TOKENS = {
   HOT: "6rdgd-kyaaa-aaaaq-aaavq-cai",
   CAT: "uf2wh-taaaa-aaaaq-aabna-cai",
 };
+
+export const DISCORD_LINK = "https://discord.gg/Z5WMHBReHd";

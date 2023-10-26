@@ -46,8 +46,6 @@ export const BLINK_ANIMATION = `
   animation: 0.5s ease-out blink;
 `;
 
-export function getClassName(comp: {
-  class: (props: JSX.HTMLAttributes<HTMLHeadingElement> & AsProps) => string;
-}): string {
+export function getClassName(comp: { class: (props: JSX.HTMLAttributes<any>) => string }): string {
   return comp.class({});
 }
