@@ -22,8 +22,8 @@ import { BoopAvatar } from "../../../components/boop-avatar";
 import { ISession, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { Principal } from "@fort-major/masquerade-shared";
 import { Accent } from "../../../components/typography/style";
-import PowerBlackSvg from "#assets/power-black.svg";
 import { useMasqueradeClient } from "../../../store/global";
+import { PowerIcon } from "../../../components/typography/icons";
 
 export function MySessionsPage() {
   const client = useMasqueradeClient();
@@ -88,7 +88,7 @@ export function MySessionsPage() {
                   </SessionInfoDataWrapper>
                 </SessionInfoWrapper>
                 <LogoutBtn onClick={(e) => handleStopSession(e, origin)}>
-                  <img src={PowerBlackSvg} alt="stop" />
+                  <PowerIcon />
                 </LogoutBtn>
               </SessionWrapper>
             );

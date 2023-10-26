@@ -18,11 +18,10 @@ import {
 } from "./style";
 import { Accent, Title } from "../../../components/typography/style";
 import { Principal, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
-import UnlinkBlackSvg from "#assets/unlink-black.svg";
-import UnlinkSvg from "#assets/unlink.svg";
 import { BoopAvatar } from "../../../components/boop-avatar";
 import { useMasqueradeClient } from "../../../store/global";
 import { produce } from "solid-js/store";
+import { UnlinkIcon } from "../../../components/typography/icons";
 
 export function MyLinksPage() {
   const client = useMasqueradeClient();
@@ -94,7 +93,7 @@ export function MyLinksPage() {
                 </LinksInfoTextWrapper>
                 <UnlinkAllBtn onClick={() => unlinkAll(origin)}>
                   <span>Unlink All</span>
-                  <img src={UnlinkBlackSvg} />
+                  <UnlinkIcon />
                 </UnlinkAllBtn>
               </LinksInfoWrapper>
               <LinksListWrapper>
@@ -103,7 +102,7 @@ export function MyLinksPage() {
                     <LinksListItem>
                       <LinksListItemText>{originToHostname(link)}</LinksListItemText>
                       <UnlinkBtn onClick={() => unlinkOne(origin, link)}>
-                        <img src={UnlinkSvg} />
+                        <UnlinkIcon />
                       </UnlinkBtn>
                     </LinksListItem>
                   )}

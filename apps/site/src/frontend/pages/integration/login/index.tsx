@@ -4,12 +4,12 @@ import { DismissBtn, LoginHeadingSection, LoginOptionsSection, LoginOptionsWrapp
 import { useMasqueradeClient } from "../../../store/global";
 import { referrerOrigin, sendLoginResult, useLoginRequestMsg, useReferrerWindow } from "../../../store/integration";
 import { useNavigate } from "@solidjs/router";
-import ChevronUpSvg from "#assets/chevron-up.svg";
 import { Accent, Title } from "../../../components/typography/style";
 import { Divider } from "../../../components/divider/style";
 import { LoginOption } from "../../../components/login-option";
 import { AddNewMaskBtn } from "../../../components/add-new-mask-btn";
 import { Spoiler } from "../../../components/spoiler";
+import { ChevronUpIcon } from "../../../components/typography/icons";
 
 export function LoginPage() {
   const [loginOptions, setLoginOptions] = createSignal<[TOrigin, IMask[]][] | null>(null);
@@ -55,7 +55,7 @@ export function LoginPage() {
     <>
       <LoginHeadingSection>
         <DismissBtn onClick={onDismiss}>
-          <img src={ChevronUpSvg} alt="<" />
+          <ChevronUpIcon />
           <span>Dismiss</span>
         </DismissBtn>
         <LoginPageHeader>Choose a Mask to wear</LoginPageHeader>

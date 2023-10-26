@@ -54,10 +54,10 @@ export const DismissBtn = styled.button`
     text-decoration: underline;
   }
 
-  & > img {
+  & > svg {
     width: 12px;
+    height: 12px;
     transform: rotate(-90deg);
-    stroke-width: 1.5px;
   }
 `;
 

@@ -8,12 +8,14 @@ export const AddNewMaskBtnWrapper = styled.div`
   gap: 15px;
   align-self: stretch;
 
+  border-radius: 30px;
+
   cursor: pointer;
+
+  transition: background-color 0.5s;
 
   &:hover {
     background-color: ${COLOR_GRAY};
-    border-top-left-radius: 30px;
-    border-bottom-left-radius: 30px;
   }
 `;
 

@@ -1,7 +1,7 @@
 import { MyMasksContent, SpoilerHeading } from "./style";
 import { For, Show } from "solid-js";
 import { Spoiler } from "../../../components/spoiler";
-import { Accent, Subtitle, Title } from "../../../components/typography/style";
+import { Accent, Subtitle } from "../../../components/typography/style";
 import { TIdentityId, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { LoginOption } from "../../../components/login-option";
 import { AddNewMaskBtn } from "../../../components/add-new-mask-btn";

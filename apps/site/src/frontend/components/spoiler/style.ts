@@ -19,20 +19,18 @@ export const SpoilerHeader = styled.div`
   align-self: stretch;
 
   cursor: pointer;
-`;
 
-export const SpoilerIcon = styled.img`
-  display: flex;
-  width: 20px;
-  height: 20px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  & > svg {
+    width: 20px;
+    height: 20px;
 
-  &.closed {
-    transform: rotate(180deg);
+    &.closed {
+      transform: rotate(180deg);
+    }
   }
 `;
+
+export const SpoilerIcon = styled.img``;
 
 export const SpoilerChildren = styled.div`
   display: flex;

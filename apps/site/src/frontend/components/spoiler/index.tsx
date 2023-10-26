@@ -1,6 +1,6 @@
 import { JSXElement, Match, Switch, children, createSignal } from "solid-js";
 import { SpoilerChildren, SpoilerHeader, SpoilerIcon, SpoilerWrapper } from "./style";
-import ChevronUpSVG from "#assets/chevron-up.svg";
+import { ChevronUpIcon } from "../typography/icons";
 
 export interface ISpoilerProps {
   header: JSXElement;
@@ -21,7 +21,7 @@ export function Spoiler(props: ISpoilerProps) {
     <SpoilerWrapper>
       <SpoilerHeader onClick={toggle}>
         {h()}
-        <SpoilerIcon classList={{ closed: !open() }} src={ChevronUpSVG} alt="show/hide" />
+        <ChevronUpIcon classList={{ closed: !open() }} />
       </SpoilerHeader>
       <Switch>
         <Match when={open()}>

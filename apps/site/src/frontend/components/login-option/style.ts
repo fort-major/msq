@@ -18,6 +18,20 @@ export const LoginOptionWrapper = styled.div<{ editable?: boolean | undefined }>
         border-top-left-radius: 30px;
       }`
       : ""}
+
+  & > svg {
+    opacity: 0.6;
+    padding: 5px;
+    border-radius: 100%;
+
+    cursor: pointer;
+
+    transition: background-color 0.5s;
+
+    &:hover {
+      background-color: ${COLOR_GRAY};
+    }
+  }
 `;
 
 export const LoginOptionContent = styled.div`
@@ -77,14 +91,4 @@ export const LoginOptionPrincipal = styled.p`
   line-height: 120%; /* 14.4px */
 
   opacity: 0.4;
-`;
-
-export const LoginOptionIcon = styled.img`
-  opacity: 0.6;
-
-  cursor: pointer;
-
-  &:hover {
-    background-color: ${COLOR_GRAY};
-  }
 `;

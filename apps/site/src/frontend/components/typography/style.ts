@@ -9,8 +9,6 @@ export const Title = styled.h3<{ weight?: number }>`
   font-weight: ${(props) => props.weight ?? 600};
   line-height: 100%; /* 20px */
   letter-spacing: -0.4px;
-
-  ${BLINK_ANIMATION};
 `;
 
 export const Subtitle = styled.h3`

@@ -1,6 +1,6 @@
 import { AddNewMaskBtnIconWrapper, AddNewMaskBtnText, AddNewMaskBtnWrapper } from "./style";
-import PlusSvg from "#assets/plus.svg";
 import { assertEventSafe } from "../../utils";
+import { PlusIcon } from "../typography/icons";
 
 export interface IAddNewMaskBtnProps {
   onClick: () => void;
@@ -16,7 +16,7 @@ export function AddNewMaskBtn(props: IAddNewMaskBtnProps) {
   return (
     <AddNewMaskBtnWrapper onClick={handleClick}>
       <AddNewMaskBtnIconWrapper>
-        <img src={PlusSvg} alt="add" />
+        <PlusIcon />
       </AddNewMaskBtnIconWrapper>
       <AddNewMaskBtnText>Add New Mask</AddNewMaskBtnText>
     </AddNewMaskBtnWrapper>

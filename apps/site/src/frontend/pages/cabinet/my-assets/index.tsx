@@ -1,4 +1,4 @@
-import { For, Match, Show, Switch, createEffect, createSignal } from "solid-js";
+import { For, Show, createSignal } from "solid-js";
 import { makeIcrc1Salt, useAllAssetData } from "../../../store/cabinet";
 import { CabinetHeading } from "../../../styles";
 import {
@@ -17,7 +17,6 @@ import {
 } from "./style";
 import { Spoiler } from "../../../components/spoiler";
 import { Dim, Title } from "../../../components/typography/style";
-import PlusSvg from "#assets/plus.svg";
 import { AccountCard } from "../../../components/account-card";
 import { DEFAULT_PRINCIPAL, assertEventSafe, getAssetMetadata, makeAgent, tokensToStr } from "../../../utils";
 import { Principal, TAccountId } from "@fort-major/masquerade-shared";
@@ -25,6 +24,7 @@ import { useMasqueradeClient } from "../../../store/global";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 import { AnonymousIdentity } from "@dfinity/agent";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
+import { PlusIcon } from "../../../components/typography/icons";
 
 export function MyAssetsPage() {
   const client = useMasqueradeClient();
@@ -165,7 +165,7 @@ export function MyAssetsPage() {
                       }
                     >
                       <AssetAddAccountBtnIconWrapper>
-                        <img src={PlusSvg} alt="add" />
+                        <PlusIcon />
                       </AssetAddAccountBtnIconWrapper>
                       <AssetAddAccountBtnText>
                         Add New {allAssetData[assetId]!.metadata!.symbol} Account

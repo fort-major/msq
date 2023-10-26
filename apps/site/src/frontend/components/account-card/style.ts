@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { BLINK_ANIMATION, COLOR_ACCENT, COLOR_GRAY } from "../../styles";
+import { BLINK_ANIMATION, COLOR_ACCENT, COLOR_BG, COLOR_GRAY } from "../../styles";
 
 export const AccountCardWrapper = styled.div`
   display: flex;
@@ -42,6 +42,11 @@ export const AccountCardHeaderNameWrapper = styled.div`
   align-self: stretch;
 
   cursor: pointer;
+
+  & > svg {
+    width: 11.429px;
+    height: 13px;
+  }
 `;
 
 export const AccountCardHeaderNameInput = styled.input`
@@ -71,12 +76,6 @@ export const AccountCardHeaderName = styled.div`
   letter-spacing: -0.32px;
 
   ${BLINK_ANIMATION};
-`;
-
-export const AccountCardHeaderEditIcon = styled.img`
-  width: 11.429px;
-  height: 13px;
-  flex-shrink: 0;
 `;
 
 export const AccountCardHeaderPrincipal = styled.p`
@@ -161,10 +160,31 @@ export const AccountCardSendBtn = styled.button`
   gap: 10px;
 
   border-radius: 100px;
-  border: none;
+  border: 1px solid transparent;
   background: ${COLOR_ACCENT};
 
   cursor: pointer;
+
+  box-sizing: border-box;
+
+  transition:
+    background-color 0.5s,
+    border 0.5s;
+
+  &:hover {
+    background-color: transparent;
+    border: 1px solid ${COLOR_ACCENT};
+
+    & > svg > path {
+      stroke: ${COLOR_ACCENT};
+    }
+  }
+
+  & > svg > path {
+    stroke: ${COLOR_BG};
+
+    transition: stroke 0.5s;
+  }
 `;
 
 export const AccountCardReceiveBtn = styled.button`
@@ -181,4 +201,20 @@ export const AccountCardReceiveBtn = styled.button`
   background-color: transparent;
 
   cursor: pointer;
+
+  transition:
+    background-color 0.5s,
+    border 0.5s;
+
+  &:hover {
+    border: 1px solid ${COLOR_ACCENT};
+
+    & > svg > path {
+      stroke: ${COLOR_ACCENT};
+    }
+  }
+
+  & > svg > path {
+    transition: stroke 0.5s;
+  }
 `;

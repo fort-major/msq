@@ -4,23 +4,24 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* frontend
-* embed icons to make them stylable
+* payment page + fees
+* donation page
 * Contact Us btn
 * add spinner
-* add transitions
-* add disabled states during submissions
 * trim-validate all inputs
+* add disabled states during submissions
 * healthcheck function and better startup
 * client onMessage listener memory leak check
-* refine security: freeze deps versions, check all events
-* stats for protected methods + express as annotations?
+* refine security: freeze deps versions, check all events safety
 * getPseudonym + svg boops + getAvatar
+* stats for protected methods + express as annotations? + stats page
+* refine frontend + add transitions + mobile + adaptive
+* landing pages
 * update comments
 * update tests
 * readme update + inner readmes
 * storybook + encapsulate more comps
-* mock ICRC-1 tokens
+* mock ICRC-1 tokens for development
 * dollars and exchange rates
 
 ## Local development

@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { COLOR_ACCENT } from "../../../styles";
+import { COLOR_ACCENT, COLOR_BG } from "../../../styles";
 
 export const MyLinksContent = styled.section`
   display: flex;
@@ -54,10 +54,37 @@ export const UnlinkAllBtn = styled.button`
   gap: 10px;
 
   border-radius: 100px;
-  border: none;
-  background: ${COLOR_ACCENT};
+  border: 1px solid transparent;
+  background-color: ${COLOR_ACCENT};
+  color: ${COLOR_BG};
 
   cursor: pointer;
+
+  transition:
+    background-color 0.5s,
+    border 0.5s,
+    color 0.5s;
+
+  &:hover {
+    background-color: transparent;
+    border: 1px solid ${COLOR_ACCENT};
+    color: ${COLOR_ACCENT};
+
+    & > svg > path {
+      stroke: ${COLOR_ACCENT};
+    }
+  }
+
+  & > svg {
+    height: 15px;
+    width: 15px;
+
+    & > path {
+      stroke: ${COLOR_BG};
+
+      transition: stroke 0.5s;
+    }
+  }
 `;
 
 export const LinksListWrapper = styled.div`
@@ -104,6 +131,23 @@ export const UnlinkBtn = styled.button`
   background: #22232c;
 
   cursor: pointer;
+
+  &:hover {
+    & > svg > path {
+      stroke: ${COLOR_ACCENT};
+    }
+  }
+
+  & > svg {
+    flex-shrink: 0;
+
+    width: 15px;
+    height: 15px;
+
+    & > path {
+      transition: stroke 0.5s;
+    }
+  }
 `;
 
 export const AvatarWrapper = styled.div`

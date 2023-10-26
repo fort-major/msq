@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { COLOR_ACCENT, COLOR_GRAY, COLOR_LIGHTGRAY } from "../../../styles";
+import { COLOR_ACCENT, COLOR_GRAY, COLOR_LIGHTGRAY, getClassName } from "../../../styles";
 
 export const MyAssetsPageContent = styled.section`
   display: flex;
@@ -36,20 +36,6 @@ export const AssetAccountsWrapper = styled.div`
   gap: 20px;
 `;
 
-export const AssetAddAccountBtn = styled.button`
-  display: flex;
-  padding: 20px 20px 20px 20px;
-  align-items: center;
-  gap: 20px;
-  align-self: stretch;
-
-  border-radius: 25px;
-  border: 1px solid ${COLOR_GRAY};
-  background-color: transparent;
-
-  cursor: pointer;
-`;
-
 export const AssetAddAccountBtnIconWrapper = styled.div`
   display: flex;
   width: 40px;
@@ -62,6 +48,47 @@ export const AssetAddAccountBtnIconWrapper = styled.div`
   border-radius: 100px;
   border: 1px dashed #fff;
   box-sizing: border-box;
+
+  transition: border 0.5s;
+
+  & > svg {
+    width: 12px;
+    height: 12px;
+
+    & > path {
+      transition: stroke 0.5s;
+    }
+  }
+`;
+
+console.log(getClassName(AssetAddAccountBtnIconWrapper));
+
+export const AssetAddAccountBtn = styled.button`
+  display: flex;
+  padding: 20px 20px 20px 20px;
+  align-items: center;
+  gap: 20px;
+  align-self: stretch;
+
+  border-radius: 25px;
+  border: 1px solid ${COLOR_GRAY};
+  background-color: transparent;
+
+  cursor: pointer;
+
+  transition: border 0.5s;
+
+  &:hover {
+    border: 1px solid ${COLOR_ACCENT};
+
+    & .${getClassName(AssetAddAccountBtnIconWrapper)} {
+      border: 1px dashed ${COLOR_ACCENT};
+
+      & > svg > path {
+        stroke: ${COLOR_ACCENT};
+      }
+    }
+  }
 `;
 
 export const AssetAddAccountBtnText = styled.p`

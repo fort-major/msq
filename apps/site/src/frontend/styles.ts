@@ -1,4 +1,5 @@
-import { styled } from "solid-styled-components";
+import { Component, JSX } from "solid-js";
+import { AsProps, styled } from "solid-styled-components";
 
 export const COLOR_GRAY = "#2F2F38";
 export const COLOR_LIGHTGRAY = "#676767";
@@ -44,3 +45,9 @@ export const CabinetHeading = styled.h2`
 export const BLINK_ANIMATION = `
   animation: 0.5s ease-out blink;
 `;
+
+export function getClassName(comp: {
+  class: (props: JSX.HTMLAttributes<HTMLHeadingElement> & AsProps) => string;
+}): string {
+  return comp.class({});
+}

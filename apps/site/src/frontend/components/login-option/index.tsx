@@ -2,16 +2,14 @@ import { Principal } from "@dfinity/principal";
 import { BoopAvatar } from "../boop-avatar";
 import {
   LoginOptionContent,
-  LoginOptionIcon,
   LoginOptionPrincipal,
   LoginOptionPseudonym,
   LoginOptionPseudonymEdit,
   LoginOptionWrapper,
 } from "./style";
-import { ErrorCode, err } from "@fort-major/masquerade-shared";
-import EditSVG from "#assets/edit.svg";
-import { Match, Show, Switch, createSignal } from "solid-js";
+import { Show, createSignal } from "solid-js";
 import { assertEventSafe } from "../../utils";
+import { EditIcon } from "../typography/icons";
 
 export interface ILoginOptionProps {
   pseudonym: string;
@@ -63,7 +61,7 @@ export function LoginOption(props: ILoginOptionProps) {
         <LoginOptionPrincipal>{props.principal}</LoginOptionPrincipal>
       </LoginOptionContent>
       <Show when={editable()}>
-        <LoginOptionIcon src={EditSVG} alt="edit" onClick={handleEdit} />
+        <EditIcon onClick={handleEdit} />
       </Show>
     </LoginOptionWrapper>
   );

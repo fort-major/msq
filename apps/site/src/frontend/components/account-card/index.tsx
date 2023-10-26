@@ -9,7 +9,6 @@ import {
   AccountCardFooterButtons,
   AccountCardFooterContent,
   AccountCardHeader,
-  AccountCardHeaderEditIcon,
   AccountCardHeaderName,
   AccountCardHeaderNameInput,
   AccountCardHeaderNameWrapper,
@@ -18,10 +17,8 @@ import {
   AccountCardSendBtn,
   AccountCardWrapper,
 } from "./style";
-import EditSvg from "#assets/edit.svg";
-import SendBlackSvg from "#assets/send-black.svg";
-import ReceiveSvg from "#assets/receive.svg";
 import { Match, Show, Switch, createSignal } from "solid-js";
+import { EditIcon, ReceiveIcon, SendIcon } from "../typography/icons";
 
 export interface IAccountCardProps {
   accountId: TAccountId;
@@ -82,7 +79,7 @@ export function AccountCard(props: IAccountCardProps) {
           <Match when={!edited()}>
             <AccountCardHeaderNameWrapper onClick={handleEditStart}>
               <AccountCardHeaderName>{props.name}</AccountCardHeaderName>
-              <AccountCardHeaderEditIcon src={EditSvg} alt="edit" />
+              <EditIcon />
             </AccountCardHeaderNameWrapper>
           </Match>
         </Switch>
@@ -103,13 +100,13 @@ export function AccountCard(props: IAccountCardProps) {
           </AccountCardFooterBalance>
           <AccountCardFooterButtons>
             <AccountCardSendBtn disabled={props.principal === undefined} onClick={() => props.onSend(props.accountId)}>
-              <img src={SendBlackSvg} alt="send" />
+              <SendIcon />
             </AccountCardSendBtn>
             <AccountCardReceiveBtn
               disabled={props.principal === undefined}
               onClick={() => props.onReceive(props.principal!)}
             >
-              <img src={ReceiveSvg} alt="receive" />
+              <ReceiveIcon />
             </AccountCardReceiveBtn>
           </AccountCardFooterButtons>
         </AccountCardFooterContent>

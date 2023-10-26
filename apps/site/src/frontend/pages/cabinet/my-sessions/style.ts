@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { COLOR_ACCENT, COLOR_GREEN, COLOR_LIGHTGRAY } from "../../../styles";
+import { COLOR_ACCENT, COLOR_BG, COLOR_GREEN, COLOR_LIGHTGRAY } from "../../../styles";
 
 export const MySessionsContent = styled.section`
   display: flex;
@@ -129,7 +129,32 @@ export const LogoutBtn = styled.div`
   gap: 10px;
 
   border-radius: 100%;
-  background: ${COLOR_ACCENT};
+  background-color: ${COLOR_ACCENT};
+  border: 1px solid transparent;
 
   cursor: pointer;
+
+  transition:
+    background-color 0.5s,
+    border 0.5s;
+
+  &:hover {
+    background-color: transparent;
+    border: 1px solid ${COLOR_ACCENT};
+
+    & > svg > path {
+      stroke: ${COLOR_ACCENT};
+    }
+  }
+
+  & > svg {
+    width: 18px;
+    height: 20px;
+
+    & > path {
+      stroke: ${COLOR_BG};
+
+      transition: stroke 0.5s;
+    }
+  }
 `;
