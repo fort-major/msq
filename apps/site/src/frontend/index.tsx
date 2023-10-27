@@ -2,17 +2,21 @@
 (window as any).global = window;
 
 /* @refresh reload */
-import { render } from "solid-js/web";
+import { Portal, render } from "solid-js/web";
 import { Header } from "./components/header";
 import { Root, Page } from "./styles";
 import { Routes, Route, Router } from "@solidjs/router";
-import { lazy } from "solid-js";
+import { Show, lazy } from "solid-js";
 import { MyMasksPage } from "./pages/cabinet/my-masks";
-import { GlobalStore } from "./store/global";
+import { GlobalStore, useLoader } from "./store/global";
 import { LoginPage } from "./pages/integration/login";
 import { MySessionsPage } from "./pages/cabinet/my-sessions";
 import { MyLinksPage } from "./pages/cabinet/my-links";
 import { MyAssetsPage } from "./pages/cabinet/my-assets";
+import { Loader } from "./components/loader";
+import { IChildren } from "./utils";
+import CabinetRoot from "./pages/cabinet";
+import IntegrationRoot from "./pages/integration";
 
 const root = document.getElementById("root");
 
@@ -22,15 +26,22 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
-export function App() {
-  const CabinetRoot = lazy(() => import("./pages/cabinet"));
-  const IntegrationRoot = lazy(() => import("./pages/integration"));
+function LoaderPortal() {
+  const [loaderVisible] = useLoader();
 
   return (
+    <Show when={loaderVisible()}>
+      <Loader />
+    </Show>
+  );
+}
+
+export function App() {
+  return (
     <Root>
-      <Header />
-      <Page>
-        <GlobalStore>
+      <GlobalStore>
+        <Header />
+        <Page>
           <Router>
             <Routes>
               <Route path="/integration" component={IntegrationRoot}>
@@ -44,8 +55,9 @@ export function App() {
               </Route>
             </Routes>
           </Router>
-        </GlobalStore>
-      </Page>
+        </Page>
+        <LoaderPortal />
+      </GlobalStore>
     </Root>
   );
 }

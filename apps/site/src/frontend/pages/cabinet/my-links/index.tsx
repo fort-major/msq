@@ -1,4 +1,4 @@
-import { For, Show } from "solid-js";
+import { For, Show, createEffect } from "solid-js";
 import { useAllOriginData } from "../../../store/cabinet";
 import { CabinetHeading } from "../../../styles";
 import {
@@ -19,7 +19,7 @@ import {
 import { Accent, Title } from "../../../components/typography/style";
 import { Principal, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { BoopAvatar } from "../../../components/boop-avatar";
-import { useMasqueradeClient } from "../../../store/global";
+import { useLoader, useMasqueradeClient } from "../../../store/global";
 import { produce } from "solid-js/store";
 import { UnlinkIcon } from "../../../components/typography/icons";
 
@@ -28,6 +28,9 @@ export function MyLinksPage() {
   const [allOriginData, setAllOriginData, allOriginDataFetched, allOriginDataKeys] = useAllOriginData();
   const allOriginDataKeysWithLinks = () =>
     allOriginDataKeys().filter((origin) => allOriginData[origin]!.linksTo.length !== 0);
+
+  const [_, showLoader] = useLoader();
+  createEffect(() => showLoader(!allOriginDataFetched()));
 
   const unlinkOne = async (origin: TOrigin, withOrigin: TOrigin) => {
     const result = await client()!.unlinkOne(origin, withOrigin);

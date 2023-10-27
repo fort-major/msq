@@ -1,7 +1,7 @@
-import { For, Match, Switch, createEffect, createSignal } from "solid-js";
+import { For, Match, Show, Switch, createEffect, createSignal } from "solid-js";
 import { IMask, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { DismissBtn, LoginHeadingSection, LoginOptionsSection, LoginOptionsWrapper, LoginPageHeader } from "./style";
-import { useMasqueradeClient } from "../../../store/global";
+import { useLoader, useMasqueradeClient } from "../../../store/global";
 import { referrerOrigin, sendLoginResult, useLoginRequestMsg, useReferrerWindow } from "../../../store/integration";
 import { useNavigate } from "@solidjs/router";
 import { Accent, Title } from "../../../components/typography/style";
@@ -10,6 +10,7 @@ import { LoginOption } from "../../../components/login-option";
 import { AddNewMaskBtn } from "../../../components/add-new-mask-btn";
 import { Spoiler } from "../../../components/spoiler";
 import { ChevronUpIcon } from "../../../components/typography/icons";
+import { Loader } from "../../../components/loader";
 
 export function LoginPage() {
   const [loginOptions, setLoginOptions] = createSignal<[TOrigin, IMask[]][] | null>(null);
@@ -17,6 +18,9 @@ export function LoginPage() {
   const loginRequest = useLoginRequestMsg();
   const [referrerWindow] = useReferrerWindow();
   const navigate = useNavigate();
+
+  const [_, showLoader] = useLoader();
+  createEffect(() => (loginOptions() === null ? showLoader(true) : showLoader(false)));
 
   if (referrerOrigin === null || referrerOrigin === window.location.origin) {
     navigate("/");
@@ -63,44 +67,40 @@ export function LoginPage() {
           <Accent>{originToHostname(referrerOrigin!)}</Accent> wants you to log in
         </Title>
       </LoginHeadingSection>
-      <Switch fallback={<p>Loading...</p>}>
-        <Match when={loginRequest() !== null && snapClient() !== null}>
-          <LoginOptionsWrapper>
-            <LoginOptionsSection>
-              <For each={loginOptions()}>
-                {([origin, principals]) => (
-                  <Spoiler
-                    header={
-                      <Title>
-                        Masks from <Accent>{originToHostname(origin)}</Accent>
-                      </Title>
-                    }
-                  >
-                    <For each={principals}>
-                      {(mask, idx) => (
-                        <>
-                          <Divider />
-                          <LoginOption
-                            pseudonym={mask.pseudonym}
-                            principal={mask.principal}
-                            onClick={() => onLogin(origin, idx())}
-                          />
-                        </>
-                      )}
-                    </For>
-                    <Switch>
-                      <Match when={origin === referrerOrigin}>
-                        <Divider />
-                        <AddNewMaskBtn onClick={onAddNewMask} />
-                      </Match>
-                    </Switch>
-                  </Spoiler>
-                )}
-              </For>
-            </LoginOptionsSection>
-          </LoginOptionsWrapper>
-        </Match>
-      </Switch>
+      <LoginOptionsWrapper>
+        <LoginOptionsSection>
+          <For each={loginOptions()}>
+            {([origin, principals]) => (
+              <Spoiler
+                header={
+                  <Title>
+                    Masks from <Accent>{originToHostname(origin)}</Accent>
+                  </Title>
+                }
+              >
+                <For each={principals}>
+                  {(mask, idx) => (
+                    <>
+                      <Divider />
+                      <LoginOption
+                        pseudonym={mask.pseudonym}
+                        principal={mask.principal}
+                        onClick={() => onLogin(origin, idx())}
+                      />
+                    </>
+                  )}
+                </For>
+                <Switch>
+                  <Match when={origin === referrerOrigin}>
+                    <Divider />
+                    <AddNewMaskBtn onClick={onAddNewMask} />
+                  </Match>
+                </Switch>
+              </Spoiler>
+            )}
+          </For>
+        </LoginOptionsSection>
+      </LoginOptionsWrapper>
     </>
   );
 }

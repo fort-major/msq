@@ -7,6 +7,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * payment page + fees
 * donation page
 * add spinner
+* cache base entropy
 * trim-validate all inputs
 * add disabled states during submissions
 * healthcheck function and better startup

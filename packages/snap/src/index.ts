@@ -162,7 +162,9 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
     }
   }
 
-  StateManager.schedulePersist();
+  const res = toCBOR(await result);
 
-  return toCBOR(await result);
+  await StateManager.persist();
+
+  return res;
 };

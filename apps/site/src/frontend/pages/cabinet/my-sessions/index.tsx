@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { For, Show, createEffect } from "solid-js";
 import { useAllOriginData } from "../../../store/cabinet";
 import { CabinetHeading } from "../../../styles";
 import {
@@ -22,14 +22,18 @@ import { BoopAvatar } from "../../../components/boop-avatar";
 import { ISession, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { Principal } from "@fort-major/masquerade-shared";
 import { Accent } from "../../../components/typography/style";
-import { useMasqueradeClient } from "../../../store/global";
+import { useLoader, useMasqueradeClient } from "../../../store/global";
 import { PowerIcon } from "../../../components/typography/icons";
+import { Loader } from "../../../components/loader";
 
 export function MySessionsPage() {
   const client = useMasqueradeClient();
   const [allOriginData, setAllOriginData, allOriginDataFetched, allOriginDataKeys] = useAllOriginData();
   const originsWithSession = () =>
     allOriginDataKeys().filter((origin) => allOriginData[origin]!.currentSession !== undefined);
+
+  const [_, showLoader] = useLoader();
+  createEffect(() => showLoader(!allOriginDataFetched()));
 
   const getMaskBySession = (session: ISession): { pseudonym: string; principal: Principal } => {
     const originData = allOriginData[session.deriviationOrigin];

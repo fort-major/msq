@@ -1,4 +1,4 @@
-import { For, Show, createSignal } from "solid-js";
+import { For, Show, createEffect, createSignal, on } from "solid-js";
 import { makeIcrc1Salt, useAllAssetData } from "../../../store/cabinet";
 import { CabinetHeading } from "../../../styles";
 import {
@@ -20,7 +20,7 @@ import { Dim, Title } from "../../../components/typography/style";
 import { AccountCard } from "../../../components/account-card";
 import { DEFAULT_PRINCIPAL, assertEventSafe, getAssetMetadata, makeAgent, tokensToStr } from "../../../utils";
 import { Principal, TAccountId } from "@fort-major/masquerade-shared";
-import { useMasqueradeClient } from "../../../store/global";
+import { useLoader, useMasqueradeClient } from "../../../store/global";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 import { AnonymousIdentity } from "@dfinity/agent";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
@@ -31,6 +31,9 @@ export function MyAssetsPage() {
   const [allAssetData, setAllAssetData, allAssetDataFetched, allAssetDataKeys] = useAllAssetData();
   const [newAssetId, setNewAssetId] = createSignal<string>("");
   const [error, setError] = createSignal<string | undefined>();
+
+  const [_, showLoader] = useLoader();
+  createEffect(() => showLoader(!allAssetDataFetched()));
 
   const handleEdit = async (assetId: string, accountId: TAccountId, newName: string) => {
     await client()!.editAssetAccount(assetId, accountId, newName);

@@ -198,8 +198,8 @@ export class StateManager {
     return new StateManager(state);
   }
 
-  public static schedulePersist(): void {
-    persistStateLocal();
+  public static async persist(): Promise<void> {
+    return persistStateLocal();
   }
 
   public incrementStats(origin: TOrigin): void {
@@ -282,6 +282,8 @@ async function retrieveStateWrapped(): Promise<IState> {
     if (state == null) {
       const s = makeDefaultState();
       STATE = s;
+
+      STATE_UPDATE_TIMESTAMP = Date.now();
     } else {
       STATE = zodParse(ZState, fromCBOR(state.data as string));
     }
@@ -314,14 +316,14 @@ function createDeepOnChangeProxy(target: any, onChange: () => void): unknown {
   });
 }
 
-function persistStateLocal(): void {
+async function persistStateLocal(): Promise<void> {
   if (LAST_STATE_PERSIST_TIMESTAMP >= STATE_UPDATE_TIMESTAMP) return;
 
   zodParse(ZState, STATE);
 
   LAST_STATE_PERSIST_TIMESTAMP = Date.now();
 
-  snap.request({
+  await snap.request({
     method: "snap_manageState",
     params: {
       operation: "update",
