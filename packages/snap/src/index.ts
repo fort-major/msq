@@ -9,6 +9,7 @@ import {
 } from "./protocols/icrc1";
 import {
   handleIdentityGetLinks,
+  handleIdentityGetPseudonym,
   handleIdentityGetPublicKey,
   handleIdentityLinkRequest,
   handleIdentityLogoutRequest,
@@ -129,6 +130,11 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
     case SNAP_METHODS.public.identity.getPublicKey: {
       result = handleIdentityGetPublicKey(req.params.body, origin);
+      break;
+    }
+
+    case SNAP_METHODS.public.identity.getPseudonym: {
+      result = handleIdentityGetPseudonym(origin);
       break;
     }
 

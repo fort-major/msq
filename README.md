@@ -5,6 +5,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 ## TODO
 
 * getPseudonym + svg boops + getAvatar
+* Masquerade login
 * dev snap
 
 * payment page + fees
@@ -19,6 +20,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * test Masquerade site domain migration
 * test snap storage survives upgrades
 * healthcheck function and better startup
+* demo shop project
 * update comments
 * update tests
 * readme update + inner readmes

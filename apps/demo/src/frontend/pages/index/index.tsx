@@ -1,13 +1,15 @@
 import { type ActorSubclass, HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import { MasqueradeClient } from "@fort-major/masquerade-client";
-import { createSignal, onMount } from "solid-js";
+import { Show, createSignal, onMount } from "solid-js";
 import { type Backend, createBackendActor } from "../../backend";
 
 export const IndexPage = () => {
   const [snapClient, setSnapClient] = createSignal<MasqueradeClient | null>();
   const [actor, setActor] = createSignal<ActorSubclass<Backend> | null>(null);
   const [principal, setPrincipal] = createSignal<Principal>(Principal.anonymous());
+  const [pseudonym, setPseudonym] = createSignal("Anonymous User");
+  const [avatar, setAvatar] = createSignal<string | null>(null);
   const [links, setLinks] = createSignal<string[]>([]);
 
   onMount(async () => {
@@ -22,6 +24,8 @@ export const IndexPage = () => {
     if (await client.isAuthorized()) {
       const identity = (await client.requestLogin())!;
       setPrincipal(identity.getPrincipal());
+      setPseudonym(await identity.getPseudonym());
+      setAvatar(await identity.getAvatarSrc());
 
       const agent = new HttpAgent({
         host: import.meta.env.VITE_MSQ_DFX_NETWORK_HOST,
@@ -63,6 +67,8 @@ export const IndexPage = () => {
     });
 
     setPrincipal(identity.getPrincipal());
+    setPseudonym(await identity.getPseudonym());
+    setAvatar(await identity.getAvatarSrc());
   };
 
   const onLogout = async () => {
@@ -138,7 +144,12 @@ export const IndexPage = () => {
 
   return (
     <main>
-      <h3>Hello, {principal().toText()}</h3>
+      <Show when={avatar() !== null}>
+        <img src={avatar()!} />
+      </Show>
+      <h3>
+        Hello, {pseudonym()} ({principal().toText()})
+      </h3>
       {snapClient() && authBtn()}
       {snapClient() && canisterCallBtns()}
       {snapClient() && icpTransferButton()}

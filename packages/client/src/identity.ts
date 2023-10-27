@@ -1,7 +1,12 @@
 import { type PublicKey, SignIdentity, type Signature } from "@dfinity/agent";
 import { type MasqueradeClient } from "./client";
 import { Secp256k1PublicKey } from "@dfinity/identity-secp256k1";
-import { type IIdentitySignRequest, SNAP_METHODS, IIdentityGetPublicKeyRequest } from "@fort-major/masquerade-shared";
+import {
+  type IIdentitySignRequest,
+  SNAP_METHODS,
+  IIdentityGetPublicKeyRequest,
+  makeAvatarSvg,
+} from "@fort-major/masquerade-shared";
 
 /**
  * ## An identity that proxies all incoming `sign` requests to the Masquerade Snap
@@ -50,6 +55,17 @@ export class MasqueradeIdentity extends SignIdentity {
    */
   getPublicKey(): PublicKey {
     return this.publicKey;
+  }
+
+  getPseudonym(): Promise<string> {
+    return this.client._requestSnap(SNAP_METHODS.public.identity.getPseudonym);
+  }
+
+  getAvatarSrc(bgColor?: string): Promise<string> {
+    const principal = this.getPrincipal();
+    const svg = btoa(makeAvatarSvg(principal, bgColor));
+
+    return Promise.resolve(`data:image/svg+xml;base64,${svg}`);
   }
 
   /**

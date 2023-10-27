@@ -82,7 +82,7 @@ export function MySessionsPage() {
                 </SessionWebsiteWrapper>
                 <VerticalDivider height={60} />
                 <SessionInfoWrapper>
-                  <BoopAvatar size={50} principal={mask.principal} eyesAngle={90} />
+                  <BoopAvatar size={50} principal={mask.principal} />
                   <SessionInfoDataWrapper>
                     <SessionInfoDataPseudonym>
                       {mask.pseudonym} (from{" "}

@@ -44,7 +44,7 @@ export function LoginOption(props: ILoginOptionProps) {
 
   return (
     <LoginOptionWrapper editable={editable()} onClick={handleClick}>
-      <BoopAvatar size={60} eyesAngle={90} principal={Principal.fromText(props.principal)} />
+      <BoopAvatar size={60} principal={Principal.fromText(props.principal)} />
       <LoginOptionContent>
         <Show when={isEdited()} fallback={<LoginOptionPseudonym>{props.pseudonym}</LoginOptionPseudonym>}>
           <LoginOptionPseudonymEdit

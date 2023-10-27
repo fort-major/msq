@@ -3,6 +3,7 @@ import { type TOrigin } from "./types";
 
 export * from "./types";
 export * from "./encoding";
+export * from "./avatar";
 
 /**
  * ## Enumerates all available Masquerade snap methods
@@ -41,6 +42,8 @@ export const SNAP_METHODS = {
     identity: {
       sign: "public_identity_sign",
       getPublicKey: "public_identity_getPublicKey",
+
+      getPseudonym: "public_identity_getPseudonym",
 
       requestLogout: "public_identity_requestLogout",
       requestLink: "public_identity_requestLink",

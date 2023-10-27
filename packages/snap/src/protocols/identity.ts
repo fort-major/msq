@@ -318,6 +318,19 @@ export async function handleIdentityGetPublicKey(bodyCBOR: string, origin: TOrig
   return identity.getPublicKey().toRaw();
 }
 
+export async function handleIdentityGetPseudonym(origin: TOrigin): Promise<string> {
+  const manager = await StateManager.make();
+  let session = (await manager.getOriginData(origin)).currentSession;
+
+  if (session === undefined) err(ErrorCode.UNAUTHORIZED, "Log in first");
+
+  const originData = await manager.getOriginData(session.deriviationOrigin);
+
+  manager.incrementStats(origin);
+
+  return originData.masks[session.identityId]?.pseudonym ?? "Unknown Mister";
+}
+
 /**
  * ## Proposes the user to link their masks from this website to another website
  *

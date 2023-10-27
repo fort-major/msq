@@ -2,11 +2,11 @@
 (window as any).global = window;
 
 /* @refresh reload */
-import { Portal, render } from "solid-js/web";
+import { render } from "solid-js/web";
 import { Header } from "./components/header";
 import { Root, Page } from "./styles";
 import { Routes, Route, Router } from "@solidjs/router";
-import { Show, lazy } from "solid-js";
+import { Show } from "solid-js";
 import { MyMasksPage } from "./pages/cabinet/my-masks";
 import { GlobalStore, useLoader } from "./store/global";
 import { LoginPage } from "./pages/integration/login";
@@ -14,7 +14,6 @@ import { MySessionsPage } from "./pages/cabinet/my-sessions";
 import { MyLinksPage } from "./pages/cabinet/my-links";
 import { MyAssetsPage } from "./pages/cabinet/my-assets";
 import { Loader } from "./components/loader";
-import { IChildren } from "./utils";
 import CabinetRoot from "./pages/cabinet";
 import IntegrationRoot from "./pages/integration";
 

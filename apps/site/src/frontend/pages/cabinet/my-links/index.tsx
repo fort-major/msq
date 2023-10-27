@@ -77,11 +77,7 @@ export function MyLinksPage() {
               <LinksInfoWrapper>
                 <LinksInfoAvatars>
                   <AvatarWrapper>
-                    <BoopAvatar
-                      size={50}
-                      principal={Principal.fromText(allOriginData[origin]!.masks[0].principal)}
-                      eyesAngle={90}
-                    />
+                    <BoopAvatar size={50} principal={Principal.fromText(allOriginData[origin]!.masks[0].principal)} />
                     <Show when={allOriginData[origin]!.masks.length > 1}>
                       <AvatarCount>
                         <AvatarCountText>+{allOriginData[origin]!.masks.length - 1}</AvatarCountText>
