@@ -39,6 +39,8 @@ export interface IMasqueradeClientParams {
  * ## A client to interact with the Masquerade Snap
  */
 export class MasqueradeClient {
+  private childWindow: Window | null = null;
+
   /**
    * ## Returns true if the user is logged in current website
    *
@@ -66,16 +68,20 @@ export class MasqueradeClient {
       return MasqueradeIdentity.create(this);
     }
 
+    if (this.childWindow !== null) {
+      err(ErrorCode.SECURITY_VIOLATION, "Another operation is in-progress");
+    }
+
     const self = this;
 
+    const url = new URL("/integration/login", MASQUERADE_SITE_ORIGIN);
+    self.childWindow = window.open(url, "_blank");
+
+    if (self.childWindow === null) {
+      err(ErrorCode.UNKOWN, "Unable to open a new browser window");
+    }
+
     const loginResult = await new Promise<boolean>(async (resolve, reject) => {
-      const url = new URL("/integration/login", MASQUERADE_SITE_ORIGIN);
-      const childWindow = window.open(url, "_blank");
-
-      if (childWindow === null) {
-        err(ErrorCode.UNKOWN, "Unable to open a new browser window");
-      }
-
       let loginRequestReceived = false;
 
       const loginRequestMsg: ILoginRequestMsg = {
@@ -110,6 +116,7 @@ export class MasqueradeClient {
             resolve(loginResultMsg.result);
 
             window.removeEventListener("message", handleMsg);
+            self.childWindow = null;
           } catch (_) {
             return;
           }
@@ -117,6 +124,7 @@ export class MasqueradeClient {
           reject(e);
 
           window.removeEventListener("message", handleMsg);
+          self.childWindow = null;
         }
       }
 
@@ -126,7 +134,7 @@ export class MasqueradeClient {
         await delay(100);
 
         try {
-          childWindow!.postMessage(loginRequestMsg, MASQUERADE_SITE_ORIGIN);
+          self.childWindow!.postMessage(loginRequestMsg, MASQUERADE_SITE_ORIGIN);
         } catch (e) {
           /* ignore */
         }
@@ -225,17 +233,21 @@ export class MasqueradeClient {
     memo?: Uint8Array | undefined,
     createdAt?: bigint | undefined,
   ): Promise<bigint | null> {
+    if (this.childWindow !== null) {
+      err(ErrorCode.SECURITY_VIOLATION, "Another operation is in-progress");
+    }
+
     const self = this;
+
+    const url = new URL("/wallet", MASQUERADE_SITE_ORIGIN);
+    self.childWindow = window.open(url, "_blank");
+
+    if (self.childWindow === null) {
+      err(ErrorCode.UNKOWN, "Unable to open a new browser window");
+    }
 
     // eslint-disable-next-line no-async-promise-executor
     return await new Promise<bigint | null>(async (resolve, reject) => {
-      const url = new URL("/wallet", MASQUERADE_SITE_ORIGIN);
-      const childWindow = window.open(url, "_blank");
-
-      if (childWindow === null) {
-        err(ErrorCode.UNKOWN, "Unable to open a new browser window");
-      }
-
       let transferRequestReceived = false;
 
       const transferRequestMsg: IICRC1TransferRequestMsg = {
@@ -272,6 +284,7 @@ export class MasqueradeClient {
             resolve(resultMsg.result ?? null);
 
             window.removeEventListener("message", handleMsg);
+            self.childWindow = null;
           } catch (_) {
             return;
           }
@@ -279,6 +292,7 @@ export class MasqueradeClient {
           reject(e);
 
           window.removeEventListener("message", handleMsg);
+          self.childWindow = null;
         }
       }
 
@@ -288,7 +302,7 @@ export class MasqueradeClient {
         await delay(100);
 
         try {
-          childWindow!.postMessage(transferRequestMsg, MASQUERADE_SITE_ORIGIN);
+          self.childWindow!.postMessage(transferRequestMsg, MASQUERADE_SITE_ORIGIN);
         } catch (e) {
           /* ignore */
         }

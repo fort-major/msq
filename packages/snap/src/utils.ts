@@ -83,13 +83,8 @@ export async function getSignIdentity(
   return Secp256k1KeyIdentity.fromSecretKey(entropy);
 }
 
-async function getEntropy(
-  origin: TOrigin,
-  identityId: TIdentityId,
-  internalSalt: string,
-  externalSalt: Uint8Array,
-): Promise<ArrayBuffer> {
-  const entropyPre: string = await snap.request({
+async function getBaseEntropy(origin: TOrigin, identityId: TIdentityId, internalSalt: string): Promise<Uint8Array> {
+  const generated: string = await snap.request({
     method: "snap_getEntropy",
     params: {
       version: 1,
@@ -97,7 +92,18 @@ async function getEntropy(
     },
   });
 
-  let entropyPreBytes = new Uint8Array([...hexToBytes(entropyPre.slice(2)), ...externalSalt]);
+  return hexToBytes(generated.slice(2));
+}
+
+async function getEntropy(
+  origin: TOrigin,
+  identityId: TIdentityId,
+  internalSalt: string,
+  externalSalt: Uint8Array,
+): Promise<ArrayBuffer> {
+  const baseEntropy = await getBaseEntropy(origin, identityId, internalSalt);
+
+  let entropyPreBytes = new Uint8Array([...baseEntropy, ...externalSalt]);
   return await crypto.subtle.digest("SHA-256", entropyPreBytes);
 }
 

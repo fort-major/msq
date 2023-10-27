@@ -117,12 +117,14 @@ export function CabinetStore(props: IChildren) {
               MasqueradeIdentity.create(client()!.getInner(), makeIcrc1Salt(assetId, idx)).then((identity) => {
                 const principal = identity.getPrincipal();
 
+                setAllAssetData(assetId, "accounts", idx, "principal", principal.toText());
+
                 ledger
                   .balance({ certified: true, owner: principal })
                   .then((balance) => {
                     if (unresponsive) return;
 
-                    setAllAssetData(assetId, "accounts", idx, { principal: principal.toText(), balance });
+                    setAllAssetData(assetId, "accounts", idx, "balance", balance);
                     setAllAssetData(assetId, "totalBalance", allAssetData[assetId]!.totalBalance + balance);
                   })
                   .catch(() => {
