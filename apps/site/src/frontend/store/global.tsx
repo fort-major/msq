@@ -59,7 +59,7 @@ export function GlobalStore(props: IChildren) {
     InternalSnapClient.create({
       snapId: import.meta.env.VITE_MSQ_SNAP_ID,
       snapVersion: import.meta.env.VITE_MSQ_SNAP_VERSION,
-      debug: true,
+      debug: import.meta.env.VITE_MSQ_MODE === "DEV",
     }),
   );
 

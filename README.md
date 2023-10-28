@@ -4,25 +4,24 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* Masquerade login
 * dev snap
+* demo shop project
+* stats for protected methods + express as annotations? + stats page
 
 * payment page + fees
 * donation page
 * trim-validate all inputs
 * add disabled states during submissions
 * refine security: freeze deps versions, check all events safety
-* stats for protected methods + express as annotations? + stats page
 * blink animations everywhere
 * refine frontend + add transitions + mobile + adaptive
 * landing pages
 * test Masquerade site domain migration
 * test snap storage survives upgrades
-* healthcheck function and better startup
-* demo shop project
 * update comments
 * update tests
 * readme update + inner readmes
+
 * storybook + design system + encapsulate more comps
 * mock ICRC-1 tokens for development
 * dollars and exchange rates

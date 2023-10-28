@@ -1,5 +1,5 @@
 import detectEthereumProvider from "@metamask/detect-provider";
-import { type IMetaMaskEthereumProvider } from "./types";
+import { IGetSnapsResponse, type IMetaMaskEthereumProvider } from "./types";
 import {
   ErrorCode,
   type IIdentityLinkRequest,
@@ -31,7 +31,7 @@ export interface IMasqueradeClientParams {
   snapVersion?: string | undefined;
   /** whether the user should have MetaMask Flask installed */
   shouldBeFlask?: boolean | undefined;
-  /** whether to log raw requests and responses */
+  /** whether to log raw requests and responses, makes the snap re-install on every `.create()` invocation */
   debug?: boolean | undefined;
 }
 
@@ -363,19 +363,40 @@ export class MasqueradeClient {
     const isFlask = version?.includes("flask");
     const snapId = params?.snapId ?? SNAP_ID;
     const snapVersion = params?.snapVersion ?? SNAP_VERSION;
+    const debug = params?.debug ?? false;
 
     if ((params?.shouldBeFlask ?? DEFAULT_SHOULD_BE_FLASK) && !isFlask) {
       err(ErrorCode.METAMASK_ERROR, "Install MetaMask Flask");
     }
 
-    await provider!.request({
-      method: "wallet_requestSnaps",
-      params: {
-        [snapId]: { version: snapVersion },
-      },
-    });
+    const getSnapsResponse: IGetSnapsResponse = await provider.request({ method: "wallet_getSnaps" });
+    const msqSnap = getSnapsResponse[snapId];
 
-    return new MasqueradeClient(provider!, snapId, params?.debug ?? false);
+    if (msqSnap === undefined || debug) {
+      await provider.request({
+        method: "wallet_requestSnaps",
+        params: { [snapId]: { version: snapVersion } },
+      });
+
+      return new MasqueradeClient(provider, snapId, debug);
+    }
+
+    if (msqSnap.blocked) {
+      err(ErrorCode.METAMASK_ERROR, "Unblock the Masquerade snap");
+    }
+
+    if (!msqSnap.enabled) {
+      err(ErrorCode.METAMASK_ERROR, "Enable the Masquerade snap");
+    }
+
+    if (msqSnap.version !== snapVersion) {
+      await provider.request({
+        method: "wallet_requestSnaps",
+        params: { [snapId]: { version: snapVersion } },
+      });
+    }
+
+    return new MasqueradeClient(provider, snapId, debug);
   }
 
   private constructor(
