@@ -63,7 +63,13 @@ export function GlobalStore(props: IChildren) {
     }),
   );
 
-  const [identity] = createResource(snapClient, (client) => MasqueradeIdentity.create(client.getInner()));
+  const [identity] = createResource(snapClient, async (client) => {
+    const isAuthorized = await client.getInner().isAuthorized();
+
+    if (!isAuthorized) await client.login(window.location.origin, 0, import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
+
+    return MasqueradeIdentity.create(client.getInner());
+  });
 
   return <GlobalContext.Provider value={{ snapClient, identity, showLoader }}>{props.children}</GlobalContext.Provider>;
 }

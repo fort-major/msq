@@ -4,7 +4,6 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* getPseudonym + svg boops + getAvatar
 * Masquerade login
 * dev snap
 

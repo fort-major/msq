@@ -28,7 +28,7 @@ import {
   ZIdentityGetPublicKeyRequest,
 } from "@fort-major/masquerade-shared";
 import { StateManager } from "../state";
-import { getSignIdentity, isMasquerade } from "../utils";
+import { getSignIdentity } from "../utils";
 
 /**
  * ## Creates a new identity (mask) for the user to authorize with on some website
@@ -269,11 +269,7 @@ export async function handleIdentitySign(bodyCBOR: string, origin: TOrigin): Pro
   let session = (await manager.getOriginData(origin)).currentSession;
 
   if (session === undefined) {
-    if (isMasquerade(origin)) {
-      session = { deriviationOrigin: origin, identityId: 0, timestampMs: 0 };
-    } else {
-      err(ErrorCode.UNAUTHORIZED, "Log in first");
-    }
+    err(ErrorCode.UNAUTHORIZED, "Log in first");
   }
 
   const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
@@ -304,11 +300,7 @@ export async function handleIdentityGetPublicKey(bodyCBOR: string, origin: TOrig
   let session = (await manager.getOriginData(origin)).currentSession;
 
   if (session === undefined) {
-    if (isMasquerade(origin)) {
-      session = { deriviationOrigin: origin, identityId: 0, timestampMs: 0 };
-    } else {
-      err(ErrorCode.UNAUTHORIZED, "Log in first");
-    }
+    err(ErrorCode.UNAUTHORIZED, "Log in first");
   }
 
   const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
