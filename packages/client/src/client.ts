@@ -23,6 +23,7 @@ import { MasqueradeIdentity } from "./identity";
 
 const DEFAULT_SHOULD_BE_FLASK = false;
 const DEFAULT_DEBUG = false;
+const DEFAULT_FORCE_REINSTALL = false;
 
 export interface IMasqueradeClientParams {
   /** snap id, for example `npm:@fort-major/masquerade` */
@@ -31,8 +32,10 @@ export interface IMasqueradeClientParams {
   snapVersion?: string | undefined;
   /** whether the user should have MetaMask Flask installed */
   shouldBeFlask?: boolean | undefined;
-  /** whether to log raw requests and responses, makes the snap re-install on every `.create()` invocation */
+  /** whether to log raw requests and responses */
   debug?: boolean | undefined;
+  /** makes the snap re-install on every `.create()` invocation */
+  forceReinstall?: boolean | undefined;
 }
 
 /**
@@ -363,7 +366,8 @@ export class MasqueradeClient {
     const isFlask = version?.includes("flask");
     const snapId = params?.snapId ?? SNAP_ID;
     const snapVersion = params?.snapVersion ?? SNAP_VERSION;
-    const debug = params?.debug ?? false;
+    const debug = params?.debug ?? DEFAULT_DEBUG;
+    const forceReinstall = params?.forceReinstall ?? DEFAULT_FORCE_REINSTALL;
 
     if ((params?.shouldBeFlask ?? DEFAULT_SHOULD_BE_FLASK) && !isFlask) {
       err(ErrorCode.METAMASK_ERROR, "Install MetaMask Flask");
@@ -372,7 +376,7 @@ export class MasqueradeClient {
     const getSnapsResponse: IGetSnapsResponse = await provider.request({ method: "wallet_getSnaps" });
     const msqSnap = getSnapsResponse[snapId];
 
-    if (msqSnap === undefined || debug) {
+    if (msqSnap === undefined) {
       await provider.request({
         method: "wallet_requestSnaps",
         params: { [snapId]: { version: snapVersion } },
@@ -389,7 +393,7 @@ export class MasqueradeClient {
       err(ErrorCode.METAMASK_ERROR, "Enable the Masquerade snap");
     }
 
-    if (msqSnap.version !== snapVersion) {
+    if (msqSnap.version !== snapVersion || forceReinstall) {
       await provider.request({
         method: "wallet_requestSnaps",
         params: { [snapId]: { version: snapVersion } },
@@ -402,6 +406,6 @@ export class MasqueradeClient {
   private constructor(
     private readonly provider: IMetaMaskEthereumProvider,
     private readonly snapId: string,
-    private readonly debug: boolean = DEFAULT_DEBUG,
+    private readonly debug: boolean,
   ) {}
 }

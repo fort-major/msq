@@ -60,6 +60,7 @@ export function GlobalStore(props: IChildren) {
       snapId: import.meta.env.VITE_MSQ_SNAP_ID,
       snapVersion: import.meta.env.VITE_MSQ_SNAP_VERSION,
       debug: import.meta.env.VITE_MSQ_MODE === "DEV",
+      forceReinstall: import.meta.env.VITE_MSQ_MODE === "DEV",
     }),
   );
 

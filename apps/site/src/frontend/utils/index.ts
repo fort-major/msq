@@ -1,7 +1,7 @@
-import { ActorSubclass, AnonymousIdentity, HttpAgent, Identity } from "@dfinity/agent";
+import { ActorSubclass, HttpAgent, Identity } from "@dfinity/agent";
 import { InternalSnapClient } from "@fort-major/masquerade-client";
 import { Backend } from "../backend";
-import { ErrorCode, Principal, err, unreacheable } from "@fort-major/masquerade-shared";
+import { ErrorCode, err } from "@fort-major/masquerade-shared";
 import { JSXElement } from "solid-js";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
 

@@ -4,7 +4,6 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* dev snap
 * demo shop project
 * stats for protected methods + express as annotations? + stats page
 

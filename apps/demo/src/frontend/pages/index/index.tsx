@@ -15,7 +15,8 @@ export const IndexPage = () => {
   onMount(async () => {
     const client = await MasqueradeClient.create({
       snapId: import.meta.env.VITE_MSQ_SNAP_ID,
-      debug: false,
+      debug: true,
+      forceReinstall: import.meta.env.VITE_MSQ_MODE === "DEV",
     });
     setLinks(await client.getLinks());
 

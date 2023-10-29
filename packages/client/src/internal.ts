@@ -27,6 +27,7 @@ export interface IInternalSnapClientParams {
   snapVersion?: string | undefined;
   shouldBeFlask?: boolean | undefined;
   debug?: boolean | undefined;
+  forceReinstall?: boolean | undefined;
 }
 
 export class InternalSnapClient {

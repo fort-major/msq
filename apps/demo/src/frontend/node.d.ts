@@ -1,6 +1,7 @@
 interface ImportMeta {
   env: {
     DEV: boolean;
+    VITE_MSQ_MODE: "DEV" | "PROD";
     VITE_CANISTER_ID_DEMO_BACKEND: string;
     VITE_MSQ_SNAP_VERSION: string;
     VITE_MSQ_SNAP_ID: string;
