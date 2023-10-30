@@ -1,12 +1,12 @@
 {
   "canisters": {
-    "masquerade_backend": {
-      "candid": "src/backend/can.did",
-      "package": "masquerade_backend",
+    "msq_statistics": {
+      "candid": "src/backend/statistics/can.did",
+      "package": "msq_statistics",
       "type": "rust"
     },
-    "masquerade_frontend": {
-      "dependencies": ["masquerade_backend"],
+    "msq_frontend": {
+      "dependencies": ["msq_statistics"],
       "frontend": {
         "entrypoint": "index.html"
       },

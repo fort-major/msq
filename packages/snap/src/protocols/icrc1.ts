@@ -1,6 +1,8 @@
 import {
+  EStatisticsKind,
   IAssetDataExternal,
   IShowICRC1TransferConfirmRequest,
+  TOKENS,
   ZICRC1AddAssetAccountRequest,
   ZICRC1AddAssetRequest,
   ZICRC1EditAssetAccountRequest,
@@ -39,7 +41,7 @@ export async function protected_handleShowICRC1TransferConfirm(bodyCBOR: string)
         text("**To subaccount ID:**"),
         text(body.to.subaccount !== undefined ? bytesToHex(body.to.subaccount) : "Default subaccount ID"),
         text("**Total amount:**"),
-        text(`${body.totalAmount} ${body.ticker}`),
+        text(`${body.totalAmountStr} ${body.ticker}`),
         text("**Initiator:**"),
         text(`🌐 ${originToHostname(body.requestOrigin)}`),
         divider(),
@@ -52,7 +54,15 @@ export async function protected_handleShowICRC1TransferConfirm(bodyCBOR: string)
   });
 
   const manager = await StateManager.make();
-  manager.incrementStats(body.requestOrigin);
+
+  if (agreed) {
+    if (body.ticker in TOKENS) {
+      manager.incrementStats(EStatisticsKind.Icrc1Sent, {
+        ticker: body.ticker as keyof typeof TOKENS,
+        qty: body.totalAmount,
+      });
+    }
+  }
 
   return Boolean(agreed);
 }
@@ -106,6 +116,7 @@ export async function protected_handleAddAssetAccount(bodyCBOR: string): Promise
 
   if (!agreed) return null;
 
+  manager.incrementStats(EStatisticsKind.Icrc1AccountsCreated);
   const accountName = manager.addAssetAccount(body.assetId);
 
   return accountName;

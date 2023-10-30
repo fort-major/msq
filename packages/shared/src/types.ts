@@ -76,11 +76,37 @@ export type IStatistics = z.infer<typeof ZStatistics>;
 export const ZStatistics = z.object({
   /** when was the last time the user sent the stats to the server */
   lastResetTimestamp: z.number().nonnegative(),
-  /** how many activities were performed in any development environment */
-  dev: z.number().nonnegative(),
-  /** how many activities were performed in any production environment */
-  prod: z.number().nonnegative(),
+  /** how many activities were performed in any production environment by each activity type */
+  prod: z.object({
+    masks_created: z.number().nonnegative(),
+    signatures_produced: z.number().nonnegative(),
+    icrc1_accounts_created: z.number().nonnegative(),
+    icrc1_sent: z.object({
+      ICP: z.bigint().nonnegative(),
+      ckBTC: z.bigint().nonnegative(),
+      CHAT: z.bigint().nonnegative(),
+      SONIC: z.bigint().nonnegative(),
+      SNS1: z.bigint().nonnegative(),
+      OGY: z.bigint().nonnegative(),
+      MOD: z.bigint().nonnegative(),
+      GHOST: z.bigint().nonnegative(),
+      KINIC: z.bigint().nonnegative(),
+      HOT: z.bigint().nonnegative(),
+      CAT: z.bigint().nonnegative(),
+    }),
+    origins_linked: z.number().nonnegative(),
+    origins_unlinked: z.number().nonnegative(),
+  }),
 });
+
+export enum EStatisticsKind {
+  MasksCreated,
+  SignaturesProduced,
+  OriginsLinked,
+  OriginsUnlinked,
+  Icrc1AccountsCreated,
+  Icrc1Sent,
+}
 
 export type IAssetData = z.infer<typeof ZAssetData>;
 export const ZAssetData = z.object({
@@ -219,8 +245,9 @@ export const ZShowICRC1TransferConfirmRequest = z.object({
   requestOrigin: ZOrigin,
   from: ZPrincipalStr,
   to: ZICRC1Account,
-  totalAmount: z.string(),
-  ticker: z.string(),
+  totalAmountStr: z.string().nonempty(),
+  totalAmount: z.bigint().nonnegative(),
+  ticker: z.string().nonempty(),
 });
 export type IShowICRC1TransferConfirmRequest = z.infer<typeof ZShowICRC1TransferConfirmRequest>;
 

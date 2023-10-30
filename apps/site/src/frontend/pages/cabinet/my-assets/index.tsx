@@ -48,7 +48,7 @@ export function MyAssetsPage() {
 
     const accountId = allAssetData[assetId]!.accounts.length;
 
-    setAllAssetData(assetId, "accounts", accountId, { name });
+    setAllAssetData(assetId, "accounts", accountId, { name, balance: BigInt(0), principal: DEFAULT_PRINCIPAL });
 
     const identity = await MasqueradeIdentity.create(client()!.getInner(), makeIcrc1Salt(assetId, accountId));
     const principal = identity.getPrincipal();

@@ -16,6 +16,7 @@ import { MyAssetsPage } from "./pages/cabinet/my-assets";
 import { Loader } from "./components/loader";
 import CabinetRoot from "./pages/cabinet";
 import IntegrationRoot from "./pages/integration";
+import { StatisticsPage } from "./pages/statistics";
 
 const root = document.getElementById("root");
 
@@ -52,6 +53,7 @@ export function App() {
                 <Route path="/my-links" component={MyLinksPage} />
                 <Route path="/my-assets" component={MyAssetsPage} />
               </Route>
+              <Route path="/statistics" component={StatisticsPage} />
             </Routes>
           </Router>
         </Page>

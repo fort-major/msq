@@ -26,6 +26,7 @@ import {
   toCBOR,
   ZIdentityUnlinkAllRequest,
   ZIdentityGetPublicKeyRequest,
+  EStatisticsKind,
 } from "@fort-major/masquerade-shared";
 import { StateManager } from "../state";
 import { getSignIdentity } from "../utils";
@@ -60,7 +61,7 @@ export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<IMa
   if (!agreed) return null;
 
   const newMask = await manager.addIdentity(body.toOrigin);
-  manager.incrementStats(body.toOrigin);
+  manager.incrementStats(EStatisticsKind.MasksCreated);
 
   return newMask;
 }
@@ -96,7 +97,6 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
   };
 
   manager.setOriginData(body.toOrigin, originData);
-  manager.incrementStats(body.toOrigin);
 
   return true;
 }
@@ -118,8 +118,6 @@ export async function protected_handleIdentityGetLoginOptions(
 ): Promise<IIdentityGetLoginOptionsResponse> {
   const body = zodParse(ZIdentityGetLoginOptionsRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
-
-  manager.incrementStats(body.forOrigin);
 
   const result: IIdentityGetLoginOptionsResponse = [];
 
@@ -194,6 +192,7 @@ export async function protected_handleIdentityUnlinkAll(bodyCBOR: string): Promi
     }
 
     manager.setOriginData(withOrigin, targetOriginData);
+    manager.incrementStats(EStatisticsKind.OriginsUnlinked);
   }
 
   return true;
@@ -243,7 +242,6 @@ export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<bool
   // otherwise, remove the session and return true
   originData.currentSession = undefined;
   manager.setOriginData(origin, originData);
-  manager.incrementStats(origin);
 
   return true;
 }
@@ -274,7 +272,7 @@ export async function handleIdentitySign(bodyCBOR: string, origin: TOrigin): Pro
 
   const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
 
-  manager.incrementStats(origin);
+  manager.incrementStats(EStatisticsKind.SignaturesProduced);
 
   return await identity.sign(body.challenge);
 }
@@ -305,8 +303,6 @@ export async function handleIdentityGetPublicKey(bodyCBOR: string, origin: TOrig
 
   const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
 
-  manager.incrementStats(origin);
-
   return identity.getPublicKey().toRaw();
 }
 
@@ -317,8 +313,6 @@ export async function handleIdentityGetPseudonym(origin: TOrigin): Promise<strin
   if (session === undefined) err(ErrorCode.UNAUTHORIZED, "Log in first");
 
   const originData = await manager.getOriginData(session.deriviationOrigin);
-
-  manager.incrementStats(origin);
 
   return originData.masks[session.identityId]?.pseudonym ?? "Unknown Mister";
 }
@@ -388,7 +382,7 @@ export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigi
 
   // otherwise update the links list and return true
   await manager.link(origin, body.withOrigin);
-  manager.incrementStats(origin);
+  manager.incrementStats(EStatisticsKind.OriginsLinked);
 
   return true;
 }
@@ -460,8 +454,7 @@ export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOri
     }
   }
   manager.setOriginData(body.withOrigin, targetOriginData);
-
-  manager.incrementStats(origin);
+  manager.incrementStats(EStatisticsKind.OriginsUnlinked);
 
   return true;
 }
@@ -476,8 +469,6 @@ export async function handleIdentityGetLinks(origin: TOrigin): Promise<TOrigin[]
   const manager = await StateManager.make();
   const originData = await manager.getOriginData(origin);
 
-  manager.incrementStats(origin);
-
   return Object.keys(originData.linksTo);
 }
 
@@ -489,8 +480,6 @@ export async function handleIdentityGetLinks(origin: TOrigin): Promise<TOrigin[]
  */
 export async function handleIdentitySessionExists(origin: TOrigin): Promise<boolean> {
   const manager = await StateManager.make();
-
-  manager.incrementStats(origin);
 
   return (await manager.getOriginData(origin)).currentSession !== undefined;
 }

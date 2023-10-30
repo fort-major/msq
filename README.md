@@ -4,8 +4,9 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* demo shop project
 * stats for protected methods + express as annotations? + stats page
+* demo shop project
+* make spoilers closed by default
 
 * payment page + fees
 * donation page
@@ -15,6 +16,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * blink animations everywhere
 * refine frontend + add transitions + mobile + adaptive
 * landing pages
+* bump all dep versions
 * test Masquerade site domain migration
 * test snap storage survives upgrades
 * update comments

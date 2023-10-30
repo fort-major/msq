@@ -23,7 +23,8 @@ describe("Protected methods", () => {
         owner: "aaaaa-aa",
         subaccount: new Uint8Array([1, 3, 3, 7]),
       },
-      totalAmount: "123.1234412",
+      totalAmountStr: "123.1234412",
+      totalAmount: BigInt(1231234412),
     };
 
     const resp1 = await snap.request({

@@ -1,21 +1,21 @@
-import { ActorSubclass, HttpAgent, Identity } from "@dfinity/agent";
+import { HttpAgent, Identity } from "@dfinity/agent";
 import { InternalSnapClient } from "@fort-major/masquerade-client";
-import { Backend } from "../backend";
+import { createStatisticsBackendActor } from "../backend";
 import { ErrorCode, err } from "@fort-major/masquerade-shared";
 import { JSXElement } from "solid-js";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
 
-export async function handleStatistics(actor: ActorSubclass<Backend>, client: InternalSnapClient) {
+export async function handleStatistics(agent: HttpAgent, client: InternalSnapClient) {
   const stats = await client.getStats();
   const now = Date.now();
 
-  if (stats.dev + stats.prod < 1000 || now - stats.lastResetTimestamp < ONE_DAY) return;
+  if (now - stats.lastResetTimestamp < ONE_DAY) return;
+  const statisticsBackend = createStatisticsBackendActor(agent);
 
   await client.resetStats();
-
-  await actor.increment_stats(BigInt(stats.dev), BigInt(stats.prod));
+  await statisticsBackend.increment_stats(stats.prod);
 }
 
 export function assertEventSafe(e: Event) {
@@ -27,9 +27,6 @@ export function assertEventSafe(e: Event) {
 export interface IChildren {
   children: JSXElement;
 }
-
-export const DUMMY_ACCESSOR = () => undefined;
-export const DUMMY_SETTER = DUMMY_ACCESSOR;
 
 export function timestampToStr(timestampMs: number) {
   const date = new Date(timestampMs);

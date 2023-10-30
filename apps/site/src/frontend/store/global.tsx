@@ -1,22 +1,13 @@
-import {
-  Accessor,
-  Resource,
-  Setter,
-  Show,
-  children,
-  createContext,
-  createResource,
-  createSignal,
-  useContext,
-} from "solid-js";
+import { Accessor, Resource, Setter, createContext, createResource, createSignal, onMount, useContext } from "solid-js";
 import { InternalSnapClient, MasqueradeIdentity } from "@fort-major/masquerade-client";
-import { IChildren } from "../utils";
+import { IChildren, handleStatistics, makeAgent } from "../utils";
 import { unreacheable } from "@fort-major/masquerade-shared";
-import { Loader } from "../components/loader";
+import { AnonymousIdentity, HttpAgent } from "@dfinity/agent";
 
 interface IGlobalContext {
   snapClient: Resource<InternalSnapClient>;
   identity: Resource<MasqueradeIdentity>;
+  icAgent: Accessor<HttpAgent | null>;
   showLoader: [Accessor<boolean>, Setter<boolean>];
 }
 
@@ -52,8 +43,19 @@ export function useLoader(): [Accessor<boolean>, Setter<boolean>] {
   return ctx.showLoader;
 }
 
+export function useIcAgent(): Accessor<HttpAgent | null> {
+  const ctx = useContext(GlobalContext);
+
+  if (!ctx) {
+    unreacheable("Global context is uninitialized");
+  }
+
+  return ctx.icAgent;
+}
+
 export function GlobalStore(props: IChildren) {
   const showLoader = createSignal(false);
+  const [icAgent, setIcAgent] = createSignal<HttpAgent | null>(null);
 
   const [snapClient] = createResource(() =>
     InternalSnapClient.create({
@@ -69,8 +71,18 @@ export function GlobalStore(props: IChildren) {
 
     if (!isAuthorized) await client.login(window.location.origin, 0, import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
 
+    makeAgent(new AnonymousIdentity()).then((agent) => {
+      setIcAgent(agent);
+
+      handleStatistics(agent, client);
+    });
+
     return MasqueradeIdentity.create(client.getInner());
   });
 
-  return <GlobalContext.Provider value={{ snapClient, identity, showLoader }}>{props.children}</GlobalContext.Provider>;
+  return (
+    <GlobalContext.Provider value={{ snapClient, identity, showLoader, icAgent }}>
+      {props.children}
+    </GlobalContext.Provider>
+  );
 }

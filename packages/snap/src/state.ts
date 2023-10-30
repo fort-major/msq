@@ -15,9 +15,9 @@ import {
   IAssetData,
   TOKENS,
   TAccountId,
+  EStatisticsKind,
 } from "@fort-major/masquerade-shared";
 import { generateRandomPseudonym, getSignIdentity } from "./utils";
-import debounce from "lodash.debounce";
 
 /**
  * Provides a higher-level interface for interacting with the snap's state.
@@ -202,20 +202,38 @@ export class StateManager {
     return persistStateLocal();
   }
 
-  public incrementStats(origin: TOrigin): void {
-    const url = new URL(origin);
+  public incrementStats(kind: EStatisticsKind, icrc1_sent?: { ticker: keyof typeof TOKENS; qty: bigint }): void {
+    switch (kind) {
+      case EStatisticsKind.MasksCreated:
+        this.state.statistics.prod.masks_created += 1;
+        break;
 
-    let kind: "prod" | "dev" = "prod";
+      case EStatisticsKind.SignaturesProduced:
+        this.state.statistics.prod.signatures_produced += 1;
+        break;
 
-    if (url.protocol === "http") {
-      kind = "dev";
-    } else if (IP_V4.test(url.hostname)) {
-      kind = "dev";
-    } else if (url.hostname.includes("localhost")) {
-      kind = "dev";
+      case EStatisticsKind.OriginsLinked:
+        this.state.statistics.prod.origins_linked += 1;
+        break;
+
+      case EStatisticsKind.OriginsUnlinked:
+        this.state.statistics.prod.origins_unlinked += 1;
+        break;
+
+      case EStatisticsKind.Icrc1AccountsCreated:
+        this.state.statistics.prod.icrc1_accounts_created += 1;
+        break;
+
+      case EStatisticsKind.Icrc1Sent: {
+        if (icrc1_sent == undefined) {
+          unreacheable("No icrc1 stat body provided");
+        }
+
+        this.state.statistics.prod.icrc1_sent[icrc1_sent.ticker] += icrc1_sent.qty;
+
+        break;
+      }
     }
-
-    this.state.statistics[kind] += 1;
   }
 
   public getStats(): IStatistics {
@@ -223,17 +241,9 @@ export class StateManager {
   }
 
   public resetStats(): void {
-    const now = Date.now();
-
-    this.state.statistics = {
-      lastResetTimestamp: now,
-      dev: 0,
-      prod: 0,
-    };
+    this.state.statistics = makeDefaultStatistics();
   }
 }
-
-const IP_V4 = /^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/gm;
 
 function makeDefaultState(): IState {
   return {
@@ -243,10 +253,32 @@ function makeDefaultState(): IState {
       (prev, cur) => ({ ...prev, [cur]: makeDefaultAssetData() }),
       {} as Record<string, IAssetData>,
     ),
-    statistics: {
-      lastResetTimestamp: Date.now(),
-      dev: 0,
-      prod: 0,
+    statistics: makeDefaultStatistics(),
+  };
+}
+
+function makeDefaultStatistics(): IStatistics {
+  return {
+    lastResetTimestamp: Date.now(),
+    prod: {
+      masks_created: 0,
+      signatures_produced: 0,
+      origins_linked: 0,
+      origins_unlinked: 0,
+      icrc1_accounts_created: 0,
+      icrc1_sent: {
+        ICP: BigInt(0),
+        ckBTC: BigInt(0),
+        CHAT: BigInt(0),
+        SONIC: BigInt(0),
+        SNS1: BigInt(0),
+        OGY: BigInt(0),
+        MOD: BigInt(0),
+        GHOST: BigInt(0),
+        KINIC: BigInt(0),
+        HOT: BigInt(0),
+        CAT: BigInt(0),
+      },
     },
   };
 }
