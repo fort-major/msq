@@ -96,7 +96,7 @@ export function originToHostname(origin: TOrigin): string {
   return new URL(origin).hostname;
 }
 
-export const TOKENS = {
+export const PRE_LISTED_TOKENS = {
   ICP: "ryjl3-tyaaa-aaaaa-aaaba-cai",
   ckBTC: "mxzaz-hqaaa-aaaar-qaada-cai",
   CHAT: "2ouva-viaaa-aaaaq-aaamq-cai",
@@ -109,5 +109,31 @@ export const TOKENS = {
   HOT: "6rdgd-kyaaa-aaaaq-aaavq-cai",
   CAT: "uf2wh-taaaa-aaaaq-aabna-cai",
 };
+
+export const ICRC_1_TOKENS: (keyof typeof PRE_LISTED_TOKENS)[] = [
+  "ICP",
+  "ckBTC",
+  "CHAT",
+  "SONIC",
+  "SNS1",
+  "MOD",
+  "GHOST",
+  "KINIC",
+  "HOT",
+  "CAT",
+];
+export const ICRC_1_INDEX_TOKENS: (keyof typeof PRE_LISTED_TOKENS)[] = [
+  "ckBTC",
+  "CHAT",
+  "SONIC",
+  "SNS1",
+  "MOD",
+  "GHOST",
+  "KINIC",
+  "HOT",
+  "CAT",
+];
+export const ICP_INDEX_TOKENS: (keyof typeof PRE_LISTED_TOKENS)[] = ["ICP", "OGY"];
+export const ICRC_2_TOKENS: (keyof typeof PRE_LISTED_TOKENS)[] = ["ICP", "ckBTC"];
 
 export const DISCORD_LINK = "https://discord.gg/Z5WMHBReHd";

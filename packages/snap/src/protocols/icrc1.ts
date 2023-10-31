@@ -2,7 +2,7 @@ import {
   EStatisticsKind,
   IAssetDataExternal,
   IShowICRC1TransferConfirmRequest,
-  TOKENS,
+  PRE_LISTED_TOKENS,
   ZICRC1AddAssetAccountRequest,
   ZICRC1AddAssetRequest,
   ZICRC1EditAssetAccountRequest,
@@ -56,9 +56,9 @@ export async function protected_handleShowICRC1TransferConfirm(bodyCBOR: string)
   const manager = await StateManager.make();
 
   if (agreed) {
-    if (body.ticker in TOKENS) {
+    if (body.ticker in PRE_LISTED_TOKENS) {
       manager.incrementStats(EStatisticsKind.Icrc1Sent, {
-        ticker: body.ticker as keyof typeof TOKENS,
+        ticker: body.ticker as keyof typeof PRE_LISTED_TOKENS,
         qty: body.totalAmount,
       });
     }

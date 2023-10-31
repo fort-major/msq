@@ -9,3 +9,8 @@ interface ImportMeta {
     VITE_MSQ_DFX_NETWORK_HOST: string;
   };
 }
+
+declare module "*.svg" {
+  const content: string;
+  export default content;
+}

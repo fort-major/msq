@@ -14,7 +14,10 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "jsx": "preserve",
-    "jsxImportSource": "solid-js"
+    "jsxImportSource": "solid-js",
+    "paths": {
+      "#assets/*": ["./assets/*"]
+    }
   },
   "types": ["vite/client"],
   "references": [

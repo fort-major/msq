@@ -25,10 +25,7 @@
   "dependencies": {
     "solid-js": "1.7.12",
     "@solidjs/router": "0.8.3",
-    "@solid-primitives/event-listener": "2.3.0",
     "solid-styled-components": "0.28.5",
-    "nanostores": "0.9.3",
-    "@nanostores/solid": "0.4.2",
     "@fort-major/masquerade-client": "workspace:*"
   }
 }

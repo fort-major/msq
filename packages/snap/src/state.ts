@@ -13,9 +13,9 @@ import {
   err,
   ErrorCode,
   IAssetData,
-  TOKENS,
   TAccountId,
   EStatisticsKind,
+  PRE_LISTED_TOKENS,
 } from "@fort-major/masquerade-shared";
 import { generateRandomPseudonym, getSignIdentity } from "./utils";
 
@@ -202,7 +202,10 @@ export class StateManager {
     return persistStateLocal();
   }
 
-  public incrementStats(kind: EStatisticsKind, icrc1_sent?: { ticker: keyof typeof TOKENS; qty: bigint }): void {
+  public incrementStats(
+    kind: EStatisticsKind,
+    icrc1_sent?: { ticker: keyof typeof PRE_LISTED_TOKENS; qty: bigint },
+  ): void {
     switch (kind) {
       case EStatisticsKind.MasksCreated:
         this.state.statistics.prod.masks_created += 1;
@@ -249,7 +252,7 @@ function makeDefaultState(): IState {
   return {
     version: 1,
     originData: {},
-    assetData: Object.values(TOKENS).reduce(
+    assetData: Object.values(PRE_LISTED_TOKENS).reduce(
       (prev, cur) => ({ ...prev, [cur]: makeDefaultAssetData() }),
       {} as Record<string, IAssetData>,
     ),
