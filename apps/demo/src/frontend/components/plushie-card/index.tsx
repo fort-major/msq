@@ -23,6 +23,7 @@ export interface IPlushieCardProps {
   onRemove(): void;
 
   loggedIn: boolean;
+  loading: boolean;
 
   onContinue(): void;
 }
@@ -62,7 +63,9 @@ export function PlushieCard(props: IPlushieCardProps) {
       </CardControls>
       <Show when={props.qty > 0}>
         <Show when={props.loggedIn} fallback={<LogInError>Login to continue</LogInError>}>
-          <PayBtn onClick={props.onContinue}>Continue</PayBtn>
+          <Show when={!props.loading} fallback={<LogInError>Loading...</LogInError>}>
+            <PayBtn onClick={props.onContinue}>Continue</PayBtn>
+          </Show>
         </Show>
       </Show>
     </PlushieCardWrapper>

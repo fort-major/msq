@@ -1,4 +1,4 @@
-use candid::{CandidType, Principal};
+use candid::{CandidType, Nat, Principal};
 use ic_cdk::{
     api::call::CallResult,
     caller, init, post_upgrade, pre_upgrade, query,
@@ -29,7 +29,8 @@ type OrderId = u64;
 struct Order {
     id: OrderId,
     qty: u32,
-    price: Tokens,
+    price: u64,
+    total: Nat,
     status: OrderStatus,
     buyer: Principal,
 }
@@ -91,7 +92,8 @@ fn create_order(qty: u32) -> OrderId {
         let order = Order {
             id: order_id,
             qty,
-            price: state.price.clone(),
+            total: Nat::from(qty) * Nat::from(state.price.e8s()),
+            price: state.price.e8s(),
             status: OrderStatus::Created,
             buyer: caller(),
         };
@@ -162,74 +164,55 @@ async fn complete_order(order_id: OrderId, block_number: u64) {
                     panic!("Transaction memo doesn't match order id");
                 }
 
-                let op = block.transaction.operation.unwrap();
-                let recipient_account_id = AccountIdentifier::new(
-                    &Principal::from_text(RECIPIENT_PRINCIPAL).unwrap(),
-                    &Subaccount([0u8; 32]),
-                );
-
-                match op {
+                match block.transaction.operation.unwrap() {
                     Operation::Transfer {
                         from: _,
                         to,
                         amount,
                         fee: _,
-                    } => {
-                        if to != recipient_account_id {
-                            panic!("Invalid recipient! {} expected", recipient_account_id);
-                        }
-
-                        STATE.with(|it| {
-                            let mut state_ref = it.borrow_mut();
-                            let state = state_ref.as_mut().unwrap();
-
-                            let order = state.orders.get_mut(&order_id).unwrap();
-
-                            if amount.e8s() < order.price.e8s() {
-                                panic!(
-                                    "Insufficient transfer! {} expected - {} received",
-                                    order.price, amount
-                                );
-                            }
-
-                            order.status = OrderStatus::Paid;
-                        })
-                    }
+                    } => process_txn(order_id, to, amount),
                     Operation::TransferFrom {
                         from: _,
                         to,
                         spender: _,
                         amount,
                         fee: _,
-                    } => {
-                        if to != recipient_account_id {
-                            panic!("Invalid recipient! {} expected", recipient_account_id);
-                        }
-
-                        STATE.with(|it| {
-                            let mut state_ref = it.borrow_mut();
-                            let state = state_ref.as_mut().unwrap();
-
-                            let order = state.orders.get_mut(&order_id).unwrap();
-
-                            if amount.e8s() < order.price.e8s() {
-                                panic!(
-                                    "Insufficient transfer! {} expected - {} received",
-                                    order.price, amount
-                                );
-                            }
-
-                            order.status = OrderStatus::Paid;
-                        })
-                    }
+                    } => process_txn(order_id, to, amount),
                     _ => panic!("Invalid block operation. Should be 'transfer' or 'transfer_from'"),
-                }
+                };
             } else {
                 panic!("No block found")
             }
         }
         Err(e) => panic!("Unable to call to a remote canister {:?}", e),
     }
+}
+
+fn process_txn(order_id: u64, to: AccountIdentifier, amount: Tokens) {
+    let recipient_account_id = AccountIdentifier::new(
+        &Principal::from_text(RECIPIENT_PRINCIPAL).unwrap(),
+        &Subaccount([0u8; 32]),
+    );
+
+    if to != recipient_account_id {
+        panic!("Invalid recipient! {} expected", recipient_account_id);
+    }
+
+    STATE.with(|it| {
+        let mut state_ref = it.borrow_mut();
+        let state = state_ref.as_mut().unwrap();
+
+        let order = state.orders.get_mut(&order_id).unwrap();
+
+        if Nat::from(amount.e8s()) < order.total {
+            panic!(
+                "Insufficient transfer! {} expected - {} received",
+                order.total, amount
+            );
+        }
+
+        order.status = OrderStatus::Paid;
+    })
 }
 
 async fn query_one_block(ledger: Principal, block_index: BlockIndex) -> CallResult<Option<Block>> {

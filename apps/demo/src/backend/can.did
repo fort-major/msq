@@ -11,6 +11,7 @@ type Order = record {
     id : OrderId;
     qty : nat32;
     price : nat64;
+    total : nat;
     buyer : principal;
     status : OrderStatus;
 };

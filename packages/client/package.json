@@ -7,9 +7,9 @@
   "types": "./dist/esm/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "prod:build": "tsc && tsc -p tsconfig.cjs.json && pnpm run version:set && node inline-env-vars.js",
+    "prod:build": "rm -rf ./dist && tsc && tsc -p tsconfig.cjs.json && pnpm run version:set && node inline-env-vars.js",
     "prod:pub": "pnpm run prod:build && npm publish",
-    "dev:build": "tsc && tsc -p tsconfig.cjs.json && node inline-env-vars.js",
+    "dev:build": "rm -rf ./dist && tsc && tsc -p tsconfig.cjs.json && node inline-env-vars.js",
     "lint": "eslint --fix src --ext .ts --ext .tsx",
     "format": "pnpm exec prettier src/**/*.{ts,tsx} --write",
     "doc": "typedoc src/**/*.{ts,tsx}",

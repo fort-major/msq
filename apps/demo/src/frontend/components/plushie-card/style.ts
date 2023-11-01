@@ -102,6 +102,11 @@ export const BuyBtn = styled.button`
     color: ${COLOR_PINK};
     background-color: transparent;
   }
+
+  &:disabled {
+    background-color: ${COLOR_GRAY};
+    border: 1px solid ${COLOR_GRAY};
+  }
 `;
 
 export const QtySelector = styled.div`

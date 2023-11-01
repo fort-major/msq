@@ -1,10 +1,13 @@
 import { type ActorSubclass, HttpAgent, Identity } from "@dfinity/agent";
-import { Principal } from "@dfinity/principal";
 import { MasqueradeClient } from "@fort-major/masquerade-client";
-import { Match, Show, Switch, createEffect, createResource, createSignal, onMount } from "solid-js";
+import { Match, Show, Switch, createEffect, createResource, createSignal } from "solid-js";
 import { Body, BodyHeading, Header, LoginButton, Logo, ProfileWrapper } from "./style";
 import MetaMaskLogoSvg from "#assets/metamask.svg";
 import { PlushieCard } from "../../components/plushie-card";
+import { createBackendActor } from "../../backend";
+import { Order } from "../../../declarations/demo_backend/demo_backend.did";
+import { OrderComp } from "../../components/order";
+import { Principal } from "@dfinity/principal";
 
 interface IProfile {
   pseudonym: string;
@@ -20,10 +23,22 @@ export const IndexPage = () => {
   const [inStock, setInStock] = createSignal(1000);
   const [identity, setIdentity] = createSignal<Identity | null>(null);
   const [profile, setProfile] = createSignal<IProfile | null>(null);
+  const [loading, setLoading] = createSignal<boolean>(false);
+  const [order, setOrder] = createSignal<Order | null>(null);
 
-  const [msq, setMsq] = createResource(() =>
+  const [msq] = createResource(() =>
     MasqueradeClient.create({ forceReinstall: import.meta.env.VITE_MSQ_MODE === "DEV" }),
   );
+
+  const [backend] = createResource(identity, async (identity) => {
+    const agent = new HttpAgent({ identity, host: import.meta.env.VITE_MSQ_DFX_NETWORK_HOST });
+
+    if (import.meta.env.VITE_MSQ_MODE === "DEV") {
+      await agent.fetchRootKey();
+    }
+
+    return createBackendActor(agent);
+  });
 
   createEffect(async () => {
     if (!msq()) return;
@@ -34,6 +49,7 @@ export const IndexPage = () => {
   });
 
   const handleLogin = async () => {
+    console.log("handleLogin");
     const identity = await msq()!.requestLogin();
 
     if (identity === null) return;
@@ -47,16 +63,62 @@ export const IndexPage = () => {
     setIdentity(identity);
   };
 
-  const handleContinue = async () => {};
-
   const handleAdd = () => {
+    console.log("handleAdd");
+
     setQty((qty) => (qty < inStock() ? qty + 1 : qty));
     setInStock((inStock) => (inStock > 0 ? inStock - 1 : inStock));
   };
 
   const handleRemove = () => {
+    console.log("handleRemove");
+
     setQty((qty) => (qty > 0 ? qty - 1 : qty));
     setInStock((inStock) => (inStock < defaultInStock() ? inStock + 1 : inStock));
+  };
+
+  const handleContinue = async () => {
+    console.log("handleContinue");
+    setLoading(true);
+
+    const orderId = await backend()!.create_order(qty());
+    const order = await backend()!.get_order(orderId);
+
+    console.log(order);
+
+    setOrder(order);
+
+    setLoading(false);
+  };
+
+  const handlePay = async () => {
+    console.log("handlePay");
+
+    setLoading(true);
+
+    const view = new DataView(new ArrayBuffer(8));
+    view.setBigUint64(0, order()!.id, true);
+
+    const memo = new Uint8Array(view.buffer);
+
+    const blockIndex = await msq()!.requestICRC1Transfer(
+      Principal.fromText(ICP_TOKEN_ID),
+      { owner: Principal.fromText(RECIPIENT_PRINCIPAL) },
+      order()!.total,
+      memo,
+    );
+
+    if (blockIndex === null) {
+      alert("The payment was rejected!");
+
+      setLoading(false);
+      return;
+    }
+
+    await backend()!.complete_order(order()!.id, blockIndex);
+    setOrder({ ...order()!, status: { Paid: null } });
+
+    setLoading(false);
   };
 
   return (
@@ -79,16 +141,25 @@ export const IndexPage = () => {
         </Switch>
       </Header>
       <Body>
-        <BodyHeading>Support us by purchasing our Plushies!</BodyHeading>
-        <PlushieCard
-          loggedIn={identity() !== null}
-          inStock={inStock()}
-          qty={qty()}
-          price={0.1}
-          onAdd={handleAdd}
-          onRemove={handleRemove}
-          onContinue={handleContinue}
-        />
+        <Switch>
+          <Match when={order() === null}>
+            <BodyHeading>Support us by purchasing our Plushies!</BodyHeading>
+            <PlushieCard
+              loggedIn={identity() !== null}
+              loading={backend() === undefined || loading()}
+              inStock={inStock()}
+              qty={qty()}
+              price={0.1}
+              onAdd={handleAdd}
+              onRemove={handleRemove}
+              onContinue={handleContinue}
+            />
+          </Match>
+          <Match when={order() !== null}>
+            <BodyHeading>Here is your order</BodyHeading>
+            <OrderComp loading={loading()} {...order()!} onPay={handlePay} />
+          </Match>
+        </Switch>
       </Body>
     </>
   );

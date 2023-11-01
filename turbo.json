@@ -31,8 +31,12 @@
         "dev": {
             "cache": false
         },
-        "dev:deploy": {
+        "masquerade-site#dev:deploy": {
             "cache": false
+        },
+        "masquerade-demo#dev:deploy": {
+            "cache": false,
+            "dependsOn": ["masquerade-site#dev:deploy"]
         },
         "dev:nns": {
             "cache": false
