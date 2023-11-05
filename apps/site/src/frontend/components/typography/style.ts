@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { BLINK_ANIMATION, COLOR_ACCENT } from "../../styles";
+import { BlinkAnimation, COLOR_CHARTREUSE } from "../../ui-kit";
 
 export const Title = styled.h3<{ weight?: number }>`
   color: #fff;
@@ -8,7 +8,6 @@ export const Title = styled.h3<{ weight?: number }>`
   font-style: normal;
   font-weight: ${(props) => props.weight ?? 600};
   line-height: 100%; /* 20px */
-  letter-spacing: -0.4px;
 `;
 
 export const Subtitle = styled.h3`
@@ -19,18 +18,16 @@ export const Subtitle = styled.h3`
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 16px */
-  letter-spacing: -0.32px;
 `;
 
 export const Accent = styled.span<{ size?: number }>`
-  color: ${COLOR_ACCENT};
+  color: ${COLOR_CHARTREUSE};
 
   font-family: DM Sans;
   font-size: inherit;
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 24px */
-  letter-spacing: -0.48px;
 
   ${(props) => (props.size ? `font-size: ${props.size}px;` : "")}
 `;
@@ -43,5 +40,4 @@ export const Dim = styled.span<{ size?: number }>`
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 20px */
-  letter-spacing: -0.4px;
 `;

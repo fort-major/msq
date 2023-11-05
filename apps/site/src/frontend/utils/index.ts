@@ -2,16 +2,22 @@ import { HttpAgent, Identity } from "@dfinity/agent";
 import { InternalSnapClient } from "@fort-major/masquerade-client";
 import { createStatisticsBackendActor } from "../backend";
 import { ErrorCode, err } from "@fort-major/masquerade-shared";
-import { JSXElement } from "solid-js";
+import { JSX, JSXElement } from "solid-js";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
 
-const ONE_DAY = 1000 * 60 * 60 * 24;
+export const DEFAULT_PRINCIPAL = "aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa";
+export const DEFAULT_SUBACCOUNT = "ba35d85f5e781927cb545aa00048fd86cfb4f444baedd00baa701405251bf109";
+export const ONE_SEC_MS = 1000;
+export const ONE_MIN_MS = ONE_SEC_MS * 60;
+export const ONE_HOUR_MS = ONE_MIN_MS * 60;
+export const ONE_DAY_MS = ONE_HOUR_MS * 24;
+export const ONE_WEEK_MS = ONE_DAY_MS * 7;
 
 export async function handleStatistics(agent: HttpAgent, client: InternalSnapClient) {
   const stats = await client.getStats();
   const now = Date.now();
 
-  if (now - stats.lastResetTimestamp < ONE_DAY) return;
+  if (now - stats.lastResetTimestamp < ONE_DAY_MS) return;
   const statisticsBackend = createStatisticsBackendActor(agent);
 
   await client.resetStats();
@@ -67,9 +73,22 @@ export function tokensToStr(qty: bigint, decimals: number, trimTail: boolean = t
   }
 
   const tailFormatted = tail.toString().padStart(decimals, "0");
-  const tailTrimmed = trimTail ? tailFormatted.slice(Math.min(decimals, 4)) : tailFormatted;
+  const tailTrimmed = trimTail ? tailFormatted.slice(0, Math.min(decimals, 4)) : tailFormatted;
 
   return `${headFormatted}.${tailTrimmed}`;
+}
+
+export function strToTokens(str: string, decimals: number): bigint {
+  let [head, tail] = str.split(".") as [string, string | undefined];
+  head = head.replaceAll(",", "");
+
+  const decimalMul = BigInt(Math.pow(10, decimals));
+
+  if (tail === undefined) {
+    return BigInt(head) * decimalMul;
+  }
+
+  return BigInt(head) * decimalMul + BigInt(tail.padEnd(decimals, "0"));
 }
 
 export interface IAssetMetadata {
@@ -90,4 +109,6 @@ export async function getAssetMetadata(ledger: IcrcLedgerCanister, assetId: stri
   return { name, symbol, fee, decimals: Number(decimals) };
 }
 
-export const DEFAULT_PRINCIPAL = "aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa";
+export function getClassName(comp: { class: (props: JSX.HTMLAttributes<any>) => string }): string {
+  return comp.class({});
+}

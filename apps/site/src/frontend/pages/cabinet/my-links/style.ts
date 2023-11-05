@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { COLOR_ACCENT, COLOR_BG } from "../../../styles";
+import { COLOR_CHARTREUSE, COLOR_BLACK } from "../../../ui-kit";
 
 export const MyLinksContent = styled.section`
   display: flex;
@@ -55,8 +55,8 @@ export const UnlinkAllBtn = styled.button`
 
   border-radius: 100px;
   border: 1px solid transparent;
-  background-color: ${COLOR_ACCENT};
-  color: ${COLOR_BG};
+  background-color: ${COLOR_CHARTREUSE};
+  color: ${COLOR_BLACK};
 
   cursor: pointer;
 
@@ -67,11 +67,11 @@ export const UnlinkAllBtn = styled.button`
 
   &:hover {
     background-color: transparent;
-    border: 1px solid ${COLOR_ACCENT};
-    color: ${COLOR_ACCENT};
+    border: 1px solid ${COLOR_CHARTREUSE};
+    color: ${COLOR_CHARTREUSE};
 
     & > svg > path {
-      stroke: ${COLOR_ACCENT};
+      stroke: ${COLOR_CHARTREUSE};
     }
   }
 
@@ -80,7 +80,7 @@ export const UnlinkAllBtn = styled.button`
     width: 15px;
 
     & > path {
-      stroke: ${COLOR_BG};
+      stroke: ${COLOR_BLACK};
 
       transition: stroke 0.5s;
     }
@@ -114,7 +114,6 @@ export const LinksListItemText = styled.p`
   font-style: normal;
   font-weight: 500;
   line-height: 100%; /* 16px */
-  letter-spacing: -0.32px;
 `;
 
 export const UnlinkBtn = styled.button`
@@ -134,7 +133,7 @@ export const UnlinkBtn = styled.button`
 
   &:hover {
     & > svg > path {
-      stroke: ${COLOR_ACCENT};
+      stroke: ${COLOR_CHARTREUSE};
     }
   }
 
@@ -174,7 +173,7 @@ export const AvatarCount = styled.div`
   position: relative;
 
   border-radius: 100px;
-  background: ${COLOR_ACCENT};
+  background: ${COLOR_CHARTREUSE};
 `;
 
 export const AvatarCountText = styled.p`

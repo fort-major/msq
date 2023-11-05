@@ -1,6 +1,6 @@
 import { keyframes, styled } from "solid-styled-components";
 import GroundPatternSvg from "#assets/loader-ground.svg";
-import { COLOR_BG } from "../../styles";
+import { COLOR_BLACK } from "../../ui-kit";
 
 const BOOP_SIZE = 70;
 const SPEED_PX_S = 150;
@@ -245,7 +245,7 @@ const LoaderWrapper = styled.div`
   align-items: center;
   justify-content: center;
 
-  background-color: ${COLOR_BG};
+  background-color: ${COLOR_BLACK};
   z-index: 9;
 
   left: 0;
@@ -261,7 +261,6 @@ const LoaderText = styled.p`
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 16px */
-  letter-spacing: -0.32px;
 `;
 
 const LoaderAir = styled.div`

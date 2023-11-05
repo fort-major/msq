@@ -1,6 +1,6 @@
 import { For, Show, createEffect } from "solid-js";
 import { useAllOriginData } from "../../../store/cabinet";
-import { CabinetHeading } from "../../../styles";
+import { CabinetHeading } from "../../../ui-kit";
 import {
   LinksInfoAvatars,
   LinksInfoWrapper,

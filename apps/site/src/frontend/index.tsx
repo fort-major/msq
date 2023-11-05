@@ -1,10 +1,12 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).global = window;
 
+import "./ui-kit/index";
+
 /* @refresh reload */
 import { render } from "solid-js/web";
 import { Header } from "./components/header";
-import { Root, Page } from "./styles";
+import { Root, Page } from "./ui-kit";
 import { Routes, Route, Router } from "@solidjs/router";
 import { Show } from "solid-js";
 import { MyMasksPage } from "./pages/cabinet/my-masks";
@@ -17,6 +19,7 @@ import { Loader } from "./components/loader";
 import CabinetRoot from "./pages/cabinet";
 import IntegrationRoot from "./pages/integration";
 import { StatisticsPage } from "./pages/statistics";
+import { NotificationBar } from "./components/notification-bar";
 
 const root = document.getElementById("root");
 
@@ -40,6 +43,7 @@ export function App() {
   return (
     <Root>
       <GlobalStore>
+        <NotificationBar />
         <Header />
         <Page>
           <Router>

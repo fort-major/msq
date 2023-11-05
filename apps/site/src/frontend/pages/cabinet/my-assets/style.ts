@@ -1,5 +1,6 @@
 import { styled } from "solid-styled-components";
-import { COLOR_ACCENT, COLOR_GRAY, COLOR_LIGHTGRAY, getClassName } from "../../../styles";
+import { COLOR_CHARTREUSE, COLOR_GRAY_115 } from "../../../ui-kit";
+import { getClassName } from "../../../utils";
 
 export const MyAssetsPageContent = styled.section`
   display: flex;
@@ -71,7 +72,7 @@ export const AssetAddAccountBtn = styled.button`
   align-self: stretch;
 
   border-radius: 25px;
-  border: 1px solid ${COLOR_GRAY};
+  border: 1px solid ${COLOR_GRAY_115};
   background-color: transparent;
 
   cursor: pointer;
@@ -79,13 +80,13 @@ export const AssetAddAccountBtn = styled.button`
   transition: border 0.5s;
 
   &:hover {
-    border: 1px solid ${COLOR_ACCENT};
+    border: 1px solid ${COLOR_CHARTREUSE};
 
     & .${getClassName(AssetAddAccountBtnIconWrapper)} {
-      border: 1px dashed ${COLOR_ACCENT};
+      border: 1px dashed ${COLOR_CHARTREUSE};
 
       & > svg > path {
-        stroke: ${COLOR_ACCENT};
+        stroke: ${COLOR_CHARTREUSE};
       }
     }
   }
@@ -99,7 +100,6 @@ export const AssetAddAccountBtnText = styled.p`
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 16px */
-  letter-spacing: -0.32px;
 `;
 
 export const AddAssetWrapper = styled.div`
@@ -148,7 +148,6 @@ export const AddAssetInput = styled.input`
   font-style: normal;
   font-weight: 500;
   line-height: 100%; /* 16px */
-  letter-spacing: -0.32px;
 
   &::placeholder {
     color: #53545b;
@@ -158,7 +157,6 @@ export const AddAssetInput = styled.input`
     font-style: normal;
     font-weight: 400;
     line-height: 100%; /* 16px */
-    letter-spacing: -0.32px;
   }
 `;
 
@@ -172,7 +170,7 @@ export const AddAssetBtn = styled.button`
 
   border-radius: 100px;
   border: none;
-  background-color: ${COLOR_ACCENT};
+  background-color: ${COLOR_CHARTREUSE};
 
   font-family: DM Sans;
   font-size: 18px;

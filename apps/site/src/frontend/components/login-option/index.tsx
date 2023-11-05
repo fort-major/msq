@@ -10,6 +10,7 @@ import {
 import { Show, createSignal } from "solid-js";
 import { assertEventSafe } from "../../utils";
 import { EditIcon } from "../typography/icons";
+import { Input } from "../../ui-kit/input";
 
 export interface ILoginOptionProps {
   pseudonym: string;
@@ -27,19 +28,23 @@ export function LoginOption(props: ILoginOptionProps) {
     props.onClick();
   };
 
-  const handleEdit = (e: Event) => {
-    assertEventSafe(e);
+  const handleChange = (newPseudonym: string) => {
+    props.onEdit!(newPseudonym);
 
-    if (isEdited()) {
-      props.onEdit!(pseudonym());
-    }
+    setIsEdited(false);
+  };
+
+  const toggleEdit = (e: MouseEvent) => {
+    assertEventSafe(e);
 
     setIsEdited(!isEdited());
   };
 
+  const handleBlur = (isErr: boolean) => {
+    if (!isErr) setIsEdited(false);
+  };
+
   const editable = () => !!props.onEdit;
-  const initialPseudonym = () => props.pseudonym;
-  const [pseudonym, setPseudonym] = createSignal<string>(initialPseudonym());
   const [isEdited, setIsEdited] = createSignal<boolean>(false);
 
   return (
@@ -47,21 +52,24 @@ export function LoginOption(props: ILoginOptionProps) {
       <BoopAvatar size={60} principal={Principal.fromText(props.principal)} />
       <LoginOptionContent>
         <Show when={isEdited()} fallback={<LoginOptionPseudonym>{props.pseudonym}</LoginOptionPseudonym>}>
-          <LoginOptionPseudonymEdit
-            ref={(r) => {
-              setTimeout(() => r.focus(), 1);
+          <Input
+            label="Pseudonym"
+            required
+            autofocus
+            onBlur={handleBlur}
+            kind={{
+              String: {
+                defaultValue: props.pseudonym,
+                onChange: handleChange,
+                validate: (name) => (name.length === 0 ? "Please type something..." : null),
+              },
             }}
-            type="text"
-            value={pseudonym()}
-            onKeyDown={(e) => e.key === "Enter" && handleEdit(e)}
-            onInput={(e) => setPseudonym(e.target.value.trim())}
-            onChange={handleEdit}
           />
         </Show>
         <LoginOptionPrincipal>{props.principal}</LoginOptionPrincipal>
       </LoginOptionContent>
       <Show when={editable()}>
-        <EditIcon onClick={handleEdit} />
+        <EditIcon onClick={toggleEdit} />
       </Show>
     </LoginOptionWrapper>
   );

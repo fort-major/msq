@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { COLOR_GRAY } from "../../styles";
+import { COLOR_GRAY_115 } from "../../ui-kit";
 
 export const AddNewMaskBtnWrapper = styled.div`
   display: flex;
@@ -15,7 +15,7 @@ export const AddNewMaskBtnWrapper = styled.div`
   transition: background-color 0.5s;
 
   &:hover {
-    background-color: ${COLOR_GRAY};
+    background-color: ${COLOR_GRAY_115};
   }
 `;
 
@@ -42,5 +42,4 @@ export const AddNewMaskBtnText = styled.p`
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 16px */
-  letter-spacing: -0.32px;
 `;

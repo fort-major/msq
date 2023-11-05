@@ -1,7 +1,7 @@
-import { styled } from "solid-styled-components";
-import { BLINK_ANIMATION, COLOR_ACCENT, COLOR_BG, COLOR_GRAY } from "../../styles";
+import { css, styled } from "solid-styled-components";
+import { BlinkAnimation, COLOR_CHARTREUSE, COLOR_BLACK, COLOR_GRAY_115 } from "../../ui-kit";
 
-export const AccountCardWrapper = styled.div`
+export const AccountCardWrapper = styled.div<{ fullWidth?: boolean | undefined }>`
   display: flex;
   padding: 25px;
   flex-direction: column;
@@ -14,7 +14,10 @@ export const AccountCardWrapper = styled.div`
   border: 1px solid #2f2f38;
   box-sizing: border-box;
 
-  max-width: 430px;
+  position: relative;
+  width: 100%;
+
+  ${(props) => (props.fullWidth ? "" : "max-width: 430px;")}
 `;
 
 export const AccountCardHeader = styled.div`
@@ -49,20 +52,8 @@ export const AccountCardHeaderNameWrapper = styled.div`
   }
 `;
 
-export const AccountCardHeaderNameInput = styled.input`
-  background-color: ${COLOR_GRAY};
-  border: none;
-  padding: 5px;
-  border-radius: 3px;
-
-  color: #fff;
-
-  font-family: DM Sans;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 100%; /* 16px */
-  letter-spacing: -0.32px;
+export const AccountCardInput = css`
+  margin-bottom: 10px;
 `;
 
 export const AccountCardHeaderName = styled.div`
@@ -73,9 +64,8 @@ export const AccountCardHeaderName = styled.div`
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 16px */
-  letter-spacing: -0.32px;
 
-  ${BLINK_ANIMATION};
+  ${BlinkAnimation};
 `;
 
 export const AccountCardHeaderPrincipal = styled.p`
@@ -96,14 +86,14 @@ export const AccountCardHeaderPrincipal = styled.p`
 
   opacity: 0.3;
 
-  ${BLINK_ANIMATION};
+  ${BlinkAnimation};
 `;
 
 export const AccountCardDivider = styled.div`
   width: 40px;
   height: 3px;
 
-  background-color: ${COLOR_ACCENT};
+  background-color: ${COLOR_CHARTREUSE};
 `;
 
 export const AccountCardFooterContent = styled.div`
@@ -129,7 +119,6 @@ export const AccountCardFooterBalanceQty = styled.p`
   font-style: normal;
   font-weight: 500;
   line-height: 100%; /* 36px */
-  letter-spacing: -0.72px;
 `;
 
 export const AccountCardFooterBalanceSymbol = styled.p`
@@ -141,7 +130,6 @@ export const AccountCardFooterBalanceSymbol = styled.p`
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 12px */
-  letter-spacing: -0.24px;
 `;
 
 export const AccountCardFooterButtons = styled.div`
@@ -161,7 +149,7 @@ export const AccountCardSendBtn = styled.button`
 
   border-radius: 100px;
   border: 1px solid transparent;
-  background: ${COLOR_ACCENT};
+  background: ${COLOR_CHARTREUSE};
 
   cursor: pointer;
 
@@ -173,15 +161,15 @@ export const AccountCardSendBtn = styled.button`
 
   &:hover {
     background-color: transparent;
-    border: 1px solid ${COLOR_ACCENT};
+    border: 1px solid ${COLOR_CHARTREUSE};
 
     & > svg > path {
-      stroke: ${COLOR_ACCENT};
+      stroke: ${COLOR_CHARTREUSE};
     }
   }
 
   & > svg > path {
-    stroke: ${COLOR_BG};
+    stroke: ${COLOR_BLACK};
 
     transition: stroke 0.5s;
   }
@@ -207,10 +195,10 @@ export const AccountCardReceiveBtn = styled.button`
     border 0.5s;
 
   &:hover {
-    border: 1px solid ${COLOR_ACCENT};
+    border: 1px solid ${COLOR_CHARTREUSE};
 
     & > svg > path {
-      stroke: ${COLOR_ACCENT};
+      stroke: ${COLOR_CHARTREUSE};
     }
   }
 

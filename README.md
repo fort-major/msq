@@ -10,6 +10,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 * payment page + fees
 * donation page
+* better payment recovery
 * trim-validate all inputs
 * add disabled states during submissions
 * refine security: freeze deps versions, check all events safety

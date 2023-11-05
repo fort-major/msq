@@ -1,12 +1,14 @@
 import LogoSvg from "#assets/logo.svg";
 import { styled } from "solid-styled-components";
-import { COLOR_BG, COLOR_GRAY, HEADER_HEIGHT } from "../../styles";
+import { BAR_HEIGHT, COLOR_BLACK, COLOR_GRAY_115, HEADER_HEIGHT } from "../../ui-kit";
 
 const HeaderDiv = styled.header`
   position: fixed;
   z-index: 10;
   left: 0;
   right: 0;
+
+  top: ${BAR_HEIGHT.toString()}px;
 
   width: 100%;
   height: ${HEADER_HEIGHT.toString()}px;
@@ -18,9 +20,9 @@ const HeaderDiv = styled.header`
   justify-content: center;
   gap: 10px;
 
-  background-color: ${COLOR_BG};
+  background-color: ${COLOR_BLACK};
   box-sizing: border-box;
-  border-bottom: 1px solid ${COLOR_GRAY};
+  border-bottom: 1px solid ${COLOR_GRAY_115};
 `;
 
 export function Header() {

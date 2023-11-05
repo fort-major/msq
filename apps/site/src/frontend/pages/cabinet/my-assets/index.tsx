@@ -1,6 +1,6 @@
 import { For, Show, createEffect, createSignal, on } from "solid-js";
 import { makeIcrc1Salt, useAllAssetData } from "../../../store/cabinet";
-import { CabinetHeading } from "../../../styles";
+import { CabinetHeading } from "../../../ui-kit";
 import {
   AddAssetBtn,
   AddAssetForm,
@@ -25,12 +25,16 @@ import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 import { AnonymousIdentity } from "@dfinity/agent";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { PlusIcon } from "../../../components/typography/icons";
+import { ISendPopupProps, SendPopup } from "./send";
 
 export function MyAssetsPage() {
   const client = useMasqueradeClient();
   const [allAssetData, setAllAssetData, allAssetDataFetched, allAssetDataKeys] = useAllAssetData();
   const [newAssetId, setNewAssetId] = createSignal<string>("");
   const [error, setError] = createSignal<string | undefined>();
+
+  const [sendPopupProps, setSendPopupProps] = createSignal<ISendPopupProps | null>(null);
+  const [sendPopupVisible, showSendPopup] = createSignal(false);
 
   const [_, showLoader] = useLoader();
   createEffect(() => showLoader(!allAssetDataFetched()));
@@ -110,6 +114,25 @@ export function MyAssetsPage() {
     }
   };
 
+  const handleSend = (accountId: TAccountId, assetId: string) => {
+    const assetData = allAssetData[assetId]!;
+    const account = assetData.accounts[accountId];
+
+    const sendProps: ISendPopupProps = {
+      accountId,
+      assetId,
+      balance: account.balance,
+      name: account.name,
+      principal: account.principal!,
+      symbol: assetData.metadata!.symbol,
+      decimals: assetData.metadata!.decimals,
+      fee: assetData.metadata!.fee,
+    };
+
+    setSendPopupProps(sendProps);
+    showSendPopup(true);
+  };
+
   return (
     <>
       <CabinetHeading>My Assets</CabinetHeading>
@@ -146,12 +169,13 @@ export function MyAssetsPage() {
                         {(account, idx) => (
                           <AccountCard
                             accountId={idx()}
+                            assetId={assetId}
                             name={account.name}
                             principal={account.principal}
                             balance={account.balance}
                             symbol={allAssetData[assetId]!.metadata!.symbol}
                             decimals={allAssetData[assetId]!.metadata!.decimals}
-                            onSend={() => {}}
+                            onSend={handleSend}
                             onReceive={() => {}}
                             onEdit={(newName) => handleEdit(assetId, idx(), newName)}
                           />
@@ -192,6 +216,9 @@ export function MyAssetsPage() {
           </AddAssetForm>
         </AddAssetWrapper>
       </MyAssetsPageContent>
+      <Show when={sendPopupVisible() && sendPopupProps() !== null}>
+        <SendPopup {...sendPopupProps()!} onCancel={() => showSendPopup(false)} />
+      </Show>
     </>
   );
 }

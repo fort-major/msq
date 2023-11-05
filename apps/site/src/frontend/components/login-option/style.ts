@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { COLOR_GRAY } from "../../styles";
+import { COLOR_GRAY_115 } from "../../ui-kit";
 
 export const LoginOptionWrapper = styled.div<{ editable?: boolean | undefined }>`
   display: flex;
@@ -13,7 +13,7 @@ export const LoginOptionWrapper = styled.div<{ editable?: boolean | undefined }>
       ? `  
       cursor: pointer;
       &:hover {
-        background-color: ${COLOR_GRAY};
+        background-color: ${COLOR_GRAY_115};
         border-bottom-left-radius: 30px;
         border-top-left-radius: 30px;
       }`
@@ -29,7 +29,7 @@ export const LoginOptionWrapper = styled.div<{ editable?: boolean | undefined }>
     transition: background-color 0.5s;
 
     &:hover {
-      background-color: ${COLOR_GRAY};
+      background-color: ${COLOR_GRAY_115};
     }
   }
 `;
@@ -53,11 +53,10 @@ export const LoginOptionPseudonym = styled.h4`
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 16px */
-  letter-spacing: -0.32px;
 `;
 
 export const LoginOptionPseudonymEdit = styled.input`
-  background-color: ${COLOR_GRAY};
+  background-color: ${COLOR_GRAY_115};
   border: none;
   padding: 5px;
   border-radius: 3px;
@@ -72,7 +71,6 @@ export const LoginOptionPseudonymEdit = styled.input`
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 16px */
-  letter-spacing: -0.32px;
 `;
 
 export const LoginOptionPrincipal = styled.p`

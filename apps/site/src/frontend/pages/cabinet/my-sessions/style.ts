@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { COLOR_ACCENT, COLOR_BG, COLOR_GREEN, COLOR_LIGHTGRAY } from "../../../styles";
+import { COLOR_CHARTREUSE, COLOR_BLACK, COLOR_GREEN, COLOR_GRAY_140 } from "../../../ui-kit";
 
 export const MySessionsContent = styled.section`
   display: flex;
@@ -60,18 +60,16 @@ export const SessionWebsiteDataSite = styled.h5`
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 24px */
-  letter-spacing: -0.48px;
 `;
 
 export const SessionWebsiteDataTimestamp = styled.h6`
-  color: ${COLOR_LIGHTGRAY};
+  color: ${COLOR_GRAY_140};
 
   font-family: DM Sans;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
   line-height: 100%; /* 16px */
-  letter-spacing: -0.32px;
 `;
 
 export const SessionInfoWrapper = styled.div`
@@ -98,7 +96,6 @@ export const SessionInfoDataPseudonym = styled.p`
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 16px */
-  letter-spacing: -0.32px;
 `;
 
 export const SessionInfoDataPrincipal = styled.p`
@@ -129,7 +126,7 @@ export const LogoutBtn = styled.div`
   gap: 10px;
 
   border-radius: 100%;
-  background-color: ${COLOR_ACCENT};
+  background-color: ${COLOR_CHARTREUSE};
   border: 1px solid transparent;
 
   cursor: pointer;
@@ -140,10 +137,10 @@ export const LogoutBtn = styled.div`
 
   &:hover {
     background-color: transparent;
-    border: 1px solid ${COLOR_ACCENT};
+    border: 1px solid ${COLOR_CHARTREUSE};
 
     & > svg > path {
-      stroke: ${COLOR_ACCENT};
+      stroke: ${COLOR_CHARTREUSE};
     }
   }
 
@@ -152,7 +149,7 @@ export const LogoutBtn = styled.div`
     height: 20px;
 
     & > path {
-      stroke: ${COLOR_BG};
+      stroke: ${COLOR_BLACK};
 
       transition: stroke 0.5s;
     }

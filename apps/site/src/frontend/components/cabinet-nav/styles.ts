@@ -1,10 +1,10 @@
 import { styled } from "solid-styled-components";
-import { COLOR_ACCENT, HEADER_HEIGHT } from "../../styles";
+import { BAR_HEIGHT, COLOR_CHARTREUSE, HEADER_HEIGHT } from "../../ui-kit";
 
 export const CabinetNavWrapper = styled.nav`
   position: fixed;
   left: 0;
-  top: ${HEADER_HEIGHT.toString()}px;
+  top: ${(HEADER_HEIGHT + BAR_HEIGHT).toString()}px;
 
   display: flex;
   width: 290px;
@@ -32,7 +32,7 @@ export const CabinetNavItem = styled.div`
 export const CabinetNavItemDot = styled.span`
   width: 6px;
   height: 6px;
-  background-color: ${COLOR_ACCENT};
+  background-color: ${COLOR_CHARTREUSE};
   border-radius: 3px;
 `;
 
@@ -44,5 +44,4 @@ export const CabinetNavItemText = styled.p`
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 16px */
-  letter-spacing: -0.32px;
 `;

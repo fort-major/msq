@@ -8,7 +8,7 @@ import { AddNewMaskBtn } from "../../../components/add-new-mask-btn";
 import { useAllOriginData } from "../../../store/cabinet";
 import { useLoader, useMasqueradeClient } from "../../../store/global";
 import { produce } from "solid-js/store";
-import { CabinetHeading } from "../../../styles";
+import { CabinetHeading } from "../../../ui-kit";
 import { Divider } from "../../../components/divider/style";
 
 export function MyMasksPage() {

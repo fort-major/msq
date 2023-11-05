@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { getClassName } from "../../styles";
+import { getClassName } from "../../utils";
 
 export const ContactUsBtnText = styled.span`
   position: relatives;
@@ -10,7 +10,6 @@ export const ContactUsBtnText = styled.span`
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 16px */
-  letter-spacing: -0.32px;
 
   width: 0px;
   overflow: hidden;
