@@ -3,12 +3,13 @@ import { SpoilerChildren, SpoilerHeader, SpoilerIcon, SpoilerWrapper } from "./s
 import { ChevronUpIcon } from "../typography/icons";
 
 export interface ISpoilerProps {
+  defaultOpen?: boolean | undefined;
   header: JSXElement;
   children: JSXElement;
 }
 
 export function Spoiler(props: ISpoilerProps) {
-  const [open, setOpen] = createSignal(true);
+  const [open, setOpen] = createSignal(props.defaultOpen);
 
   const c = children(() => props.children);
   const h = children(() => props.header);

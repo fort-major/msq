@@ -56,39 +56,80 @@ export async function makeAgent(identity?: Identity | undefined): Promise<HttpAg
   return agent;
 }
 
-export function tokensToStr(qty: bigint, decimals: number, trimTail: boolean = true): string {
+export function tokensToStr(
+  qty: bigint,
+  decimals: number,
+  padTail: boolean = false,
+  insertCommas: boolean = false,
+): string {
+  // 0.0 -> 0
   if (qty === BigInt(0)) {
     return "0";
   }
 
+  // todo: Math.pow() to bitshift
   const decimalDiv = BigInt(Math.pow(10, decimals));
 
   const head = qty / decimalDiv;
   const tail = qty % decimalDiv;
 
-  const headFormatted = head.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+  let headFormatted = head.toString();
 
+  // 1000000.0 -> 1,000,000.0
+  if (insertCommas) {
+    headFormatted = headFormatted.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  // 1,000.0 -> 1,000
   if (tail === BigInt(0)) {
     return headFormatted;
   }
 
+  // 1,000.10 -> 1,000.00000010
   const tailFormatted = tail.toString().padStart(decimals, "0");
-  const tailTrimmed = trimTail ? tailFormatted.slice(0, Math.min(decimals, 4)) : tailFormatted;
 
-  return `${headFormatted}.${tailTrimmed}`;
+  // 1,000.00012300 -> 1,000.000123
+  let tailPadded: string = tailFormatted;
+  if (!padTail) {
+    while (tailPadded.charAt(tailPadded.length - 1) === "0") {
+      tailPadded = tailPadded.slice(0, -1);
+    }
+  }
+
+  return `${headFormatted}.${tailPadded}`;
 }
 
 export function strToTokens(str: string, decimals: number): bigint {
+  // 1,000.123 -> 1,000 & 123
   let [head, tail] = str.split(".") as [string, string | undefined];
+  // 1,000 -> 1000
   head = head.replaceAll(",", "");
 
+  // todo: Math.pow() to bitshift
   const decimalMul = BigInt(Math.pow(10, decimals));
 
-  if (tail === undefined) {
+  if (!tail) {
     return BigInt(head) * decimalMul;
   }
 
-  return BigInt(head) * decimalMul + BigInt(tail.padEnd(decimals, "0"));
+  // 00001000 -> 1000
+  let i = 0;
+  while (tail.charAt(0) === "0") {
+    tail = tail.slice(1, tail.length);
+    i++;
+  }
+
+  if (tail === "") {
+    return BigInt(head) * decimalMul;
+  }
+
+  if (tail.length > decimals) {
+    throw `Too many decimal digits (max ${decimals})`;
+  }
+
+  tail = tail.padEnd(decimals - i, "0");
+
+  return BigInt(head) * decimalMul + BigInt(tail);
 }
 
 export interface IAssetMetadata {

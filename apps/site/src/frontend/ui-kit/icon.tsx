@@ -1,6 +1,7 @@
 import { Match, Switch } from "solid-js";
 import { COLOR_BLACK } from ".";
 import { IChildren } from "../utils";
+import { keyframes } from "solid-styled-components";
 
 export enum EIconKind {
   ArrowRightUp,
@@ -14,6 +15,7 @@ export enum EIconKind {
   Warning,
   Copy,
   Close,
+  Loader,
 }
 
 interface IIconProps {
@@ -156,6 +158,21 @@ export function Icon(props: IIconProps) {
           />
         </Svg>
       </Match>
+      <Match when={props.kind == EIconKind.Loader}>
+        <Svg {...props} viewBox="0 0 24 24">
+          <circle
+            style={{ animation: `${SpinnerAnim} 1.2s cubic-bezier(0.52,.6,.25,.99) infinite` }}
+            fill={props.color || COLOR_BLACK}
+            cx="12"
+            cy="12"
+            r="0"
+          />
+        </Svg>
+      </Match>
     </Switch>
   );
 }
+
+const SpinnerAnim = keyframes`
+0%{r:0;opacity:1}100%{r:11px;opacity:0}
+`;

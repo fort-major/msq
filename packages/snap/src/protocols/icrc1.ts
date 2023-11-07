@@ -33,7 +33,9 @@ export async function protected_handleShowICRC1TransferConfirm(bodyCBOR: string)
     params: {
       type: "confirmation",
       content: panel([
-        heading(`💳 Confirm ${body.ticker} Transfer (ICRC-1) 💳`),
+        heading(`💳 Confirm ${body.ticker} Transfer 💳`),
+        text("**Protocol:**"),
+        text("ICRC-1"),
         text("**From:**"),
         text(body.from),
         text("**To principal ID:**"),
@@ -76,7 +78,7 @@ export async function protected_handleAddAsset(bodyCBOR: string): Promise<IAsset
     params: {
       type: "confirmation",
       content: panel([
-        heading(`🔒 Confirm New ICRC-1 Asset 🔒`),
+        heading(`🔒 Confirm New Asset 🔒`),
         text(
           `Are you sure you want to add **${body.name}** (**${body.symbol}**) token to your list of managed assets?`,
         ),

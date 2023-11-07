@@ -29,7 +29,7 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
-function LoaderPortal() {
+function LoaderWrapper() {
   const [loaderVisible] = useLoader();
 
   return (
@@ -61,7 +61,7 @@ export function App() {
             </Routes>
           </Router>
         </Page>
-        <LoaderPortal />
+        <LoaderWrapper />
       </GlobalStore>
     </Root>
   );

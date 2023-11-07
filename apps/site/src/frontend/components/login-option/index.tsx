@@ -30,7 +30,6 @@ export function LoginOption(props: ILoginOptionProps) {
 
   const handleChange = (newPseudonym: string) => {
     props.onEdit!(newPseudonym);
-
     setIsEdited(false);
   };
 
@@ -38,10 +37,6 @@ export function LoginOption(props: ILoginOptionProps) {
     assertEventSafe(e);
 
     setIsEdited(!isEdited());
-  };
-
-  const handleBlur = (isErr: boolean) => {
-    if (!isErr) setIsEdited(false);
   };
 
   const editable = () => !!props.onEdit;
@@ -56,13 +51,10 @@ export function LoginOption(props: ILoginOptionProps) {
             label="Pseudonym"
             required
             autofocus
-            onBlur={handleBlur}
-            kind={{
-              String: {
-                defaultValue: props.pseudonym,
-                onChange: handleChange,
-                validate: (name) => (name.length === 0 ? "Please type something..." : null),
-              },
+            KindString={{
+              defaultValue: props.pseudonym,
+              onChange: handleChange,
+              validate: (name) => (name.length === 0 ? "Please type something..." : null),
             }}
           />
         </Show>

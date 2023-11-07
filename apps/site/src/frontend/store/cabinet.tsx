@@ -18,7 +18,7 @@ type IAssetDataExt = {
   accounts: {
     name: string;
     principal?: string | undefined;
-    balance: bigint;
+    balance: bigint | undefined;
   }[];
   metadata?:
     | {
@@ -94,7 +94,7 @@ export function CabinetStore(props: IChildren) {
       for (let key of allAssetDataKeys) {
         allAssetData[key]!.accounts = fetchedAllAssetData[key]!.accounts.map((it) => ({
           name: it,
-          balance: BigInt(0),
+          balance: undefined,
         }));
         allAssetData[key]!.totalBalance = BigInt(0);
       }

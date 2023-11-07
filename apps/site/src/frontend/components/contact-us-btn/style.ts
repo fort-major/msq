@@ -2,7 +2,7 @@ import { styled } from "solid-styled-components";
 import { getClassName } from "../../utils";
 
 export const ContactUsBtnText = styled.span`
-  position: relatives;
+  position: relative;
   color: #fff;
 
   font-family: DM Sans;
@@ -13,7 +13,6 @@ export const ContactUsBtnText = styled.span`
 
   width: 0px;
   overflow: hidden;
-  text-decoration: none;
   white-space: nowrap;
 
   transition: width 0.5s;
@@ -24,6 +23,8 @@ export const ContactUsBtnWrapper = styled.a`
   right: 40px;
   bottom: 40px;
 
+  z-index: 10;
+
   display: flex;
   width: 50px;
   height: 50px;
@@ -31,6 +32,8 @@ export const ContactUsBtnWrapper = styled.a`
   align-items: center;
   flex-shrink: 0;
   gap: 0px;
+
+  text-decoration: none !important;
 
   border-radius: 100px;
   background: #20212e;
@@ -46,7 +49,7 @@ export const ContactUsBtnWrapper = styled.a`
   &:hover {
     display: inline-flex;
     height: 50px;
-    width: 158px;
+    width: 164px;
     padding: 0px 20px;
     justify-content: center;
     align-items: center;
@@ -54,7 +57,7 @@ export const ContactUsBtnWrapper = styled.a`
     flex-shrink: 0;
 
     & .${getClassName(ContactUsBtnText)} {
-      width: 84px;
+      width: 90px;
     }
   }
 

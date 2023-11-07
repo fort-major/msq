@@ -11,6 +11,7 @@ import {
 } from ".";
 import { Show } from "solid-js";
 import { EIconKind, Icon } from "./icon";
+import { assertEventSafe } from "../utils";
 
 export enum EButtonKind {
   Primary,
@@ -21,25 +22,33 @@ export enum EButtonKind {
 interface IButtonProps {
   text?: string | undefined;
   icon?: EIconKind | undefined;
+  iconOnlySize?: number | undefined;
   kind: EButtonKind;
-  onClick?: ((e: MouseEvent) => void) | undefined;
+  onClick?: (() => void) | undefined;
   disabled?: boolean | undefined;
   fullWidth?: boolean | undefined;
   classList?: { [k: string]: boolean | undefined } | undefined;
 }
 
 export function Button(props: IButtonProps) {
+  const handleClick = (e: MouseEvent) => {
+    assertEventSafe(e);
+
+    props.onClick?.();
+  };
+
   return (
     <BtnBase
       fullWidth={props.fullWidth}
       disabled={props.disabled}
+      iconOnlySize={props.iconOnlySize}
       classList={{
         [BtnPrimary]: props.kind === EButtonKind.Primary,
         [BtnSecondary]: props.kind === EButtonKind.Secondary,
         [BtnAdditional]: props.kind === EButtonKind.Additional,
         ...props.classList,
       }}
-      onClick={props.onClick}
+      onClick={handleClick}
     >
       <Show when={props.text !== undefined}>
         <p>{props.text!}</p>
@@ -51,12 +60,14 @@ export function Button(props: IButtonProps) {
   );
 }
 
-const BtnBase = styled.button<{ fullWidth?: boolean | undefined }>`
+const BtnBase = styled.button<{ fullWidth?: boolean | undefined; iconOnlySize?: number | undefined }>`
   display: inline-flex;
 
-  height: 50px;
+  ${(props) =>
+    props.iconOnlySize
+      ? `height: ${props.iconOnlySize}px; width: ${props.iconOnlySize}px;`
+      : `height: 50px; padding: 10px 25px;`}
 
-  padding: 10px 25px;
   box-sizing: border-box;
   justify-content: center;
   align-items: center;
@@ -89,6 +100,10 @@ const BtnBase = styled.button<{ fullWidth?: boolean | undefined }>`
     & > path {
       transition: stroke 0.5s ease-out;
     }
+
+    & > circle {
+      transition: fill 0.5s ease-out;
+    }
   }
 
   &:disabled {
@@ -107,6 +122,10 @@ const BtnPrimary = css`
     stroke: ${COLOR_BLACK};
   }
 
+  & > svg circle {
+    fill: ${COLOR_BLACK};
+  }
+
   &:hover {
     background-color: ${COLOR_GRAY_110};
 
@@ -116,6 +135,10 @@ const BtnPrimary = css`
 
     & > svg path {
       stroke: ${COLOR_CHARTREUSE};
+    }
+
+    & > svg circle {
+      fill: ${COLOR_CHARTREUSE};
     }
   }
 
@@ -128,6 +151,10 @@ const BtnPrimary = css`
 
     & > svg path {
       stroke: ${COLOR_GRAY_115};
+    }
+
+    & > svg circle {
+      fill: ${COLOR_GRAY_115};
     }
   }
 `;
@@ -143,6 +170,10 @@ const BtnSecondary = css`
     stroke: ${COLOR_BLACK};
   }
 
+  & > svg circle {
+    fill: ${COLOR_BLACK};
+  }
+
   &:hover {
     background-color: ${COLOR_GRAY_110};
 
@@ -152,6 +183,10 @@ const BtnSecondary = css`
 
     & > svg path {
       stroke: ${COLOR_WHITE};
+    }
+
+    & > svg circle {
+      fill: ${COLOR_WHITE};
     }
   }
 
@@ -164,6 +199,10 @@ const BtnSecondary = css`
 
     & > svg path {
       stroke: ${COLOR_GRAY_120};
+    }
+
+    & > svg circle {
+      fill: ${COLOR_GRAY_120};
     }
   }
 `;
@@ -180,6 +219,10 @@ const BtnAdditional = css`
     stroke: ${COLOR_WHITE};
   }
 
+  & > svg circle {
+    fill: ${COLOR_WHITE};
+  }
+
   &:hover {
     background-color: ${COLOR_GRAY_110};
 
@@ -189,6 +232,10 @@ const BtnAdditional = css`
 
     & > svg path {
       stroke: ${COLOR_WHITE};
+    }
+
+    & > svg circle {
+      fill: ${COLOR_WHITE};
     }
   }
 
@@ -201,6 +248,10 @@ const BtnAdditional = css`
 
     & > svg path {
       color: ${COLOR_GRAY_115};
+    }
+
+    & > svg circle {
+      fill: ${COLOR_GRAY_115};
     }
   }
 `;

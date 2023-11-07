@@ -1,5 +1,5 @@
-import { For, Show, createEffect, createSignal, on } from "solid-js";
-import { makeIcrc1Salt, useAllAssetData } from "../../../store/cabinet";
+import { For, Match, Show, Switch, createEffect, createSignal, on, onCleanup, onMount } from "solid-js";
+import { AllAssetData, makeIcrc1Salt, useAllAssetData } from "../../../store/cabinet";
 import { CabinetHeading } from "../../../ui-kit";
 import {
   AddAssetBtn,
@@ -18,14 +18,23 @@ import {
 import { Spoiler } from "../../../components/spoiler";
 import { Dim, Title } from "../../../components/typography/style";
 import { AccountCard } from "../../../components/account-card";
-import { DEFAULT_PRINCIPAL, assertEventSafe, getAssetMetadata, makeAgent, tokensToStr } from "../../../utils";
-import { Principal, TAccountId } from "@fort-major/masquerade-shared";
+import {
+  DEFAULT_PRINCIPAL,
+  ONE_MIN_MS,
+  assertEventSafe,
+  getAssetMetadata,
+  makeAgent,
+  tokensToStr,
+} from "../../../utils";
+import { Principal, TAccountId, delay } from "@fort-major/masquerade-shared";
 import { useLoader, useMasqueradeClient } from "../../../store/global";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 import { AnonymousIdentity } from "@dfinity/agent";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { PlusIcon } from "../../../components/typography/icons";
 import { ISendPopupProps, SendPopup } from "./send";
+import { SetStoreFunction, produce } from "solid-js/store";
+import { useNavigate } from "@solidjs/router";
 
 export function MyAssetsPage() {
   const client = useMasqueradeClient();
@@ -36,8 +45,32 @@ export function MyAssetsPage() {
   const [sendPopupProps, setSendPopupProps] = createSignal<ISendPopupProps | null>(null);
   const [sendPopupVisible, showSendPopup] = createSignal(false);
 
+  const navigate = useNavigate();
+
   const [_, showLoader] = useLoader();
   createEffect(() => showLoader(!allAssetDataFetched()));
+
+  const [int] = createSignal(
+    setInterval(async () => {
+      const anonIdentity = new AnonymousIdentity();
+      const agent = await makeAgent(anonIdentity);
+
+      const assetIds = Object.keys(allAssetData);
+
+      for (let assetId of assetIds) {
+        if (allAssetData[assetId]?.metadata === undefined) continue;
+
+        const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
+        const accounts = allAssetData[assetId]?.accounts || [];
+
+        for (let accountId = 0; accountId < accounts.length; accountId++) {
+          if (accounts[accountId].principal) updateBalanceOf(ledger, allAssetData, setAllAssetData, assetId, accountId);
+        }
+      }
+    }, ONE_MIN_MS * 2),
+  );
+
+  onCleanup(() => clearInterval(int()));
 
   const handleEdit = async (assetId: string, accountId: TAccountId, newName: string) => {
     await client()!.editAssetAccount(assetId, accountId, newName);
@@ -66,6 +99,9 @@ export function MyAssetsPage() {
     const balance = await ledger.balance({ certified: true, owner: principal });
 
     setAllAssetData(assetId, "accounts", accountId, "balance", balance);
+
+    const totalBalance = allAssetData[assetId]!.accounts.reduce((prev, cur) => prev + (cur.balance || 0n), 0n);
+    setAllAssetData(assetId, "totalBalance", totalBalance);
   };
 
   const handleAddAsset = async (e: Event) => {
@@ -121,7 +157,7 @@ export function MyAssetsPage() {
     const sendProps: ISendPopupProps = {
       accountId,
       assetId,
-      balance: account.balance,
+      balance: account.balance!,
       name: account.name,
       principal: account.principal!,
       symbol: assetData.metadata!.symbol,
@@ -133,21 +169,39 @@ export function MyAssetsPage() {
     showSendPopup(true);
   };
 
+  const handleCancelSend = async (result: boolean) => {
+    showSendPopup(false);
+
+    if (result) {
+      const anonIdentity = new AnonymousIdentity();
+      const agent = await makeAgent(anonIdentity);
+      const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(sendPopupProps()!.assetId) });
+
+      const accounts = allAssetData[sendPopupProps()!.assetId]!.accounts;
+
+      for (let accountId = 0; accountId < accounts.length; accountId++) {
+        await updateBalanceOf(ledger, allAssetData, setAllAssetData, sendPopupProps()!.assetId, accountId);
+      }
+    }
+
+    setSendPopupProps(null);
+  };
+
   return (
-    <>
-      <CabinetHeading>My Assets</CabinetHeading>
-      <MyAssetsPageContent>
-        <For each={allAssetDataKeys()}>
-          {(assetId) => (
-            <Show when={allAssetData[assetId] !== null} fallback={<p>Token canister {assetId} does not respond...</p>}>
+    <Switch>
+      <Match when={!(sendPopupVisible() && sendPopupProps() !== null)}>
+        <CabinetHeading>My Assets</CabinetHeading>
+        <MyAssetsPageContent>
+          <For each={allAssetDataKeys()}>
+            {(assetId) => (
               <Spoiler
                 header={
                   <AssetSpoilerHeader>
-                    <Show when={allAssetData[assetId]!.metadata} fallback={<Title>{assetId}</Title>}>
+                    <Show when={allAssetData[assetId]?.metadata} fallback={<Title>{assetId}</Title>}>
                       <Title>{allAssetData[assetId]!.metadata!.name}</Title>
                     </Show>
                     <Show
-                      when={allAssetData[assetId]!.metadata}
+                      when={allAssetData[assetId]?.metadata}
                       fallback={
                         <Title>
                           0 <Dim>TOK</Dim>
@@ -162,7 +216,7 @@ export function MyAssetsPage() {
                   </AssetSpoilerHeader>
                 }
               >
-                <Show when={allAssetData[assetId]!.metadata}>
+                <Show when={allAssetData[assetId]?.metadata}>
                   <AssetSpoilerContent>
                     <AssetAccountsWrapper>
                       <For each={allAssetData[assetId]!.accounts}>
@@ -201,24 +255,46 @@ export function MyAssetsPage() {
                   </AssetSpoilerContent>
                 </Show>
               </Spoiler>
-            </Show>
-          )}
-        </For>
-        <AddAssetWrapper>
-          <AddAssetHeader>Add custom ICRC-1 asset</AddAssetHeader>
-          <AddAssetForm>
-            <AddAssetInput
-              placeholder="Type token’s canister ID here..."
-              value={newAssetId()}
-              onInput={(e) => setNewAssetId(e.target.value)}
-            />
-            <AddAssetBtn onClick={handleAddAsset}>Add</AddAssetBtn>
-          </AddAssetForm>
-        </AddAssetWrapper>
-      </MyAssetsPageContent>
-      <Show when={sendPopupVisible() && sendPopupProps() !== null}>
-        <SendPopup {...sendPopupProps()!} onCancel={() => showSendPopup(false)} />
-      </Show>
-    </>
+            )}
+          </For>
+          <AddAssetWrapper>
+            <AddAssetHeader>Add custom ICRC-1 asset</AddAssetHeader>
+            <AddAssetForm>
+              <AddAssetInput
+                placeholder="Type token’s canister ID here..."
+                value={newAssetId()}
+                onInput={(e) => setNewAssetId(e.target.value)}
+              />
+              <AddAssetBtn onClick={handleAddAsset}>Add</AddAssetBtn>
+            </AddAssetForm>
+          </AddAssetWrapper>
+        </MyAssetsPageContent>
+      </Match>
+      <Match when={sendPopupVisible() && sendPopupProps() !== null}>
+        <SendPopup {...sendPopupProps()!} onCancel={handleCancelSend} />
+      </Match>
+    </Switch>
+  );
+}
+
+async function updateBalanceOf(
+  ledger: IcrcLedgerCanister,
+  allAssetData: AllAssetData,
+  setAllAssetData: SetStoreFunction<AllAssetData>,
+  assetId: string,
+  accountId: number,
+) {
+  const balance = await ledger.balance({
+    certified: true,
+    owner: Principal.fromText(allAssetData[assetId]!.accounts[accountId].principal!),
+  });
+
+  setAllAssetData(
+    produce((state) => {
+      state[assetId]!.accounts[accountId].balance = balance;
+      const totalBalance = state[assetId]!.accounts!.reduce((prev, cur) => prev + (cur.balance || 0n), 0n);
+
+      state[assetId]!.totalBalance = totalBalance;
+    }),
   );
 }

@@ -20,13 +20,15 @@ import {
 import { Match, Show, Switch, createSignal } from "solid-js";
 import { EditIcon, ReceiveIcon, SendIcon } from "../typography/icons";
 import { Input } from "../../ui-kit/input";
+import { Button, EButtonKind } from "../../ui-kit/button";
+import { EIconKind } from "../../ui-kit/icon";
 
 export interface IAccountCardProps {
   accountId: TAccountId;
   assetId: string;
   name: string;
   principal: string | undefined;
-  balance: bigint;
+  balance: bigint | undefined;
   decimals: number;
   symbol: string;
   fullWidth?: boolean | undefined;
@@ -54,17 +56,11 @@ export function AccountCard(props: IAccountCardProps) {
     setEdited(false);
   };
 
-  const handleBlur = (isErr: boolean) => {
-    if (!isErr) setEdited(false);
-  };
-
-  const handleSend = (e: MouseEvent) => {
-    assertEventSafe(e);
+  const handleSend = () => {
     props.onSend!(props.accountId, props.assetId);
   };
 
-  const handleReceive = (e: MouseEvent) => {
-    assertEventSafe(e);
+  const handleReceive = () => {
     props.onReceive!(props.principal!);
   };
 
@@ -77,14 +73,11 @@ export function AccountCard(props: IAccountCardProps) {
               label="Account Name"
               required
               autofocus
-              onBlur={handleBlur}
               classList={{ [AccountCardInput]: true }}
-              kind={{
-                String: {
-                  defaultValue: props.name,
-                  onChange: handleChange,
-                  validate: (name) => (name.length === 0 ? "Please type something..." : null),
-                },
+              KindString={{
+                defaultValue: props.name,
+                onChange: handleChange,
+                validate: (name) => (name.length === 0 ? "Please type something..." : null),
               }}
             />
           </Match>
@@ -109,19 +102,29 @@ export function AccountCard(props: IAccountCardProps) {
         <AccountCardDivider />
         <AccountCardFooterContent>
           <AccountCardFooterBalance>
-            <AccountCardFooterBalanceQty>{tokensToStr(props.balance, props.decimals)}</AccountCardFooterBalanceQty>
+            <AccountCardFooterBalanceQty>
+              {tokensToStr(props.balance || 0n, props.decimals)}
+            </AccountCardFooterBalanceQty>
             <AccountCardFooterBalanceSymbol>{props.symbol}</AccountCardFooterBalanceSymbol>
           </AccountCardFooterBalance>
           <AccountCardFooterButtons>
             <Show when={props.onSend}>
-              <AccountCardSendBtn disabled={props.principal === undefined} onClick={handleSend}>
-                <SendIcon />
-              </AccountCardSendBtn>
+              <Button
+                kind={EButtonKind.Primary}
+                icon={EIconKind.ArrowRightUp}
+                iconOnlySize={40}
+                disabled={props.balance === undefined}
+                onClick={handleSend}
+              />
             </Show>
             <Show when={props.onReceive}>
-              <AccountCardReceiveBtn disabled={props.principal === undefined} onClick={handleReceive}>
-                <ReceiveIcon />
-              </AccountCardReceiveBtn>
+              <Button
+                kind={EButtonKind.Secondary}
+                icon={EIconKind.ArrowLeftDown}
+                iconOnlySize={40}
+                disabled={props.principal === undefined}
+                onClick={handleReceive}
+              />
             </Show>
           </AccountCardFooterButtons>
         </AccountCardFooterContent>

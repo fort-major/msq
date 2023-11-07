@@ -1,5 +1,5 @@
-import { styled } from "solid-styled-components";
-import { BlinkAnimation, COLOR_CHARTREUSE } from "../../ui-kit";
+import { css, styled } from "solid-styled-components";
+import { BlinkAnimation, COLOR_CHARTREUSE, COLOR_ERROR_RED } from "../../ui-kit";
 
 export const Title = styled.h3<{ weight?: number }>`
   color: #fff;
@@ -30,6 +30,10 @@ export const Accent = styled.span<{ size?: number }>`
   line-height: 100%; /* 24px */
 
   ${(props) => (props.size ? `font-size: ${props.size}px;` : "")}
+`;
+
+export const ErrorText = css`
+  color: ${COLOR_ERROR_RED};
 `;
 
 export const Dim = styled.span<{ size?: number }>`

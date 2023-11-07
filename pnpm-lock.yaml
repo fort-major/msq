@@ -72,18 +72,9 @@ importers:
       '@fort-major/masquerade-client':
         specifier: workspace:*
         version: link:../../packages/client
-      '@nanostores/solid':
-        specifier: 0.4.2
-        version: 0.4.2(nanostores@0.9.3)(solid-js@1.7.12)
-      '@solid-primitives/event-listener':
-        specifier: 2.3.0
-        version: 2.3.0(solid-js@1.7.12)
       '@solidjs/router':
         specifier: 0.8.3
         version: 0.8.3(solid-js@1.7.12)
-      nanostores:
-        specifier: 0.9.3
-        version: 0.9.3
       solid-js:
         specifier: 1.7.12
         version: 1.7.12
@@ -103,6 +94,9 @@ importers:
 
   apps/site:
     dependencies:
+      '@dfinity/ledger-icp':
+        specifier: 1.0.0
+        version: 1.0.0(@dfinity/agent@0.19.3)(@dfinity/candid@0.19.3)(@dfinity/nns-proto@1.0.0)(@dfinity/principal@0.19.3)(@dfinity/utils@1.0.0)
       '@dfinity/ledger-icrc':
         specifier: 1.0.0
         version: 1.0.0(@dfinity/agent@0.19.3)(@dfinity/candid@0.19.3)(@dfinity/principal@0.19.3)(@dfinity/utils@1.0.0)
@@ -2726,6 +2720,22 @@ packages:
       tweetnacl: 1.0.3
     dev: false
 
+  /@dfinity/ledger-icp@1.0.0(@dfinity/agent@0.19.3)(@dfinity/candid@0.19.3)(@dfinity/nns-proto@1.0.0)(@dfinity/principal@0.19.3)(@dfinity/utils@1.0.0):
+    resolution: {integrity: sha512-T297uvqjhwmaSoJ7d2TDPGqZD9vUMfNF5K8+2tbD7apXa8j7cSnxgffdQNyeZH9u1R/ypeuw7yFeo+XNadqhAw==}
+    peerDependencies:
+      '@dfinity/agent': ^0.19.2
+      '@dfinity/candid': ^0.19.2
+      '@dfinity/nns-proto': ^1.0.0
+      '@dfinity/principal': ^0.19.2
+      '@dfinity/utils': ^1.0.0
+    dependencies:
+      '@dfinity/agent': 0.19.3(@dfinity/candid@0.19.3)(@dfinity/principal@0.19.3)
+      '@dfinity/candid': 0.19.3(@dfinity/principal@0.19.3)
+      '@dfinity/nns-proto': 1.0.0
+      '@dfinity/principal': 0.19.3
+      '@dfinity/utils': 1.0.0(@dfinity/agent@0.19.3)(@dfinity/candid@0.19.3)(@dfinity/principal@0.19.3)
+    dev: false
+
   /@dfinity/ledger-icrc@1.0.0(@dfinity/agent@0.19.3)(@dfinity/candid@0.19.3)(@dfinity/principal@0.19.3)(@dfinity/utils@1.0.0):
     resolution: {integrity: sha512-bNctX1TaE+QuRaxyMMonguf4DU6CGeCZSmHwGROo9tj7dTU9qboPzKiDI0HV6c/ntAmWURglFjX4UNl/M2uXYg==}
     peerDependencies:
@@ -2738,6 +2748,12 @@ packages:
       '@dfinity/candid': 0.19.3(@dfinity/principal@0.19.3)
       '@dfinity/principal': 0.19.3
       '@dfinity/utils': 1.0.0(@dfinity/agent@0.19.3)(@dfinity/candid@0.19.3)(@dfinity/principal@0.19.3)
+    dev: false
+
+  /@dfinity/nns-proto@1.0.0:
+    resolution: {integrity: sha512-VQ4G5/Opio6TYXpbv6xHqsjpYPw25wKOOXaS7F10IvKAa0bxM9DDfsTpaULRNRkDKvK/Jol2bHLoh6NO1SrbDA==}
+    dependencies:
+      google-protobuf: 3.21.2
     dev: false
 
   /@dfinity/principal@0.19.3:
@@ -4215,16 +4231,6 @@ packages:
       tslib: 2.6.2
     dev: true
 
-  /@nanostores/solid@0.4.2(nanostores@0.9.3)(solid-js@1.7.12):
-    resolution: {integrity: sha512-8v32+C9KdRbnvP4x4Oiw/CtL1tZwbRxYfmFsPIY9PXevCgxSFnicG6VnLLtNAR7F0kl8Ec7OROHO34Ffv0KDzg==}
-    peerDependencies:
-      nanostores: '>=0.8.0'
-      solid-js: ^1.6.0
-    dependencies:
-      nanostores: 0.9.3
-      solid-js: 1.7.12
-    dev: false
-
   /@noble/curves@1.1.0:
     resolution: {integrity: sha512-091oBExgENk/kGj3AZmtBDMpxQPDtxQABR2B9lb1JbVTs6ytdzZNwvhxQ4MWasRNEzlbEH8jCWFCwhF/Obj5AA==}
     dependencies:
@@ -4480,15 +4486,6 @@ packages:
     dependencies:
       '@sinonjs/commons': 3.0.0
     dev: true
-
-  /@solid-primitives/event-listener@2.3.0(solid-js@1.7.12):
-    resolution: {integrity: sha512-0DS7DQZvCExWSpurVZC9/wjI8RmkhuOtWOy6Pp1Woq9ElMT9/bfjNpkwXsOwisLpcTqh9eUs17kp7jtpWcC20w==}
-    peerDependencies:
-      solid-js: ^1.6.12
-    dependencies:
-      '@solid-primitives/utils': 6.2.1(solid-js@1.7.12)
-      solid-js: 1.7.12
-    dev: false
 
   /@solid-primitives/refs@1.0.5(solid-js@1.7.12):
     resolution: {integrity: sha512-5hmYmYbm6rs43nMHHozyyUngGA7P7q2WtlaCLJEfmlUJf67GWI1PZmqAiol6m9F37XSMZRuvZLoQ7HA/0q3GYg==}
@@ -7743,6 +7740,10 @@ packages:
       csstype: 3.1.2
     dev: false
 
+  /google-protobuf@3.21.2:
+    resolution: {integrity: sha512-3MSOYFO5U9mPGikIYCzK0SaThypfGgS6bHqrUGXG3DPHCrb+txNqeEcns1W0lkGfk0rCyNXm7xB9rMxnCiZOoA==}
+    dev: false
+
   /gopd@1.0.1:
     resolution: {integrity: sha512-d65bNlIadxvpb/A2abVdlqKqV563juRnZ1Wtk6s1sIR8uNsXR70xqIzVqxVf1eTqDunwT2MkczEeaezCKTZhwA==}
     dependencies:
@@ -9403,11 +9404,6 @@ packages:
     resolution: {integrity: sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
-
-  /nanostores@0.9.3:
-    resolution: {integrity: sha512-KobZjcVyNndNrb5DAjfs0WG0lRcZu5Q1BOrfTOxokFLi25zFrWPjg+joXC6kuDqNfSt9fQwppyjUBkRPtsL+8w==}
-    engines: {node: ^16.0.0 || ^18.0.0 || >=20.0.0}
-    dev: false
 
   /natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}

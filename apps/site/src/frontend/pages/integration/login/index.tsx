@@ -72,6 +72,7 @@ export function LoginPage() {
           <For each={loginOptions()}>
             {([origin, principals]) => (
               <Spoiler
+                defaultOpen
                 header={
                   <Title>
                     Masks from <Accent>{originToHostname(origin)}</Accent>

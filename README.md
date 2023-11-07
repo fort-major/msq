@@ -7,6 +7,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * stats for protected methods + express as annotations? + stats page
 * demo shop project
 * make spoilers closed by default
+* load data in two iterations: query -> certified
 
 * payment page + fees
 * donation page

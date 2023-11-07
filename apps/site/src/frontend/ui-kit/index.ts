@@ -27,6 +27,8 @@ export const COLOR_ERROR_RED = "#FC2D2D";
 export const HEADER_HEIGHT = 80;
 export const BAR_HEIGHT = 40;
 
+export const ANIM_DURATION = "0.3s";
+
 export const Root = styled.div`
   position: relative;
   min-height: 100vh;
