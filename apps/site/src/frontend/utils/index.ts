@@ -1,7 +1,7 @@
 import { HttpAgent, Identity } from "@dfinity/agent";
 import { InternalSnapClient } from "@fort-major/masquerade-client";
 import { createStatisticsBackendActor } from "../backend";
-import { ErrorCode, err } from "@fort-major/masquerade-shared";
+import { ErrorCode, TAccountId, err, strToBytes } from "@fort-major/masquerade-shared";
 import { JSX, JSXElement } from "solid-js";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
 
@@ -28,6 +28,10 @@ export function assertEventSafe(e: Event) {
   if (!e.isTrusted) {
     err(ErrorCode.SECURITY_VIOLATION, "No automation allowed!");
   }
+}
+
+export function makeIcrc1Salt(assetId: string, accountId: TAccountId): Uint8Array {
+  return strToBytes(`\xacicrc1\n${assetId}\n${accountId}`);
 }
 
 export interface IChildren {
@@ -139,8 +143,11 @@ export interface IAssetMetadata {
   fee: bigint;
 }
 
-export async function getAssetMetadata(ledger: IcrcLedgerCanister, assetId: string): Promise<IAssetMetadata> {
-  const metadata = await ledger.metadata({ certified: true });
+export async function getAssetMetadata(
+  ledger: IcrcLedgerCanister,
+  certified: boolean = false,
+): Promise<IAssetMetadata> {
+  const metadata = await ledger.metadata({ certified });
 
   const name = (metadata.find((it) => it[0] === IcrcMetadataResponseEntries.NAME)![1] as { Text: string }).Text;
   const symbol = (metadata.find((it) => it[0] === IcrcMetadataResponseEntries.SYMBOL)![1] as { Text: string }).Text;

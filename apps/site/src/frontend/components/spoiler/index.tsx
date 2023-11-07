@@ -1,4 +1,4 @@
-import { JSXElement, Match, Switch, children, createSignal } from "solid-js";
+import { JSXElement, Match, Switch, children, createEffect, createSignal } from "solid-js";
 import { SpoilerChildren, SpoilerHeader, SpoilerIcon, SpoilerWrapper } from "./style";
 import { ChevronUpIcon } from "../typography/icons";
 
@@ -10,6 +10,10 @@ export interface ISpoilerProps {
 
 export function Spoiler(props: ISpoilerProps) {
   const [open, setOpen] = createSignal(props.defaultOpen);
+
+  createEffect(() => {
+    setOpen(props.defaultOpen);
+  });
 
   const c = children(() => props.children);
   const h = children(() => props.header);

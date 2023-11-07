@@ -1,18 +1,12 @@
-import {
-  IOriginDataExternal,
-  Principal,
-  TAccountId,
-  TOrigin,
-  strToBytes,
-  unreacheable,
-} from "@fort-major/masquerade-shared";
-import { Accessor, createContext, createEffect, createMemo, createSignal, useContext } from "solid-js";
-import { SetStoreFunction, createStore } from "solid-js/store";
-import { IChildren, getAssetMetadata, makeAgent } from "../utils";
+import { IOriginDataExternal, Principal, TOrigin, unreacheable } from "@fort-major/masquerade-shared";
+import { Accessor, Setter, createContext, createEffect, createMemo, createSignal, useContext } from "solid-js";
+import { SetStoreFunction, createStore, produce } from "solid-js/store";
+import { IChildren, getAssetMetadata, makeAgent, makeIcrc1Salt } from "../utils";
 import { useMasqueradeClient } from "./global";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { AnonymousIdentity } from "@dfinity/agent";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
+import { ISendPageProps } from "../pages/cabinet/my-assets/send";
 
 type IAssetDataExt = {
   accounts: {
@@ -41,9 +35,12 @@ export type AllOriginDataStore = [
 ];
 export type AllAssetDataStore = [AllAssetData, SetStoreFunction<AllAssetData>, Accessor<boolean>, Accessor<string[]>];
 
+export type SendPagePropsStore = [Accessor<ISendPageProps | undefined>, Setter<ISendPageProps | undefined>];
+
 interface ICabinetContext {
   allOriginData: AllOriginDataStore;
   allAssetData: AllAssetDataStore;
+  sendPageProps: SendPagePropsStore;
 }
 
 const CabinetContext = createContext<ICabinetContext>();
@@ -68,6 +65,16 @@ export function useAllAssetData(): AllAssetDataStore {
   return c.allAssetData;
 }
 
+export function useSendPageProps(): SendPagePropsStore {
+  const c = useContext(CabinetContext);
+
+  if (!c) {
+    unreacheable("Cabinet context is uninitialized");
+  }
+
+  return c.sendPageProps;
+}
+
 export function CabinetStore(props: IChildren) {
   const [allOriginDataFetched, setAllOriginDataFetched] = createSignal<boolean>(false);
   const [allOriginData, setAllOriginData] = createStore<AllOriginData>({});
@@ -76,6 +83,8 @@ export function CabinetStore(props: IChildren) {
   const [allAssetDataFetched, setAllAssetDataFetched] = createSignal<boolean>(false);
   const [allAssetData, setAllAssetData] = createStore<AllAssetData>({});
   const allAssetDataKeys = createMemo(() => Object.keys(allAssetData));
+
+  const [sendPageProps, setSendPageProps] = createSignal<ISendPageProps | undefined>(undefined);
 
   const client = useMasqueradeClient();
 
@@ -107,9 +116,11 @@ export function CabinetStore(props: IChildren) {
       for (let assetId of allAssetDataKeys) {
         const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
 
-        getAssetMetadata(ledger, assetId)
+        getAssetMetadata(ledger, false)
           .then((metadata) => {
-            setAllAssetData(assetId, { metadata });
+            setAllAssetData(assetId, { metadata, totalBalance: 0n });
+
+            getAssetMetadata(ledger, true).then((metadata) => setAllAssetData(assetId, "metadata", metadata));
 
             let unresponsive = false;
 
@@ -119,13 +130,33 @@ export function CabinetStore(props: IChildren) {
 
                 setAllAssetData(assetId, "accounts", idx, "principal", principal.toText());
 
+                // first time use query calls
                 ledger
-                  .balance({ certified: true, owner: principal })
-                  .then((balance) => {
+                  .balance({ certified: false, owner: principal })
+                  .then(async (balance) => {
                     if (unresponsive) return;
 
-                    setAllAssetData(assetId, "accounts", idx, "balance", balance);
-                    setAllAssetData(assetId, "totalBalance", allAssetData[assetId]!.totalBalance + balance);
+                    setAllAssetData(
+                      produce((state) => {
+                        state[assetId]!.accounts[idx].balance = balance;
+                        state[assetId]!.totalBalance = state[assetId]!.totalBalance + balance;
+                      }),
+                    );
+
+                    // second time use update calls
+                    balance = await ledger.balance({ certified: true, owner: principal });
+
+                    setAllAssetData(
+                      produce((state) => {
+                        state[assetId]!.accounts[idx].balance = balance;
+                        const totalBalance = state[assetId]!.accounts.reduce(
+                          (prev, cur) => prev + (cur.balance || 0n),
+                          0n,
+                        );
+
+                        state[assetId]!.totalBalance = totalBalance;
+                      }),
+                    );
                   })
                   .catch(() => {
                     setAllAssetData(assetId, null);
@@ -144,13 +175,10 @@ export function CabinetStore(props: IChildren) {
       value={{
         allOriginData: [allOriginData, setAllOriginData, allOriginDataFetched, allOriginDataKeys],
         allAssetData: [allAssetData, setAllAssetData, allAssetDataFetched, allAssetDataKeys],
+        sendPageProps: [sendPageProps, setSendPageProps],
       }}
     >
       {props.children}
     </CabinetContext.Provider>
   );
-}
-
-export function makeIcrc1Salt(assetId: string, accountId: TAccountId): Uint8Array {
-  return strToBytes(`\xacicrc1\n${assetId}\n${accountId}`);
 }

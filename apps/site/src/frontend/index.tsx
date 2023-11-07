@@ -20,6 +20,7 @@ import CabinetRoot from "./pages/cabinet";
 import IntegrationRoot from "./pages/integration";
 import { StatisticsPage } from "./pages/statistics";
 import { NotificationBar } from "./components/notification-bar";
+import { SendPage } from "./pages/cabinet/my-assets/send";
 
 const root = document.getElementById("root");
 
@@ -55,7 +56,10 @@ export function App() {
                 <Route path="/my-masks" component={MyMasksPage} />
                 <Route path="/my-sessions" component={MySessionsPage} />
                 <Route path="/my-links" component={MyLinksPage} />
-                <Route path="/my-assets" component={MyAssetsPage} />
+                <Route path="/my-assets">
+                  <Route path="/" component={MyAssetsPage} />
+                  <Route path="/send" component={SendPage} />
+                </Route>
               </Route>
               <Route path="/statistics" component={StatisticsPage} />
             </Routes>
