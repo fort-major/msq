@@ -1,4 +1,5 @@
 import { styled } from "solid-styled-components";
+import { ANIM_DURATION, COLOR_GRAY_130, COLOR_GRAY_140, COLOR_WHITE } from "../../../ui-kit";
 
 export const LoginHeadingSection = styled.section`
   position: fixed;
@@ -45,30 +46,32 @@ export const DismissBtn = styled.button`
 
   background-color: transparent;
   border: none;
-  color: #fff;
-  opacity: 0.4;
+  color: ${COLOR_GRAY_130};
 
   cursor: pointer;
 
-  &:hover {
-    text-decoration: underline;
-  }
+  transition: color ${ANIM_DURATION} ease-out;
 
   & > svg {
     width: 12px;
     height: 12px;
-    transform: rotate(-90deg);
+
+    & > path {
+      transition: stroke ${ANIM_DURATION} ease-out;
+      stroke: ${COLOR_GRAY_130};
+    }
+  }
+
+  &:hover {
+    color: ${COLOR_WHITE};
+
+    & > svg > path {
+      stroke: ${COLOR_WHITE};
+    }
   }
 `;
 
 export const LoginPageHeader = styled.h3`
-  color: #fff;
-  font-family: DM Sans;
-  font-size: 100px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 90%; /* 90px */
-
   max-width: 600px;
 
   margin-top: 50px;

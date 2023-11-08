@@ -3,7 +3,6 @@ import { Input } from "../../../../ui-kit/input";
 import { DEFAULT_PRINCIPAL, DEFAULT_SUBACCOUNT, makeAgent, makeIcrc1Salt, tokensToStr } from "../../../../utils";
 import { Match, Show, Switch, createSignal, onMount } from "solid-js";
 import { Principal } from "@dfinity/principal";
-import { Portal } from "solid-js/web";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { EIconKind } from "../../../../ui-kit/icon";
 import { createStore } from "solid-js/store";
@@ -11,7 +10,6 @@ import { useMasqueradeClient } from "../../../../store/global";
 import { debugStringify, hexToBytes } from "@fort-major/masquerade-shared";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
-import { Accent, ErrorText } from "../../../../components/typography/style";
 import {
   ButtonsWrapper,
   FeeLine,
@@ -24,11 +22,10 @@ import {
   SendPopupBody,
   SendPopupHeading,
   SendPopupWrapper,
-  StatusText,
-  SubStatusText,
 } from "./style";
 import { useSendPageProps } from "../../../../store/cabinet";
 import { useNavigate } from "@solidjs/router";
+import { Span600, SpanAccent, SpanError, SpanGray115, Text20 } from "../../../../ui-kit/typography";
 
 export interface ISendPageProps {
   accountId: number;
@@ -222,12 +219,15 @@ export function SendPage() {
             <Match when={txnResult()?.success}>
               <SendPopupHeading>Success</SendPopupHeading>
               <SendPopupBody>
-                <StatusText>
-                  Transacton #{txnResult()!.blockIdx!.toString()} has beed <Accent>successfully</Accent> executed
-                </StatusText>
-                <SubStatusText>
+                <Text20>
+                  <Span600>
+                    Transacton #{txnResult()!.blockIdx!.toString()} has beed <SpanAccent>successfully</SpanAccent>{" "}
+                    executed
+                  </Span600>
+                </Text20>
+                <Text20>
                   {txnResult()!.totalAmount!} {props()!.symbol} were deducted from your balance
-                </SubStatusText>
+                </Text20>
                 <ButtonsWrapper>
                   <Button fullWidth onClick={() => props()!.onCancel(true)} kind={EButtonKind.Primary} text="Go Back" />
                 </ButtonsWrapper>
@@ -237,10 +237,14 @@ export function SendPage() {
             <Match when={!txnResult()?.success}>
               <SendPopupHeading>Fail</SendPopupHeading>
               <SendPopupBody>
-                <StatusText>
-                  Transacton has <span class={ErrorText}>failed</span> to execute with the following error:{" "}
-                </StatusText>
-                <SubStatusText>{txnResult()!.error!}</SubStatusText>
+                <Text20>
+                  <Span600>
+                    Transacton has <SpanError>failed</SpanError> to execute with the following error:
+                  </Span600>
+                </Text20>
+                <Text20>
+                  <SpanGray115>{txnResult()!.error!}</SpanGray115>
+                </Text20>
                 <ButtonsWrapper>
                   <Button
                     fullWidth

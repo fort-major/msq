@@ -1,24 +1,28 @@
 import { AddNewMaskBtnIconWrapper, AddNewMaskBtnText, AddNewMaskBtnWrapper } from "./style";
-import { assertEventSafe } from "../../utils";
-import { PlusIcon } from "../typography/icons";
+import { eventHandler } from "../../utils";
+import { EIconKind, Icon } from "../../ui-kit/icon";
+import { Span600, Text16 } from "../../ui-kit/typography";
 
 export interface IAddNewMaskBtnProps {
   onClick: () => void;
+  loading: boolean;
 }
 
 export function AddNewMaskBtn(props: IAddNewMaskBtnProps) {
-  const handleClick = (e: MouseEvent) => {
-    assertEventSafe(e);
+  const handleClick = eventHandler(() => {
+    if (props.loading) return;
 
-    props.onClick();
-  };
+    props.onClick?.();
+  });
 
   return (
-    <AddNewMaskBtnWrapper onClick={handleClick}>
+    <AddNewMaskBtnWrapper classList={{ loading: props.loading }} onClick={handleClick}>
       <AddNewMaskBtnIconWrapper>
-        <PlusIcon />
+        <Icon kind={props.loading ? EIconKind.Loader : EIconKind.Plus} />
       </AddNewMaskBtnIconWrapper>
-      <AddNewMaskBtnText>Add New Mask</AddNewMaskBtnText>
+      <Text16 class={AddNewMaskBtnText}>
+        <Span600>Add New Mask</Span600>
+      </Text16>
     </AddNewMaskBtnWrapper>
   );
 }

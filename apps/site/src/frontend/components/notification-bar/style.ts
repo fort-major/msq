@@ -19,11 +19,4 @@ export const NotificationBarWrapper = styled.div`
   flex-shrink: 0;
 
   background-color: ${COLOR_DARK_BLUE};
-
-  color: ${COLOR_WHITE};
-  font-family: DM Sans;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 100%; /* 16px */
 `;

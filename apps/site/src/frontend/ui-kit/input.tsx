@@ -1,6 +1,6 @@
 import { Principal } from "@dfinity/principal";
 import { Show, createSignal } from "solid-js";
-import { assertEventSafe, strToTokens, tokensToStr } from "../utils";
+import { eventHandler, strToTokens, tokensToStr } from "../utils";
 import { debugStringify, unreacheable } from "@fort-major/masquerade-shared";
 import { styled } from "solid-styled-components";
 import {
@@ -87,13 +87,17 @@ export function Input(props: IInputProps) {
   const [error, setError] = createSignal<string | null>(null);
   const [focused, setFocused] = createSignal(false);
 
-  const handleChange = (e: Event & { currentTarget: HTMLInputElement; target: HTMLInputElement }, onInput: boolean) => {
-    assertEventSafe(e);
-
+  const handleChange = eventHandler((e: Event & { currentTarget: HTMLInputElement; target: HTMLInputElement }) => {
     setValue(e.target.value.trim());
 
-    handleNewValue(onInput);
-  };
+    handleNewValue(false);
+  });
+
+  const handleInput = eventHandler((e: Event & { currentTarget: HTMLInputElement; target: HTMLInputElement }) => {
+    setValue(e.target.value.trim());
+
+    handleNewValue(true);
+  });
 
   const handleNewValue = (onInput: boolean) => {
     matchInputProps(props, {
@@ -119,8 +123,6 @@ export function Input(props: IInputProps) {
 
         try {
           const it = Principal.fromText(value());
-
-          if (props.KindPrincipal.defaultValue?.toText() === it.toString()) return;
 
           let error = null;
 
@@ -156,15 +158,13 @@ export function Input(props: IInputProps) {
         const m = v.match(VALID_TOKEN_STR);
         if (!m || m.length > 1) {
           props.onErr?.(true);
-          setError('Invalid format (use "123.456")');
+          setError('Invalid format (use "1234.5678")');
 
           return;
         }
 
         try {
           const it = strToTokens(v, props.KindTokens.decimals);
-
-          if (props.KindTokens.defaultValue === it) return;
 
           let error = null;
 
@@ -196,8 +196,6 @@ export function Input(props: IInputProps) {
 
           return;
         }
-
-        if (props.KindString.defaultValue === it) return;
 
         let error = null;
 
@@ -240,10 +238,10 @@ export function Input(props: IInputProps) {
             ref={(it) => (props.autofocus ? setTimeout(() => it.focus(), 1) : {})}
             classList={{ error: error() !== null }}
             value={value()}
-            onInput={(e) => handleChange(e, true)}
-            onChange={(e) => handleChange(e, false)}
+            onInput={handleInput}
+            onChange={handleChange}
             onKeyDown={handleKeyDown}
-            onBlur={(e) => handleChange(e, false)}
+            onBlur={handleChange}
             disabled={props.disabled}
             placeholder={props.placeholder}
           />
@@ -253,17 +251,16 @@ export function Input(props: IInputProps) {
           <InputTokens
             ref={(it) => (props.autofocus ? setTimeout(() => it.focus(), 1) : {})}
             value={value()}
-            onInput={(e) => handleChange(e, true)}
-            onChange={(e) => handleChange(e, false)}
+            onInput={handleInput}
+            onChange={handleChange}
             onKeyDown={handleKeyDown}
             placeholder={props.placeholder}
             disabled={props.disabled}
-            onFocus={(e) => {
-              assertEventSafe(e);
+            onFocus={eventHandler(() => {
               setFocused(true);
-            }}
+            })}
             onBlur={(e) => {
-              handleChange(e, false);
+              handleChange(e);
               setFocused(false);
             }}
           />

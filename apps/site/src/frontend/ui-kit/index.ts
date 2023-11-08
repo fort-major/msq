@@ -1,4 +1,4 @@
-import { keyframes, styled } from "solid-styled-components";
+import { css, keyframes, styled } from "solid-styled-components";
 
 export const COLOR_BLACK = "#0A0B15";
 export const COLOR_WHITE = "#FFFFFF";
@@ -17,6 +17,7 @@ export const COLOR_GRAY_175 = "#C2C2C4";
 export const COLOR_GRAY_190 = "#E6E6E7";
 
 export const COLOR_CHARTREUSE = "#E0FF25";
+export const COLOR_ACCENT = COLOR_CHARTREUSE;
 export const COLOR_GREEN = "#53FF50";
 export const COLOR_BLUE = "#15E3FF";
 export const COLOR_DARK_BLUE = "#5057FF";
@@ -64,13 +65,17 @@ export const CabinetHeading = styled.h2`
 
 export const BlinkKeyframes = keyframes`
   0% {
-    background-color: rgba(103, 103, 103, 1);
+    background-color: ${COLOR_GRAY_130};
   }
   100% {
-    background-color: rgba(103, 103, 103, 0);
+    background-color: transparent;
   }
 `;
 
 export const BlinkAnimation = `
-  animation: 0.5s ease-out ${BlinkKeyframes};
+  animation: ${ANIM_DURATION} ease-out ${BlinkKeyframes};
+`;
+
+export const Blinky = css`
+  ${BlinkAnimation}
 `;

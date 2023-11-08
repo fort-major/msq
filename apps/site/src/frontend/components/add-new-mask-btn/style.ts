@@ -1,21 +1,27 @@
-import { styled } from "solid-styled-components";
-import { COLOR_GRAY_115 } from "../../ui-kit";
+import { css, styled } from "solid-styled-components";
+import { ANIM_DURATION, COLOR_BLACK, COLOR_GRAY_105, COLOR_GRAY_115, COLOR_WHITE } from "../../ui-kit";
 
 export const AddNewMaskBtnWrapper = styled.div`
   display: flex;
-  padding-right: 0px;
+  padding: 15px 20px 15px 15px;
   align-items: center;
   gap: 15px;
   align-self: stretch;
 
-  border-radius: 30px;
+  background-color: transparent;
 
-  cursor: pointer;
+  &:hover,
+  &.loading {
+    background-color: ${COLOR_GRAY_105};
 
-  transition: background-color 0.5s;
+    & > div {
+      border: 1px solid transparent;
+      background-color: ${COLOR_GRAY_115};
+    }
+  }
 
-  &:hover {
-    background-color: ${COLOR_GRAY_115};
+  &:not(.loading) {
+    cursor: pointer;
   }
 `;
 
@@ -30,16 +36,15 @@ export const AddNewMaskBtnIconWrapper = styled.div`
   box-sizing: border-box;
 
   border-radius: 100px;
-  border: 1px dashed #fff;
+  border: 1px dashed ${COLOR_WHITE};
+
+  background-color: transparent;
+
+  transition:
+    border ${ANIM_DURATION} ease-out,
+    background-color ${ANIM_DURATION} ease-out;
 `;
 
-export const AddNewMaskBtnText = styled.p`
+export const AddNewMaskBtnText = css`
   flex: 1 0 0;
-
-  color: #fff;
-  font-family: DM Sans;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 100%; /* 16px */
 `;

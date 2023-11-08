@@ -1,4 +1,4 @@
-import { For, Show, createEffect } from "solid-js";
+import { For, Show, createEffect, createSignal } from "solid-js";
 import { useAllOriginData } from "../../../store/cabinet";
 import { CabinetHeading } from "../../../ui-kit";
 import {
@@ -16,12 +16,13 @@ import {
   AvatarCount,
   AvatarCountText,
 } from "./style";
-import { Accent, Title } from "../../../components/typography/style";
 import { Principal, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { BoopAvatar } from "../../../components/boop-avatar";
 import { useLoader, useMasqueradeClient } from "../../../store/global";
 import { produce } from "solid-js/store";
-import { UnlinkIcon } from "../../../components/typography/icons";
+import { H2, H5, Span500, SpanAccent, SpanGray115, Text16, Text20 } from "../../../ui-kit/typography";
+import { Button, EButtonKind } from "../../../ui-kit/button";
+import { EIconKind } from "../../../ui-kit/icon";
 
 export function MyLinksPage() {
   const client = useMasqueradeClient();
@@ -29,10 +30,13 @@ export function MyLinksPage() {
   const allOriginDataKeysWithLinks = () =>
     allOriginDataKeys().filter((origin) => allOriginData[origin]!.linksTo.length !== 0);
 
+  const [loading, setLoading] = createSignal(false);
+
   const [_, showLoader] = useLoader();
   createEffect(() => showLoader(!allOriginDataFetched()));
 
   const unlinkOne = async (origin: TOrigin, withOrigin: TOrigin) => {
+    setLoading(true);
     const result = await client()!.unlinkOne(origin, withOrigin);
 
     if (result) {
@@ -46,9 +50,13 @@ export function MyLinksPage() {
         }),
       );
     }
+
+    setLoading(false);
   };
 
   const unlinkAll = async (origin: TOrigin) => {
+    setLoading(true);
+
     const result = await client()!.unlinkAll(origin);
 
     if (result) {
@@ -65,13 +73,22 @@ export function MyLinksPage() {
         }),
       );
     }
+
+    setLoading(false);
   };
 
   return (
     <>
-      <CabinetHeading>Authorized Mask Links</CabinetHeading>
+      <H2>Authorized Mask Links</H2>
       <MyLinksContent>
-        <For each={allOriginDataKeysWithLinks()}>
+        <For
+          each={allOriginDataKeysWithLinks()}
+          fallback={
+            <H5>
+              <SpanGray115>No links yet</SpanGray115>
+            </H5>
+          }
+        >
           {(origin) => (
             <LinksWrapper>
               <LinksInfoWrapper>
@@ -86,23 +103,34 @@ export function MyLinksPage() {
                   </AvatarWrapper>
                 </LinksInfoAvatars>
                 <LinksInfoTextWrapper>
-                  <Title weight={500}>
-                    You've linked your masks from <Accent>{originToHostname(origin)}</Accent> to:
-                  </Title>
+                  <Text20>
+                    <Span500>
+                      You've linked your masks from <SpanAccent>{originToHostname(origin)}</SpanAccent> to:
+                    </Span500>
+                  </Text20>
                 </LinksInfoTextWrapper>
-                <UnlinkAllBtn onClick={() => unlinkAll(origin)}>
-                  <span>Unlink All</span>
-                  <UnlinkIcon />
-                </UnlinkAllBtn>
+                <Button
+                  kind={EButtonKind.Primary}
+                  text="Unlink All"
+                  icon={EIconKind.Unlink}
+                  disabled={loading()}
+                  onClick={() => unlinkAll(origin)}
+                />
               </LinksInfoWrapper>
               <LinksListWrapper>
                 <For each={allOriginData[origin]!.linksTo}>
                   {(link) => (
                     <LinksListItem>
-                      <LinksListItemText>{originToHostname(link)}</LinksListItemText>
-                      <UnlinkBtn onClick={() => unlinkOne(origin, link)}>
-                        <UnlinkIcon />
-                      </UnlinkBtn>
+                      <Text16>
+                        <Span500>{originToHostname(link)}</Span500>
+                      </Text16>
+                      <Button
+                        kind={EButtonKind.Additional}
+                        icon={EIconKind.Unlink}
+                        iconOnlySize={40}
+                        disabled={loading()}
+                        onClick={() => unlinkOne(origin, link)}
+                      />
                     </LinksListItem>
                   )}
                 </For>

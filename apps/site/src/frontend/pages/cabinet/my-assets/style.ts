@@ -1,6 +1,18 @@
-import { styled } from "solid-styled-components";
-import { COLOR_CHARTREUSE, COLOR_GRAY_115 } from "../../../ui-kit";
+import { css, styled } from "solid-styled-components";
+import {
+  ANIM_DURATION,
+  COLOR_CHARTREUSE,
+  COLOR_ERROR_RED,
+  COLOR_GRAY_105,
+  COLOR_GRAY_115,
+  COLOR_GRAY_130,
+  COLOR_GRAY_140,
+  COLOR_GRAY_150,
+  COLOR_GRAY_190,
+  COLOR_WHITE,
+} from "../../../ui-kit";
 import { getClassName } from "../../../utils";
+import { DefaultColor, DefaultFont } from "../../../ui-kit/typography";
 
 export const MyAssetsPageContent = styled.section`
   display: flex;
@@ -47,22 +59,22 @@ export const AssetAddAccountBtnIconWrapper = styled.div`
   gap: 20px;
 
   border-radius: 100px;
-  border: 1px dashed #fff;
+  border: 1px dashed ${COLOR_WHITE};
   box-sizing: border-box;
 
-  transition: border 0.5s;
+  transition:
+    border ${ANIM_DURATION} ease-out,
+    background-color ${ANIM_DURATION} ease-out;
 
   & > svg {
     width: 12px;
     height: 12px;
 
     & > path {
-      transition: stroke 0.5s;
+      transition: stroke ${ANIM_DURATION} ease-out;
     }
   }
 `;
-
-console.log(getClassName(AssetAddAccountBtnIconWrapper));
 
 export const AssetAddAccountBtn = styled.button`
   display: flex;
@@ -77,17 +89,31 @@ export const AssetAddAccountBtn = styled.button`
 
   cursor: pointer;
 
-  transition: border 0.5s;
+  transition: border ${ANIM_DURATION} ease-out;
 
   &:hover {
-    border: 1px solid ${COLOR_CHARTREUSE};
+    border: 1px solid transparent;
+    background-color: ${COLOR_GRAY_105};
 
     & .${getClassName(AssetAddAccountBtnIconWrapper)} {
-      border: 1px dashed ${COLOR_CHARTREUSE};
+      border: 1px solid transparent;
+      background-color: ${COLOR_GRAY_115};
+    }
+  }
 
-      & > svg > path {
-        stroke: ${COLOR_CHARTREUSE};
-      }
+  &:disabled {
+    cursor: default;
+
+    border: 1px solid transparent;
+    background-color: ${COLOR_GRAY_105};
+
+    & > .${getClassName(AssetAddAccountBtnIconWrapper)} {
+      border: 1px solid transparent;
+      background-color: ${COLOR_GRAY_115};
+    }
+
+    & > p {
+      color: ${COLOR_GRAY_130};
     }
   }
 `;
@@ -122,11 +148,24 @@ export const AddAssetHeader = styled.h5`
   line-height: 90%; /* 36px */
 `;
 
+export const AddAssetFormWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  align-self: stretch;
+`;
+
 export const AddAssetForm = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 10px;
   align-self: stretch;
+
+  & > button {
+    height: auto;
+    align-self: stretch;
+  }
 `;
 
 export const AddAssetInput = styled.input`
@@ -138,19 +177,39 @@ export const AddAssetInput = styled.input`
   flex: 1 0 0;
 
   border-radius: 100px;
-  border: 1px solid #2f2f38;
   background-color: transparent;
 
-  color: #fff;
-
-  font-family: DM Sans;
+  ${DefaultColor};
+  ${DefaultFont};
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
   line-height: 100%; /* 16px */
 
+  transition: border ${ANIM_DURATION} ease-out;
+
+  border: 1px solid ${COLOR_GRAY_150};
+
+  &:focus {
+    outline: none;
+    border: 1px solid ${COLOR_GRAY_190};
+  }
+
+  &.error {
+    border: 1px solid ${COLOR_ERROR_RED} !important;
+  }
+
+  &:disabled {
+    border: 1px solid ${COLOR_GRAY_115};
+    color: ${COLOR_GRAY_130};
+
+    &::placeholder {
+      color: ${COLOR_GRAY_115};
+    }
+  }
+
   &::placeholder {
-    color: #53545b;
+    color: ${COLOR_GRAY_140};
 
     font-family: DM Sans;
     font-size: 16px;
@@ -184,4 +243,8 @@ export const AddAssetBtn = styled.button`
     background: #6c6d73;
     color: #9d9da1;
   }
+`;
+
+export const ErrorText = css`
+  padding-left: 25px;
 `;

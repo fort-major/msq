@@ -1,5 +1,6 @@
 import { css, styled } from "solid-styled-components";
 import {
+  ANIM_DURATION,
   COLOR_BLACK,
   COLOR_CHARTREUSE,
   COLOR_GRAY_108,
@@ -11,7 +12,7 @@ import {
 } from ".";
 import { Show } from "solid-js";
 import { EIconKind, Icon } from "./icon";
-import { assertEventSafe } from "../utils";
+import { eventHandler } from "../utils";
 
 export enum EButtonKind {
   Primary,
@@ -31,11 +32,9 @@ interface IButtonProps {
 }
 
 export function Button(props: IButtonProps) {
-  const handleClick = (e: MouseEvent) => {
-    assertEventSafe(e);
-
+  const handleClick = eventHandler((e: MouseEvent) => {
     props.onClick?.();
-  };
+  });
 
   return (
     <BtnBase
@@ -81,7 +80,7 @@ const BtnBase = styled.button<{ fullWidth?: boolean | undefined; iconOnlySize?: 
 
   cursor: pointer;
 
-  transition: background-color 0.5s ease-out;
+  transition: background-color ${ANIM_DURATION} ease-out;
 
   & > p {
     font-family: DM Sans;
@@ -90,7 +89,12 @@ const BtnBase = styled.button<{ fullWidth?: boolean | undefined; iconOnlySize?: 
     line-height: 100%;
     font-weight: 600;
 
-    transition: color 0.5s ease-out;
+    transition: color ${ANIM_DURATION} ease-out;
+  }
+
+  & > .loader {
+    width: 15px;
+    height: 15px;
   }
 
   & > svg {
@@ -98,11 +102,11 @@ const BtnBase = styled.button<{ fullWidth?: boolean | undefined; iconOnlySize?: 
     height: 15px;
 
     & > path {
-      transition: stroke 0.5s ease-out;
+      transition: stroke ${ANIM_DURATION} ease-out;
     }
 
     & > circle {
-      transition: fill 0.5s ease-out;
+      transition: fill ${ANIM_DURATION} ease-out;
     }
   }
 
@@ -126,6 +130,13 @@ const BtnPrimary = css`
     fill: ${COLOR_BLACK};
   }
 
+  & > .loader {
+    &::before,
+    &::after {
+      background-color: ${COLOR_BLACK};
+    }
+  }
+
   &:hover {
     background-color: ${COLOR_GRAY_110};
 
@@ -139,6 +150,13 @@ const BtnPrimary = css`
 
     & > svg circle {
       fill: ${COLOR_CHARTREUSE};
+    }
+
+    & > .loader {
+      &::before,
+      &::after {
+        background-color: ${COLOR_CHARTREUSE};
+      }
     }
   }
 
@@ -155,6 +173,13 @@ const BtnPrimary = css`
 
     & > svg circle {
       fill: ${COLOR_GRAY_115};
+    }
+
+    & > .loader {
+      &::before,
+      &::after {
+        background-color: ${COLOR_GRAY_115};
+      }
     }
   }
 `;
@@ -174,6 +199,13 @@ const BtnSecondary = css`
     fill: ${COLOR_BLACK};
   }
 
+  & > .loader {
+    &::before,
+    &::after {
+      background-color: ${COLOR_BLACK};
+    }
+  }
+
   &:hover {
     background-color: ${COLOR_GRAY_110};
 
@@ -187,6 +219,13 @@ const BtnSecondary = css`
 
     & > svg circle {
       fill: ${COLOR_WHITE};
+    }
+
+    & > .loader {
+      &::before,
+      &::after {
+        background-color: ${COLOR_WHITE};
+      }
     }
   }
 
@@ -203,6 +242,13 @@ const BtnSecondary = css`
 
     & > svg circle {
       fill: ${COLOR_GRAY_120};
+    }
+
+    & > .loader {
+      &::before,
+      &::after {
+        background-color: ${COLOR_GRAY_120};
+      }
     }
   }
 `;
@@ -223,6 +269,13 @@ const BtnAdditional = css`
     fill: ${COLOR_WHITE};
   }
 
+  & > .loader {
+    &::before,
+    &::after {
+      background-color: ${COLOR_WHITE};
+    }
+  }
+
   &:hover {
     background-color: ${COLOR_GRAY_110};
 
@@ -237,6 +290,13 @@ const BtnAdditional = css`
     & > svg circle {
       fill: ${COLOR_WHITE};
     }
+
+    & > .loader {
+      &::before,
+      &::after {
+        background-color: ${COLOR_WHITE};
+      }
+    }
   }
 
   &:disabled {
@@ -247,11 +307,18 @@ const BtnAdditional = css`
     }
 
     & > svg path {
-      color: ${COLOR_GRAY_115};
+      stroke: ${COLOR_GRAY_115};
     }
 
     & > svg circle {
       fill: ${COLOR_GRAY_115};
+    }
+
+    & > .loader {
+      &::before,
+      &::after {
+        background-color: ${COLOR_GRAY_115};
+      }
     }
   }
 `;

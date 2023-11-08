@@ -1,5 +1,5 @@
 import { TAccountId } from "@fort-major/masquerade-shared";
-import { DEFAULT_PRINCIPAL, assertEventSafe, tokensToStr } from "../../utils";
+import { DEFAULT_PRINCIPAL, eventHandler, tokensToStr } from "../../utils";
 import {
   AccountCardDivider,
   AccountCardFooter,
@@ -13,15 +13,13 @@ import {
   AccountCardHeaderNameWrapper,
   AccountCardHeaderPrincipal,
   AccountCardInput,
-  AccountCardReceiveBtn,
-  AccountCardSendBtn,
   AccountCardWrapper,
 } from "./style";
 import { Match, Show, Switch, createSignal } from "solid-js";
-import { EditIcon, ReceiveIcon, SendIcon } from "../typography/icons";
 import { Input } from "../../ui-kit/input";
 import { Button, EButtonKind } from "../../ui-kit/button";
-import { EIconKind } from "../../ui-kit/icon";
+import { EIconKind, Icon } from "../../ui-kit/icon";
+import { H5, Span600, SpanGray140, Text12, Text16, Text20 } from "../../ui-kit/typography";
 
 export interface IAccountCardProps {
   accountId: TAccountId;
@@ -40,20 +38,20 @@ export interface IAccountCardProps {
 export function AccountCard(props: IAccountCardProps) {
   const [edited, setEdited] = createSignal(false);
 
-  const handleEditStart = (e: Event) => {
-    assertEventSafe(e);
-
+  const handleEditStart = eventHandler((e: Event) => {
     if (props.onEdit === undefined) return;
 
     if (!edited()) {
       setEdited(true);
       return;
     }
-  };
+  });
 
   const handleChange = (newName: string) => {
-    props.onEdit?.(newName);
+    console.log("change outside");
     setEdited(false);
+
+    props.onEdit?.(newName);
   };
 
   const handleSend = () => {
@@ -83,29 +81,29 @@ export function AccountCard(props: IAccountCardProps) {
           </Match>
           <Match when={!edited()}>
             <AccountCardHeaderNameWrapper onClick={handleEditStart}>
-              <AccountCardHeaderName>{props.name}</AccountCardHeaderName>
+              <Text16>
+                <Span600>{props.name}</Span600>
+              </Text16>
               <Show when={props.onEdit}>
-                <EditIcon />
+                <Icon kind={EIconKind.Edit} size={12} />
               </Show>
             </AccountCardHeaderNameWrapper>
           </Match>
         </Switch>
-
-        <Show
-          when={props.principal}
-          fallback={<AccountCardHeaderPrincipal>{DEFAULT_PRINCIPAL}</AccountCardHeaderPrincipal>}
-        >
-          <AccountCardHeaderPrincipal>{props.principal}</AccountCardHeaderPrincipal>
+        <Show when={props.principal} fallback={<Text12 class={AccountCardHeaderPrincipal}>{DEFAULT_PRINCIPAL}</Text12>}>
+          <Text12>
+            <SpanGray140 class={AccountCardHeaderPrincipal}>{props.principal}</SpanGray140>
+          </Text12>
         </Show>
       </AccountCardHeader>
       <AccountCardFooter>
         <AccountCardDivider />
         <AccountCardFooterContent>
           <AccountCardFooterBalance>
-            <AccountCardFooterBalanceQty>
-              {tokensToStr(props.balance || 0n, props.decimals)}
-            </AccountCardFooterBalanceQty>
-            <AccountCardFooterBalanceSymbol>{props.symbol}</AccountCardFooterBalanceSymbol>
+            <H5>{tokensToStr(props.balance || 0n, props.decimals)}</H5>
+            <Text12>
+              <Span600>{props.symbol}</Span600>
+            </Text12>
           </AccountCardFooterBalance>
           <AccountCardFooterButtons>
             <Show when={props.onSend}>

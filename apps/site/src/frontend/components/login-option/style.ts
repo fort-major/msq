@@ -1,35 +1,36 @@
-import { styled } from "solid-styled-components";
-import { COLOR_GRAY_115 } from "../../ui-kit";
+import { css, styled } from "solid-styled-components";
+import { ANIM_DURATION, COLOR_BLACK, COLOR_GRAY_105, COLOR_GRAY_115, COLOR_GRAY_140, COLOR_WHITE } from "../../ui-kit";
 
 export const LoginOptionWrapper = styled.div<{ editable?: boolean | undefined }>`
   display: flex;
-  padding-right: 20px;
+  padding: 15px 20px 15px 15px;
   align-items: center;
   gap: 15px;
   align-self: stretch;
+
+  background-color: ${COLOR_BLACK};
+
+  transition: background-color ${ANIM_DURATION} ease-out;
 
   ${(props) =>
     !props.editable
       ? `  
       cursor: pointer;
       &:hover {
-        background-color: ${COLOR_GRAY_115};
-        border-bottom-left-radius: 30px;
-        border-top-left-radius: 30px;
+        background-color: ${COLOR_GRAY_105};
       }`
       : ""}
 
   & > svg {
-    opacity: 0.6;
-    padding: 5px;
-    border-radius: 100%;
-
-    cursor: pointer;
-
-    transition: background-color 0.5s;
+    & > path {
+      stroke: ${COLOR_GRAY_140};
+      transition: stroke ${ANIM_DURATION} ease-out;
+    }
 
     &:hover {
-      background-color: ${COLOR_GRAY_115};
+      & > path {
+        stroke: ${COLOR_WHITE};
+      }
     }
   }
 `;
@@ -42,51 +43,12 @@ export const LoginOptionContent = styled.div`
   flex: 1 0 0;
 `;
 
-export const LoginOptionPseudonym = styled.h4`
-  align-self: stretch;
-  color: #fff;
-
-  font-family:
-    DM Sans,
-    sans-serif;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 100%; /* 16px */
-`;
-
-export const LoginOptionPseudonymEdit = styled.input`
-  background-color: ${COLOR_GRAY_115};
-  border: none;
-  padding: 5px;
-  border-radius: 3px;
-
-  align-self: stretch;
-  color: #fff;
-
-  font-family:
-    DM Sans,
-    sans-serif;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 100%; /* 16px */
-`;
-
-export const LoginOptionPrincipal = styled.p`
+export const LoginOptionPrincipal = css`
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
   align-self: stretch;
 
   overflow: hidden;
-  color: #fff;
   text-overflow: ellipsis;
-  font-family: DM Sans;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 120%; /* 14.4px */
-
-  opacity: 0.4;
 `;

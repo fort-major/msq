@@ -1,16 +1,11 @@
 import { Principal } from "@dfinity/principal";
 import { BoopAvatar } from "../boop-avatar";
-import {
-  LoginOptionContent,
-  LoginOptionPrincipal,
-  LoginOptionPseudonym,
-  LoginOptionPseudonymEdit,
-  LoginOptionWrapper,
-} from "./style";
+import { LoginOptionContent, LoginOptionPrincipal, LoginOptionWrapper } from "./style";
 import { Show, createSignal } from "solid-js";
-import { assertEventSafe } from "../../utils";
-import { EditIcon } from "../typography/icons";
+import { eventHandler } from "../../utils";
 import { Input } from "../../ui-kit/input";
+import { Span600, SpanGray140, Text12, Text16 } from "../../ui-kit/typography";
+import { EIconKind, Icon } from "../../ui-kit/icon";
 
 export interface ILoginOptionProps {
   pseudonym: string;
@@ -20,22 +15,16 @@ export interface ILoginOptionProps {
 }
 
 export function LoginOption(props: ILoginOptionProps) {
-  const handleClick = (e: MouseEvent) => {
-    if (!props.onClick) return;
-
-    assertEventSafe(e);
-
-    props.onClick();
-  };
+  const handleClick = eventHandler((e: MouseEvent) => {
+    props.onClick?.();
+  });
 
   const handleChange = (newPseudonym: string) => {
     props.onEdit!(newPseudonym);
     setIsEdited(false);
   };
 
-  const toggleEdit = (e: MouseEvent) => {
-    assertEventSafe(e);
-
+  const toggleEdit = () => {
     setIsEdited(!isEdited());
   };
 
@@ -46,7 +35,14 @@ export function LoginOption(props: ILoginOptionProps) {
     <LoginOptionWrapper editable={editable()} onClick={handleClick}>
       <BoopAvatar size={60} principal={Principal.fromText(props.principal)} />
       <LoginOptionContent>
-        <Show when={isEdited()} fallback={<LoginOptionPseudonym>{props.pseudonym}</LoginOptionPseudonym>}>
+        <Show
+          when={isEdited()}
+          fallback={
+            <Text16>
+              <Span600>{props.pseudonym}</Span600>
+            </Text16>
+          }
+        >
           <Input
             label="Pseudonym"
             required
@@ -58,10 +54,12 @@ export function LoginOption(props: ILoginOptionProps) {
             }}
           />
         </Show>
-        <LoginOptionPrincipal>{props.principal}</LoginOptionPrincipal>
+        <Text12 class={LoginOptionPrincipal}>
+          <SpanGray140>{props.principal}</SpanGray140>
+        </Text12>
       </LoginOptionContent>
       <Show when={editable()}>
-        <EditIcon onClick={toggleEdit} />
+        <Icon kind={EIconKind.Edit} size={20} onClick={toggleEdit} />
       </Show>
     </LoginOptionWrapper>
   );

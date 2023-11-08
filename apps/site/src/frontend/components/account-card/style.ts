@@ -1,5 +1,5 @@
 import { css, styled } from "solid-styled-components";
-import { BlinkAnimation, COLOR_CHARTREUSE, COLOR_BLACK, COLOR_GRAY_115 } from "../../ui-kit";
+import { BlinkAnimation, COLOR_CHARTREUSE, COLOR_BLACK, COLOR_GRAY_115, ANIM_DURATION } from "../../ui-kit";
 
 export const AccountCardWrapper = styled.div<{ fullWidth?: boolean | undefined }>`
   display: flex;
@@ -64,29 +64,16 @@ export const AccountCardHeaderName = styled.div`
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 16px */
-
-  ${BlinkAnimation};
 `;
 
-export const AccountCardHeaderPrincipal = styled.p`
+export const AccountCardHeaderPrincipal = css`
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
   align-self: stretch;
 
   overflow: hidden;
-  color: #fff;
-
   text-overflow: ellipsis;
-  font-family: DM Sans;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 120%; /* 14.4px */
-
-  opacity: 0.3;
-
-  ${BlinkAnimation};
 `;
 
 export const AccountCardDivider = styled.div`
@@ -156,8 +143,8 @@ export const AccountCardSendBtn = styled.button`
   box-sizing: border-box;
 
   transition:
-    background-color 0.5s,
-    border 0.5s;
+    background-color ${ANIM_DURATION} ease-out,
+    border ${ANIM_DURATION} ease-out;
 
   &:hover {
     background-color: transparent;
@@ -171,7 +158,7 @@ export const AccountCardSendBtn = styled.button`
   & > svg > path {
     stroke: ${COLOR_BLACK};
 
-    transition: stroke 0.5s;
+    transition: stroke ${ANIM_DURATION} ease-out;
   }
 `;
 
@@ -191,8 +178,8 @@ export const AccountCardReceiveBtn = styled.button`
   cursor: pointer;
 
   transition:
-    background-color 0.5s,
-    border 0.5s;
+    background-color ${ANIM_DURATION} ease-out,
+    border ${ANIM_DURATION} ease-out;
 
   &:hover {
     border: 1px solid ${COLOR_CHARTREUSE};
@@ -203,6 +190,6 @@ export const AccountCardReceiveBtn = styled.button`
   }
 
   & > svg > path {
-    transition: stroke 0.5s;
+    transition: stroke ${ANIM_DURATION} ease-out;
   }
 `;

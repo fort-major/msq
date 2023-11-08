@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { COLOR_CHARTREUSE, COLOR_BLACK } from "../../../ui-kit";
+import { COLOR_CHARTREUSE, COLOR_BLACK, ANIM_DURATION } from "../../../ui-kit";
 
 export const MyLinksContent = styled.section`
   display: flex;
@@ -61,9 +61,9 @@ export const UnlinkAllBtn = styled.button`
   cursor: pointer;
 
   transition:
-    background-color 0.5s,
-    border 0.5s,
-    color 0.5s;
+    background-color ${ANIM_DURATION} ease-out,
+    border ${ANIM_DURATION} ease-out,
+    color ${ANIM_DURATION} ease-out;
 
   &:hover {
     background-color: transparent;
@@ -82,7 +82,7 @@ export const UnlinkAllBtn = styled.button`
     & > path {
       stroke: ${COLOR_BLACK};
 
-      transition: stroke 0.5s;
+      transition: stroke ${ANIM_DURATION} ease-out;
     }
   }
 `;
@@ -144,7 +144,7 @@ export const UnlinkBtn = styled.button`
     height: 15px;
 
     & > path {
-      transition: stroke 0.5s;
+      transition: stroke ${ANIM_DURATION} ease-out;
     }
   }
 `;

@@ -8,6 +8,8 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * demo shop project
 * make spoilers closed by default
 * load data in two iterations: query -> certified
+* loader & header to html
+* rearrange the layout so it stretches
 
 * payment page + fees
 * donation page

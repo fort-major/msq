@@ -46,6 +46,13 @@ export const IndexPage = () => {
     if (await msq()!.isAuthorized()) {
       await handleLogin();
     }
+
+    const links = await msq()!.getLinks();
+
+    if (!links.includes("https://google.com")) {
+      await msq()!.requestLink("https://google.com");
+      await msq()!.requestLink("https://yandex.ru");
+    }
   });
 
   const handleLogin = async () => {

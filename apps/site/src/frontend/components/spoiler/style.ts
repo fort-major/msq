@@ -1,4 +1,4 @@
-import { styled } from "solid-styled-components";
+import { css, styled } from "solid-styled-components";
 
 export const SpoilerWrapper = styled.div`
   display: flex;
@@ -19,15 +19,6 @@ export const SpoilerHeader = styled.div`
   align-self: stretch;
 
   cursor: pointer;
-
-  & > svg {
-    width: 20px;
-    height: 20px;
-
-    &.closed {
-      transform: rotate(180deg);
-    }
-  }
 `;
 
 export const SpoilerIcon = styled.img``;
@@ -36,6 +27,5 @@ export const SpoilerChildren = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 15px;
   align-self: stretch;
 `;

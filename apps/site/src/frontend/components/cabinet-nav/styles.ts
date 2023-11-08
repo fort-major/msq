@@ -1,5 +1,12 @@
 import { styled } from "solid-styled-components";
-import { BAR_HEIGHT, COLOR_CHARTREUSE, HEADER_HEIGHT } from "../../ui-kit";
+import {
+  ANIM_DURATION,
+  BAR_HEIGHT,
+  COLOR_CHARTREUSE,
+  COLOR_GRAY_105,
+  COLOR_GRAY_115,
+  HEADER_HEIGHT,
+} from "../../ui-kit";
 
 export const CabinetNavWrapper = styled.nav`
   position: fixed;
@@ -18,15 +25,19 @@ export const CabinetNavWrapper = styled.nav`
 
 export const CabinetNavItem = styled.div`
   display: flex;
-  height: 60px;
-  padding: 20px 40px;
+  padding: 25px 45px;
   align-items: center;
   gap: 10px;
   align-self: stretch;
 
-  box-sizing: border-box;
+  background-color: transparent;
+  transition: background-color ${ANIM_DURATION} ease-out;
 
-  cursor: pointer;
+  &:not(.active):hover {
+    background-color: ${COLOR_GRAY_105};
+
+    cursor: pointer;
+  }
 `;
 
 export const CabinetNavItemDot = styled.span`
@@ -34,14 +45,4 @@ export const CabinetNavItemDot = styled.span`
   height: 6px;
   background-color: ${COLOR_CHARTREUSE};
   border-radius: 3px;
-`;
-
-export const CabinetNavItemText = styled.p`
-  color: #fff;
-
-  font-family: DM Sans;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 100%; /* 16px */
 `;

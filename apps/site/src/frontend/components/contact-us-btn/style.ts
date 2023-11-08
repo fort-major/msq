@@ -1,5 +1,6 @@
 import { styled } from "solid-styled-components";
 import { getClassName } from "../../utils";
+import { ANIM_DURATION } from "../../ui-kit";
 
 export const ContactUsBtnText = styled.span`
   position: relative;
@@ -15,7 +16,7 @@ export const ContactUsBtnText = styled.span`
   overflow: hidden;
   white-space: nowrap;
 
-  transition: width 0.5s;
+  transition: width ${ANIM_DURATION} ease-out;
 `;
 
 export const ContactUsBtnWrapper = styled.a`
@@ -43,8 +44,8 @@ export const ContactUsBtnWrapper = styled.a`
   cursor: pointer;
 
   transition:
-    gap 0.5s,
-    width 0.5s;
+    gap ${ANIM_DURATION} ease-out,
+    width ${ANIM_DURATION} ease-out;
 
   &:hover {
     display: inline-flex;

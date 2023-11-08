@@ -92,6 +92,9 @@ export function CabinetStore(props: IChildren) {
     if (client() !== undefined) {
       const fetchedAllOriginData = await client()!.getAllOriginData();
 
+      // delete origin data of the msq site itself
+      delete fetchedAllOriginData[window.location.origin];
+
       setAllOriginData(fetchedAllOriginData);
       setAllOriginDataFetched(true);
 

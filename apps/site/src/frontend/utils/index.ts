@@ -1,7 +1,7 @@
 import { HttpAgent, Identity } from "@dfinity/agent";
 import { InternalSnapClient } from "@fort-major/masquerade-client";
 import { createStatisticsBackendActor } from "../backend";
-import { ErrorCode, TAccountId, err, strToBytes } from "@fort-major/masquerade-shared";
+import { ErrorCode, TAccountId, debugStringify, err, strToBytes } from "@fort-major/masquerade-shared";
 import { JSX, JSXElement } from "solid-js";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
 
@@ -24,10 +24,17 @@ export async function handleStatistics(agent: HttpAgent, client: InternalSnapCli
   await statisticsBackend.increment_stats(stats.prod);
 }
 
-export function assertEventSafe(e: Event) {
-  if (!e.isTrusted) {
-    err(ErrorCode.SECURITY_VIOLATION, "No automation allowed!");
-  }
+export function eventHandler<E extends Event>(fn: (e: E) => void | Promise<void>) {
+  return (e: E) => {
+    if (!e.isTrusted) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+
+      err(ErrorCode.SECURITY_VIOLATION, "No automation allowed!");
+    }
+
+    Promise.resolve(fn(e)).catch((e) => err(ErrorCode.UNKOWN, debugStringify(e)));
+  };
 }
 
 export function makeIcrc1Salt(assetId: string, accountId: TAccountId): Uint8Array {
@@ -64,7 +71,7 @@ export function tokensToStr(
   qty: bigint,
   decimals: number,
   padTail: boolean = false,
-  insertCommas: boolean = false,
+  insertQuotes: boolean = false,
 ): string {
   // 0.0 -> 0
   if (qty === BigInt(0)) {
@@ -79,9 +86,9 @@ export function tokensToStr(
 
   let headFormatted = head.toString();
 
-  // 1000000.0 -> 1,000,000.0
-  if (insertCommas) {
-    headFormatted = headFormatted.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+  // 1000000.0 -> 1'000'000.0
+  if (insertQuotes) {
+    headFormatted = headFormatted.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, "'");
   }
 
   // 1,000.0 -> 1,000
@@ -106,8 +113,8 @@ export function tokensToStr(
 export function strToTokens(str: string, decimals: number): bigint {
   // 1,000.123 -> 1,000 & 123
   let [head, tail] = str.split(".") as [string, string | undefined];
-  // 1,000 -> 1000
-  head = head.replaceAll(",", "");
+  // 1'000 -> 1000
+  head = head.replaceAll("'", "");
 
   // todo: Math.pow() to bitshift
   const decimalMul = BigInt(Math.pow(10, decimals));

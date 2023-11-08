@@ -1,7 +1,6 @@
 import { JSXElement, Match, Switch, children, createEffect, createSignal } from "solid-js";
-import { SpoilerChildren, SpoilerHeader, SpoilerIcon, SpoilerWrapper } from "./style";
-import { ChevronUpIcon } from "../typography/icons";
-
+import { SpoilerChildren, SpoilerHeader, SpoilerWrapper } from "./style";
+import { EIconKind, Icon } from "../../ui-kit/icon";
 export interface ISpoilerProps {
   defaultOpen?: boolean | undefined;
   header: JSXElement;
@@ -26,7 +25,7 @@ export function Spoiler(props: ISpoilerProps) {
     <SpoilerWrapper>
       <SpoilerHeader onClick={toggle}>
         {h()}
-        <ChevronUpIcon classList={{ closed: !open() }} />
+        <Icon kind={EIconKind.ChevronUp} size={20} rotation={open() ? 0 : 180} />
       </SpoilerHeader>
       <Switch>
         <Match when={open()}>

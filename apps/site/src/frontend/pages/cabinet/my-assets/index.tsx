@@ -1,9 +1,9 @@
-import { For, Match, Show, Switch, createEffect, createSignal, onCleanup } from "solid-js";
+import { For, Show, createEffect, createSignal, onCleanup } from "solid-js";
 import { AllAssetData, useAllAssetData, useSendPageProps } from "../../../store/cabinet";
-import { CabinetHeading } from "../../../ui-kit";
 import {
   AddAssetBtn,
   AddAssetForm,
+  AddAssetFormWrapper,
   AddAssetHeader,
   AddAssetInput,
   AddAssetWrapper,
@@ -13,35 +13,54 @@ import {
   AssetAddAccountBtnText,
   AssetSpoilerContent,
   AssetSpoilerHeader,
+  ErrorText,
   MyAssetsPageContent,
 } from "./style";
 import { Spoiler } from "../../../components/spoiler";
-import { Dim, Title } from "../../../components/typography/style";
 import { AccountCard } from "../../../components/account-card";
 import {
   DEFAULT_PRINCIPAL,
+  IAssetMetadata,
   ONE_MIN_MS,
-  assertEventSafe,
+  eventHandler,
   getAssetMetadata,
   makeAgent,
   makeIcrc1Salt,
   tokensToStr,
 } from "../../../utils";
-import { Principal, TAccountId, delay } from "@fort-major/masquerade-shared";
-import { useLoader, useMasqueradeClient } from "../../../store/global";
+import { Principal, TAccountId, debugStringify } from "@fort-major/masquerade-shared";
+import { useIcAgent, useLoader, useMasqueradeClient } from "../../../store/global";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 import { AnonymousIdentity } from "@dfinity/agent";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
-import { PlusIcon } from "../../../components/typography/icons";
 import { SetStoreFunction, produce } from "solid-js/store";
 import { useNavigate } from "@solidjs/router";
 import { ISendPageProps } from "./send";
+import {
+  H2,
+  H4,
+  H5,
+  Span500,
+  Span600,
+  SpanError,
+  SpanGray115,
+  SpanGray130,
+  Text12,
+  Text16,
+  Text20,
+} from "../../../ui-kit/typography";
+import { EIconKind, Icon } from "../../../ui-kit/icon";
+import { Button, EButtonKind } from "../../../ui-kit/button";
 
 export function MyAssetsPage() {
   const client = useMasqueradeClient();
   const [allAssetData, setAllAssetData, allAssetDataFetched, allAssetDataKeys] = useAllAssetData();
   const [newAssetId, setNewAssetId] = createSignal<string>("");
-  const [error, setError] = createSignal<string | undefined>();
+  const [newAssetMetadata, setNewAssetMetadata] = createSignal<IAssetMetadata | null>(null);
+  const [error, setError] = createSignal<string | null>();
+
+  const [loading, setLoading] = createSignal(false);
+  const [addingAccount, setAddingAccount] = createSignal(false);
 
   const [sendPopupProps, setSendPopupProps] = useSendPageProps();
 
@@ -49,6 +68,8 @@ export function MyAssetsPage() {
 
   const [_, showLoader] = useLoader();
   createEffect(() => showLoader(!allAssetDataFetched()));
+
+  const icAgent = useIcAgent();
 
   const [int] = createSignal(
     setInterval(async () => {
@@ -72,16 +93,49 @@ export function MyAssetsPage() {
 
   onCleanup(() => clearInterval(int()));
 
+  const handleNewAssetIdInput = eventHandler(async (e: Event & { target: HTMLInputElement }) => {
+    setNewAssetId(e.target.value.trim());
+    setError(null);
+
+    try {
+      const principal = Principal.fromText(newAssetId());
+
+      const existing = allAssetData[newAssetId()];
+      if (existing) {
+        setError(`Token ${existing.metadata!.symbol} (${newAssetId()}) already exists`);
+        return;
+      }
+
+      const ledger = IcrcLedgerCanister.create({ agent: icAgent()!, canisterId: principal });
+
+      const metadata = await getAssetMetadata(ledger, false);
+
+      setNewAssetMetadata(metadata);
+    } catch (e) {
+      setError(`Invalid canister ID - ${debugStringify(e)}`);
+    }
+  });
+
   const handleEdit = async (assetId: string, accountId: TAccountId, newName: string) => {
+    setLoading(true);
     await client()!.editAssetAccount(assetId, accountId, newName);
 
     setAllAssetData(assetId, "accounts", accountId, "name", newName);
+    setLoading(false);
   };
 
   const handleAddAccount = async (assetId: string, assetName: string, symbol: string) => {
+    setLoading(true);
+    setAddingAccount(true);
+
     const name = await client()!.addAssetAccount(assetId, assetName, symbol);
 
-    if (name === null) return;
+    if (name === null) {
+      setLoading(false);
+      setAddingAccount(false);
+
+      return;
+    }
 
     const accountId = allAssetData[assetId]!.accounts.length;
 
@@ -97,18 +151,15 @@ export function MyAssetsPage() {
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
 
     updateBalanceOf(ledger, allAssetData, setAllAssetData, assetId, accountId);
+
+    setLoading(false);
+    setAddingAccount(false);
   };
 
-  const handleAddAsset = async (e: Event) => {
-    assertEventSafe(e);
-
+  const handleAddAsset = async () => {
     const assetId = newAssetId();
 
-    const existing = allAssetData[assetId];
-    if (existing) {
-      setError(`Token ${existing.metadata?.name} (${assetId}) already exists`);
-      return;
-    }
+    setLoading(true);
 
     const msq = client()!;
 
@@ -159,6 +210,8 @@ export function MyAssetsPage() {
     } catch (e) {
       console.error(e);
       setError(`Token ${assetId} is not a valid ICRC-1 token or unresponsive`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -187,6 +240,8 @@ export function MyAssetsPage() {
     navigate("/cabinet/my-assets");
 
     if (result) {
+      setLoading(true);
+
       const anonIdentity = new AnonymousIdentity();
       const agent = await makeAgent(anonIdentity);
       const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(sendPopupProps()!.assetId) });
@@ -196,16 +251,29 @@ export function MyAssetsPage() {
       for (let accountId = 0; accountId < accounts.length; accountId++) {
         await updateBalanceOf(ledger, allAssetData, setAllAssetData, sendPopupProps()!.assetId, accountId);
       }
+
+      setLoading(false);
     }
 
     setSendPopupProps(undefined);
   };
 
+  createEffect(() => {
+    console.log(loading(), newAssetId(), newAssetMetadata(), error());
+  });
+
   return (
     <>
-      <CabinetHeading>My Assets</CabinetHeading>
+      <H2>My Assets</H2>
       <MyAssetsPageContent>
-        <For each={allAssetDataKeys()}>
+        <For
+          each={allAssetDataKeys()}
+          fallback={
+            <H5>
+              <SpanGray115>No assets yet</SpanGray115>
+            </H5>
+          }
+        >
           {(assetId) => (
             <Spoiler
               defaultOpen={
@@ -214,21 +282,34 @@ export function MyAssetsPage() {
               }
               header={
                 <AssetSpoilerHeader>
-                  <Show when={allAssetData[assetId]?.metadata} fallback={<Title>{assetId}</Title>}>
-                    <Title>{allAssetData[assetId]!.metadata!.name}</Title>
+                  <Show
+                    when={allAssetData[assetId]?.metadata}
+                    fallback={
+                      <Text20>
+                        <Span600>{assetId}</Span600>
+                      </Text20>
+                    }
+                  >
+                    <Text20>
+                      <Span600>{allAssetData[assetId]!.metadata!.name}</Span600>
+                    </Text20>
                   </Show>
                   <Show
                     when={allAssetData[assetId]?.metadata}
                     fallback={
-                      <Title>
-                        0 <Dim>TOK</Dim>
-                      </Title>
+                      <Text20>
+                        <Span600>
+                          0 <SpanGray130>TOK</SpanGray130>
+                        </Span600>
+                      </Text20>
                     }
                   >
-                    <Title>
-                      {tokensToStr(allAssetData[assetId]!.totalBalance, allAssetData[assetId]!.metadata!.decimals)}{" "}
-                      <Dim>{allAssetData[assetId]!.metadata!.symbol}</Dim>
-                    </Title>
+                    <Text20>
+                      <Span600>
+                        {tokensToStr(allAssetData[assetId]!.totalBalance, allAssetData[assetId]!.metadata!.decimals)}{" "}
+                        <SpanGray130>{allAssetData[assetId]!.metadata!.symbol}</SpanGray130>
+                      </Span600>
+                    </Text20>
                   </Show>
                 </AssetSpoilerHeader>
               }
@@ -254,20 +335,21 @@ export function MyAssetsPage() {
                     </For>
                   </AssetAccountsWrapper>
                   <AssetAddAccountBtn
-                    onClick={() =>
+                    disabled={addingAccount()}
+                    onClick={eventHandler(() =>
                       handleAddAccount(
                         assetId,
                         allAssetData[assetId]!.metadata!.name,
                         allAssetData[assetId]!.metadata!.symbol,
-                      )
-                    }
+                      ),
+                    )}
                   >
                     <AssetAddAccountBtnIconWrapper>
-                      <PlusIcon />
+                      <Icon kind={addingAccount() ? EIconKind.Loader : EIconKind.Plus} />
                     </AssetAddAccountBtnIconWrapper>
-                    <AssetAddAccountBtnText>
-                      Add New {allAssetData[assetId]!.metadata!.symbol} Account
-                    </AssetAddAccountBtnText>
+                    <Text16>
+                      <Span600>Add New {allAssetData[assetId]!.metadata!.symbol} Account</Span600>
+                    </Text16>
                   </AssetAddAccountBtn>
                 </AssetSpoilerContent>
               </Show>
@@ -275,15 +357,33 @@ export function MyAssetsPage() {
           )}
         </For>
         <AddAssetWrapper>
-          <AddAssetHeader>Add custom ICRC-1 asset</AddAssetHeader>
-          <AddAssetForm>
-            <AddAssetInput
-              placeholder="Type token’s canister ID here..."
-              value={newAssetId()}
-              onInput={(e) => setNewAssetId(e.target.value)}
-            />
-            <AddAssetBtn onClick={handleAddAsset}>Add</AddAssetBtn>
-          </AddAssetForm>
+          <H4>Add custom ICRC-1 asset</H4>
+          <AddAssetFormWrapper>
+            <AddAssetForm>
+              <AddAssetInput
+                classList={{ error: error() !== null }}
+                disabled={loading()}
+                placeholder="Type token’s canister ID here..."
+                value={newAssetId()}
+                onInput={handleNewAssetIdInput}
+              />
+              <Button
+                disabled={loading() || newAssetId() === "" || error() !== null || newAssetMetadata() === null}
+                kind={EButtonKind.Primary}
+                onClick={handleAddAsset}
+                text={`Add ${
+                  newAssetMetadata() ? `${newAssetMetadata()!.name} (${newAssetMetadata()!.symbol})` : "token"
+                }`}
+              />
+            </AddAssetForm>
+            <Show when={error()}>
+              <Text12 class={ErrorText}>
+                <SpanError>
+                  <Span500>{error()}</Span500>
+                </SpanError>
+              </Text12>
+            </Show>
+          </AddAssetFormWrapper>
         </AddAssetWrapper>
       </MyAssetsPageContent>
     </>
