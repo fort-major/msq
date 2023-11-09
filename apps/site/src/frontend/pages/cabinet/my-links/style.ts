@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { COLOR_CHARTREUSE, COLOR_BLACK, ANIM_DURATION } from "../../../ui-kit";
+import { COLOR_CHARTREUSE, COLOR_BLACK, ANIM_DURATION, COLOR_GRAY_115, COLOR_GRAY_140 } from "../../../ui-kit";
 
 export const MyLinksContent = styled.section`
   display: flex;
@@ -20,7 +20,7 @@ export const LinksWrapper = styled.div`
   gap: 10px;
   align-self: stretch;
 
-  border-top: 1px solid #fff;
+  border-top: 1px solid ${COLOR_GRAY_140};
 `;
 
 export const LinksInfoWrapper = styled.div`
@@ -103,7 +103,7 @@ export const LinksListItem = styled.div`
   gap: 15px;
 
   border-radius: 100px;
-  border: 1px solid #2f2f38;
+  border: 1px solid ${COLOR_GRAY_115};
 `;
 
 export const LinksListItemText = styled.p`

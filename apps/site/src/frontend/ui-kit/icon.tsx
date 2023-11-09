@@ -106,7 +106,7 @@ export function Icon(props: IIconProps) {
       </Match>
       <Match when={props.kind === EIconKind.ChevronUp}>
         <Svg {...props} pointer={!!props.onClick} handleClick={handleClick} viewBox="0 0 20 20">
-          <path d="M18 14L10 6L2 14" stroke={props.color || COLOR_WHITE} stroke-width="1.2" />
+          <path d="M18 14L10 6L2 14" stroke={props.color || COLOR_WHITE} stroke-width="1" />
         </Svg>
       </Match>
       <Match when={props.kind === EIconKind.Edit}>

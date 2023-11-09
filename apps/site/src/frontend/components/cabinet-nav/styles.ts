@@ -19,7 +19,7 @@ export const CabinetNavWrapper = styled.nav`
   align-items: flex-start;
 
   & > div:not(:nth-of-type(1)) {
-    border-top: 1px solid #2f2f38;
+    border-top: 1px solid ${COLOR_GRAY_115};
   }
 `;
 

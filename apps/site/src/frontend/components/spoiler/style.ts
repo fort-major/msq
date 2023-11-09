@@ -1,4 +1,5 @@
 import { css, styled } from "solid-styled-components";
+import { COLOR_GRAY_140 } from "../../ui-kit";
 
 export const SpoilerWrapper = styled.div`
   display: flex;
@@ -6,7 +7,7 @@ export const SpoilerWrapper = styled.div`
   flex-flow: column nowrap;
   align-items: flex-start;
 
-  border-top: 1px solid #fff;
+  border-top: 1px solid ${COLOR_GRAY_140};
 `;
 
 export const SpoilerHeader = styled.div`

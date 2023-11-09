@@ -51,18 +51,20 @@ import {
 } from "../../../ui-kit/typography";
 import { EIconKind, Icon } from "../../../ui-kit/icon";
 import { Button, EButtonKind } from "../../../ui-kit/button";
+import { IReceivePopupProps, ReceivePopup } from "./receive";
 
 export function MyAssetsPage() {
   const client = useMasqueradeClient();
   const [allAssetData, setAllAssetData, allAssetDataFetched, allAssetDataKeys] = useAllAssetData();
   const [newAssetId, setNewAssetId] = createSignal<string>("");
   const [newAssetMetadata, setNewAssetMetadata] = createSignal<IAssetMetadata | null>(null);
-  const [error, setError] = createSignal<string | null>();
+  const [error, setError] = createSignal<string | null>(null);
 
   const [loading, setLoading] = createSignal(false);
   const [addingAccount, setAddingAccount] = createSignal(false);
 
   const [sendPopupProps, setSendPopupProps] = useSendPageProps();
+  const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
 
   const navigate = useNavigate();
 
@@ -258,9 +260,17 @@ export function MyAssetsPage() {
     setSendPopupProps(undefined);
   };
 
-  createEffect(() => {
-    console.log(loading(), newAssetId(), newAssetMetadata(), error());
-  });
+  const handleReceive = (symbol: string, principalId: string) => {
+    setReceivePopupProps({
+      principal: principalId,
+      symbol,
+      onClose: handleReceiveClose,
+    });
+  };
+
+  const handleReceiveClose = () => {
+    setReceivePopupProps(null);
+  };
 
   return (
     <>
@@ -328,7 +338,7 @@ export function MyAssetsPage() {
                           symbol={allAssetData[assetId]!.metadata!.symbol}
                           decimals={allAssetData[assetId]!.metadata!.decimals}
                           onSend={handleSend}
-                          onReceive={() => {}}
+                          onReceive={handleReceive}
                           onEdit={(newName) => handleEdit(assetId, idx(), newName)}
                         />
                       )}
@@ -386,6 +396,9 @@ export function MyAssetsPage() {
           </AddAssetFormWrapper>
         </AddAssetWrapper>
       </MyAssetsPageContent>
+      <Show when={receivePopupProps()}>
+        <ReceivePopup {...receivePopupProps()!} />
+      </Show>
     </>
   );
 }

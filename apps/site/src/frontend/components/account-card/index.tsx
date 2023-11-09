@@ -31,7 +31,7 @@ export interface IAccountCardProps {
   symbol: string;
   fullWidth?: boolean | undefined;
   onSend?: (accountId: TAccountId, assetId: string) => void;
-  onReceive?: (principal: string) => void;
+  onReceive?: (symbol: string, principal: string) => void;
   onEdit?: (newName: string) => void;
 }
 
@@ -48,7 +48,6 @@ export function AccountCard(props: IAccountCardProps) {
   });
 
   const handleChange = (newName: string) => {
-    console.log("change outside");
     setEdited(false);
 
     props.onEdit?.(newName);
@@ -59,7 +58,7 @@ export function AccountCard(props: IAccountCardProps) {
   };
 
   const handleReceive = () => {
-    props.onReceive!(props.principal!);
+    props.onReceive!(props.symbol, props.principal!);
   };
 
   return (

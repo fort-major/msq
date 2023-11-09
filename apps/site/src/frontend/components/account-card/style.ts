@@ -11,7 +11,7 @@ export const AccountCardWrapper = styled.div<{ fullWidth?: boolean | undefined }
   flex: 1 0 0;
 
   border-radius: 25px;
-  border: 1px solid #2f2f38;
+  border: 1px solid ${COLOR_GRAY_115};
   box-sizing: border-box;
 
   position: relative;

@@ -10,6 +10,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * load data in two iterations: query -> certified
 * loader & header to html
 * rearrange the layout so it stretches
+* QR CODE link to payment page
 
 * payment page + fees
 * donation page

@@ -1,5 +1,5 @@
 import { css, styled } from "solid-styled-components";
-import { COLOR_GREEN } from "../../../ui-kit";
+import { COLOR_GRAY_140, COLOR_GREEN } from "../../../ui-kit";
 
 export const MySessionsContent = styled.section`
   display: flex;
@@ -19,7 +19,7 @@ export const SessionWrapper = styled.div`
   gap: 25px;
   align-self: stretch;
 
-  border-top: 1px solid #fff;
+  border-top: 1px solid ${COLOR_GRAY_140};
 `;
 
 export const SessionWebsiteWrapper = styled.div`

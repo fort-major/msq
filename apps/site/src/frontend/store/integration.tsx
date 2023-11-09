@@ -66,8 +66,6 @@ export function IntegrationStore(props: IChildren) {
       return;
     }
 
-    console.log(msg);
-
     if (!msg.source) {
       err(ErrorCode.UNKOWN, "No message source found");
     }
@@ -99,8 +97,6 @@ export function IntegrationStore(props: IChildren) {
       };
 
       msg.source!.postMessage(readyMsg, { targetOrigin: referrerOrigin });
-
-      console.log("sent ready msg back");
     } catch (e) {
       window.onmessage = null;
       window.onbeforeunload = null;

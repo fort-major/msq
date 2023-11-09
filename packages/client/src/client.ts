@@ -107,7 +107,7 @@ export class MasqueradeClient {
             loginRequestReceived = true;
 
             if (self.debug) {
-              console.log("received ready msg, waiting for the result...");
+              console.log("Received ready msg, waiting for the result...");
             }
 
             return;

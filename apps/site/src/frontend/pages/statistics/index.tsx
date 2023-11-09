@@ -51,8 +51,6 @@ export function StatisticsPage() {
     const actor = createStatisticsBackendActor(agent);
     const statisticsHistory = await actor.get_stats();
 
-    console.log(statisticsHistory);
-
     const result: IStatisticsUnwrapped = {
       masks_created: makeDefaultStat("Masks Created"),
       signatures_produced: makeDefaultStat("Signatures Produced"),
@@ -95,8 +93,6 @@ export function StatisticsPage() {
       result.hot_sent.datasets[0].data.push(Number(episode.prod.icrc1_sent.HOT / BigInt(100000000)));
       result.cat_sent.datasets[0].data.push(Number(episode.prod.icrc1_sent.CAT / BigInt(100000000)));
     }
-
-    console.log(result);
 
     return result;
   });
