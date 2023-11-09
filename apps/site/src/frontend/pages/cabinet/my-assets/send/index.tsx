@@ -1,13 +1,20 @@
 import { AccountCard } from "../../../../components/account-card";
 import { Input } from "../../../../ui-kit/input";
-import { DEFAULT_PRINCIPAL, DEFAULT_SUBACCOUNT, makeAgent, makeIcrc1Salt, tokensToStr } from "../../../../utils";
+import {
+  DEFAULT_PRINCIPAL,
+  DEFAULT_SUBACCOUNT,
+  getRandomMemo,
+  makeAgent,
+  makeIcrc1Salt,
+  tokensToStr,
+} from "../../../../utils";
 import { Match, Show, Switch, createSignal, onMount } from "solid-js";
 import { Principal } from "@dfinity/principal";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { EIconKind } from "../../../../ui-kit/icon";
 import { createStore } from "solid-js/store";
 import { useMasqueradeClient } from "../../../../store/global";
-import { debugStringify, hexToBytes } from "@fort-major/masquerade-shared";
+import { DISCORD_LINK, debugStringify, hexToBytes } from "@fort-major/masquerade-shared";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import {
@@ -25,7 +32,25 @@ import {
 } from "./style";
 import { useSendPageProps } from "../../../../store/cabinet";
 import { useNavigate } from "@solidjs/router";
-import { Span600, SpanAccent, SpanError, SpanGray115, Text20 } from "../../../../ui-kit/typography";
+import {
+  H3,
+  Span400,
+  Span600,
+  SpanAccent,
+  SpanError,
+  SpanGray115,
+  SpanGray140,
+  SpanGray165,
+  SpanLink,
+  Text14,
+  Text20,
+  Text24,
+} from "../../../../ui-kit/typography";
+import {
+  CheckoutResultBtn,
+  CheckoutResultContent,
+  CheckoutResultSection,
+} from "../../../integration/payment/checkout/style";
 
 export interface ISendPageProps {
   accountId: number;
@@ -40,7 +65,7 @@ export interface ISendPageProps {
   onCancel: (result: boolean) => void;
 }
 
-interface ITxnResult {
+export interface ITxnResult {
   success: boolean;
   blockIdx?: bigint | undefined;
   error?: string | undefined;
@@ -108,7 +133,7 @@ export function SendPage() {
           subaccount: subaccount ? [subaccount] : [],
         },
         amount: amount(),
-        memo: memo() ? hexToBytes(memo()!) : undefined,
+        memo: memo() ? hexToBytes(memo()!) : getRandomMemo(),
       });
 
       setTxnResult({
@@ -216,44 +241,77 @@ export function SendPage() {
                 </ButtonsWrapper>
               </SendPopupBody>
             </Match>
-            <Match when={txnResult()?.success}>
-              <SendPopupHeading>Success</SendPopupHeading>
-              <SendPopupBody>
-                <Text20>
-                  <Span600>
-                    Transacton #{txnResult()!.blockIdx!.toString()} has beed <SpanAccent>successfully</SpanAccent>{" "}
-                    executed
-                  </Span600>
-                </Text20>
-                <Text20>
-                  {txnResult()!.totalAmount!} {props()!.symbol} were deducted from your balance
-                </Text20>
-                <ButtonsWrapper>
-                  <Button fullWidth onClick={() => props()!.onCancel(true)} kind={EButtonKind.Primary} text="Go Back" />
-                </ButtonsWrapper>
-              </SendPopupBody>
-            </Match>
 
-            <Match when={!txnResult()?.success}>
-              <SendPopupHeading>Fail</SendPopupHeading>
-              <SendPopupBody>
-                <Text20>
-                  <Span600>
-                    Transacton has <SpanError>failed</SpanError> to execute with the following error:
-                  </Span600>
-                </Text20>
-                <Text20>
-                  <SpanGray115>{txnResult()!.error!}</SpanGray115>
-                </Text20>
-                <ButtonsWrapper>
+            <Match when={txnResult()!.success}>
+              <CheckoutResultContent>
+                <CheckoutResultSection>
+                  <H3>Success</H3>
+                  <Text24>
+                    <Span600>
+                      Transaction #{txnResult()!.blockIdx!.toString()} has been <SpanAccent>sucessfully</SpanAccent>{" "}
+                      executed
+                    </Span600>
+                  </Text24>
+                </CheckoutResultSection>
+                <CheckoutResultSection>
+                  <Text24>
+                    <Span600>
+                      <SpanGray165>
+                        {txnResult()!.totalAmount} {props()!.symbol} were deducted from your balance
+                      </SpanGray165>
+                    </Span600>
+                  </Text24>
+                </CheckoutResultSection>
+                <CheckoutResultSection>
                   <Button
-                    fullWidth
-                    onClick={() => props()!.onCancel(false)}
-                    kind={EButtonKind.Additional}
+                    classList={{ [CheckoutResultBtn]: true }}
+                    kind={EButtonKind.Primary}
                     text="Go Back"
+                    onClick={() => props()!.onCancel(true)}
                   />
-                </ButtonsWrapper>
-              </SendPopupBody>
+                </CheckoutResultSection>
+              </CheckoutResultContent>
+            </Match>
+            <Match when={!txnResult()!.success}>
+              <CheckoutResultContent>
+                <CheckoutResultSection>
+                  <H3>Fail</H3>
+                  <Text24>
+                    <Span600>
+                      The transaction has <SpanError>failed</SpanError> to execute due to the following error:
+                    </Span600>
+                  </Text24>
+                  <Text14>
+                    <Span400>
+                      <SpanGray140>{txnResult()!.error}</SpanGray140>
+                    </Span400>
+                  </Text14>
+                </CheckoutResultSection>
+                <CheckoutResultSection>
+                  <Text24>
+                    <Span600>
+                      <SpanGray165>No funds were deducted from your balance</SpanGray165>
+                    </Span600>
+                  </Text24>
+                  <Text20>
+                    <SpanGray165>
+                      Please, consider{" "}
+                      <SpanLink href={DISCORD_LINK} target="_blank">
+                        reporting
+                      </SpanLink>{" "}
+                      the error above
+                    </SpanGray165>
+                  </Text20>
+                </CheckoutResultSection>
+                <CheckoutResultSection>
+                  <Button
+                    kind={EButtonKind.Additional}
+                    classList={{ [CheckoutResultBtn]: true }}
+                    text="Go Back"
+                    onClick={() => props()!.onCancel(false)}
+                  />
+                </CheckoutResultSection>
+              </CheckoutResultContent>
             </Match>
           </Switch>
         </SendPopupWrapper>

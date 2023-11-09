@@ -1,5 +1,12 @@
 import { css, styled } from "solid-styled-components";
-import { BlinkAnimation, COLOR_CHARTREUSE, COLOR_BLACK, COLOR_GRAY_115, ANIM_DURATION } from "../../ui-kit";
+import {
+  BlinkAnimation,
+  COLOR_CHARTREUSE,
+  COLOR_BLACK,
+  COLOR_GRAY_115,
+  ANIM_DURATION,
+  COLOR_GRAY_105,
+} from "../../ui-kit";
 
 export const AccountCardWrapper = styled.div<{ fullWidth?: boolean | undefined }>`
   display: flex;
@@ -44,11 +51,13 @@ export const AccountCardHeaderNameWrapper = styled.div`
   gap: 10px;
   align-self: stretch;
 
-  cursor: pointer;
-
   & > svg {
     width: 11.429px;
     height: 13px;
+  }
+
+  .editable {
+    cursor: pointer;
   }
 `;
 
@@ -90,11 +99,31 @@ export const AccountCardFooterContent = styled.div`
   align-self: stretch;
 `;
 
+export const AccountCardFooterBalanceWrapper = styled.div`
+  display: flex;
+  align-items: flex-end;
+  gap: 25px;
+  align-self: stretch;
+
+  justify-content: space-between;
+  width: 100%;
+`;
+
 export const AccountCardFooterBalance = styled.div`
   display: flex;
   align-items: baseline;
   gap: 5px;
   flex: 1 0 0;
+`;
+
+export const AccountCardFooterInsufficientBalance = styled.div`
+  display: flex;
+  padding: 12px 15px 12px 12px;
+  align-items: center;
+  gap: 10px;
+
+  border-radius: 15px;
+  background-color: ${COLOR_GRAY_105};
 `;
 
 export const AccountCardFooterBalanceQty = styled.p`

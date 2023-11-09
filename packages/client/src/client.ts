@@ -242,7 +242,7 @@ export class MasqueradeClient {
 
     const self = this;
 
-    const url = new URL("/wallet", MASQUERADE_SITE_ORIGIN);
+    const url = new URL("/integration/pay", MASQUERADE_SITE_ORIGIN);
     self.childWindow = window.open(url, "_blank");
 
     if (self.childWindow === null) {

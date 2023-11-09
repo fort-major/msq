@@ -10,7 +10,11 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * load data in two iterations: query -> certified
 * loader & header to html
 * rearrange the layout so it stretches
-* QR CODE link to payment page
+* QR code link to payment page
+* refactor payment flows to make them reusable
+* REPLACE CHARGING TOKENS (maybe make it a part of configuration)
+* make `devMode()` function that makes agents insde the website target different ic host
+* contact us btn to payment flow
 
 * payment page + fees
 * donation page

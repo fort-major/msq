@@ -1,5 +1,14 @@
 import { styled } from "solid-styled-components";
-import { COLOR_CHARTREUSE, COLOR_ERROR_RED, COLOR_GRAY_115, COLOR_GRAY_130, COLOR_GRAY_140, COLOR_WHITE } from ".";
+import {
+  COLOR_BLUE,
+  COLOR_CHARTREUSE,
+  COLOR_ERROR_RED,
+  COLOR_GRAY_115,
+  COLOR_GRAY_130,
+  COLOR_GRAY_140,
+  COLOR_GRAY_165,
+  COLOR_WHITE,
+} from ".";
 
 export const DefaultFont = "font-family: DM Sans;";
 export const DefaultColor = `color: ${COLOR_WHITE};`;
@@ -104,6 +113,16 @@ export const Text12 = styled.p`
   line-height: 120%;
 `;
 
+export const Text14 = styled.p`
+  ${DefaultColor}
+  ${DefaultFont}
+
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+`;
+
 export const SpanAccent = styled.span`
   color: ${COLOR_CHARTREUSE};
 `;
@@ -124,6 +143,10 @@ export const SpanGray140 = styled.span`
   color: ${COLOR_GRAY_140};
 `;
 
+export const SpanGray165 = styled.span`
+  color: ${COLOR_GRAY_165};
+`;
+
 export const SpanGray115 = styled.span`
   color: ${COLOR_GRAY_115};
 `;
@@ -138,4 +161,10 @@ export const Span500 = styled.span`
 
 export const Span400 = styled.span`
   font-weight: 400;
+`;
+
+export const SpanLink = styled.a`
+  color: ${COLOR_BLUE};
+  text-decoration: underline;
+  cursor: pointer;
 `;

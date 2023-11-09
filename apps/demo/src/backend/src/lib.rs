@@ -23,11 +23,12 @@ enum OrderStatus {
     Canceled,
 }
 
-type OrderId = u64;
+type OrderId = Nat;
 
 #[derive(Clone, CandidType, Deserialize)]
 struct Order {
     id: OrderId,
+    memo: Vec<u8>,
     qty: u32,
     price: u64,
     total: Nat,
@@ -40,7 +41,7 @@ struct State {
     plushies_in_stock: u32,
     price: Tokens,
     payment_token_id: Principal,
-    order_id_counter: u64,
+    order_id_counter: OrderId,
     orders: HashMap<OrderId, Order>,
 }
 
@@ -55,7 +56,7 @@ fn init_hook() {
             plushies_in_stock: 1000,
             price: Tokens::from_e8s(10_000_000), // 0.1 ICP
             payment_token_id: Principal::from_text(ICP_TOKEN_ID).unwrap(),
-            order_id_counter: 0,
+            order_id_counter: Nat::from(0),
             orders: HashMap::new(),
         }));
     });
@@ -87,10 +88,11 @@ fn create_order(qty: u32) -> OrderId {
 
         state.plushies_in_stock -= qty;
 
-        let order_id = state.order_id_counter;
-        state.order_id_counter += 1;
+        let order_id = state.order_id_counter.clone();
+        state.order_id_counter += Nat::from(1);
         let order = Order {
-            id: order_id,
+            id: order_id.clone(),
+            memo: order_id.0.to_bytes_le(),
             qty,
             total: Nat::from(qty) * Nat::from(state.price.e8s()),
             price: state.price.e8s(),
@@ -98,7 +100,7 @@ fn create_order(qty: u32) -> OrderId {
             buyer: caller(),
         };
 
-        state.orders.insert(order_id, order);
+        state.orders.insert(order_id.clone(), order);
 
         order_id
     })
@@ -160,7 +162,7 @@ async fn complete_order(order_id: OrderId, block_number: u64) {
     match result {
         Ok(block_opt) => {
             if let Some(block) = block_opt {
-                if block.transaction.memo.0 != order_id {
+                if block.transaction.icrc1_memo.unwrap() != order_id.0.to_bytes_le() {
                     panic!("Transaction memo doesn't match order id");
                 }
 
@@ -188,7 +190,7 @@ async fn complete_order(order_id: OrderId, block_number: u64) {
     }
 }
 
-fn process_txn(order_id: u64, to: AccountIdentifier, amount: Tokens) {
+fn process_txn(order_id: OrderId, to: AccountIdentifier, amount: Tokens) {
     let recipient_account_id = AccountIdentifier::new(
         &Principal::from_text(RECIPIENT_PRINCIPAL).unwrap(),
         &Subaccount([0u8; 32]),
@@ -221,7 +223,7 @@ async fn query_one_block(ledger: Principal, block_index: BlockIndex) -> CallResu
         length: 1,
     };
 
-    let blocks_result = query_blocks(ledger, args.clone()).await?;
+    let blocks_result = query_blocks(ledger, args.clone()).await.unwrap();
 
     if blocks_result.blocks.len() >= 1 {
         debug_assert_eq!(blocks_result.first_block_index, block_index);
@@ -231,7 +233,7 @@ async fn query_one_block(ledger: Principal, block_index: BlockIndex) -> CallResu
     if let Some(func) = blocks_result.archived_blocks.into_iter().find_map(|b| {
         (b.start <= block_index && (block_index - b.start) < b.length).then(|| b.callback)
     }) {
-        match query_archived_blocks(&func, args).await? {
+        match query_archived_blocks(&func, args).await.unwrap() {
             Ok(range) => return Ok(range.blocks.into_iter().next()),
             _ => (),
         }

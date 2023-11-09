@@ -1,16 +1,11 @@
 import { For, Show, createEffect, createSignal, onCleanup } from "solid-js";
 import { AllAssetData, useAllAssetData, useSendPageProps } from "../../../store/cabinet";
 import {
-  AddAssetBtn,
   AddAssetForm,
   AddAssetFormWrapper,
-  AddAssetHeader,
   AddAssetInput,
   AddAssetWrapper,
   AssetAccountsWrapper,
-  AssetAddAccountBtn,
-  AssetAddAccountBtnIconWrapper,
-  AssetAddAccountBtnText,
   AssetSpoilerContent,
   AssetSpoilerHeader,
   ErrorText,
@@ -46,12 +41,11 @@ import {
   SpanGray115,
   SpanGray130,
   Text12,
-  Text16,
   Text20,
 } from "../../../ui-kit/typography";
-import { EIconKind, Icon } from "../../../ui-kit/icon";
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { IReceivePopupProps, ReceivePopup } from "./receive";
+import { AddAccountBtn } from "../../../components/add-account-btn";
 
 export function MyAssetsPage() {
   const client = useMasqueradeClient();
@@ -148,8 +142,7 @@ export function MyAssetsPage() {
 
     setAllAssetData(assetId, "accounts", accountId, "principal", principal.toText());
 
-    const anonIdentity = new AnonymousIdentity();
-    const agent = await makeAgent(anonIdentity);
+    const agent = icAgent()!;
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
 
     updateBalanceOf(ledger, allAssetData, setAllAssetData, assetId, accountId);
@@ -344,23 +337,18 @@ export function MyAssetsPage() {
                       )}
                     </For>
                   </AssetAccountsWrapper>
-                  <AssetAddAccountBtn
+                  <AddAccountBtn
                     disabled={addingAccount()}
-                    onClick={eventHandler(() =>
+                    loading={addingAccount()}
+                    onClick={() =>
                       handleAddAccount(
                         assetId,
                         allAssetData[assetId]!.metadata!.name,
                         allAssetData[assetId]!.metadata!.symbol,
-                      ),
-                    )}
-                  >
-                    <AssetAddAccountBtnIconWrapper>
-                      <Icon kind={addingAccount() ? EIconKind.Loader : EIconKind.Plus} />
-                    </AssetAddAccountBtnIconWrapper>
-                    <Text16>
-                      <Span600>Add New {allAssetData[assetId]!.metadata!.symbol} Account</Span600>
-                    </Text16>
-                  </AssetAddAccountBtn>
+                      )
+                    }
+                    symbol={allAssetData[assetId]!.metadata!.symbol}
+                  />
                 </AssetSpoilerContent>
               </Show>
             </Spoiler>

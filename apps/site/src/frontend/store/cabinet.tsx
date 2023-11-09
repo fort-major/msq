@@ -2,13 +2,13 @@ import { IOriginDataExternal, Principal, TOrigin, unreacheable } from "@fort-maj
 import { Accessor, Setter, createContext, createEffect, createMemo, createSignal, useContext } from "solid-js";
 import { SetStoreFunction, createStore, produce } from "solid-js/store";
 import { IChildren, getAssetMetadata, makeAgent, makeIcrc1Salt } from "../utils";
-import { useMasqueradeClient } from "./global";
+import { useIcAgent, useMasqueradeClient } from "./global";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { AnonymousIdentity } from "@dfinity/agent";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 import { ISendPageProps } from "../pages/cabinet/my-assets/send";
 
-type IAssetDataExt = {
+export type IAssetDataExt = {
   accounts: {
     name: string;
     principal?: string | undefined;
@@ -86,90 +86,91 @@ export function CabinetStore(props: IChildren) {
 
   const [sendPageProps, setSendPageProps] = createSignal<ISendPageProps | undefined>(undefined);
 
+  const icAgent = useIcAgent();
   const client = useMasqueradeClient();
 
   createEffect(async () => {
-    if (client() !== undefined) {
-      const fetchedAllOriginData = await client()!.getAllOriginData();
+    if (!client() || !icAgent()) return;
 
-      // delete origin data of the msq site itself
-      delete fetchedAllOriginData[window.location.origin];
+    const fetchedAllOriginData = await client()!.getAllOriginData();
 
-      setAllOriginData(fetchedAllOriginData);
-      setAllOriginDataFetched(true);
+    // delete origin data of the msq site itself
+    delete fetchedAllOriginData[window.location.origin];
 
-      const fetchedAllAssetData = await client()!.getAllAssetData();
-      const allAssetDataKeys = Object.keys(fetchedAllAssetData);
+    setAllOriginData(fetchedAllOriginData);
+    setAllOriginDataFetched(true);
 
-      const allAssetData = fetchedAllAssetData as unknown as AllAssetData;
+    const fetchedAllAssetData = await client()!.getAllAssetData();
+    const allAssetDataKeys = Object.keys(fetchedAllAssetData);
 
-      for (let key of allAssetDataKeys) {
-        allAssetData[key]!.accounts = fetchedAllAssetData[key]!.accounts.map((it) => ({
-          name: it,
-          balance: undefined,
-        }));
-        allAssetData[key]!.totalBalance = BigInt(0);
-      }
+    const allAssetData = fetchedAllAssetData as unknown as AllAssetData;
 
-      setAllAssetData(allAssetData);
-      setAllAssetDataFetched(true);
+    for (let key of allAssetDataKeys) {
+      allAssetData[key]!.accounts = fetchedAllAssetData[key]!.accounts.map((it) => ({
+        name: it,
+        balance: undefined,
+      }));
+      allAssetData[key]!.totalBalance = BigInt(0);
+    }
 
-      const agent = await makeAgent(new AnonymousIdentity());
+    setAllAssetData(allAssetData);
+    setAllAssetDataFetched(true);
 
-      for (let assetId of allAssetDataKeys) {
-        const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
+    const agent = icAgent()!;
 
-        getAssetMetadata(ledger, false)
-          .then((metadata) => {
-            setAllAssetData(assetId, { metadata, totalBalance: 0n });
+    for (let assetId of allAssetDataKeys) {
+      const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
 
-            getAssetMetadata(ledger, true).then((metadata) => setAllAssetData(assetId, "metadata", metadata));
+      getAssetMetadata(ledger, false)
+        .then((metadata) => {
+          setAllAssetData(assetId, { metadata, totalBalance: 0n });
 
-            let unresponsive = false;
+          getAssetMetadata(ledger, true).then((metadata) => setAllAssetData(assetId, "metadata", metadata));
 
-            for (let idx = 0; idx < allAssetData[assetId]!.accounts.length; idx++) {
-              MasqueradeIdentity.create(client()!.getInner(), makeIcrc1Salt(assetId, idx)).then((identity) => {
-                const principal = identity.getPrincipal();
+          let unresponsive = false;
 
-                setAllAssetData(assetId, "accounts", idx, "principal", principal.toText());
+          for (let idx = 0; idx < allAssetData[assetId]!.accounts.length; idx++) {
+            MasqueradeIdentity.create(client()!.getInner(), makeIcrc1Salt(assetId, idx)).then((identity) => {
+              const principal = identity.getPrincipal();
 
-                // first time use query calls
-                ledger
-                  .balance({ certified: false, owner: principal })
-                  .then(async (balance) => {
-                    if (unresponsive) return;
+              setAllAssetData(assetId, "accounts", idx, "principal", principal.toText());
 
-                    setAllAssetData(
-                      produce((state) => {
-                        state[assetId]!.accounts[idx].balance = balance;
-                        state[assetId]!.totalBalance = state[assetId]!.totalBalance + balance;
-                      }),
-                    );
+              // first we query to be fast
+              ledger
+                .balance({ certified: false, owner: principal })
+                .then(async (balance) => {
+                  if (unresponsive) return;
 
-                    // second time use update calls
-                    balance = await ledger.balance({ certified: true, owner: principal });
+                  setAllAssetData(
+                    produce((state) => {
+                      state[assetId]!.accounts[idx].balance = balance;
+                      state[assetId]!.totalBalance = state[assetId]!.totalBalance + balance;
+                    }),
+                  );
 
-                    setAllAssetData(
-                      produce((state) => {
-                        state[assetId]!.accounts[idx].balance = balance;
-                        const totalBalance = state[assetId]!.accounts.reduce(
-                          (prev, cur) => prev + (cur.balance || 0n),
-                          0n,
-                        );
+                  // then we update to be safe
+                  balance = await ledger.balance({ certified: true, owner: principal });
 
-                        state[assetId]!.totalBalance = totalBalance;
-                      }),
-                    );
-                  })
-                  .catch(() => {
-                    setAllAssetData(assetId, null);
-                    unresponsive = true;
-                  });
-              });
-            }
-          })
-          .catch(() => setAllAssetData(assetId, null));
-      }
+                  setAllAssetData(
+                    produce((state) => {
+                      state[assetId]!.accounts[idx].balance = balance;
+                      const totalBalance = state[assetId]!.accounts.reduce(
+                        (prev, cur) => prev + (cur.balance || 0n),
+                        0n,
+                      );
+
+                      state[assetId]!.totalBalance = totalBalance;
+                    }),
+                  );
+                })
+                .catch(() => {
+                  setAllAssetData(assetId, null);
+                  unresponsive = true;
+                });
+            });
+          }
+        })
+        .catch(() => setAllAssetData(assetId, null));
     }
   });
 

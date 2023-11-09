@@ -21,6 +21,8 @@ import IntegrationRoot from "./pages/integration";
 import { StatisticsPage } from "./pages/statistics";
 import { NotificationBar } from "./components/notification-bar";
 import { SendPage } from "./pages/cabinet/my-assets/send";
+import { PaymentPage } from "./pages/integration/payment";
+import { PaymentCheckoutPage } from "./pages/integration/payment/checkout";
 
 const root = document.getElementById("root");
 
@@ -51,6 +53,10 @@ export function App() {
             <Routes>
               <Route path="/integration" component={IntegrationRoot}>
                 <Route path="/login" component={LoginPage} />
+                <Route path="/pay">
+                  <Route path="/" component={PaymentPage} />
+                  <Route path="/checkout" component={PaymentCheckoutPage} />
+                </Route>
               </Route>
               <Route path="/cabinet" component={CabinetRoot}>
                 <Route path="/my-masks" component={MyMasksPage} />

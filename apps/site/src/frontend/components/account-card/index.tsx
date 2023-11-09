@@ -4,12 +4,11 @@ import {
   AccountCardDivider,
   AccountCardFooter,
   AccountCardFooterBalance,
-  AccountCardFooterBalanceQty,
-  AccountCardFooterBalanceSymbol,
+  AccountCardFooterBalanceWrapper,
   AccountCardFooterButtons,
   AccountCardFooterContent,
+  AccountCardFooterInsufficientBalance,
   AccountCardHeader,
-  AccountCardHeaderName,
   AccountCardHeaderNameWrapper,
   AccountCardHeaderPrincipal,
   AccountCardInput,
@@ -19,7 +18,7 @@ import { Match, Show, Switch, createSignal } from "solid-js";
 import { Input } from "../../ui-kit/input";
 import { Button, EButtonKind } from "../../ui-kit/button";
 import { EIconKind, Icon } from "../../ui-kit/icon";
-import { H5, Span600, SpanGray140, Text12, Text16, Text20 } from "../../ui-kit/typography";
+import { H5, Span600, SpanGray140, Text12, Text14, Text16, Text20 } from "../../ui-kit/typography";
 
 export interface IAccountCardProps {
   accountId: TAccountId;
@@ -30,6 +29,11 @@ export interface IAccountCardProps {
   decimals: number;
   symbol: string;
   fullWidth?: boolean | undefined;
+  targetBalance?: bigint | undefined;
+  classList?: { [k: string]: boolean | undefined };
+
+  onClick?: (accountId: TAccountId, assetId: string) => void;
+
   onSend?: (accountId: TAccountId, assetId: string) => void;
   onReceive?: (symbol: string, principal: string) => void;
   onEdit?: (newName: string) => void;
@@ -47,6 +51,10 @@ export function AccountCard(props: IAccountCardProps) {
     }
   });
 
+  const handleClick = eventHandler(() => {
+    props.onClick?.(props.accountId, props.assetId);
+  });
+
   const handleChange = (newName: string) => {
     setEdited(false);
 
@@ -62,7 +70,7 @@ export function AccountCard(props: IAccountCardProps) {
   };
 
   return (
-    <AccountCardWrapper fullWidth={props.fullWidth}>
+    <AccountCardWrapper classList={props.classList} onClick={handleClick} fullWidth={props.fullWidth}>
       <AccountCardHeader>
         <Switch>
           <Match when={edited()}>
@@ -79,7 +87,7 @@ export function AccountCard(props: IAccountCardProps) {
             />
           </Match>
           <Match when={!edited()}>
-            <AccountCardHeaderNameWrapper onClick={handleEditStart}>
+            <AccountCardHeaderNameWrapper classList={{ editable: !!props.onEdit }} onClick={handleEditStart}>
               <Text16>
                 <Span600>{props.name}</Span600>
               </Text16>
@@ -98,12 +106,22 @@ export function AccountCard(props: IAccountCardProps) {
       <AccountCardFooter>
         <AccountCardDivider />
         <AccountCardFooterContent>
-          <AccountCardFooterBalance>
-            <H5>{tokensToStr(props.balance || 0n, props.decimals)}</H5>
-            <Text12>
-              <Span600>{props.symbol}</Span600>
-            </Text12>
-          </AccountCardFooterBalance>
+          <AccountCardFooterBalanceWrapper>
+            <AccountCardFooterBalance>
+              <H5>{tokensToStr(props.balance || 0n, props.decimals)}</H5>
+              <Text12>
+                <Span600>{props.symbol}</Span600>
+              </Text12>
+            </AccountCardFooterBalance>
+            <Show when={props.targetBalance && (props.balance || 0n) < props.targetBalance}>
+              <AccountCardFooterInsufficientBalance>
+                <Icon kind={EIconKind.Warning} />
+                <Text14>
+                  <Span600>Insufficient Funds</Span600>
+                </Text14>
+              </AccountCardFooterInsufficientBalance>
+            </Show>
+          </AccountCardFooterBalanceWrapper>
           <AccountCardFooterButtons>
             <Show when={props.onSend}>
               <Button

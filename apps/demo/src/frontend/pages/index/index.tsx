@@ -103,16 +103,11 @@ export const IndexPage = () => {
 
     setLoading(true);
 
-    const view = new DataView(new ArrayBuffer(8));
-    view.setBigUint64(0, order()!.id, true);
-
-    const memo = new Uint8Array(view.buffer);
-
     const blockIndex = await msq()!.requestICRC1Transfer(
       Principal.fromText(ICP_TOKEN_ID),
       { owner: Principal.fromText(RECIPIENT_PRINCIPAL) },
       order()!.total,
-      memo,
+      new Uint8Array(order()!.memo),
     );
 
     if (blockIndex === null) {

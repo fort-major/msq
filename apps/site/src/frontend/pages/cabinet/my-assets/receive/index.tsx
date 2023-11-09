@@ -2,6 +2,7 @@ import { css, styled } from "solid-styled-components";
 import {
   ANIM_DURATION,
   BAR_HEIGHT,
+  COLOR_BLACK,
   COLOR_GRAY_108,
   COLOR_GRAY_150,
   COLOR_WHITE,
@@ -24,7 +25,15 @@ export function ReceivePopup(props: IReceivePopupProps) {
     navigator.clipboard.writeText(props.principal);
   };
 
-  onMount(() => (document.body.style.overflow = "hidden"));
+  const handleRenderQR = (ref: HTMLDivElement) => {
+    const qr = new QRCode(ref, { colorDark: COLOR_BLACK, width: 300, height: 300 });
+    qr.makeCode(props.principal);
+  };
+
+  onMount(() => {
+    window.scrollTo(0, 0);
+    document.body.style.overflow = "hidden";
+  });
   onCleanup(() => (document.body.style.overflow = "auto"));
 
   return (
@@ -34,7 +43,7 @@ export function ReceivePopup(props: IReceivePopupProps) {
           <ReceivePopupWrapper>
             <Icon kind={EIconKind.Close} onClick={props.onClose} classList={{ [CloseIcon]: true }} />
             <H5>Receive {props.symbol}</H5>
-            <QR ref={(r) => new QRCode(r, props.principal)} />
+            <QR ref={handleRenderQR} />
             <DataWrapper>
               <DataItem>
                 <Text12>

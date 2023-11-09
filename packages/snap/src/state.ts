@@ -232,6 +232,7 @@ export class StateManager {
           unreacheable("No icrc1 stat body provided");
         }
 
+        // @ts-expect-error - types are consistent
         this.state.statistics.prod.icrc1_sent[icrc1_sent.ticker] += icrc1_sent.qty;
 
         break;
@@ -253,7 +254,7 @@ function makeDefaultState(): IState {
     version: 1,
     originData: {},
     assetData: Object.values(PRE_LISTED_TOKENS).reduce(
-      (prev, cur) => ({ ...prev, [cur]: makeDefaultAssetData() }),
+      (prev, cur) => ({ ...prev, [cur.assetId]: makeDefaultAssetData() }),
       {} as Record<string, IAssetData>,
     ),
     statistics: makeDefaultStatistics(),

@@ -1,4 +1,4 @@
-type OrderId = nat64;
+type OrderId = nat;
 
 type OrderStatus = variant {
     Created;
@@ -9,6 +9,7 @@ type OrderStatus = variant {
 
 type Order = record {
     id : OrderId;
+    memo : vec nat8;
     qty : nat32;
     price : nat64;
     total : nat;

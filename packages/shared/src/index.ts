@@ -96,21 +96,58 @@ export function originToHostname(origin: TOrigin): string {
   return new URL(origin).hostname;
 }
 
-export const PRE_LISTED_TOKENS = {
-  ICP: "ryjl3-tyaaa-aaaaa-aaaba-cai",
-  ckBTC: "mxzaz-hqaaa-aaaar-qaada-cai",
-  CHAT: "2ouva-viaaa-aaaaq-aaamq-cai",
-  SONIC: "qbizb-wiaaa-aaaaq-aabwq-cai",
-  SNS1: "zfcdd-tqaaa-aaaaq-aaaga-cai",
-  OGY: "jwcfb-hyaaa-aaaaj-aac4q-cai",
-  MOD: "xsi2v-cyaaa-aaaaq-aabfq-cai",
-  GHOST: "4c4fd-caaaa-aaaaq-aaa3a-cai",
-  KINIC: "73mez-iiaaa-aaaaq-aaasq-cai",
-  HOT: "6rdgd-kyaaa-aaaaq-aaavq-cai",
-  CAT: "uf2wh-taaaa-aaaaq-aabna-cai",
+export const PRE_LISTED_TOKENS: Record<string, { assetId: string; chargingAccountId?: string }> = {
+  ICP: {
+    assetId: "ryjl3-tyaaa-aaaaa-aaaba-cai",
+    chargingAccountId: "5rlkj-uczqk-xe32c-rkbn6-h6kgi-6a34i-7ipdj-ydhjb-66xln-jmgee-xae",
+  },
+  ckBTC: {
+    assetId: "mxzaz-hqaaa-aaaar-qaada-cai",
+  },
+  CHAT: {
+    assetId: "2ouva-viaaa-aaaaq-aaamq-cai",
+  },
+  SONIC: {
+    assetId: "qbizb-wiaaa-aaaaq-aabwq-cai",
+  },
+  SNS1: {
+    assetId: "zfcdd-tqaaa-aaaaq-aaaga-cai",
+  },
+  OGY: {
+    assetId: "jwcfb-hyaaa-aaaaj-aac4q-cai",
+  },
+  MOD: {
+    assetId: "xsi2v-cyaaa-aaaaq-aabfq-cai",
+  },
+  GHOST: {
+    assetId: "4c4fd-caaaa-aaaaq-aaa3a-cai",
+  },
+  KINIC: {
+    assetId: "73mez-iiaaa-aaaaq-aaasq-cai",
+  },
+  HOT: {
+    assetId: "6rdgd-kyaaa-aaaaq-aaavq-cai",
+  },
+  CAT: {
+    assetId: "uf2wh-taaaa-aaaaq-aabna-cai",
+  },
 };
 
-export const ICRC_1_TOKENS: (keyof typeof PRE_LISTED_TOKENS)[] = [
+type ListedTokenSymbol = keyof typeof PRE_LISTED_TOKENS;
+
+export function calculateMSQFee(assetId: string, amount: bigint): [bigint, string | undefined] {
+  const entry = Object.values(PRE_LISTED_TOKENS).find(({ assetId: id }) => id === assetId);
+  if (!entry) return [0n, undefined];
+
+  const { assetId: _, chargingAccountId } = entry;
+  if (!chargingAccountId) return [0n, undefined];
+
+  const msqFee = amount / 100n;
+
+  return [msqFee, chargingAccountId];
+}
+
+export const ICRC_1_TOKENS: ListedTokenSymbol[] = [
   "ICP",
   "ckBTC",
   "CHAT",
@@ -122,7 +159,7 @@ export const ICRC_1_TOKENS: (keyof typeof PRE_LISTED_TOKENS)[] = [
   "HOT",
   "CAT",
 ];
-export const ICRC_1_INDEX_TOKENS: (keyof typeof PRE_LISTED_TOKENS)[] = [
+export const ICRC_1_INDEX_TOKENS: ListedTokenSymbol[] = [
   "ckBTC",
   "CHAT",
   "SONIC",
@@ -133,7 +170,7 @@ export const ICRC_1_INDEX_TOKENS: (keyof typeof PRE_LISTED_TOKENS)[] = [
   "HOT",
   "CAT",
 ];
-export const ICP_INDEX_TOKENS: (keyof typeof PRE_LISTED_TOKENS)[] = ["ICP", "OGY"];
-export const ICRC_2_TOKENS: (keyof typeof PRE_LISTED_TOKENS)[] = ["ICP", "ckBTC"];
+export const ICP_INDEX_TOKENS: ListedTokenSymbol[] = ["ICP", "OGY"];
+export const ICRC_2_TOKENS: ListedTokenSymbol[] = ["ICP", "ckBTC"];
 
 export const DISCORD_LINK = "https://discord.gg/Z5WMHBReHd";
