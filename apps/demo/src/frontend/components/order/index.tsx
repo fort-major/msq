@@ -10,6 +10,7 @@ import {
   OrderItemsText,
   OrderItemsTextName,
   OrderItemsTextQty,
+  OrderStatus,
   OrderWrapper,
 } from "./style";
 
@@ -34,7 +35,7 @@ export function OrderComp(props: Order & { onPay(): void; loading: boolean }) {
             </BuyBtn>
           </Match>
           <Match when={props.status.hasOwnProperty("Paid")}>
-            <p>Paid</p>
+            <OrderStatus>Paid</OrderStatus>
           </Match>
         </Switch>
       </OrderFooter>

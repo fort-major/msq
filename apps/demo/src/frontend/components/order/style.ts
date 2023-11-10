@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { COLOR_GRAY } from "../../pages/index/style";
+import { COLOR_GRAY, COLOR_PINK } from "../../pages/index/style";
 
 export const OrderWrapper = styled.div`
   width: 320px;
@@ -12,6 +12,8 @@ export const OrderWrapper = styled.div`
 
   background-color: white;
   border-radius: 20px;
+
+  gap: 30px;
 `;
 
 export const OrderItems = styled.div`
@@ -19,6 +21,8 @@ export const OrderItems = styled.div`
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
+
+  gap: 15px;
 `;
 
 export const OrderItemsImg = styled.img`
@@ -67,4 +71,16 @@ export const OrderFooterTotal = styled.p`
   & > span {
     color: ${COLOR_GRAY};
   }
+
+  margin: 0;
+`;
+
+export const OrderStatus = styled.p`
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+
+  color: ${COLOR_PINK};
+
+  margin: 0;
 `;
