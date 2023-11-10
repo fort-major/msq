@@ -19,6 +19,9 @@
                 "^prod:pub"
             ]
         },
+        "prod:deploy": {
+            "cache": false
+        },
         "dev:build": {
             "cache": false,
             "dependsOn": [
@@ -31,12 +34,8 @@
         "dev": {
             "cache": false
         },
-        "masquerade-site#dev:deploy": {
+        "dev:deploy": {
             "cache": false
-        },
-        "masquerade-demo#dev:deploy": {
-            "cache": false,
-            "dependsOn": ["masquerade-site#dev:deploy"]
         },
         "dev:nns": {
             "cache": false

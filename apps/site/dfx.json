@@ -6,6 +6,7 @@
       "type": "rust"
     },
     "msq_frontend": {
+      "build": ["pnpm run prod:build"],
       "dependencies": ["msq_statistics"],
       "frontend": {
         "entrypoint": "index.html"

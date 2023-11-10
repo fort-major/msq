@@ -3,6 +3,7 @@
   "scripts": {
     "prod:build": "dotenv -e .env.prod -- turbo prod:build",
     "prod:pub": "dotenv -e .env.prod -- turbo prod:pub",
+    "prod:deploy": "dotenv -e .env.prod -- turbo prod:deploy",
     "dev": "dotenv -e .env.dev -- turbo dev",
     "dev:build": "dotenv -e .env.dev -- turbo dev:build",
     "dev:deploy": "dotenv -e .env.dev -- turbo dev:deploy",

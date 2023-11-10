@@ -99,7 +99,7 @@ export function originToHostname(origin: TOrigin): string {
 export const PRE_LISTED_TOKENS: Record<string, { assetId: string; chargingAccountId?: string }> = {
   ICP: {
     assetId: "ryjl3-tyaaa-aaaaa-aaaba-cai",
-    chargingAccountId: "5rlkj-uczqk-xe32c-rkbn6-h6kgi-6a34i-7ipdj-ydhjb-66xln-jmgee-xae",
+    chargingAccountId: "lkj2e-m4lgc-c7t3p-xulz6-3obuk-auqff-lscnn-nxxmf-7hkw4-6huri-rae",
   },
   ckBTC: {
     assetId: "mxzaz-hqaaa-aaaar-qaada-cai",

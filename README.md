@@ -14,6 +14,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * REPLACE CHARGING TOKENS (maybe make it a part of configuration)
 * make `devMode()` function that makes agents insde the website target different ic host
 * contact us btn to payment flow
+* fix for Firefox
 
 * payment page + fees
 * donation page

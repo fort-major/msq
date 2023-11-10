@@ -15,7 +15,7 @@ interface IProfile {
 }
 
 const ICP_TOKEN_ID = "ryjl3-tyaaa-aaaaa-aaaba-cai";
-const RECIPIENT_PRINCIPAL = "6xqad-ivesr-pbpu5-3g5ka-3piah-uvuk2-buwfp-enqaa-p64lr-y7sdi-sqe";
+const RECIPIENT_PRINCIPAL = "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe";
 
 export const IndexPage = () => {
   const [qty, setQty] = createSignal(0);

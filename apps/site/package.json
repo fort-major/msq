@@ -5,10 +5,11 @@
   "license": "MIT",
   "scripts": {
     "prod:build": "pnpm run propagateEnv && pnpm run version:set && tsc && vite build",
-    "dev:build": "pnpm run propagateEnv && tsc && vite build",
+    "prod:deploy": "dfx deploy --network=ic",
+    "dev:build": "pnpm run propagateEnv && tsc && vite build --mode dev",
     "dev": "pnpm run propagateEnv && vite --mode dev",
     "dev:gen": "dfx generate",
-    "dev:deploy": "dfx deploy msq_statistics",
+    "dev:deploy": "dfx deploy",
     "propagateEnv": "node ../../propagate-env.js",
     "cargo:repair": "cargo build --target=wasm32-unknown-unknown",
     "lint": "eslint --fix src --ext .ts --ext .tsx",

@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "prod:build": "rm -rf ./dist && tsc && tsc -p tsconfig.cjs.json && pnpm run version:set && node inline-env-vars.js",
-    "prod:pub": "pnpm run prod:build && npm publish",
+    "prod:pub": "npm publish",
     "dev:build": "rm -rf ./dist && tsc && tsc -p tsconfig.cjs.json && node inline-env-vars.js",
     "lint": "eslint --fix src --ext .ts --ext .tsx",
     "format": "pnpm exec prettier src/**/*.{ts,tsx} --write",
