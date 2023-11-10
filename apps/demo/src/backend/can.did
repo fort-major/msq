@@ -22,4 +22,5 @@ service : {
     "cancel_order" : (OrderId) -> ();
     "complete_order" : (OrderId, nat64) -> ();
     "get_order" : (OrderId) -> (Order) query;
+    "get_my_order_ids" : () -> (vec OrderId) query;
 };

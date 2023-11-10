@@ -4,8 +4,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* stats for protected methods + express as annotations? + stats page
-* demo shop project
+* demo shop project add order list
 * make spoilers closed by default
 * load data in two iterations: query -> certified
 * loader & header to html

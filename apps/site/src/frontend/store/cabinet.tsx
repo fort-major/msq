@@ -1,10 +1,9 @@
 import { IOriginDataExternal, Principal, TOrigin, unreacheable } from "@fort-major/masquerade-shared";
 import { Accessor, Setter, createContext, createEffect, createMemo, createSignal, useContext } from "solid-js";
 import { SetStoreFunction, createStore, produce } from "solid-js/store";
-import { IChildren, getAssetMetadata, makeAgent, makeIcrc1Salt } from "../utils";
-import { useIcAgent, useMasqueradeClient } from "./global";
+import { IChildren, getAssetMetadata, makeAgent, makeAnonymousAgent, makeIcrc1Salt } from "../utils";
+import { useMasqueradeClient } from "./global";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
-import { AnonymousIdentity } from "@dfinity/agent";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 import { ISendPageProps } from "../pages/cabinet/my-assets/send";
 
@@ -85,12 +84,10 @@ export function CabinetStore(props: IChildren) {
   const allAssetDataKeys = createMemo(() => Object.keys(allAssetData));
 
   const [sendPageProps, setSendPageProps] = createSignal<ISendPageProps | undefined>(undefined);
-
-  const icAgent = useIcAgent();
   const client = useMasqueradeClient();
 
   createEffect(async () => {
-    if (!client() || !icAgent()) return;
+    if (!client()) return;
 
     const fetchedAllOriginData = await client()!.getAllOriginData();
 
@@ -116,7 +113,7 @@ export function CabinetStore(props: IChildren) {
     setAllAssetData(allAssetData);
     setAllAssetDataFetched(true);
 
-    const agent = icAgent()!;
+    const agent = await makeAnonymousAgent();
 
     for (let assetId of allAssetDataKeys) {
       const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });

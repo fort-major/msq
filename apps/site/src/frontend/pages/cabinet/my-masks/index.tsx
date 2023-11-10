@@ -24,7 +24,9 @@ export function MyMasksPage() {
   };
 
   const addNewMask = async (origin: TOrigin) => {
+    setLoading(true);
     const newMask = await client()!.register(origin);
+    setLoading(false);
 
     if (!newMask) return;
 

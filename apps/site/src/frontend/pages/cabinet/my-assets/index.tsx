@@ -20,11 +20,12 @@ import {
   eventHandler,
   getAssetMetadata,
   makeAgent,
+  makeAnonymousAgent,
   makeIcrc1Salt,
   tokensToStr,
 } from "../../../utils";
 import { Principal, TAccountId, debugStringify } from "@fort-major/masquerade-shared";
-import { useIcAgent, useLoader, useMasqueradeClient } from "../../../store/global";
+import { useLoader, useMasqueradeClient } from "../../../store/global";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 import { AnonymousIdentity } from "@dfinity/agent";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
@@ -65,8 +66,6 @@ export function MyAssetsPage() {
   const [_, showLoader] = useLoader();
   createEffect(() => showLoader(!allAssetDataFetched()));
 
-  const icAgent = useIcAgent();
-
   const [int] = createSignal(
     setInterval(async () => {
       const anonIdentity = new AnonymousIdentity();
@@ -102,7 +101,8 @@ export function MyAssetsPage() {
         return;
       }
 
-      const ledger = IcrcLedgerCanister.create({ agent: icAgent()!, canisterId: principal });
+      const agent = await makeAnonymousAgent();
+      const ledger = IcrcLedgerCanister.create({ agent, canisterId: principal });
 
       const metadata = await getAssetMetadata(ledger, false);
 
@@ -142,7 +142,7 @@ export function MyAssetsPage() {
 
     setAllAssetData(assetId, "accounts", accountId, "principal", principal.toText());
 
-    const agent = icAgent()!;
+    const agent = await makeAnonymousAgent();
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
 
     updateBalanceOf(ledger, allAssetData, setAllAssetData, assetId, accountId);

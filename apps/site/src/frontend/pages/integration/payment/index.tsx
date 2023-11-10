@@ -1,5 +1,5 @@
-import { For, Match, Show, Switch, createEffect, createSignal } from "solid-js";
-import { useIcAgent, useLoader, useMasqueradeClient } from "../../../store/global";
+import { For, Show, createEffect, createSignal } from "solid-js";
+import { useLoader, useMasqueradeClient } from "../../../store/global";
 import {
   referrerOrigin,
   sendICRC1TransferResult,
@@ -12,7 +12,7 @@ import { IAssetDataExt } from "../../../store/cabinet";
 import { createStore, produce } from "solid-js/store";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { Principal } from "@dfinity/principal";
-import { DEFAULT_PRINCIPAL, getAssetMetadata, makeIcrc1Salt, tokensToStr } from "../../../utils";
+import { DEFAULT_PRINCIPAL, getAssetMetadata, makeAnonymousAgent, makeIcrc1Salt, tokensToStr } from "../../../utils";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 import {
   AccountCardBase,
@@ -44,7 +44,6 @@ export function PaymentPage() {
   const [referrerWindow] = useReferrerWindow();
   const navigate = useNavigate();
   const msq = useMasqueradeClient();
-  const icAgent = useIcAgent();
 
   const [loading, setLoading] = createSignal(false);
 
@@ -56,7 +55,7 @@ export function PaymentPage() {
   });
 
   createEffect(async () => {
-    if (!icrc1TransferRequest() || !msq() || !icAgent()) return;
+    if (!icrc1TransferRequest() || !msq()) return;
 
     const req = icrc1TransferRequest()!;
     const allAssetData = await msq()!.getAllAssetData();
@@ -77,7 +76,7 @@ export function PaymentPage() {
     assetData.totalBalance = BigInt(0);
     setAssetData("data", assetData);
 
-    const agent = icAgent()!;
+    const agent = await makeAnonymousAgent();
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(req.request.canisterId) });
 
     try {
@@ -154,7 +153,7 @@ export function PaymentPage() {
 
     setAssetData("data", "accounts", accountId, "principal", principal.toText());
 
-    const agent = icAgent()!;
+    const agent = await makeAnonymousAgent();
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
 
     // first we query to be fast

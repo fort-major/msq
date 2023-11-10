@@ -1,9 +1,34 @@
-import { HttpAgent, Identity } from "@dfinity/agent";
+import { AnonymousIdentity, HttpAgent, Identity } from "@dfinity/agent";
 import { InternalSnapClient } from "@fort-major/masquerade-client";
 import { createStatisticsBackendActor } from "../backend";
 import { ErrorCode, TAccountId, debugStringify, err, hexToBytes, strToBytes } from "@fort-major/masquerade-shared";
 import { JSX, JSXElement } from "solid-js";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
+
+// null = default
+// <empty string> = ic
+// <string> = custom host
+export function setIcHost(host: string | null) {
+  if (host === null) {
+    localStorage.removeItem("msq-ic-host");
+  } else {
+    localStorage.setItem("msq-ic-host", JSON.stringify(host));
+  }
+}
+export function getIcHost(): string | null {
+  const host = localStorage.getItem("msq-ic-host");
+
+  if (host === null) return null;
+
+  return JSON.parse(host);
+}
+
+if (getIcHost() === null) {
+  setIcHost(import.meta.env.VITE_MSQ_DFX_NETWORK_HOST);
+}
+
+(window as any).setIcHost = setIcHost;
+(window as any).getIcHost = getIcHost;
 
 export const DEFAULT_PRINCIPAL = "aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa";
 export const DEFAULT_SUBACCOUNT = "ba35d85f5e781927cb545aa00048fd86cfb4f444baedd00baa701405251bf109";
@@ -57,14 +82,30 @@ export function timestampToStr(timestampMs: number) {
   return `${day}.${month}.${year} ${hours}:${minutes}`;
 }
 
-export async function makeAgent(identity?: Identity | undefined): Promise<HttpAgent> {
-  const agent = new HttpAgent({ host: import.meta.env.VITE_MSQ_DFX_NETWORK_HOST, identity });
+export async function makeAgent(identity?: Identity | undefined, host?: string): Promise<HttpAgent> {
+  const storedHost = getIcHost();
 
-  if (import.meta.env.VITE_MSQ_MODE === "DEV") {
+  let icHost: string | undefined;
+  if (host !== undefined) {
+    icHost = host;
+  } else {
+    icHost = storedHost === null ? import.meta.env.VITE_MSQ_DFX_NETWORK_HOST : storedHost;
+  }
+
+  console.log(icHost);
+
+  const agent = new HttpAgent({ host: icHost, identity });
+
+  if (icHost) {
     await agent.fetchRootKey();
   }
 
   return agent;
+}
+
+export async function makeAnonymousAgent(host?: string): Promise<HttpAgent> {
+  const id = new AnonymousIdentity();
+  return makeAgent(id, host);
 }
 
 export function tokensToStr(

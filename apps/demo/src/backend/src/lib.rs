@@ -10,7 +10,10 @@ use ic_ledger_types::{
     Operation, Subaccount, Tokens,
 };
 use serde::Deserialize;
-use std::{cell::RefCell, collections::HashMap};
+use std::{
+    cell::RefCell,
+    collections::{hash_map::Entry, HashMap},
+};
 
 const ICP_TOKEN_ID: &str = "ryjl3-tyaaa-aaaaa-aaaba-cai";
 const RECIPIENT_PRINCIPAL: &str = "6xqad-ivesr-pbpu5-3g5ka-3piah-uvuk2-buwfp-enqaa-p64lr-y7sdi-sqe";
@@ -43,6 +46,7 @@ struct State {
     payment_token_id: Principal,
     order_id_counter: OrderId,
     orders: HashMap<OrderId, Order>,
+    orders_by_owner: HashMap<Principal, Vec<OrderId>>,
 }
 
 thread_local! {
@@ -58,6 +62,7 @@ fn init_hook() {
             payment_token_id: Principal::from_text(ICP_TOKEN_ID).unwrap(),
             order_id_counter: Nat::from(0),
             orders: HashMap::new(),
+            orders_by_owner: HashMap::new(),
         }));
     });
 }
@@ -102,6 +107,15 @@ fn create_order(qty: u32) -> OrderId {
 
         state.orders.insert(order_id.clone(), order);
 
+        match state.orders_by_owner.entry(caller()) {
+            Entry::Vacant(e) => {
+                e.insert(vec![order_id.clone()]);
+            }
+            Entry::Occupied(mut e) => {
+                e.get_mut().push(order_id.clone());
+            }
+        }
+
         order_id
     })
 }
@@ -113,6 +127,21 @@ fn get_order(order_id: OrderId) -> Order {
         let state = state_ref.as_ref().unwrap();
 
         state.orders.get(&order_id).cloned().unwrap()
+    })
+}
+
+#[query]
+fn get_my_order_ids() -> Vec<OrderId> {
+    STATE.with(|it| {
+        it.borrow()
+            .as_ref()
+            .map(|it| {
+                it.orders_by_owner
+                    .get(&caller())
+                    .cloned()
+                    .unwrap_or_default()
+            })
+            .unwrap_or_default()
     })
 }
 

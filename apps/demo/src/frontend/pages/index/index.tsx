@@ -40,18 +40,17 @@ export const IndexPage = () => {
     return createBackendActor(agent);
   });
 
+  const [orders] = createResource(backend, async (backend) => {
+    const ids = await backend.get_my_order_ids();
+
+    return Promise.all(ids.map(backend.get_order));
+  });
+
   createEffect(async () => {
     if (!msq()) return;
 
     if (await msq()!.isAuthorized()) {
       await handleLogin();
-    }
-
-    const links = await msq()!.getLinks();
-
-    if (!links.includes("https://google.com")) {
-      await msq()!.requestLink("https://google.com");
-      await msq()!.requestLink("https://yandex.ru");
     }
   });
 
@@ -123,10 +122,18 @@ export const IndexPage = () => {
     setLoading(false);
   };
 
+  const handleLink = async () => {
+    const links = await msq()!.getLinks();
+
+    if (links.includes("https://plushie-world.com")) return;
+
+    await msq()!.requestLink("https://plushie-world.com");
+  };
+
   return (
     <>
       <Header>
-        <Logo>Plushie World</Logo>
+        <Logo onClick={handleLink}>Plushie World</Logo>
         <Switch>
           <Match when={identity() === null}>
             <LoginButton onClick={handleLogin}>

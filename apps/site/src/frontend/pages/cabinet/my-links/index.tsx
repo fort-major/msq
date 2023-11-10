@@ -1,16 +1,12 @@
 import { For, Show, createEffect, createSignal } from "solid-js";
 import { useAllOriginData } from "../../../store/cabinet";
-import { CabinetHeading } from "../../../ui-kit";
 import {
   LinksInfoAvatars,
   LinksInfoWrapper,
   LinksListWrapper,
   LinksWrapper,
   MyLinksContent,
-  UnlinkAllBtn,
   LinksListItem,
-  UnlinkBtn,
-  LinksListItemText,
   LinksInfoTextWrapper,
   AvatarWrapper,
   AvatarCount,

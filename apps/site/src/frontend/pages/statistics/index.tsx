@@ -1,8 +1,7 @@
-import { For, Show, createResource, createSignal, onMount } from "solid-js";
-import { useIcAgent } from "../../store/global";
+import { For, Show, createResource } from "solid-js";
 import { createStatisticsBackendActor } from "../../backend";
 import { HttpAgent } from "@dfinity/agent";
-import { timestampToStr } from "../../utils";
+import { makeAnonymousAgent, timestampToStr } from "../../utils";
 import { Chart, Title, Tooltip, Legend, Colors } from "chart.js";
 import { Line } from "solid-chartjs";
 
@@ -43,10 +42,8 @@ interface IStatisticsUnwrapped {
 }
 
 export function StatisticsPage() {
-  const icAgent = useIcAgent();
-
-  const [stats, setStats] = createResource<IStatisticsUnwrapped | null, HttpAgent, unknown>(icAgent, async (agent) => {
-    if (agent === null) return null;
+  const [stats] = createResource<IStatisticsUnwrapped | null>(async () => {
+    const agent = await makeAnonymousAgent(import.meta.env.VITE_MSQ_DFX_NETWORK_HOST);
 
     const actor = createStatisticsBackendActor(agent);
     const statisticsHistory = await actor.get_stats();
