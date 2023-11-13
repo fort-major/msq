@@ -13,7 +13,16 @@
       },
       "source": ["assets", "dist/"],
       "type": "assets"
-    }
+    },
+    "demo_frontend_new": {
+        "build": ["pnpm run prod:build"],
+        "dependencies": ["demo_backend"],
+        "frontend": {
+          "entrypoint": "index.html"
+        },
+        "source": ["assets", "dist/"],
+        "type": "assets"
+      }
   },
   "defaults": {
     "build": {

@@ -125,9 +125,9 @@ export const IndexPage = () => {
   const handleLink = async () => {
     const links = await msq()!.getLinks();
 
-    if (links.includes("https://plushie-world.com")) return;
+    if (links.includes("https://3rhoj-baaaa-aaaak-afdua-cai.icp0.io")) return;
 
-    await msq()!.requestLink("https://plushie-world.com");
+    await msq()!.requestLink("https://3rhoj-baaaa-aaaak-afdua-cai.icp0.io");
   };
 
   return (

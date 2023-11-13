@@ -4,27 +4,25 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* demo shop project add order list
-* make spoilers closed by default
-* load data in two iterations: query -> certified
+* make the js as small as possible
 * loader & header to html
 * rearrange the layout so it stretches
-* QR code link to payment page
 * refactor payment flows to make them reusable
-* REPLACE CHARGING TOKENS (maybe make it a part of configuration)
-* make `devMode()` function that makes agents insde the website target different ic host
 * contact us btn to payment flow
 * fix for Firefox
-
-* payment page + fees
-* donation page
 * better payment recovery
 * trim-validate all inputs
 * add disabled states during submissions
-* refine security: freeze deps versions, check all events safety
 * blink animations everywhere
+
+* QR code link to payment page
+* donation page
+
 * refine frontend + add transitions + mobile + adaptive
+* refine security: freeze deps versions, check all events safety
 * landing pages
+* demo shop project add order list
+* REPLACE CHARGING TOKENS (maybe make it a part of configuration)
 * bump all dep versions
 * test Masquerade site domain migration
 * test snap storage survives upgrades
@@ -35,6 +33,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * storybook + design system + encapsulate more comps
 * mock ICRC-1 tokens for development
 * dollars and exchange rates
+* crypto gifts
 
 ## Local development
 
@@ -89,3 +88,14 @@ DFX env variables (starting with "CANISTER_ID_") are propagated to vite automati
 ### Render documentation with typedoc
 
 * `pnpm run doc`
+
+### Prod deployment
+
+* `pnpm run prod:build`
+* `pnpm run prod:deploy`
+
+### Documentation
+
+#### How to use MSQ for local development
+
+// TODO: tell about `setIcHost()` and `getIcHost()`
