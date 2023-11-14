@@ -133,7 +133,9 @@ export const IndexPage = () => {
   return (
     <>
       <Header>
-        <Logo onClick={handleLink}>Plushie World</Logo>
+        <Logo onClick={handleLink}>
+          {location.host === "3rhoj-baaaa-aaaak-afdua-cai.icp0.io" ? "Improved " : ""} Plushie World
+        </Logo>
         <Switch>
           <Match when={identity() === null}>
             <LoginButton onClick={handleLogin}>

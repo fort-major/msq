@@ -4,8 +4,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* make the js as small as possible
-* loader & header to html
+* make it possible to deploy locally
 * rearrange the layout so it stretches
 * refactor payment flows to make them reusable
 * contact us btn to payment flow
@@ -17,6 +16,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * blink animations everywhere
 * loading cursor
 
+* payment by link
 * QR code link to payment page
 * donation page
 
