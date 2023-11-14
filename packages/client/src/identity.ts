@@ -1,12 +1,12 @@
-import { type PublicKey, SignIdentity, type Signature } from "@dfinity/agent";
+import { type PublicKey, SignIdentity, type Signature, DerEncodedPublicKey } from "@dfinity/agent";
 import { type MasqueradeClient } from "./client";
-import { Secp256k1PublicKey } from "@dfinity/identity-secp256k1";
 import {
   type IIdentitySignRequest,
   SNAP_METHODS,
   IIdentityGetPublicKeyRequest,
   makeAvatarSvg,
 } from "@fort-major/masquerade-shared";
+import { SECP256K1_OID, wrapDER } from "./der";
 
 /**
  * ## An identity that proxies all incoming `sign` requests to the Masquerade Snap
@@ -14,7 +14,7 @@ import {
 export class MasqueradeIdentity extends SignIdentity {
   private constructor(
     private readonly client: MasqueradeClient,
-    private readonly publicKey: Secp256k1PublicKey,
+    private readonly publicKey: Secp256k1PublicKeyLite,
     public salt: Uint8Array,
   ) {
     super();
@@ -36,7 +36,7 @@ export class MasqueradeIdentity extends SignIdentity {
     const body: IIdentityGetPublicKeyRequest = { salt };
     const rawPubkey: ArrayBuffer = await client._requestSnap(SNAP_METHODS.public.identity.getPublicKey, body);
 
-    return new MasqueradeIdentity(client, Secp256k1PublicKey.fromRaw(rawPubkey), salt);
+    return new MasqueradeIdentity(client, Secp256k1PublicKeyLite.fromRaw(rawPubkey), salt);
   }
 
   /**
@@ -85,5 +85,33 @@ export class MasqueradeIdentity extends SignIdentity {
     };
 
     return await this.client._requestSnap(SNAP_METHODS.public.identity.sign, body);
+  }
+}
+
+class Secp256k1PublicKeyLite implements PublicKey {
+  public static fromRaw(rawKey: ArrayBuffer): Secp256k1PublicKeyLite {
+    return new Secp256k1PublicKeyLite(rawKey);
+  }
+
+  private static derEncode(publicKey: ArrayBuffer): DerEncodedPublicKey {
+    return wrapDER(publicKey, SECP256K1_OID).buffer as DerEncodedPublicKey;
+  }
+
+  readonly rawKey: ArrayBuffer;
+  readonly derKey: DerEncodedPublicKey;
+
+  // `fromRaw` and `fromDer` should be used for instantiation, not this constructor.
+  private constructor(key: ArrayBuffer) {
+    key.byteLength;
+    this.rawKey = key;
+    this.derKey = Secp256k1PublicKeyLite.derEncode(key);
+  }
+
+  public toDer(): DerEncodedPublicKey {
+    return this.derKey;
+  }
+
+  public toRaw(): ArrayBuffer {
+    return this.rawKey;
   }
 }

@@ -22,7 +22,6 @@
     "dotenv": "16.3.1"
   },
   "dependencies": {
-    "@dfinity/identity-secp256k1": "0.19.3",
     "@metamask/detect-provider": "2.0.0",
     "@fort-major/masquerade-shared": "workspace:*"
   }

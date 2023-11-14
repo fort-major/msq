@@ -10,10 +10,12 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * refactor payment flows to make them reusable
 * contact us btn to payment flow
 * fix for Firefox
+* all console errors
 * better payment recovery
 * trim-validate all inputs
 * add disabled states during submissions
 * blink animations everywhere
+* loading cursor
 
 * QR code link to payment page
 * donation page

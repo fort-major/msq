@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "@dfinity/ledger-icrc": "1.0.0",
-    "@dfinity/ledger-icp": "1.0.0",
     "@fort-major/masquerade-client": "workspace:*",
     "@fort-major/masquerade-shared": "workspace:*",
     "@solid-primitives/refs": "^1.0.5",

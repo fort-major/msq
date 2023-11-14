@@ -1,6 +1,35 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script
+      async
+      src="https://ga.jspm.io/npm:es-module-shims@1.8.2/dist/es-module-shims.js"
+    ></script>
+    <script nonce="msq">
+      window.esmsInitOptions = {
+        shimMode: true,
+        nonce: "msq",
+        skip: /^https:\/\/cdn\.jsdelivr\.net/,
+      };
+    </script>
+    <script nonce="msq" type="importmap">
+      {
+        "imports": {
+          "@dfinity/candid": "https://cdn.jsdelivr.net/npm/@dfinity/candid@0.19.3/+esm",
+          "@dfinity/agent": "https://cdn.jsdelivr.net/npm/@dfinity/agent@0.19.3/+esm",
+          "@dfinity/principal": "https://cdn.jsdelivr.net/npm/@dfinity/principal@0.19.3/+esm",
+          "@dfinity/identity": "https://cdn.jsdelivr.net/npm/@dfinity/identity@0.19.3/+esm",
+          "@dfinity/ledger-icrc": "https://cdn.jsdelivr.net/npm/@dfinity/ledger-icrc@1.0.0/+esm",
+          "@metamask/detect-provider": "https://cdn.jsdelivr.net/npm/@metamask/detect-provider@2.0.0/+esm",
+          "zod": "https://cdn.jsdelivr.net/npm/zod@3.22.4/+esm",
+          "cbor-x": "https://cdn.jsdelivr.net/npm/cbor-x@1.5.4/+esm",
+          "js-big-decimal": "https://cdn.jsdelivr.net/npm/js-big-decimal@2.0.4/+esm",
+          "chart.js": "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/+esm",
+          "tweetnacl": "https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/+esm"
+        }
+      }
+    </script>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>
@@ -23,6 +52,7 @@
   </head>
   <body>
     <script type="module" src="./src/frontend/index.tsx"></script>
+
     <div id="root"></div>
     <div id="portal"></div>
   </body>

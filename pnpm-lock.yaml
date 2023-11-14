@@ -63,6 +63,9 @@ importers:
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
+      vite-plugin-compression:
+        specifier: ^0.5.1
+        version: 0.5.1(vite@4.4.9)
       vite-plugin-eslint:
         specifier: ^1.8.1
         version: 1.8.1(eslint@8.51.0)(vite@4.4.9)
@@ -94,9 +97,6 @@ importers:
 
   apps/site:
     dependencies:
-      '@dfinity/ledger-icp':
-        specifier: 1.0.0
-        version: 1.0.0(@dfinity/agent@0.19.3)(@dfinity/candid@0.19.3)(@dfinity/nns-proto@1.0.0)(@dfinity/principal@0.19.3)(@dfinity/utils@1.0.0)
       '@dfinity/ledger-icrc':
         specifier: 1.0.0
         version: 1.0.0(@dfinity/agent@0.19.3)(@dfinity/candid@0.19.3)(@dfinity/principal@0.19.3)(@dfinity/utils@1.0.0)
@@ -143,9 +143,6 @@ importers:
 
   packages/client:
     dependencies:
-      '@dfinity/identity-secp256k1':
-        specifier: 0.19.3
-        version: 0.19.3(@dfinity/candid@0.19.3)(@dfinity/principal@0.19.3)
       '@fort-major/masquerade-shared':
         specifier: workspace:*
         version: link:../shared
@@ -2720,22 +2717,6 @@ packages:
       tweetnacl: 1.0.3
     dev: false
 
-  /@dfinity/ledger-icp@1.0.0(@dfinity/agent@0.19.3)(@dfinity/candid@0.19.3)(@dfinity/nns-proto@1.0.0)(@dfinity/principal@0.19.3)(@dfinity/utils@1.0.0):
-    resolution: {integrity: sha512-T297uvqjhwmaSoJ7d2TDPGqZD9vUMfNF5K8+2tbD7apXa8j7cSnxgffdQNyeZH9u1R/ypeuw7yFeo+XNadqhAw==}
-    peerDependencies:
-      '@dfinity/agent': ^0.19.2
-      '@dfinity/candid': ^0.19.2
-      '@dfinity/nns-proto': ^1.0.0
-      '@dfinity/principal': ^0.19.2
-      '@dfinity/utils': ^1.0.0
-    dependencies:
-      '@dfinity/agent': 0.19.3(@dfinity/candid@0.19.3)(@dfinity/principal@0.19.3)
-      '@dfinity/candid': 0.19.3(@dfinity/principal@0.19.3)
-      '@dfinity/nns-proto': 1.0.0
-      '@dfinity/principal': 0.19.3
-      '@dfinity/utils': 1.0.0(@dfinity/agent@0.19.3)(@dfinity/candid@0.19.3)(@dfinity/principal@0.19.3)
-    dev: false
-
   /@dfinity/ledger-icrc@1.0.0(@dfinity/agent@0.19.3)(@dfinity/candid@0.19.3)(@dfinity/principal@0.19.3)(@dfinity/utils@1.0.0):
     resolution: {integrity: sha512-bNctX1TaE+QuRaxyMMonguf4DU6CGeCZSmHwGROo9tj7dTU9qboPzKiDI0HV6c/ntAmWURglFjX4UNl/M2uXYg==}
     peerDependencies:
@@ -2748,12 +2729,6 @@ packages:
       '@dfinity/candid': 0.19.3(@dfinity/principal@0.19.3)
       '@dfinity/principal': 0.19.3
       '@dfinity/utils': 1.0.0(@dfinity/agent@0.19.3)(@dfinity/candid@0.19.3)(@dfinity/principal@0.19.3)
-    dev: false
-
-  /@dfinity/nns-proto@1.0.0:
-    resolution: {integrity: sha512-VQ4G5/Opio6TYXpbv6xHqsjpYPw25wKOOXaS7F10IvKAa0bxM9DDfsTpaULRNRkDKvK/Jol2bHLoh6NO1SrbDA==}
-    dependencies:
-      google-protobuf: 3.21.2
     dev: false
 
   /@dfinity/principal@0.19.3:
@@ -7510,6 +7485,15 @@ packages:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
     dev: true
 
+  /fs-extra@10.1.0:
+    resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      graceful-fs: 4.2.11
+      jsonfile: 6.1.0
+      universalify: 2.0.1
+    dev: true
+
   /fs-extra@8.1.0:
     resolution: {integrity: sha512-yhlQgA6mnOJUKOsRUFsgJdQCvkKhcz8tlZG5HBQfReYZy46OwLcY+Zia0mtdHsOo9y/hP+CxMN0TU9QxoOtG4g==}
     engines: {node: '>=6 <7 || >=8'}
@@ -7738,10 +7722,6 @@ packages:
       csstype: ^3.0.10
     dependencies:
       csstype: 3.1.2
-    dev: false
-
-  /google-protobuf@3.21.2:
-    resolution: {integrity: sha512-3MSOYFO5U9mPGikIYCzK0SaThypfGgS6bHqrUGXG3DPHCrb+txNqeEcns1W0lkGfk0rCyNXm7xB9rMxnCiZOoA==}
     dev: false
 
   /gopd@1.0.1:
@@ -8915,6 +8895,14 @@ packages:
 
   /jsonfile@4.0.0:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
+    optionalDependencies:
+      graceful-fs: 4.2.11
+    dev: true
+
+  /jsonfile@6.1.0:
+    resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
+    dependencies:
+      universalify: 2.0.1
     optionalDependencies:
       graceful-fs: 4.2.11
     dev: true
@@ -11663,6 +11651,11 @@ packages:
     engines: {node: '>= 4.0.0'}
     dev: true
 
+  /universalify@2.0.1:
+    resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
+    engines: {node: '>= 10.0.0'}
+    dev: true
+
   /unpipe@1.0.0:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
@@ -11826,6 +11819,19 @@ packages:
       is-buffer: 2.0.5
       unist-util-stringify-position: 2.0.3
       vfile-message: 2.0.4
+    dev: true
+
+  /vite-plugin-compression@0.5.1(vite@4.4.9):
+    resolution: {integrity: sha512-5QJKBDc+gNYVqL/skgFAP81Yuzo9R+EAf19d+EtsMF/i8kFUpNi3J/H01QD3Oo8zBQn+NzoCIFkpPLynoOzaJg==}
+    peerDependencies:
+      vite: '>=2.0.0'
+    dependencies:
+      chalk: 4.1.2
+      debug: 4.3.4
+      fs-extra: 10.1.0
+      vite: 4.4.9
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /vite-plugin-eslint@1.8.1(eslint@8.51.0)(vite@4.4.9):
