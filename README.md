@@ -4,18 +4,26 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
+* fix for Firefox
 * make it possible to deploy locally
 * rearrange the layout so it stretches
 * refactor payment flows to make them reusable
 * contact us btn to payment flow
-* fix for Firefox
 * all console errors
 * better payment recovery
 * trim-validate all inputs
 * add disabled states during submissions
 * blink animations everywhere
 * loading cursor
+* fix two transfers from different accounts in a row
+* fix fees appear on blur
+* fix blinking on balance loading
+* isolate tokens logic into the site
+* make snap as futureproof as possible
+* isolate security logic
+* investigate other wallet-related ICRCs
 
+* payment with unknown token
 * payment by link
 * QR code link to payment page
 * donation page
@@ -50,15 +58,9 @@ This project is managed with `pnpm` and `turborepo`.
 
 ### Environment variables
 
-You would need a file called `.env.dev` in the root folder.
-By default (if you're running dfx on :8080 and change nothing) its content should be equal to the content of `example.env` file.
+You would need files called `.env.dev` and `.env.prod` in the root folder. Set their content as `example.env` says.
 If you change any devserver host (snap, snap website or demo website), then you should also change it in `.env.dev`.
-If you want to deploy this in production, then you would need another file, called `.env.prod`.
-DFX env variables (starting with "CANISTER_ID_") are propagated to vite automatically. The same goes for env variables starting with "MSQ_".
-
-### Build
-
-* `pnpm run build`
+DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automatically. The same goes for env variables starting with `MSQ_`.
 
 ### Run locally
 
@@ -66,9 +68,15 @@ DFX env variables (starting with "CANISTER_ID_") are propagated to vite automati
 * `dfx extension install nns` - install nns extension to your dfx
 * `pnpm run dev:gen` - generates javascript declaration files
 * `pnpm run dev:nns` - deploys a local copy of nns canisters
-* `pnpm run dev:deploy` - deploys site_backend canister
+* `pnpm run dev:build` - builds frontends for dev network
+* `pnpm run dev:deploy` - deploys all canisters
   * if this command fails because of locked `Cargo.toml`, run `pnpm run cargo:repair` and repeat
-* `pnpm run dev` - starts site_frontend dev server
+* `pnpm run dev:runSnap` - starts snap's local server dev server
+
+### Prod deployment
+
+* `pnpm run prod:build`
+* `pnpm run prod:deploy`
 
 ### Publish
 
@@ -90,11 +98,6 @@ DFX env variables (starting with "CANISTER_ID_") are propagated to vite automati
 ### Render documentation with typedoc
 
 * `pnpm run doc`
-
-### Prod deployment
-
-* `pnpm run prod:build`
-* `pnpm run prod:deploy`
 
 ### Documentation
 

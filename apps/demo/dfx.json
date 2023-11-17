@@ -6,7 +6,7 @@
       "type": "rust"
     },
     "demo_frontend": {
-      "build": ["pnpm run prod:build"],
+      "build": [""],
       "dependencies": ["demo_backend"],
       "frontend": {
         "entrypoint": "index.html"
@@ -15,7 +15,7 @@
       "type": "assets"
     },
     "demo_frontend_new": {
-        "build": ["pnpm run prod:build"],
+        "build": [""],
         "dependencies": ["demo_backend"],
         "frontend": {
           "entrypoint": "index.html"

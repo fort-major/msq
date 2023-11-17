@@ -356,7 +356,7 @@ export class MasqueradeClient {
       mustBeMetaMask: true,
     });
 
-    if (provider === null) {
+    if (!provider) {
       err(ErrorCode.METAMASK_ERROR, "Install MetaMask");
     }
 

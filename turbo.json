@@ -22,6 +22,12 @@
         "prod:deploy": {
             "cache": false
         },
+        "prod:deployFE": {
+            "cache": false
+        },
+        "prod:deployBE": {
+            "cache": false
+        },
         "dev:build": {
             "cache": false,
             "dependsOn": [
@@ -37,6 +43,12 @@
         "dev:deploy": {
             "cache": false
         },
+        "dev:deployFE": {
+            "cache": false
+        },
+        "dev:deployBE": {
+            "cache": false
+        },
         "dev:nns": {
             "cache": false
         },
@@ -46,6 +58,7 @@
         "dev:start": {
             "cache": false
         },
+        "dev:runSnap": {},
         "test": {
             "cache": false
         },
