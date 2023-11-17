@@ -22,6 +22,7 @@ import { NotificationBar } from "./components/notification-bar";
 import { SendPage } from "./pages/cabinet/my-assets/send";
 import { PaymentPage } from "./pages/integration/payment";
 import { PaymentCheckoutPage } from "./pages/integration/payment/checkout";
+import { IndexPage } from "./pages/index";
 
 const root = document.getElementById("root");
 
@@ -50,6 +51,7 @@ export function App() {
         <Page>
           <Router>
             <Routes>
+              <Route path="/" component={IndexPage} />
               <Route path="/integration" component={IntegrationRoot}>
                 <Route path="/login" component={LoginPage} />
                 <Route path="/pay">

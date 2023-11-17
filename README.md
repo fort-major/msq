@@ -4,7 +4,6 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* fix for Firefox
 * make it possible to deploy locally
 * rearrange the layout so it stretches
 * refactor payment flows to make them reusable
@@ -69,19 +68,9 @@ DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automati
 * `pnpm run dev:gen` - generates javascript declaration files
 * `pnpm run dev:nns` - deploys a local copy of nns canisters
 * `pnpm run dev:build` - builds frontends for dev network
-* `pnpm run dev:deploy` - deploys all canisters
+* `pnpm run dev:deployBE` - deploys all backend canisters
   * if this command fails because of locked `Cargo.toml`, run `pnpm run cargo:repair` and repeat
-* `pnpm run dev:runSnap` - starts snap's local server dev server
-
-### Prod deployment
-
-* `pnpm run prod:build`
-* `pnpm run prod:deploy`
-
-### Publish
-
-* (opt) `npm login` - don't forget to log in to your npm account
-* `pnpm run pub`
+* `pnpm run dev` - starts a development server with both: MSQ website and Demo project
 
 ### Test
 
@@ -104,3 +93,13 @@ DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automati
 #### How to use MSQ for local development
 
 // TODO: tell about `setIcHost()` and `getIcHost()`
+
+## Prod deployment
+
+* `pnpm run prod:build`
+* `pnpm run prod:deploy`
+
+## Publish
+
+* (opt) `npm login` - don't forget to log in to your npm account
+* `pnpm run pub`
