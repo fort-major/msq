@@ -1,13 +1,24 @@
-import { IMask, IStateGetAllAssetDataResponse, IStateGetAllOriginDataResponse } from "@fort-major/masquerade-shared";
+import {
+  IMask,
+  IStateGetAllAssetDataResponse,
+  IStateGetAllOriginDataResponse,
+  ZStateGetAllAssetDataRequest,
+  ZStateGetAllOriginDataRequest,
+  fromCBOR,
+  zodParse,
+} from "@fort-major/masquerade-shared";
 import { StateManager } from "../state";
 
-export async function protected_handleStateGetAllOriginData(): Promise<IStateGetAllOriginDataResponse> {
+export async function protected_handleStateGetAllOriginData(bodyCBOR: string): Promise<IStateGetAllOriginDataResponse> {
+  const body = zodParse(ZStateGetAllOriginDataRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
 
   const allOriginData = manager.getAllOriginData();
   const allOriginDataExternal: IStateGetAllOriginDataResponse = {};
 
-  for (let origin of Object.keys(allOriginData)) {
+  const origins = body.origins ? body.origins : Object.keys(allOriginData);
+
+  for (let origin of origins) {
     const data = allOriginData[origin]!;
 
     allOriginDataExternal[origin] = {
@@ -21,18 +32,23 @@ export async function protected_handleStateGetAllOriginData(): Promise<IStateGet
   return allOriginDataExternal;
 }
 
-export async function protected_handleStateGetAllAssetData(): Promise<IStateGetAllAssetDataResponse> {
+export async function protected_handleStateGetAllAssetData(bodyCBOR: string): Promise<IStateGetAllAssetDataResponse> {
+  const body = zodParse(ZStateGetAllAssetDataRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
 
   const allAssetData = manager.getAllAssetData();
   const allAssetDataExternal: IStateGetAllAssetDataResponse = {};
 
-  for (let assetId of Object.keys(allAssetData)) {
-    const data = allAssetData[assetId]!;
+  const assetIds = body.assetIds ? body.assetIds : Object.keys(allAssetData);
 
-    allAssetDataExternal[assetId] = {
-      accounts: Object.values(data.accounts) as string[],
-    };
+  for (let assetId of assetIds) {
+    const data = allAssetData[assetId];
+
+    if (data) {
+      allAssetDataExternal[assetId] = {
+        accounts: Object.values(data.accounts) as string[],
+      };
+    }
   }
 
   return allAssetDataExternal;

@@ -7,7 +7,7 @@ import { AnonymousIdentity, HttpAgent } from "@dfinity/agent";
 interface IGlobalContext {
   snapClient: Resource<InternalSnapClient>;
   identity: Resource<MasqueradeIdentity>;
-  showLoader: [Accessor<boolean>, Setter<boolean>];
+  showLoader: Accessor<boolean>;
 }
 
 const GlobalContext = createContext<IGlobalContext>();
@@ -32,7 +32,7 @@ export function useIdentity(): Accessor<MasqueradeIdentity | undefined> {
   return ctx.identity;
 }
 
-export function useLoader(): [Accessor<boolean>, Setter<boolean>] {
+export function useLoader(): Accessor<boolean> {
   const ctx = useContext(GlobalContext);
 
   if (!ctx) {
@@ -43,7 +43,7 @@ export function useLoader(): [Accessor<boolean>, Setter<boolean>] {
 }
 
 export function GlobalStore(props: IChildren) {
-  const showLoader = createSignal(false);
+  const showLoader = createSignal(true);
 
   const [snapClient] = createResource(() =>
     InternalSnapClient.create({
@@ -61,8 +61,14 @@ export function GlobalStore(props: IChildren) {
 
     makeAnonymousAgent(import.meta.env.VITE_MSQ_DFX_NETWORK_HOST).then((agent) => handleStatistics(agent, client));
 
+    showLoader[1](false);
+
     return MasqueradeIdentity.create(client.getInner());
   });
 
-  return <GlobalContext.Provider value={{ snapClient, identity, showLoader }}>{props.children}</GlobalContext.Provider>;
+  return (
+    <GlobalContext.Provider value={{ snapClient, identity, showLoader: showLoader[0] }}>
+      {props.children}
+    </GlobalContext.Provider>
+  );
 }

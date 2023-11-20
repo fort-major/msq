@@ -1,5 +1,4 @@
 import { For, createEffect, createSignal } from "solid-js";
-import { useAllOriginData } from "../../../store/cabinet";
 import {
   MySessionsContent,
   SessionInfoDataPrincipal,
@@ -16,7 +15,6 @@ import { VerticalDivider } from "../../../components/divider/style";
 import { BoopAvatar } from "../../../components/boop-avatar";
 import { ISession, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { Principal } from "@fort-major/masquerade-shared";
-import { useLoader, useMasqueradeClient } from "../../../store/global";
 import {
   H2,
   H5,
@@ -31,20 +29,21 @@ import {
 } from "../../../ui-kit/typography";
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { EIconKind } from "../../../ui-kit/icon";
+import { useOriginData } from "../../../store/origins";
 
 export function MySessionsPage() {
-  const client = useMasqueradeClient();
-  const [allOriginData, setAllOriginData, allOriginDataFetched, allOriginDataKeys] = useAllOriginData();
+  const { originsData, fetch, stopSession } = useOriginData();
   const originsWithSession = () =>
-    allOriginDataKeys().filter((origin) => allOriginData[origin]!.currentSession !== undefined);
+    Object.keys(originsData).filter((origin) => originsData[origin]!.currentSession !== undefined);
 
   const [loading, setLoading] = createSignal(false);
 
-  const [_, showLoader] = useLoader();
-  createEffect(() => showLoader(!allOriginDataFetched()));
+  createEffect(() => {
+    if (fetch) fetch();
+  });
 
   const getMaskBySession = (session: ISession): { pseudonym: string; principal: Principal } => {
-    const originData = allOriginData[session.deriviationOrigin];
+    const originData = originsData[session.deriviationOrigin];
 
     if (!originData) return { pseudonym: "Error", principal: Principal.anonymous() };
 
@@ -56,11 +55,7 @@ export function MySessionsPage() {
   const handleStopSession = async (origin: TOrigin) => {
     setLoading(true);
 
-    const result = await client()!.stopSession(origin);
-
-    if (result) {
-      setAllOriginData(origin, "currentSession", undefined);
-    }
+    await stopSession!(origin);
 
     setLoading(false);
   };
@@ -80,7 +75,7 @@ export function MySessionsPage() {
           }
         >
           {(origin) => {
-            const mask = getMaskBySession(allOriginData[origin]!.currentSession!);
+            const mask = getMaskBySession(originsData[origin]!.currentSession!);
 
             return (
               <SessionWrapper>
@@ -94,7 +89,7 @@ export function MySessionsPage() {
                     </Text24>
                     <Text16>
                       <Span500>
-                        <SpanGray140>{timestampToStr(allOriginData[origin]!.currentSession!.timestampMs)}</SpanGray140>
+                        <SpanGray140>{timestampToStr(originsData[origin]!.currentSession!.timestampMs)}</SpanGray140>
                       </Span500>
                     </Text16>
                   </SessionWebsiteDataWrapper>
@@ -107,7 +102,7 @@ export function MySessionsPage() {
                       <Span600>
                         {mask.pseudonym} (from{" "}
                         <SpanAccent>
-                          {originToHostname(allOriginData[origin]!.currentSession!.deriviationOrigin)}
+                          {originToHostname(originsData[origin]!.currentSession!.deriviationOrigin)}
                         </SpanAccent>
                         )
                       </Span600>

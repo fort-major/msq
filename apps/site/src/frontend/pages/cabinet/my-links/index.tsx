@@ -1,5 +1,4 @@
 import { For, Show, createEffect, createSignal } from "solid-js";
-import { useAllOriginData } from "../../../store/cabinet";
 import {
   LinksInfoAvatars,
   LinksInfoWrapper,
@@ -19,56 +18,32 @@ import { produce } from "solid-js/store";
 import { H2, H5, Span500, SpanAccent, SpanGray115, Text16, Text20 } from "../../../ui-kit/typography";
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { EIconKind } from "../../../ui-kit/icon";
+import { useAssetData } from "../../../store/assets";
+import { useOriginData } from "../../../store/origins";
 
 export function MyLinksPage() {
-  const client = useMasqueradeClient();
-  const [allOriginData, setAllOriginData, allOriginDataFetched, allOriginDataKeys] = useAllOriginData();
+  const { originsData, fetch, unlinkOne, unlinkAll } = useOriginData();
   const allOriginDataKeysWithLinks = () =>
-    allOriginDataKeys().filter((origin) => allOriginData[origin]!.linksTo.length !== 0);
+    Object.keys(originsData).filter((origin) => originsData[origin]!.linksTo.length !== 0);
 
   const [loading, setLoading] = createSignal(false);
 
-  const [_, showLoader] = useLoader();
-  createEffect(() => showLoader(!allOriginDataFetched()));
+  createEffect(() => {
+    if (fetch) fetch();
+  });
 
-  const unlinkOne = async (origin: TOrigin, withOrigin: TOrigin) => {
+  const handleUnlinkOne = async (origin: TOrigin, withOrigin: TOrigin) => {
     setLoading(true);
-    const result = await client()!.unlinkOne(origin, withOrigin);
 
-    if (result) {
-      setAllOriginData(
-        produce((data) => {
-          const from = data[origin]!;
-          from.linksTo = from.linksTo.filter((link) => link !== withOrigin);
-
-          const to = data[withOrigin]!;
-          to.linksFrom = to.linksFrom.filter((link) => link !== origin);
-        }),
-      );
-    }
+    await unlinkOne!(origin, withOrigin);
 
     setLoading(false);
   };
 
-  const unlinkAll = async (origin: TOrigin) => {
+  const handleUnlinkAll = async (origin: TOrigin) => {
     setLoading(true);
 
-    const result = await client()!.unlinkAll(origin);
-
-    if (result) {
-      setAllOriginData(
-        produce((data) => {
-          const from = data[origin]!;
-          const oldLinks = from.linksTo;
-          from.linksTo = [];
-
-          for (let withOrigin of oldLinks) {
-            const to = data[withOrigin]!;
-            to.linksFrom = to.linksFrom.filter((link) => link !== origin);
-          }
-        }),
-      );
-    }
+    unlinkAll!(origin);
 
     setLoading(false);
   };
@@ -90,10 +65,10 @@ export function MyLinksPage() {
               <LinksInfoWrapper>
                 <LinksInfoAvatars>
                   <AvatarWrapper>
-                    <BoopAvatar size={50} principal={Principal.fromText(allOriginData[origin]!.masks[0].principal)} />
-                    <Show when={allOriginData[origin]!.masks.length > 1}>
+                    <BoopAvatar size={50} principal={Principal.fromText(originsData[origin]!.masks[0].principal)} />
+                    <Show when={originsData[origin]!.masks.length > 1}>
                       <AvatarCount>
-                        <AvatarCountText>+{allOriginData[origin]!.masks.length - 1}</AvatarCountText>
+                        <AvatarCountText>+{originsData[origin]!.masks.length - 1}</AvatarCountText>
                       </AvatarCount>
                     </Show>
                   </AvatarWrapper>
@@ -110,11 +85,11 @@ export function MyLinksPage() {
                   text="Unlink All"
                   icon={EIconKind.Unlink}
                   disabled={loading()}
-                  onClick={() => unlinkAll(origin)}
+                  onClick={() => handleUnlinkAll(origin)}
                 />
               </LinksInfoWrapper>
               <LinksListWrapper>
-                <For each={allOriginData[origin]!.linksTo}>
+                <For each={originsData[origin]!.linksTo}>
                   {(link) => (
                     <LinksListItem>
                       <Text16>
@@ -125,7 +100,7 @@ export function MyLinksPage() {
                         icon={EIconKind.Unlink}
                         iconOnlySize={40}
                         disabled={loading()}
-                        onClick={() => unlinkOne(origin, link)}
+                        onClick={() => handleUnlinkOne(origin, link)}
                       />
                     </LinksListItem>
                   )}

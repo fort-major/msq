@@ -23,6 +23,8 @@ import { SendPage } from "./pages/cabinet/my-assets/send";
 import { PaymentPage } from "./pages/integration/payment";
 import { PaymentCheckoutPage } from "./pages/integration/payment/checkout";
 import { IndexPage } from "./pages/index";
+import { AssetsStore } from "./store/assets";
+import { OriginDataStore } from "./store/origins";
 
 const root = document.getElementById("root");
 
@@ -33,7 +35,7 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 }
 
 function LoaderWrapper() {
-  const [loaderVisible] = useLoader();
+  const loaderVisible = useLoader();
 
   return (
     <Show when={loaderVisible()}>
@@ -46,33 +48,37 @@ export function App() {
   return (
     <Root>
       <GlobalStore>
-        <NotificationBar />
-        <Header />
-        <Page>
-          <Router>
-            <Routes>
-              <Route path="/" component={IndexPage} />
-              <Route path="/integration" component={IntegrationRoot}>
-                <Route path="/login" component={LoginPage} />
-                <Route path="/pay">
-                  <Route path="/" component={PaymentPage} />
-                  <Route path="/checkout" component={PaymentCheckoutPage} />
-                </Route>
-              </Route>
-              <Route path="/cabinet" component={CabinetRoot}>
-                <Route path="/my-masks" component={MyMasksPage} />
-                <Route path="/my-sessions" component={MySessionsPage} />
-                <Route path="/my-links" component={MyLinksPage} />
-                <Route path="/my-assets">
-                  <Route path="/" component={MyAssetsPage} />
-                  <Route path="/send" component={SendPage} />
-                </Route>
-              </Route>
-              <Route path="/statistics" component={StatisticsPage} />
-            </Routes>
-          </Router>
-        </Page>
-        <LoaderWrapper />
+        <AssetsStore>
+          <OriginDataStore>
+            <NotificationBar />
+            <Header />
+            <Page>
+              <Router>
+                <Routes>
+                  <Route path="/" component={IndexPage} />
+                  <Route path="/integration" component={IntegrationRoot}>
+                    <Route path="/login" component={LoginPage} />
+                    <Route path="/pay">
+                      <Route path="/" component={PaymentPage} />
+                      <Route path="/checkout" component={PaymentCheckoutPage} />
+                    </Route>
+                  </Route>
+                  <Route path="/cabinet" component={CabinetRoot}>
+                    <Route path="/my-masks" component={MyMasksPage} />
+                    <Route path="/my-sessions" component={MySessionsPage} />
+                    <Route path="/my-links" component={MyLinksPage} />
+                    <Route path="/my-assets">
+                      <Route path="/" component={MyAssetsPage} />
+                      <Route path="/send" component={SendPage} />
+                    </Route>
+                  </Route>
+                  <Route path="/statistics" component={StatisticsPage} />
+                </Routes>
+              </Router>
+            </Page>
+            <LoaderWrapper />
+          </OriginDataStore>
+        </AssetsStore>
       </GlobalStore>
     </Root>
   );

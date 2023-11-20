@@ -17,7 +17,6 @@ export const SNAP_METHODS = {
     identity: {
       add: "protected_identity_add",
       login: "protected_identity_login",
-      getLoginOptions: "protected_identity_getLoginOptions",
       editPseudonym: "protected_identity_editPseudonym",
       stopSession: "protected_identity_stopSession",
       unlinkOne: "protected_identity_unlinkOne",

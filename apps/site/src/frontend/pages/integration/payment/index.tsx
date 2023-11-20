@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createSignal } from "solid-js";
+import { For, Show, createEffect, createSignal, onMount } from "solid-js";
 import { useLoader, useMasqueradeClient } from "../../../store/global";
 import {
   referrerOrigin,
@@ -8,7 +8,6 @@ import {
   useReferrerWindow,
 } from "../../../store/integration";
 import { useNavigate } from "@solidjs/router";
-import { IAssetDataExt } from "../../../store/cabinet";
 import { createStore, produce } from "solid-js/store";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { Principal } from "@dfinity/principal";
@@ -33,168 +32,51 @@ import { Button, EButtonKind } from "../../../ui-kit/button";
 import { EIconKind } from "../../../ui-kit/icon";
 import { IReceivePopupProps, ReceivePopup } from "../../cabinet/my-assets/receive";
 import { IPaymentCheckoutPageProps } from "./checkout";
+import { useAssetData } from "../../../store/assets";
 
 export function PaymentPage() {
   const icrc1TransferRequest = useIcrc1TransferRequestMsg();
-  const [assetData, setAssetData] = createStore<{ data?: IAssetDataExt }>({});
+  const { assets, fetch, refresh, addAsset, addAccount } = useAssetData();
   const [selectedAccountId, setSelectedAccountId] = createSignal<TAccountId>(0);
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
   const [checkoutPageProps, setCheckoutPageProps] = usePaymentCheckoutPageProps();
-  const [_, showLoader] = useLoader();
   const [referrerWindow] = useReferrerWindow();
   const navigate = useNavigate();
-  const msq = useMasqueradeClient();
 
   const [loading, setLoading] = createSignal(false);
 
+  const getAssetId = () => icrc1TransferRequest()?.request.canisterId;
+
   if (referrerOrigin === null || referrerOrigin === window.location.origin) navigate("/");
 
-  createEffect(() => {
-    if (!assetData.data) showLoader(true);
-    else showLoader(false);
-  });
-
   createEffect(async () => {
-    if (!icrc1TransferRequest() || !msq()) return;
+    if (icrc1TransferRequest() && fetch) {
+      const assetId = getAssetId()!;
+      const result = await fetch([assetId]);
 
-    const req = icrc1TransferRequest()!;
-    const allAssetData = await msq()!.getAllAssetData();
+      if (!result) {
+        await addAsset!(assetId);
+        return;
+      }
 
-    const fetchedAssetData = allAssetData[req.request.canisterId];
-
-    if (!fetchedAssetData) {
-      // TODO: handle missing asset
-      return;
-    }
-
-    const assetData = fetchedAssetData as unknown as IAssetDataExt;
-
-    assetData.accounts = fetchedAssetData.accounts.map((it) => ({
-      name: it,
-      balance: undefined,
-    }));
-    assetData.totalBalance = BigInt(0);
-    setAssetData("data", assetData);
-
-    const agent = await makeAnonymousAgent();
-    const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(req.request.canisterId) });
-
-    try {
-      // first we query to be fast
-      const metadata = await getAssetMetadata(ledger, false);
-      setAssetData("data", "metadata", metadata);
-    } catch (e) {
-      console.error(e);
-      setAssetData("data", undefined);
-      return;
-    }
-
-    // then we update to be safe
-    getAssetMetadata(ledger, true).then((metadata) => setAssetData("data", "metadata", metadata));
-
-    let unresponsive = false;
-
-    for (let idx = 0; idx < assetData.accounts.length; idx++) {
-      MasqueradeIdentity.create(msq()!.getInner(), makeIcrc1Salt(req.request.canisterId, idx)).then((identity) => {
-        const principal = identity.getPrincipal();
-
-        setAssetData("data", "accounts", idx, "principal", principal.toText());
-
-        // first we query to be fast
-        ledger
-          .balance({ certified: false, owner: principal })
-          .then(async (balance) => {
-            if (unresponsive) return;
-
-            setAssetData(
-              produce((state) => {
-                state.data!.accounts[idx].balance = balance;
-                state.data!.totalBalance = state.data!.totalBalance + balance;
-              }),
-            );
-
-            // then we update to be safe
-            balance = await ledger.balance({ certified: true, owner: principal });
-
-            setAssetData(
-              produce((state) => {
-                state.data!.accounts[idx].balance = balance;
-                const totalBalance = state.data!.accounts.reduce((prev, cur) => prev + (cur.balance || 0n), 0n);
-
-                state.data!.totalBalance = totalBalance;
-              }),
-            );
-          })
-          .catch(() => {
-            setAssetData("data", undefined);
-            unresponsive = true;
-          });
-      });
+      await refresh!([assetId]);
     }
   });
 
   const handleAddAccount = async (assetId: string, assetName: string, symbol: string) => {
     setLoading(true);
 
-    const name = await msq()!.addAssetAccount(assetId, assetName, symbol);
-
-    if (name === null) {
-      setLoading(false);
-
-      return;
-    }
-
-    const accountId = assetData.data!.accounts.length;
-
-    setAssetData("data", "accounts", accountId, { name, balance: BigInt(0), principal: DEFAULT_PRINCIPAL });
-
-    const identity = await MasqueradeIdentity.create(msq()!.getInner(), makeIcrc1Salt(assetId, accountId));
-    const principal = identity.getPrincipal();
-
-    setAssetData("data", "accounts", accountId, "principal", principal.toText());
-
-    const agent = await makeAnonymousAgent();
-    const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
-
-    // first we query to be fast
-    ledger
-      .balance({
-        certified: false,
-        owner: Principal.fromText(assetData.data!.accounts[accountId].principal!),
-      })
-      .then(async (balance) => {
-        setAssetData(
-          produce((state) => {
-            state.data!.accounts[accountId].balance = balance;
-            const totalBalance = state.data!.accounts!.reduce((prev, cur) => prev + (cur.balance || 0n), 0n);
-
-            state.data!.totalBalance = totalBalance;
-          }),
-        );
-
-        // then we update to be sure
-        balance = await ledger.balance({
-          certified: true,
-          owner: Principal.fromText(assetData.data!.accounts[accountId].principal!),
-        });
-
-        setAssetData(
-          produce((state) => {
-            state.data!.accounts[accountId].balance = balance;
-            const totalBalance = state.data!.accounts!.reduce((prev, cur) => prev + (cur.balance || 0n), 0n);
-
-            state.data!.totalBalance = totalBalance;
-          }),
-        );
-      });
+    await addAccount!(assetId, assetName, symbol);
 
     setLoading(false);
   };
 
   const handleReceive = (accountId: TAccountId) => {
+    const assetId = getAssetId()!;
+
     setReceivePopupProps({
-      principal: assetData.data!.accounts[accountId].principal!,
-      symbol: assetData.data!.metadata!.symbol,
+      principal: assets[assetId]!.accounts[accountId].principal!,
+      symbol: assets[assetId]!.metadata!.symbol,
       onClose: handleReceiveClose,
     });
   };
@@ -204,16 +86,18 @@ export function PaymentPage() {
   };
 
   const handleCheckoutStart = (accountId: TAccountId) => {
+    const assetId = getAssetId()!;
+
     const p: IPaymentCheckoutPageProps = {
       accountId,
-      accountName: assetData.data!.accounts[accountId].name,
-      accountBalance: assetData.data!.accounts[accountId].balance!,
-      accountPrincipal: assetData.data!.accounts[accountId].principal,
+      accountName: assets[assetId]!.accounts[accountId].name,
+      accountBalance: assets[assetId]!.accounts[accountId].balance!,
+      accountPrincipal: assets[assetId]!.accounts[accountId].principal,
 
       assetId: icrc1TransferRequest()!.request.canisterId,
-      symbol: assetData.data!.metadata!.symbol,
-      decimals: assetData.data!.metadata!.decimals,
-      fee: assetData.data!.metadata!.fee,
+      symbol: assets[assetId]!.metadata!.symbol,
+      decimals: assets[assetId]!.metadata!.decimals,
+      fee: assets[assetId]!.metadata!.fee,
 
       amount: icrc1TransferRequest()!.request.amount,
       recepientPrincipal: icrc1TransferRequest()!.request.to.owner,
@@ -252,21 +136,21 @@ export function PaymentPage() {
               Pending payment on <SpanAccent>{originToHostname(referrerOrigin!)}</SpanAccent>
             </Span600>
           </Text20>
-          <Show when={assetData.data?.metadata}>
+          <Show when={getAssetId() && assets[getAssetId()!]?.metadata}>
             <H3>
-              {tokensToStr(icrc1TransferRequest()!.request.amount, assetData.data!.metadata!.decimals)}{" "}
-              {assetData.data!.metadata!.symbol}
+              {tokensToStr(icrc1TransferRequest()!.request.amount, assets[getAssetId()!]!.metadata!.decimals)}{" "}
+              {assets[getAssetId()!]!.metadata!.symbol}
             </H3>
           </Show>
         </PaymentPageHeading>
-        <Show when={assetData.data?.accounts && assetData.data?.metadata}>
+        <Show when={assets[getAssetId()!]?.accounts && assets[getAssetId()!]?.metadata}>
           <PaymentPageContent>
             <Text20>
               <Span600>Select an account to continue:</Span600>
             </Text20>
             <PaymentPageAccountsWrapper>
               <PaymentPageAccounts>
-                <For each={assetData.data?.accounts}>
+                <For each={assets[getAssetId()!]?.accounts}>
                   {(account, idx) => (
                     <AccountCard
                       classList={{ [AccountCardBase]: true, [AccountCardSelected]: idx() === selectedAccountId() }}
@@ -276,9 +160,9 @@ export function PaymentPage() {
                       name={account.name}
                       balance={account.balance}
                       principal={account.principal}
-                      decimals={assetData.data!.metadata!.decimals}
-                      symbol={assetData.data!.metadata!.symbol}
-                      targetBalance={icrc1TransferRequest()!.request.amount + assetData.data!.metadata!.fee}
+                      decimals={assets[getAssetId()!]!.metadata!.decimals}
+                      symbol={assets[getAssetId()!]!.metadata!.symbol}
+                      targetBalance={icrc1TransferRequest()!.request.amount + assets[getAssetId()!]!.metadata!.fee}
                     />
                   )}
                 </For>
@@ -286,12 +170,12 @@ export function PaymentPage() {
               <AddAccountBtn
                 disabled={loading()}
                 loading={loading()}
-                symbol={assetData.data!.metadata!.symbol}
+                symbol={assets[getAssetId()!]!.metadata!.symbol}
                 onClick={() =>
                   handleAddAccount(
                     icrc1TransferRequest()!.request.canisterId,
-                    assetData.data!.metadata!.name,
-                    assetData.data!.metadata!.symbol,
+                    assets[getAssetId()!]!.metadata!.name,
+                    assets[getAssetId()!]!.metadata!.symbol,
                   )
                 }
               />
@@ -300,8 +184,8 @@ export function PaymentPage() {
               <Button kind={EButtonKind.Additional} onClick={() => window.close()} text="Dismiss" fullWidth />
               <Show
                 when={
-                  (assetData.data!.accounts[selectedAccountId()].balance || 0n) >=
-                  icrc1TransferRequest()!.request.amount + assetData.data!.metadata!.fee
+                  (assets[getAssetId()!]!.accounts[selectedAccountId()].balance || 0n) >=
+                  icrc1TransferRequest()!.request.amount + assets[getAssetId()!]!.metadata!.fee
                 }
                 fallback={
                   <Button
@@ -309,7 +193,7 @@ export function PaymentPage() {
                     text="Top up the Balance"
                     icon={EIconKind.ArrowLeftDown}
                     onClick={() => handleReceive(selectedAccountId())}
-                    disabled={assetData.data!.accounts[selectedAccountId()].principal === undefined}
+                    disabled={assets[getAssetId()!]!.accounts[selectedAccountId()].principal === undefined}
                     fullWidth
                   />
                 }

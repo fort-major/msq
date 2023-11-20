@@ -1,7 +1,7 @@
 import { For, Match, Switch, createEffect, createSignal } from "solid-js";
-import { IMask, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
+import { originToHostname } from "@fort-major/masquerade-shared";
 import { DismissBtn, LoginHeadingSection, LoginOptionsSection, LoginOptionsWrapper, LoginPageHeader } from "./style";
-import { useLoader, useMasqueradeClient } from "../../../store/global";
+import { useMasqueradeClient } from "../../../store/global";
 import { referrerOrigin, sendLoginResult, useLoginRequestMsg, useReferrerWindow } from "../../../store/integration";
 import { useNavigate } from "@solidjs/router";
 import { Divider } from "../../../components/divider/style";
@@ -10,35 +10,31 @@ import { AddNewMaskBtn } from "../../../components/add-new-mask-btn";
 import { Spoiler } from "../../../components/spoiler";
 import { H1, Span600, SpanAccent, Text20 } from "../../../ui-kit/typography";
 import { EIconKind, Icon } from "../../../ui-kit/icon";
+import { useOriginData } from "../../../store/origins";
 
 export function LoginPage() {
-  const [loginOptions, setLoginOptions] = createSignal<[TOrigin, IMask[]][] | null>(null);
-  const snapClient = useMasqueradeClient();
+  const _msq = useMasqueradeClient();
+  const { originsData, fetch, getLoginOptions, addNewMask, makeSureMaskExists } = useOriginData();
   const loginRequest = useLoginRequestMsg();
   const [referrerWindow] = useReferrerWindow();
   const navigate = useNavigate();
 
   const [loading, setLoading] = createSignal(false);
 
-  const [_, showLoader] = useLoader();
-  createEffect(() => (loginOptions() === null ? showLoader(true) : showLoader(false)));
-
   if (referrerOrigin === null || referrerOrigin === window.location.origin) {
     navigate("/");
   }
 
   createEffect(async () => {
-    if (snapClient() === undefined || loginRequest() === undefined) {
-      return;
+    if (loginRequest() && fetch) {
+      await fetch([referrerOrigin!], true);
+      await makeSureMaskExists!(referrerOrigin!);
+      await fetch(originsData[referrerOrigin!]!.linksFrom, true);
     }
-
-    const loginOptions = await snapClient()!.getLoginOptions(referrerOrigin!);
-
-    setLoginOptions(loginOptions);
   });
 
   const onLogin = async (loginOrigin: string, identityId: number) => {
-    await snapClient()!.login(referrerOrigin!, identityId, loginOrigin);
+    await _msq()!.login(referrerOrigin!, identityId, loginOrigin);
 
     sendLoginResult(referrerWindow()!, true, 0);
   };
@@ -46,12 +42,7 @@ export function LoginPage() {
   const onAddNewMask = async () => {
     setLoading(true);
 
-    const client = snapClient()!;
-
-    await client.register(referrerOrigin!);
-
-    const loginOptions = await client.getLoginOptions(referrerOrigin!);
-    setLoginOptions(loginOptions);
+    await addNewMask!(referrerOrigin!);
 
     setLoading(false);
   };
@@ -78,7 +69,7 @@ export function LoginPage() {
       </LoginHeadingSection>
       <LoginOptionsWrapper>
         <LoginOptionsSection>
-          <For each={loginOptions()}>
+          <For each={getLoginOptions(referrerOrigin!)}>
             {([origin, principals]) => (
               <Spoiler
                 defaultOpen

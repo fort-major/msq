@@ -4,37 +4,32 @@ import { Spoiler } from "../../../components/spoiler";
 import { TIdentityId, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { LoginOption } from "../../../components/login-option";
 import { AddNewMaskBtn } from "../../../components/add-new-mask-btn";
-import { useAllOriginData } from "../../../store/cabinet";
-import { useLoader, useMasqueradeClient } from "../../../store/global";
-import { produce } from "solid-js/store";
 import { Divider } from "../../../components/divider/style";
 import { H2, H5, Span600, SpanAccent, SpanGray115, SpanGray140, Text16, Text24 } from "../../../ui-kit/typography";
+import { useOriginData } from "../../../store/origins";
 
 export function MyMasksPage() {
-  const client = useMasqueradeClient();
-  const [allOriginData, setAllOriginData, allOriginDataFetched, allOriginDataKeys] = useAllOriginData();
+  const { originsData, fetch, addNewMask, editPseudonym } = useOriginData();
   const [loading, setLoading] = createSignal(false);
 
-  const [_, showLoader] = useLoader();
-  createEffect(() => showLoader(!allOriginDataFetched()));
+  createEffect(() => {
+    if (fetch) fetch();
+  });
 
-  const editPseudonym = async (origin: TOrigin, identityId: TIdentityId, newPseudonym: string) => {
-    await client()!.editPseudonym(origin, identityId, newPseudonym);
-    setAllOriginData(origin, "masks", identityId, "pseudonym", newPseudonym);
+  const handleEditPseudonym = async (origin: TOrigin, identityId: TIdentityId, newPseudonym: string) => {
+    setLoading(true);
+
+    await editPseudonym!(origin, identityId, newPseudonym);
+
+    setLoading(false);
   };
 
-  const addNewMask = async (origin: TOrigin) => {
+  const handleAddNewMask = async (origin: TOrigin) => {
     setLoading(true);
-    const newMask = await client()!.register(origin);
+
+    await addNewMask!(origin);
+
     setLoading(false);
-
-    if (!newMask) return;
-
-    setAllOriginData(
-      produce((a) => {
-        a[origin]!.masks.push(newMask);
-      }),
-    );
   };
 
   return (
@@ -47,11 +42,11 @@ export function MyMasksPage() {
               <SpanGray115>No masks yet</SpanGray115>
             </H5>
           }
-          each={allOriginDataKeys()}
+          each={Object.keys(originsData)}
         >
           {(origin) => (
             <Spoiler
-              defaultOpen={allOriginData[origin]!.masks.length < 3}
+              defaultOpen={originsData[origin]!.masks.length < 3}
               header={
                 <SpoilerHeading>
                   <Text16>
@@ -67,20 +62,20 @@ export function MyMasksPage() {
                 </SpoilerHeading>
               }
             >
-              <For each={allOriginData[origin]!.masks}>
+              <For each={originsData[origin]!.masks}>
                 {(mask, idx) => (
                   <>
                     <Divider />
                     <LoginOption
                       pseudonym={mask.pseudonym}
                       principal={mask.principal}
-                      onEdit={(newValue) => editPseudonym(origin, idx(), newValue)}
+                      onEdit={(newValue) => handleEditPseudonym(origin, idx(), newValue)}
                     />
                   </>
                 )}
               </For>
               <Divider />
-              <AddNewMaskBtn loading={loading()} onClick={() => addNewMask(origin)} />
+              <AddNewMaskBtn loading={loading()} onClick={() => handleAddNewMask(origin)} />
             </Spoiler>
           )}
         </For>

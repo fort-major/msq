@@ -30,7 +30,6 @@ import {
   SendPopupHeading,
   SendPopupWrapper,
 } from "./style";
-import { useSendPageProps } from "../../../../store/cabinet";
 import { useNavigate } from "@solidjs/router";
 import {
   H3,
@@ -51,6 +50,7 @@ import {
   CheckoutResultContent,
   CheckoutResultSection,
 } from "../../../integration/payment/checkout/style";
+import { useSendPageProps } from "../../../../store/assets";
 
 export interface ISendPageProps {
   accountId: number;

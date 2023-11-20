@@ -1,5 +1,4 @@
-import { For, Show, createEffect, createSignal, onCleanup } from "solid-js";
-import { AllAssetData, useAllAssetData, useSendPageProps } from "../../../store/cabinet";
+import { For, Show, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import {
   AddAssetForm,
   AddAssetFormWrapper,
@@ -47,10 +46,11 @@ import {
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { IReceivePopupProps, ReceivePopup } from "./receive";
 import { AddAccountBtn } from "../../../components/add-account-btn";
+import { useAssetData, useSendPageProps } from "../../../store/assets";
 
 export function MyAssetsPage() {
-  const client = useMasqueradeClient();
-  const [allAssetData, setAllAssetData, allAssetDataFetched, allAssetDataKeys] = useAllAssetData();
+  const { assets, fetch, refresh, addAccount, editAccount, addAsset } = useAssetData();
+
   const [newAssetId, setNewAssetId] = createSignal<string>("");
   const [newAssetMetadata, setNewAssetMetadata] = createSignal<IAssetMetadata | null>(null);
   const [error, setError] = createSignal<string | null>(null);
@@ -63,30 +63,12 @@ export function MyAssetsPage() {
 
   const navigate = useNavigate();
 
-  const [_, showLoader] = useLoader();
-  createEffect(() => showLoader(!allAssetDataFetched()));
-
-  const [int] = createSignal(
-    setInterval(async () => {
-      const anonIdentity = new AnonymousIdentity();
-      const agent = await makeAgent(anonIdentity);
-
-      const assetIds = Object.keys(allAssetData);
-
-      for (let assetId of assetIds) {
-        if (allAssetData[assetId]?.metadata === undefined) continue;
-
-        const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
-        const accounts = allAssetData[assetId]?.accounts || [];
-
-        for (let accountId = 0; accountId < accounts.length; accountId++) {
-          if (accounts[accountId].principal) updateBalanceOf(ledger, allAssetData, setAllAssetData, assetId, accountId);
-        }
-      }
-    }, ONE_MIN_MS * 2),
-  );
-
-  onCleanup(() => clearInterval(int()));
+  onMount(async () => {
+    if (fetch && refresh) {
+      await fetch();
+      await refresh();
+    }
+  });
 
   const handleNewAssetIdInput = eventHandler(async (e: Event & { target: HTMLInputElement }) => {
     setNewAssetId(e.target.value.trim());
@@ -95,7 +77,7 @@ export function MyAssetsPage() {
     try {
       const principal = Principal.fromText(newAssetId());
 
-      const existing = allAssetData[newAssetId()];
+      const existing = assets[newAssetId()];
       if (existing) {
         setError(`Token ${existing.metadata!.symbol} (${newAssetId()}) already exists`);
         return;
@@ -114,9 +96,7 @@ export function MyAssetsPage() {
 
   const handleEdit = async (assetId: string, accountId: TAccountId, newName: string) => {
     setLoading(true);
-    await client()!.editAssetAccount(assetId, accountId, newName);
-
-    setAllAssetData(assetId, "accounts", accountId, "name", newName);
+    await editAccount!(assetId, accountId, newName);
     setLoading(false);
   };
 
@@ -124,28 +104,7 @@ export function MyAssetsPage() {
     setLoading(true);
     setAddingAccount(true);
 
-    const name = await client()!.addAssetAccount(assetId, assetName, symbol);
-
-    if (name === null) {
-      setLoading(false);
-      setAddingAccount(false);
-
-      return;
-    }
-
-    const accountId = allAssetData[assetId]!.accounts.length;
-
-    setAllAssetData(assetId, "accounts", accountId, { name, balance: BigInt(0), principal: DEFAULT_PRINCIPAL });
-
-    const identity = await MasqueradeIdentity.create(client()!.getInner(), makeIcrc1Salt(assetId, accountId));
-    const principal = identity.getPrincipal();
-
-    setAllAssetData(assetId, "accounts", accountId, "principal", principal.toText());
-
-    const agent = await makeAnonymousAgent();
-    const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
-
-    updateBalanceOf(ledger, allAssetData, setAllAssetData, assetId, accountId);
+    await addAccount!(assetId, assetName, symbol);
 
     setLoading(false);
     setAddingAccount(false);
@@ -156,52 +115,8 @@ export function MyAssetsPage() {
 
     setLoading(true);
 
-    const msq = client()!;
-
-    const anonIdentity = new AnonymousIdentity();
-    const agent = await makeAgent(anonIdentity);
-    const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
-
     try {
-      // first we query to be fast
-      let metadata = await getAssetMetadata(ledger, false);
-
-      setAllAssetData(
-        produce((state) => {
-          state[assetId] = {
-            metadata,
-            totalBalance: 0n,
-            accounts: [
-              {
-                name: "Creating...",
-                balance: BigInt(0),
-                principal: DEFAULT_PRINCIPAL,
-              },
-            ],
-          };
-        }),
-      );
-
-      // then we update to be sure
-      metadata = await getAssetMetadata(ledger, true);
-      const assetData = await msq.addAsset(assetId, metadata.name, metadata.symbol);
-
-      setNewAssetId("");
-      if (assetData === null) return;
-
-      setAllAssetData(
-        produce((state) => {
-          state[assetId]!.metadata = metadata;
-          state[assetId]!.accounts[0].name = assetData.accounts[0];
-        }),
-      );
-
-      const identity = await MasqueradeIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, 0));
-      const principal = identity.getPrincipal();
-
-      setAllAssetData(assetId, "accounts", 0, "principal", principal.toText());
-
-      updateBalanceOf(ledger, allAssetData, setAllAssetData, assetId, 0);
+      addAsset!(assetId);
     } catch (e) {
       console.error(e);
       setError(`Token ${assetId} is not a valid ICRC-1 token or unresponsive`);
@@ -211,7 +126,7 @@ export function MyAssetsPage() {
   };
 
   const handleSend = (accountId: TAccountId, assetId: string) => {
-    const assetData = allAssetData[assetId]!;
+    const assetData = assets[assetId]!;
     const account = assetData.accounts[accountId];
 
     const sendProps: ISendPageProps = {
@@ -234,23 +149,16 @@ export function MyAssetsPage() {
   const handleCancelSend = async (result: boolean) => {
     navigate("/cabinet/my-assets");
 
+    const assetId = sendPopupProps()!.assetId;
+    setSendPopupProps(undefined);
+
     if (result) {
       setLoading(true);
 
-      const anonIdentity = new AnonymousIdentity();
-      const agent = await makeAgent(anonIdentity);
-      const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(sendPopupProps()!.assetId) });
-
-      const accounts = allAssetData[sendPopupProps()!.assetId]!.accounts;
-
-      for (let accountId = 0; accountId < accounts.length; accountId++) {
-        await updateBalanceOf(ledger, allAssetData, setAllAssetData, sendPopupProps()!.assetId, accountId);
-      }
+      await refresh!([assetId]);
 
       setLoading(false);
     }
-
-    setSendPopupProps(undefined);
   };
 
   const handleReceive = (symbol: string, principalId: string) => {
@@ -270,7 +178,7 @@ export function MyAssetsPage() {
       <H2>My Assets</H2>
       <MyAssetsPageContent>
         <For
-          each={allAssetDataKeys()}
+          each={Object.keys(assets)}
           fallback={
             <H5>
               <SpanGray115>No assets yet</SpanGray115>
@@ -280,13 +188,13 @@ export function MyAssetsPage() {
           {(assetId) => (
             <Spoiler
               defaultOpen={
-                !!allAssetData[assetId] &&
-                (allAssetData[assetId]!.totalBalance > 0n || allAssetData[assetId]!.accounts[0].name === "Creating...")
+                !!assets[assetId] &&
+                (assets[assetId]!.totalBalance > 0n || assets[assetId]!.accounts[0].name === "Creating...")
               }
               header={
                 <AssetSpoilerHeader>
                   <Show
-                    when={allAssetData[assetId]?.metadata}
+                    when={assets[assetId]?.metadata}
                     fallback={
                       <Text20>
                         <Span600>{assetId}</Span600>
@@ -294,11 +202,11 @@ export function MyAssetsPage() {
                     }
                   >
                     <Text20>
-                      <Span600>{allAssetData[assetId]!.metadata!.name}</Span600>
+                      <Span600>{assets[assetId]!.metadata!.name}</Span600>
                     </Text20>
                   </Show>
                   <Show
-                    when={allAssetData[assetId]?.metadata}
+                    when={assets[assetId]?.metadata}
                     fallback={
                       <Text20>
                         <Span600>
@@ -309,18 +217,18 @@ export function MyAssetsPage() {
                   >
                     <Text20>
                       <Span600>
-                        {tokensToStr(allAssetData[assetId]!.totalBalance, allAssetData[assetId]!.metadata!.decimals)}{" "}
-                        <SpanGray130>{allAssetData[assetId]!.metadata!.symbol}</SpanGray130>
+                        {tokensToStr(assets[assetId]!.totalBalance, assets[assetId]!.metadata!.decimals)}{" "}
+                        <SpanGray130>{assets[assetId]!.metadata!.symbol}</SpanGray130>
                       </Span600>
                     </Text20>
                   </Show>
                 </AssetSpoilerHeader>
               }
             >
-              <Show when={allAssetData[assetId]?.metadata}>
+              <Show when={assets[assetId]?.metadata}>
                 <AssetSpoilerContent>
                   <AssetAccountsWrapper>
-                    <For each={allAssetData[assetId]!.accounts}>
+                    <For each={assets[assetId]!.accounts}>
                       {(account, idx) => (
                         <AccountCard
                           accountId={idx()}
@@ -328,8 +236,8 @@ export function MyAssetsPage() {
                           name={account.name}
                           principal={account.principal}
                           balance={account.balance}
-                          symbol={allAssetData[assetId]!.metadata!.symbol}
-                          decimals={allAssetData[assetId]!.metadata!.decimals}
+                          symbol={assets[assetId]!.metadata!.symbol}
+                          decimals={assets[assetId]!.metadata!.decimals}
                           onSend={handleSend}
                           onReceive={handleReceive}
                           onEdit={(newName) => handleEdit(assetId, idx(), newName)}
@@ -341,13 +249,9 @@ export function MyAssetsPage() {
                     disabled={addingAccount()}
                     loading={addingAccount()}
                     onClick={() =>
-                      handleAddAccount(
-                        assetId,
-                        allAssetData[assetId]!.metadata!.name,
-                        allAssetData[assetId]!.metadata!.symbol,
-                      )
+                      handleAddAccount(assetId, assets[assetId]!.metadata!.name, assets[assetId]!.metadata!.symbol)
                     }
-                    symbol={allAssetData[assetId]!.metadata!.symbol}
+                    symbol={assets[assetId]!.metadata!.symbol}
                   />
                 </AssetSpoilerContent>
               </Show>
@@ -388,43 +292,5 @@ export function MyAssetsPage() {
         <ReceivePopup {...receivePopupProps()!} />
       </Show>
     </>
-  );
-}
-
-async function updateBalanceOf(
-  ledger: IcrcLedgerCanister,
-  allAssetData: AllAssetData,
-  setAllAssetData: SetStoreFunction<AllAssetData>,
-  assetId: string,
-  accountId: number,
-) {
-  // first we query to be fast
-  let balance = await ledger.balance({
-    certified: false,
-    owner: Principal.fromText(allAssetData[assetId]!.accounts[accountId].principal!),
-  });
-
-  setAllAssetData(
-    produce((state) => {
-      state[assetId]!.accounts[accountId].balance = balance;
-      const totalBalance = state[assetId]!.accounts!.reduce((prev, cur) => prev + (cur.balance || 0n), 0n);
-
-      state[assetId]!.totalBalance = totalBalance;
-    }),
-  );
-
-  // then we update to be sure
-  balance = await ledger.balance({
-    certified: true,
-    owner: Principal.fromText(allAssetData[assetId]!.accounts[accountId].principal!),
-  });
-
-  setAllAssetData(
-    produce((state) => {
-      state[assetId]!.accounts[accountId].balance = balance;
-      const totalBalance = state[assetId]!.accounts!.reduce((prev, cur) => prev + (cur.balance || 0n), 0n);
-
-      state[assetId]!.totalBalance = totalBalance;
-    }),
   );
 }

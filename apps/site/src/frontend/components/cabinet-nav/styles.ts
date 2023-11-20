@@ -9,12 +9,9 @@ import {
 } from "../../ui-kit";
 
 export const CabinetNavWrapper = styled.nav`
-  position: fixed;
-  left: 0;
-  top: ${(HEADER_HEIGHT + BAR_HEIGHT).toString()}px;
-
   display: flex;
-  width: 290px;
+  min-width: 290px;
+  padding-right: 80px;
   flex-direction: column;
   align-items: flex-start;
 

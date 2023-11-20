@@ -149,14 +149,6 @@ export type ISnapRpcRequest = z.infer<typeof ZSnapRPCRequest>;
 
 // ----------- IDENTITY PROTOCOL RELATED TYPES ---------
 
-export const ZIdentityGetLoginOptionsRequest = z.object({
-  forOrigin: ZOrigin,
-});
-export type IIdentityGetLoginOptionsRequest = z.infer<typeof ZIdentityGetLoginOptionsRequest>;
-
-export const ZIdentityGetLoginOptionsResponse = z.array(z.tuple([ZOrigin, z.array(ZMask)]));
-export type IIdentityGetLoginOptionsResponse = z.infer<typeof ZIdentityGetLoginOptionsResponse>;
-
 export const ZIdentityAddRequest = z.object({
   toOrigin: ZOrigin,
 });
@@ -218,8 +210,14 @@ export type IIdentityUnlinkAllRequest = z.infer<typeof ZIdentityUnlinkAllRequest
 
 // ----------- STATE PROTOCOL RELATED TYPES -------------
 
+export const ZStateGetAllOriginDataRequest = z.object({ origins: z.optional(z.array(ZOrigin)) });
+export type IStateGetAllOriginDataRequest = z.infer<typeof ZStateGetAllOriginDataRequest>;
+
 export const ZStateGetAllOriginDataResponse = z.record(ZOrigin, z.optional(ZOriginDataExternal));
 export type IStateGetAllOriginDataResponse = z.infer<typeof ZStateGetAllOriginDataResponse>;
+
+export const ZStateGetAllAssetDataRequest = z.object({ assetIds: z.optional(z.array(ZPrincipalStr)) });
+export type IStateGetAllAssetDataRequest = z.infer<typeof ZStateGetAllAssetDataRequest>;
 
 export const ZStateGetAllAssetDataResponse = z.record(ZPrincipalStr, z.optional(ZAssetDataExternal));
 export type IStateGetAllAssetDataResponse = z.infer<typeof ZStateGetAllAssetDataResponse>;

@@ -40,13 +40,18 @@ export const Page = styled.main`
   background-color: ${COLOR_BLACK};
   min-height: 100vh;
   padding-top: ${(HEADER_HEIGHT + BAR_HEIGHT).toString()}px;
-  box-sizing: border-box;
   display: flex;
+`;
+
+export const CabinetPage = styled.div`
+  position: relative;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 23% auto;
 `;
 
 export const CabinetContent = styled.section`
   position: relative;
-  left: 350px;
   margin-top: 60px;
 
   width: 100%;

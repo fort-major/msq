@@ -137,10 +137,10 @@ export function tokensToStr(
     return headFormatted;
   }
 
-  // 1,000.10 -> 1,000.00000010
+  // 1'000.10 -> 1'000.00000010
   const tailFormatted = tail.toString().padStart(decimals, "0");
 
-  // 1,000.00012300 -> 1,000.000123
+  // 1'000.00012300 -> 1'000.000123
   let tailPadded: string = tailFormatted;
   if (!padTail) {
     while (tailPadded.charAt(tailPadded.length - 1) === "0") {
@@ -152,7 +152,7 @@ export function tokensToStr(
 }
 
 export function strToTokens(str: string, decimals: number): bigint {
-  // 1,000.123 -> 1,000 & 123
+  // 1'000.123 -> 1'000 & 123
   let [head, tail] = str.split(".") as [string, string | undefined];
   // 1'000 -> 1000
   head = head.replaceAll("'", "");
@@ -179,6 +179,7 @@ export function strToTokens(str: string, decimals: number): bigint {
     throw `Too many decimal digits (max ${decimals})`;
   }
 
+  // 123 -> 12300000
   tail = tail.padEnd(decimals - i, "0");
 
   return BigInt(head) * decimalMul + BigInt(tail);
