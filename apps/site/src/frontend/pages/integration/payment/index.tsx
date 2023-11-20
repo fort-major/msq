@@ -35,6 +35,7 @@ import { IPaymentCheckoutPageProps } from "./checkout";
 import { useAssetData } from "../../../store/assets";
 
 export function PaymentPage() {
+  const msq = useMasqueradeClient();
   const icrc1TransferRequest = useIcrc1TransferRequestMsg();
   const { assets, fetch, refresh, addAsset, addAccount } = useAssetData();
   const [selectedAccountId, setSelectedAccountId] = createSignal<TAccountId>(0);
@@ -50,7 +51,7 @@ export function PaymentPage() {
   if (referrerOrigin === null || referrerOrigin === window.location.origin) navigate("/");
 
   createEffect(async () => {
-    if (icrc1TransferRequest() && fetch) {
+    if (icrc1TransferRequest() && msq()) {
       const assetId = getAssetId()!;
       const result = await fetch([assetId]);
 
@@ -138,7 +139,12 @@ export function PaymentPage() {
           </Text20>
           <Show when={getAssetId() && assets[getAssetId()!]?.metadata}>
             <H3>
-              {tokensToStr(icrc1TransferRequest()!.request.amount, assets[getAssetId()!]!.metadata!.decimals)}{" "}
+              {tokensToStr(
+                icrc1TransferRequest()!.request.amount,
+                assets[getAssetId()!]!.metadata!.decimals,
+                undefined,
+                true,
+              )}{" "}
               {assets[getAssetId()!]!.metadata!.symbol}
             </H3>
           </Show>

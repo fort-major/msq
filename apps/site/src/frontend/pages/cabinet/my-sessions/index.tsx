@@ -30,8 +30,10 @@ import {
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { EIconKind } from "../../../ui-kit/icon";
 import { useOriginData } from "../../../store/origins";
+import { useMasqueradeClient } from "../../../store/global";
 
 export function MySessionsPage() {
+  const msq = useMasqueradeClient();
   const { originsData, fetch, stopSession } = useOriginData();
   const originsWithSession = () =>
     Object.keys(originsData).filter((origin) => originsData[origin]!.currentSession !== undefined);
@@ -39,7 +41,7 @@ export function MySessionsPage() {
   const [loading, setLoading] = createSignal(false);
 
   createEffect(() => {
-    if (fetch) fetch();
+    if (msq()) fetch();
   });
 
   const getMaskBySession = (session: ISession): { pseudonym: string; principal: Principal } => {

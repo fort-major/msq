@@ -22,6 +22,7 @@ import { useAssetData } from "../../../store/assets";
 import { useOriginData } from "../../../store/origins";
 
 export function MyLinksPage() {
+  const msq = useMasqueradeClient();
   const { originsData, fetch, unlinkOne, unlinkAll } = useOriginData();
   const allOriginDataKeysWithLinks = () =>
     Object.keys(originsData).filter((origin) => originsData[origin]!.linksTo.length !== 0);
@@ -29,7 +30,7 @@ export function MyLinksPage() {
   const [loading, setLoading] = createSignal(false);
 
   createEffect(() => {
-    if (fetch) fetch();
+    if (msq()) fetch();
   });
 
   const handleUnlinkOne = async (origin: TOrigin, withOrigin: TOrigin) => {

@@ -110,7 +110,7 @@ export function SendPage() {
         subaccount,
       },
       totalAmount: amount() + props()!.fee,
-      totalAmountStr: tokensToStr(amount() + props()!.fee, props()!.decimals, true),
+      totalAmountStr: tokensToStr(amount() + props()!.fee, props()!.decimals, true, true),
     });
 
     if (!agreed) {
@@ -139,7 +139,7 @@ export function SendPage() {
       setTxnResult({
         success: true,
         blockIdx,
-        totalAmount: tokensToStr(amount() + props()!.fee, props()!.decimals),
+        totalAmount: tokensToStr(amount() + props()!.fee, props()!.decimals, undefined, true),
       });
     } catch (e) {
       let err = debugStringify(e);
@@ -213,7 +213,7 @@ export function SendPage() {
                   <Show when={amount() !== BigInt(0)}>
                     <FeeLine>
                       <FeeLineAmount>
-                        <FeeLineAmountQty>+{tokensToStr(props()!.fee, props()!.decimals)}</FeeLineAmountQty>
+                        <FeeLineAmountQty>+{tokensToStr(props()!.fee, props()!.decimals, undefined, true)}</FeeLineAmountQty>
                         <FeeLineAmountSymbol>{props()!.symbol}</FeeLineAmountSymbol>
                       </FeeLineAmount>
                       <FeeLineReason>System Fee</FeeLineReason>

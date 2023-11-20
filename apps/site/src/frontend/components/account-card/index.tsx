@@ -108,7 +108,7 @@ export function AccountCard(props: IAccountCardProps) {
         <AccountCardFooterContent>
           <AccountCardFooterBalanceWrapper>
             <AccountCardFooterBalance>
-              <H5>{tokensToStr(props.balance || 0n, props.decimals)}</H5>
+              <H5>{tokensToStr(props.balance || 0n, props.decimals, undefined, true)}</H5>
               <Text12>
                 <Span600>{props.symbol}</Span600>
               </Text12>

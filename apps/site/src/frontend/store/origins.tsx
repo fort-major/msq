@@ -7,18 +7,14 @@ import { useMasqueradeClient } from "./global";
 export type AllOriginData = Record<TOrigin, IOriginDataExternal | undefined>;
 export interface IOriginDataStore {
   originsData: AllOriginData;
-  getLoginOptions: (origin: TOrigin) => ILoginOptions;
 
-  fetch?: (origins?: TOrigin[], ignoreDiminishing?: boolean) => Promise<void>;
-  addNewMask?: (origin: TOrigin) => Promise<void>;
-  editPseudonym?: (origin: TOrigin, identityId: TIdentityId, newPseudonym: string) => Promise<void>;
-  unlinkOne?: (origin: TOrigin, withOrigin: TOrigin) => Promise<void>;
-  unlinkAll?: (origin: TOrigin) => Promise<void>;
-  makeSureMaskExists?: (origin: TOrigin) => Promise<void>;
-  stopSession?: (origin: TOrigin) => Promise<void>;
+  fetch: (origins?: TOrigin[], ignoreDiminishing?: boolean) => Promise<void>;
+  addNewMask: (origin: TOrigin) => Promise<void>;
+  editPseudonym: (origin: TOrigin, identityId: TIdentityId, newPseudonym: string) => Promise<void>;
+  unlinkOne: (origin: TOrigin, withOrigin: TOrigin) => Promise<void>;
+  unlinkAll: (origin: TOrigin) => Promise<void>;
+  stopSession: (origin: TOrigin) => Promise<void>;
 }
-
-export type ILoginOptions = [TOrigin, IMask[]][];
 
 const OriginDataContext = createContext<IOriginDataStore>();
 
@@ -37,15 +33,6 @@ export function OriginDataStore(props: IChildren) {
   const [fetchedAt, setFetchedAt] = createSignal(0);
   const [refreshPeriodically, setRefreshPeriodically] = createSignal(true);
   const _msq = useMasqueradeClient();
-
-  onMount(async () => {
-    while (refreshPeriodically()) {
-      await delay(ONE_SEC_MS * 5);
-
-      const origins = Object.keys(allOriginData);
-      await fetch(origins);
-    }
-  });
 
   onCleanup(() => setRefreshPeriodically(false));
 
@@ -120,30 +107,6 @@ export function OriginDataStore(props: IChildren) {
     }
   };
 
-  const makeSureMaskExists = async (origin: TOrigin): Promise<void> => {
-    const msq = _msq()!;
-    let originData = allOriginData[origin];
-
-    if (!originData) {
-      await msq.register(origin);
-      await fetch([origin]);
-    }
-  };
-
-  const getLoginOptions = (mainOrigin: TOrigin): ILoginOptions => {
-    const result: ILoginOptions = [];
-
-    result.push([origin, Object.values(allOriginData[mainOrigin]!.masks) as IMask[]]);
-
-    for (const origin of Object.keys(allOriginData[mainOrigin]!.linksFrom)) {
-      const linkedOriginData = allOriginData[origin];
-
-      result.push([origin, Object.values(linkedOriginData!.masks) as IMask[]]);
-    }
-
-    return result;
-  };
-
   const stopSession = async (origin: TOrigin) => {
     const msq = _msq()!;
     const result = await msq.stopSession(origin);
@@ -157,15 +120,13 @@ export function OriginDataStore(props: IChildren) {
     <OriginDataContext.Provider
       value={{
         originsData: allOriginData,
-        getLoginOptions,
 
-        fetch: _msq() ? fetch : undefined,
-        addNewMask: _msq() ? addNewMask : undefined,
-        editPseudonym: _msq() ? editPseudonym : undefined,
-        unlinkOne: _msq() ? unlinkOne : undefined,
-        unlinkAll: _msq() ? unlinkAll : undefined,
-        makeSureMaskExists: _msq() ? makeSureMaskExists : undefined,
-        stopSession: _msq() ? stopSession : undefined,
+        fetch,
+        addNewMask,
+        editPseudonym,
+        unlinkOne,
+        unlinkAll,
+        stopSession,
       }}
     >
       {props.children}

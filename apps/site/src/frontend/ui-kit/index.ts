@@ -32,15 +32,18 @@ export const ANIM_DURATION = "0.3s";
 
 export const Root = styled.div`
   position: relative;
+  display: flex;
+  flex-flow: column nowrap;
   min-height: 100vh;
 `;
 
 export const Page = styled.main`
   position: relative;
   background-color: ${COLOR_BLACK};
-  min-height: 100vh;
   padding-top: ${(HEADER_HEIGHT + BAR_HEIGHT).toString()}px;
   display: flex;
+  flex-flow: column nowrap;
+  flex: 1;
 `;
 
 export const CabinetPage = styled.div`

@@ -17,6 +17,7 @@ export const SNAP_METHODS = {
     identity: {
       add: "protected_identity_add",
       login: "protected_identity_login",
+      getLoginOptions: "protected_identity_getLoginOptions",
       editPseudonym: "protected_identity_editPseudonym",
       stopSession: "protected_identity_stopSession",
       unlinkOne: "protected_identity_unlinkOne",
@@ -98,7 +99,7 @@ export function originToHostname(origin: TOrigin): string {
 export const PRE_LISTED_TOKENS: Record<string, { assetId: string; chargingAccountId?: string }> = {
   ICP: {
     assetId: "ryjl3-tyaaa-aaaaa-aaaba-cai",
-    chargingAccountId: "lkj2e-m4lgc-c7t3p-xulz6-3obuk-auqff-lscnn-nxxmf-7hkw4-6huri-rae",
+    // chargingAccountId: "lkj2e-m4lgc-c7t3p-xulz6-3obuk-auqff-lscnn-nxxmf-7hkw4-6huri-rae",
   },
   ckBTC: {
     assetId: "mxzaz-hqaaa-aaaar-qaada-cai",

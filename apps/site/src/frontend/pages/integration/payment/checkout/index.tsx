@@ -111,7 +111,7 @@ export function PaymentCheckoutPage() {
     setLoading(true);
 
     const totalAmount = calcTotalAmount();
-    const totalAmountStr = tokensToStr(totalAmount, props()!.decimals);
+    const totalAmountStr = tokensToStr(totalAmount, props()!.decimals, undefined, true);
 
     const agreed = await msq()!.showICRC1TransferConfirm({
       requestOrigin: referrerOrigin!,
@@ -257,7 +257,7 @@ export function PaymentCheckoutPage() {
                 <CheckoutFeeLineSum>
                   <Text16>
                     <SpanGray140>
-                      <Span600>{tokensToStr(props()!.amount, props()!.decimals)}</Span600>
+                      <Span600>{tokensToStr(props()!.amount, props()!.decimals, undefined, true)}</Span600>
                     </SpanGray140>
                   </Text16>
                   <Text12>
@@ -274,7 +274,7 @@ export function PaymentCheckoutPage() {
                 <CheckoutFeeLineSum>
                   <Text16>
                     <SpanGray140>
-                      <Span600>{tokensToStr(msqFee, props()!.decimals)}</Span600>
+                      <Span600>{tokensToStr(msqFee, props()!.decimals, undefined, true)}</Span600>
                     </SpanGray140>
                   </Text16>
                   <Text12>
@@ -291,7 +291,7 @@ export function PaymentCheckoutPage() {
                 <CheckoutFeeLineSum>
                   <Text16>
                     <SpanGray140>
-                      <Span600>{tokensToStr(calcSystemFee(), props()!.decimals)}</Span600>
+                      <Span600>{tokensToStr(calcSystemFee(), props()!.decimals, undefined, true)}</Span600>
                     </SpanGray140>
                   </Text16>
                   <Text12>
@@ -310,7 +310,7 @@ export function PaymentCheckoutPage() {
                   </Span500>
                 </Text12>
                 <CheckoutTotalSum>
-                  <H5>{tokensToStr(calcTotalAmount(), props()!.decimals)}</H5>
+                  <H5>{tokensToStr(calcTotalAmount(), props()!.decimals, undefined, true)}</H5>
                   <Text12>
                     <Span600>{props()!.symbol}</Span600>
                   </Text12>

@@ -10,7 +10,7 @@
     "prod:deployBE": "dfx deploy msq_statistics --network=ic",
     "dev:build": "pnpm run propagateEnv && tsc && vite build --mode dev",
     "dev": "pnpm run propagateEnv && vite --mode dev",
-    "dev:gen": "dfx generate",
+    "gen": "dfx generate",
     "dev:deploy": "dfx deploy",
     "dev:deployFE": "dfx deploy msq_frontend --no-asset-upgrade",
     "dev:deployBE": "dfx deploy msq_statistics",

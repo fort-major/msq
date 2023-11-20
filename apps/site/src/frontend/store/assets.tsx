@@ -41,11 +41,11 @@ export type SendPagePropsStore = [Accessor<ISendPageProps | undefined>, Setter<I
 
 export interface IAssetDataStore {
   assets: AllAssetData;
-  fetch?: (assetIds?: string[]) => Promise<boolean[] | undefined>;
-  refresh?: (assetIds?: string[]) => Promise<void>;
-  addAccount?: (assetId: string, assetName: string, symbol: string) => Promise<void>;
-  editAccount?: (assetId: string, accountId: TAccountId, newName: string) => Promise<void>;
-  addAsset?: (assetId: string) => Promise<void>;
+  fetch: (assetIds?: string[]) => Promise<boolean[] | undefined>;
+  refresh: (assetIds?: string[]) => Promise<void>;
+  addAccount: (assetId: string, assetName: string, symbol: string) => Promise<void>;
+  editAccount: (assetId: string, accountId: TAccountId, newName: string) => Promise<void>;
+  addAsset: (assetId: string) => Promise<void>;
   sendPageProps: SendPagePropsStore;
 }
 
@@ -82,14 +82,6 @@ export function AssetsStore(props: IChildren) {
       await delay(ONE_MIN_MS);
 
       if (_msq()) await refresh();
-    }
-  });
-
-  onMount(async () => {
-    while (refreshPeriodically()) {
-      await delay(ONE_SEC_MS * 5);
-
-      if (_msq()) await refreshAccountNames();
     }
   });
 
@@ -294,11 +286,11 @@ export function AssetsStore(props: IChildren) {
     <AssetDataContext.Provider
       value={{
         assets: allAssetData,
-        fetch: _msq() ? fetch : undefined,
-        refresh: _msq() ? refresh : undefined,
-        addAccount: _msq() ? addAccount : undefined,
-        editAccount: _msq() ? editAccount : undefined,
-        addAsset: _msq() ? addAsset : undefined,
+        fetch,
+        refresh,
+        addAccount,
+        editAccount,
+        addAsset,
         sendPageProps: [sendPageProps, setSendPageProps],
       }}
     >

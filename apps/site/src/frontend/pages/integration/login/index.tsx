@@ -1,5 +1,5 @@
 import { For, Match, Switch, createEffect, createSignal } from "solid-js";
-import { originToHostname } from "@fort-major/masquerade-shared";
+import { IMask, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { DismissBtn, LoginHeadingSection, LoginOptionsSection, LoginOptionsWrapper, LoginPageHeader } from "./style";
 import { useMasqueradeClient } from "../../../store/global";
 import { referrerOrigin, sendLoginResult, useLoginRequestMsg, useReferrerWindow } from "../../../store/integration";
@@ -13,8 +13,8 @@ import { EIconKind, Icon } from "../../../ui-kit/icon";
 import { useOriginData } from "../../../store/origins";
 
 export function LoginPage() {
+  const [loginOptions, setLoginOptions] = createSignal<[TOrigin, IMask[]][] | null>(null);
   const _msq = useMasqueradeClient();
-  const { originsData, fetch, getLoginOptions, addNewMask, makeSureMaskExists } = useOriginData();
   const loginRequest = useLoginRequestMsg();
   const [referrerWindow] = useReferrerWindow();
   const navigate = useNavigate();
@@ -26,11 +26,13 @@ export function LoginPage() {
   }
 
   createEffect(async () => {
-    if (loginRequest() && fetch) {
-      await fetch([referrerOrigin!], true);
-      await makeSureMaskExists!(referrerOrigin!);
-      await fetch(originsData[referrerOrigin!]!.linksFrom, true);
+    if (_msq() === undefined || loginRequest() === undefined) {
+      return;
     }
+
+    const loginOptions = await _msq()!.getLoginOptions(referrerOrigin!);
+
+    setLoginOptions(loginOptions);
   });
 
   const onLogin = async (loginOrigin: string, identityId: number) => {
@@ -42,7 +44,12 @@ export function LoginPage() {
   const onAddNewMask = async () => {
     setLoading(true);
 
-    await addNewMask!(referrerOrigin!);
+    const msq = _msq()!;
+
+    await msq.register(referrerOrigin!);
+
+    const loginOptions = await msq.getLoginOptions(referrerOrigin!);
+    setLoginOptions(loginOptions);
 
     setLoading(false);
   };
@@ -69,7 +76,7 @@ export function LoginPage() {
       </LoginHeadingSection>
       <LoginOptionsWrapper>
         <LoginOptionsSection>
-          <For each={getLoginOptions(referrerOrigin!)}>
+          <For each={loginOptions()}>
             {([origin, principals]) => (
               <Spoiler
                 defaultOpen

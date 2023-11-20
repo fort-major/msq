@@ -112,7 +112,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
     }
 
     case SNAP_METHODS.protected.state.getAllOriginData: {
-      result = protected_handleStateGetAllOriginData();
+      result = protected_handleStateGetAllOriginData(req.params.body);
       break;
     }
 

@@ -7,13 +7,15 @@ import { AddNewMaskBtn } from "../../../components/add-new-mask-btn";
 import { Divider } from "../../../components/divider/style";
 import { H2, H5, Span600, SpanAccent, SpanGray115, SpanGray140, Text16, Text24 } from "../../../ui-kit/typography";
 import { useOriginData } from "../../../store/origins";
+import { useMasqueradeClient } from "../../../store/global";
 
 export function MyMasksPage() {
+  const msq = useMasqueradeClient();
   const { originsData, fetch, addNewMask, editPseudonym } = useOriginData();
   const [loading, setLoading] = createSignal(false);
 
   createEffect(() => {
-    if (fetch) fetch();
+    if (msq()) fetch();
   });
 
   const handleEditPseudonym = async (origin: TOrigin, identityId: TIdentityId, newPseudonym: string) => {

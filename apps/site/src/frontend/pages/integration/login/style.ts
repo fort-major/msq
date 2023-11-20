@@ -24,9 +24,7 @@ export const LoginOptionsWrapper = styled.div`
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-end;
-  align-items: flex-end;
-
-  align-self: flex-end;
+  margin-top: auto;
 `;
 
 export const LoginOptionsSection = styled.section`

@@ -49,13 +49,7 @@
         "dev:deployBE": {
             "cache": false
         },
-        "dev:nns": {
-            "cache": false
-        },
-        "dev:gen": {
-            "cache": false
-        },
-        "dev:start": {
+        "gen": {
             "cache": false
         },
         "dev:runSnap": {},

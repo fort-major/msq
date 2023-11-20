@@ -49,6 +49,7 @@ import { AddAccountBtn } from "../../../components/add-account-btn";
 import { useAssetData, useSendPageProps } from "../../../store/assets";
 
 export function MyAssetsPage() {
+  const msq = useMasqueradeClient();
   const { assets, fetch, refresh, addAccount, editAccount, addAsset } = useAssetData();
 
   const [newAssetId, setNewAssetId] = createSignal<string>("");
@@ -64,7 +65,7 @@ export function MyAssetsPage() {
   const navigate = useNavigate();
 
   onMount(async () => {
-    if (fetch && refresh) {
+    if (msq()) {
       await fetch();
       await refresh();
     }
@@ -217,7 +218,12 @@ export function MyAssetsPage() {
                   >
                     <Text20>
                       <Span600>
-                        {tokensToStr(assets[assetId]!.totalBalance, assets[assetId]!.metadata!.decimals)}{" "}
+                        {tokensToStr(
+                          assets[assetId]!.totalBalance,
+                          assets[assetId]!.metadata!.decimals,
+                          undefined,
+                          true,
+                        )}{" "}
                         <SpanGray130>{assets[assetId]!.metadata!.symbol}</SpanGray130>
                       </Span600>
                     </Text20>

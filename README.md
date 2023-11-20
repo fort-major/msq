@@ -65,12 +65,10 @@ DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automati
 
 ### Run locally
 
-Since [ICP Ledger Local Setup](https://internetcomputer.org/docs/current/developer-docs/integrations/ledger/ledger-local-setup) doesn't work well when you also want to be able to deploy to mainnet, you would have to add NNS-related canisters to `dfx.json` yourself.
-
 * `dfx start` - (in a separate terminal window)
 * `dfx extension install nns` - install nns extension to your dfx
-* `pnpm run dev:gen` - generates javascript declaration files
-* `pnpm run dev:nns` - deploys a local copy of nns canisters
+* `cd apps/nns && dfx nns install && cd ../..` - install nns canisters
+* `pnpm run gen` - generates javascript declaration files
 * `pnpm run dev:build` - builds frontends for dev network
 * `pnpm run dev:deployBE` - deploys all backend canisters
   * if this command fails because of locked `Cargo.toml`, run `pnpm run cargo:repair` and repeat
@@ -100,6 +98,7 @@ Since [ICP Ledger Local Setup](https://internetcomputer.org/docs/current/develop
 
 ## Prod deployment
 
+* `pnpm run gen`
 * `pnpm run prod:build`
 * `pnpm run prod:deploy`
 

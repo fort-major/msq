@@ -149,6 +149,14 @@ export type ISnapRpcRequest = z.infer<typeof ZSnapRPCRequest>;
 
 // ----------- IDENTITY PROTOCOL RELATED TYPES ---------
 
+export const ZIdentityGetLoginOptionsRequest = z.object({
+  forOrigin: ZOrigin,
+});
+export type IIdentityGetLoginOptionsRequest = z.infer<typeof ZIdentityGetLoginOptionsRequest>;
+
+export const ZIdentityGetLoginOptionsResponse = z.array(z.tuple([ZOrigin, z.array(ZMask)]));
+export type IIdentityGetLoginOptionsResponse = z.infer<typeof ZIdentityGetLoginOptionsResponse>;
+
 export const ZIdentityAddRequest = z.object({
   toOrigin: ZOrigin,
 });
