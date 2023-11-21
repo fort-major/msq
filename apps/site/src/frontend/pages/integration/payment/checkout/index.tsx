@@ -44,6 +44,7 @@ import {
   CheckoutResultContent,
   CheckoutResultSection,
   CheckoutResultBtn,
+  CopyIcon,
 } from "./style";
 import { EIconKind, Icon } from "../../../../ui-kit/icon";
 import { Match, Show, Switch, createEffect, createSignal } from "solid-js";
@@ -57,6 +58,7 @@ import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { ITxnResult } from "../../../cabinet/my-assets/send";
 import { TxnFailPage } from "../../../txn/fail";
 import { TxnSuccessPage } from "../../../txn/success";
+import { COLOR_ACCENT } from "../../../../ui-kit";
 
 export interface IPaymentCheckoutPageProps {
   accountId: TAccountId;
@@ -86,19 +88,25 @@ export function PaymentCheckoutPage() {
   const msq = useMasqueradeClient();
   const navigate = useNavigate();
   const [txnResult, setTxnResult] = createSignal<ITxnResult | null>(null);
+  const [principalCopied, setPrincipalCopied] = createSignal(false);
+  const [subaccountCopied, setSubaccountCopied] = createSignal(false);
+  const [memoCopied, setMemoCopied] = createSignal(false);
 
   if (!props()) navigate("/");
 
   const handleCopyRecipientPrincipal = () => {
     navigator.clipboard.writeText(props()!.recepientPrincipal);
+    setPrincipalCopied(true);
   };
 
   const handleCopyRecipientSubaccount = () => {
     navigator.clipboard.writeText(bytesToHex(props()!.recepientSubaccount!));
+    setSubaccountCopied(true);
   };
 
   const handleCopyMemo = () => {
     navigator.clipboard.writeText(bytesToHex(props()!.memo!));
+    setMemoCopied(true);
   };
 
   const [msqFee, msqRecipientId] = calculateMSQFee(props()!.assetId, props()!.amount);
@@ -216,7 +224,24 @@ export function PaymentCheckoutPage() {
                   <Text16>
                     <Span600 class={Elipsis}>{props()!.recepientPrincipal}</Span600>
                   </Text16>
-                  <Icon kind={EIconKind.Copy} onClick={handleCopyRecipientPrincipal} />
+                  <Show
+                    when={principalCopied()}
+                    fallback={
+                      <Icon
+                        kind={EIconKind.Copy}
+                        size={14}
+                        onClick={handleCopyRecipientPrincipal}
+                        classList={{ [CopyIcon]: true }}
+                      />
+                    }
+                  >
+                    <Icon
+                      kind={EIconKind.Check}
+                      size={14}
+                      onClick={handleCopyRecipientPrincipal}
+                      color={COLOR_ACCENT}
+                    />
+                  </Show>
                 </CheckoutFormInputField>
               </CheckoutFormInput>
               <CheckoutFormInput>
@@ -232,7 +257,24 @@ export function PaymentCheckoutPage() {
                     </Span600>
                   </Text16>
                   <Show when={props()!.recepientSubaccount}>
-                    <Icon kind={EIconKind.Copy} onClick={handleCopyRecipientSubaccount} />
+                    <Show
+                      when={subaccountCopied()}
+                      fallback={
+                        <Icon
+                          kind={EIconKind.Copy}
+                          size={14}
+                          onClick={handleCopyRecipientSubaccount}
+                          classList={{ [CopyIcon]: true }}
+                        />
+                      }
+                    >
+                      <Icon
+                        kind={EIconKind.Check}
+                        size={14}
+                        onClick={handleCopyRecipientSubaccount}
+                        color={COLOR_ACCENT}
+                      />
+                    </Show>
                   </Show>
                 </CheckoutFormInputField>
               </CheckoutFormInput>
@@ -247,7 +289,19 @@ export function PaymentCheckoutPage() {
                     <Span600 class={Elipsis}>{props()!.memo ? bytesToHex(props()!.memo!) : "-"}</Span600>
                   </Text16>
                   <Show when={props()!.memo}>
-                    <Icon kind={EIconKind.Copy} onClick={handleCopyMemo} />
+                    <Show
+                      when={memoCopied()}
+                      fallback={
+                        <Icon
+                          kind={EIconKind.Copy}
+                          size={14}
+                          onClick={handleCopyMemo}
+                          classList={{ [CopyIcon]: true }}
+                        />
+                      }
+                    >
+                      <Icon kind={EIconKind.Check} size={14} onClick={handleCopyMemo} color={COLOR_ACCENT} />
+                    </Show>
                   </Show>
                 </CheckoutFormInputField>
               </CheckoutFormInput>

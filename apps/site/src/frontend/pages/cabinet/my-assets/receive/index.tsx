@@ -2,6 +2,7 @@ import { css, styled } from "solid-styled-components";
 import {
   ANIM_DURATION,
   BAR_HEIGHT,
+  COLOR_ACCENT,
   COLOR_BLACK,
   COLOR_GRAY_108,
   COLOR_GRAY_150,
@@ -12,7 +13,7 @@ import { Portal } from "solid-js/web";
 import { EIconKind, Icon } from "../../../../ui-kit/icon";
 import { H5, Span500, Span600, SpanGray140, Text12, Text16 } from "../../../../ui-kit/typography";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
-import { onCleanup, onMount } from "solid-js";
+import { Show, createSignal, onCleanup, onMount } from "solid-js";
 
 export interface IReceivePopupProps {
   principal: string;
@@ -21,8 +22,11 @@ export interface IReceivePopupProps {
 }
 
 export function ReceivePopup(props: IReceivePopupProps) {
+  const [copied, setCopied] = createSignal(false);
+
   const handleCopy = () => {
     navigator.clipboard.writeText(props.principal);
+    setCopied(true);
   };
 
   const handleRenderQR = (ref: HTMLDivElement) => {
@@ -55,7 +59,20 @@ export function ReceivePopup(props: IReceivePopupProps) {
                   <Text16>
                     <Span600 class={DataItemContentText}>{props.principal}</Span600>
                   </Text16>
-                  <Icon kind={EIconKind.Copy} size={14} onClick={handleCopy} classList={{ [CopyIcon]: true }} />
+                  <Show
+                    when={copied()}
+                    fallback={
+                      <Icon kind={EIconKind.Copy} size={14} onClick={handleCopy} classList={{ [CopyIcon]: true }} />
+                    }
+                  >
+                    <Icon
+                      kind={EIconKind.Check}
+                      size={14}
+                      onClick={handleCopy}
+                      classList={{ [CopyIcon]: true }}
+                      color={COLOR_ACCENT}
+                    />
+                  </Show>
                 </DataItemContent>
               </DataItem>
               <DataItem>
@@ -133,6 +150,12 @@ const CloseIcon = css`
 
 const CopyIcon = css`
   flex-shrink: 0;
+
+  &:hover {
+    & path {
+      stroke: ${COLOR_ACCENT};
+    }
+  }
 `;
 
 const DoneBtn = css`
@@ -175,6 +198,7 @@ const DataItemContent = styled.div`
   align-items: flex-start;
   gap: 20px;
   align-self: stretch;
+  align-items: center;
 `;
 
 const DataItemContentText = css`

@@ -55,8 +55,6 @@ export function PaymentPage() {
     if (icrc1TransferRequest() && msq()) {
       const assetId = getAssetId()!;
 
-      if (assets[assetId] && assets[assetId]!.accounts.every((it) => it.balance !== undefined)) return;
-
       const result = await fetch([assetId]);
 
       // canister ID will be validated here

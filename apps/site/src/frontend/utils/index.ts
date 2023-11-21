@@ -49,23 +49,6 @@ export async function handleStatistics(agent: HttpAgent, client: InternalSnapCli
   await statisticsBackend.increment_stats(stats.prod);
 }
 
-export function eventHandler<E extends Event>(fn: (e: E) => void | Promise<void>) {
-  return (e: E) => {
-    if (!e.isTrusted) {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-
-      err(ErrorCode.SECURITY_VIOLATION, "No automation allowed!");
-    }
-
-    Promise.resolve(fn(e)).catch((e) => err(ErrorCode.UNKOWN, debugStringify(e)));
-  };
-}
-
-export function makeIcrc1Salt(assetId: string, accountId: TAccountId): Uint8Array {
-  return strToBytes(`\xacicrc1\n${assetId}\n${accountId}`);
-}
-
 export interface IChildren {
   children: JSXElement;
 }
@@ -91,8 +74,6 @@ export async function makeAgent(identity?: Identity | undefined, host?: string):
   } else {
     icHost = storedHost === null ? import.meta.env.VITE_MSQ_DFX_NETWORK_HOST : storedHost;
   }
-
-  console.log(icHost);
 
   const agent = new HttpAgent({ host: icHost, identity });
 
@@ -239,4 +220,23 @@ export function getRandomMemo(): Uint8Array {
 
 export function truncateStr(str: string, n: number) {
   return str.length > n ? str.slice(0, n - 1) + "..." : str;
+}
+
+// ---------- SECURITY RELATED STUFF ------------
+
+export function eventHandler<E extends Event>(fn: (e: E) => void | Promise<void>) {
+  return (e: E) => {
+    if (!e.isTrusted) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+
+      err(ErrorCode.SECURITY_VIOLATION, "No automation allowed!");
+    }
+
+    Promise.resolve(fn(e)).catch((e) => err(ErrorCode.UNKOWN, debugStringify(e)));
+  };
+}
+
+export function makeIcrc1Salt(assetId: string, accountId: TAccountId): Uint8Array {
+  return strToBytes(`\xacicrc1\n${assetId}\n${accountId}`);
 }

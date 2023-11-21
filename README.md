@@ -4,14 +4,10 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* fix two transfers from different accounts in a row
-* fix fees appear on blur
-* fix blinking on balance loading
-* make snap as futureproof as possible
-* isolate security logic
-* try importing with `https://`...
-* investigate other wallet-related ICRCs
 * spans as mixins
+* try importing with `https://`...
+* make snap as futureproof as possible
+* investigate other wallet-related ICRCs
 
 * payment with unknown token (add the token automatically)
 * payment by link

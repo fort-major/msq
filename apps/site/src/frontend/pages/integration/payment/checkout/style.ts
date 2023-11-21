@@ -48,6 +48,14 @@ export const CheckoutFormInputField = styled.div`
   border-bottom: 1px solid ${COLOR_GRAY_130};
 `;
 
+export const CopyIcon = css`
+  &:hover {
+    & path {
+      stroke: ${COLOR_ACCENT};
+    }
+  }
+`;
+
 export const CheckoutFees = styled.div`
   display: flex;
   flex-direction: column;
