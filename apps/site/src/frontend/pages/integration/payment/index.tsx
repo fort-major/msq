@@ -33,6 +33,7 @@ import { EIconKind } from "../../../ui-kit/icon";
 import { IReceivePopupProps, ReceivePopup } from "../../cabinet/my-assets/receive";
 import { IPaymentCheckoutPageProps } from "./checkout";
 import { useAssetData } from "../../../store/assets";
+import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function PaymentPage() {
   const msq = useMasqueradeClient();
@@ -219,6 +220,7 @@ export function PaymentPage() {
       <Show when={receivePopupProps()}>
         <ReceivePopup {...receivePopupProps()!} />
       </Show>
+      <ContactUsBtn />
     </PaymentPageContainer>
   );
 }

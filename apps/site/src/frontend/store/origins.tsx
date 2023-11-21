@@ -34,6 +34,17 @@ export function OriginDataStore(props: IChildren) {
   const [refreshPeriodically, setRefreshPeriodically] = createSignal(true);
   const _msq = useMasqueradeClient();
 
+  onMount(async () => {
+    while (refreshPeriodically()) {
+      await delay(ONE_SEC_MS * 7);
+
+      if (_msq()) {
+        const origins = Object.keys(allOriginData);
+        await fetch(origins);
+      }
+    }
+  });
+
   onCleanup(() => setRefreshPeriodically(false));
 
   const fetch = async (origins?: TOrigin[], ignoreDiminishing?: boolean) => {

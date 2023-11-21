@@ -85,6 +85,14 @@ export function AssetsStore(props: IChildren) {
     }
   });
 
+  onMount(async () => {
+    while (refreshPeriodically()) {
+      await delay(ONE_SEC_MS * 5);
+
+      if (_msq()) await refreshAccountNames();
+    }
+  });
+
   onCleanup(() => {
     setRefreshPeriodically(false);
   });
@@ -236,14 +244,18 @@ export function AssetsStore(props: IChildren) {
     const fetchedAllAssetData = await msq.getAllAssetData(assetIds);
 
     for (let [assetId, fethedAssetData] of Object.entries(fetchedAllAssetData)) {
-      const ad = allAssetData[assetId];
-      const fetchedAccounts = fethedAssetData!.accounts;
+      setAllAssetData(
+        produce((state) => {
+          const ad = state[assetId];
+          const fetchedAccounts = fethedAssetData!.accounts;
 
-      if (!ad) continue;
+          if (!ad) return;
 
-      for (let accountId = 0; accountId < fetchedAccounts.length; accountId++) {
-        ad.accounts[accountId].name = fetchedAccounts[accountId];
-      }
+          for (let accountId = 0; accountId < fetchedAccounts.length; accountId++) {
+            ad.accounts[accountId].name = fetchedAccounts[accountId];
+          }
+        }),
+      );
     }
   };
 

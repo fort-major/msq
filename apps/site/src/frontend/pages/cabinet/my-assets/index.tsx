@@ -47,6 +47,9 @@ import { Button, EButtonKind } from "../../../ui-kit/button";
 import { IReceivePopupProps, ReceivePopup } from "./receive";
 import { AddAccountBtn } from "../../../components/add-account-btn";
 import { useAssetData, useSendPageProps } from "../../../store/assets";
+import { CabinetContent, CabinetPage } from "../../../ui-kit";
+import { CabinetNav } from "../../../components/cabinet-nav";
+import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function MyAssetsPage() {
   const msq = useMasqueradeClient();
@@ -64,7 +67,7 @@ export function MyAssetsPage() {
 
   const navigate = useNavigate();
 
-  onMount(async () => {
+  createEffect(async () => {
     if (msq()) {
       await fetch();
       await refresh();
@@ -175,128 +178,133 @@ export function MyAssetsPage() {
   };
 
   return (
-    <>
-      <H2>My Assets</H2>
-      <MyAssetsPageContent>
-        <For
-          each={Object.keys(assets)}
-          fallback={
-            <H5>
-              <SpanGray115>No assets yet</SpanGray115>
-            </H5>
-          }
-        >
-          {(assetId) => (
-            <Spoiler
-              defaultOpen={
-                !!assets[assetId] &&
-                (assets[assetId]!.totalBalance > 0n || assets[assetId]!.accounts[0].name === "Creating...")
-              }
-              header={
-                <AssetSpoilerHeader>
-                  <Show
-                    when={assets[assetId]?.metadata}
-                    fallback={
+    <CabinetPage>
+      <CabinetNav />
+      <CabinetContent>
+        <H2>My Assets</H2>
+        <MyAssetsPageContent>
+          <For
+            each={Object.keys(assets)}
+            fallback={
+              <H5>
+                <SpanGray115>No assets yet</SpanGray115>
+              </H5>
+            }
+          >
+            {(assetId) => (
+              <Spoiler
+                defaultOpen={
+                  !!assets[assetId] &&
+                  (assets[assetId]!.totalBalance > 0n || assets[assetId]!.accounts[0].name === "Creating...")
+                }
+                header={
+                  <AssetSpoilerHeader>
+                    <Show
+                      when={assets[assetId]?.metadata}
+                      fallback={
+                        <Text20>
+                          <Span600>{assetId}</Span600>
+                        </Text20>
+                      }
+                    >
                       <Text20>
-                        <Span600>{assetId}</Span600>
+                        <Span600>{assets[assetId]!.metadata!.name}</Span600>
                       </Text20>
-                    }
-                  >
-                    <Text20>
-                      <Span600>{assets[assetId]!.metadata!.name}</Span600>
-                    </Text20>
-                  </Show>
-                  <Show
-                    when={assets[assetId]?.metadata}
-                    fallback={
+                    </Show>
+                    <Show
+                      when={assets[assetId]?.metadata}
+                      fallback={
+                        <Text20>
+                          <Span600>
+                            0 <SpanGray130>TOK</SpanGray130>
+                          </Span600>
+                        </Text20>
+                      }
+                    >
                       <Text20>
                         <Span600>
-                          0 <SpanGray130>TOK</SpanGray130>
+                          {tokensToStr(
+                            assets[assetId]!.totalBalance,
+                            assets[assetId]!.metadata!.decimals,
+                            undefined,
+                            true,
+                          )}{" "}
+                          <SpanGray130>{assets[assetId]!.metadata!.symbol}</SpanGray130>
                         </Span600>
                       </Text20>
-                    }
-                  >
-                    <Text20>
-                      <Span600>
-                        {tokensToStr(
-                          assets[assetId]!.totalBalance,
-                          assets[assetId]!.metadata!.decimals,
-                          undefined,
-                          true,
-                        )}{" "}
-                        <SpanGray130>{assets[assetId]!.metadata!.symbol}</SpanGray130>
-                      </Span600>
-                    </Text20>
-                  </Show>
-                </AssetSpoilerHeader>
-              }
-            >
-              <Show when={assets[assetId]?.metadata}>
-                <AssetSpoilerContent>
-                  <AssetAccountsWrapper>
-                    <For each={assets[assetId]!.accounts}>
-                      {(account, idx) => (
-                        <AccountCard
-                          accountId={idx()}
-                          assetId={assetId}
-                          name={account.name}
-                          principal={account.principal}
-                          balance={account.balance}
-                          symbol={assets[assetId]!.metadata!.symbol}
-                          decimals={assets[assetId]!.metadata!.decimals}
-                          onSend={handleSend}
-                          onReceive={handleReceive}
-                          onEdit={(newName) => handleEdit(assetId, idx(), newName)}
-                        />
-                      )}
-                    </For>
-                  </AssetAccountsWrapper>
-                  <AddAccountBtn
-                    disabled={addingAccount()}
-                    loading={addingAccount()}
-                    onClick={() =>
-                      handleAddAccount(assetId, assets[assetId]!.metadata!.name, assets[assetId]!.metadata!.symbol)
-                    }
-                    symbol={assets[assetId]!.metadata!.symbol}
-                  />
-                </AssetSpoilerContent>
+                    </Show>
+                  </AssetSpoilerHeader>
+                }
+              >
+                <Show when={assets[assetId]?.metadata}>
+                  <AssetSpoilerContent>
+                    <AssetAccountsWrapper>
+                      <For each={assets[assetId]!.accounts}>
+                        {(account, idx) => (
+                          <AccountCard
+                            accountId={idx()}
+                            assetId={assetId}
+                            name={account.name}
+                            principal={account.principal}
+                            balance={account.balance}
+                            symbol={assets[assetId]!.metadata!.symbol}
+                            decimals={assets[assetId]!.metadata!.decimals}
+                            onSend={handleSend}
+                            onReceive={handleReceive}
+                            onEdit={(newName) => handleEdit(assetId, idx(), newName)}
+                          />
+                        )}
+                      </For>
+                    </AssetAccountsWrapper>
+                    <AddAccountBtn
+                      disabled={addingAccount()}
+                      loading={addingAccount()}
+                      onClick={() =>
+                        handleAddAccount(assetId, assets[assetId]!.metadata!.name, assets[assetId]!.metadata!.symbol)
+                      }
+                      symbol={assets[assetId]!.metadata!.symbol}
+                    />
+                  </AssetSpoilerContent>
+                </Show>
+              </Spoiler>
+            )}
+          </For>
+          <AddAssetWrapper>
+            <H4>Add custom ICRC-1 asset</H4>
+            <AddAssetFormWrapper>
+              <AddAssetForm>
+                <AddAssetInput
+                  classList={{ error: error() !== null }}
+                  disabled={loading()}
+                  placeholder="Type token’s canister ID here..."
+                  value={newAssetId()}
+                  onInput={handleNewAssetIdInput}
+                />
+                <Button
+                  disabled={loading() || newAssetId() === "" || error() !== null || newAssetMetadata() === null}
+                  kind={EButtonKind.Primary}
+                  onClick={handleAddAsset}
+                  text={`Add ${
+                    newAssetMetadata() ? `${newAssetMetadata()!.name} (${newAssetMetadata()!.symbol})` : "token"
+                  }`}
+                />
+              </AddAssetForm>
+              <Show when={error()}>
+                <Text12 class={ErrorText}>
+                  <SpanError>
+                    <Span500>{error()}</Span500>
+                  </SpanError>
+                </Text12>
               </Show>
-            </Spoiler>
-          )}
-        </For>
-        <AddAssetWrapper>
-          <H4>Add custom ICRC-1 asset</H4>
-          <AddAssetFormWrapper>
-            <AddAssetForm>
-              <AddAssetInput
-                classList={{ error: error() !== null }}
-                disabled={loading()}
-                placeholder="Type token’s canister ID here..."
-                value={newAssetId()}
-                onInput={handleNewAssetIdInput}
-              />
-              <Button
-                disabled={loading() || newAssetId() === "" || error() !== null || newAssetMetadata() === null}
-                kind={EButtonKind.Primary}
-                onClick={handleAddAsset}
-                text={`Add ${
-                  newAssetMetadata() ? `${newAssetMetadata()!.name} (${newAssetMetadata()!.symbol})` : "token"
-                }`}
-              />
-            </AddAssetForm>
-            <Show when={error()}>
-              <Text12 class={ErrorText}>
-                <SpanError>
-                  <Span500>{error()}</Span500>
-                </SpanError>
-              </Text12>
-            </Show>
-          </AddAssetFormWrapper>
-        </AddAssetWrapper>
-      </MyAssetsPageContent>
-      <Show when={receivePopupProps()}>
-        <ReceivePopup {...receivePopupProps()!} />
-      </Show>
-    </>
+            </AddAssetFormWrapper>
+          </AddAssetWrapper>
+        </MyAssetsPageContent>
+        <Show when={receivePopupProps()}>
+          <ReceivePopup {...receivePopupProps()!} />
+        </Show>
+      </CabinetContent>
+
+      <ContactUsBtn />
+    </CabinetPage>
   );
 }

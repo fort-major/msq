@@ -61,16 +61,6 @@ export const CabinetContent = styled.section`
   max-width: 880px;
 `;
 
-export const CabinetHeading = styled.h2`
-  color: #fff;
-
-  font-family: DM Sans;
-  font-size: 80px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 90%; /* 72px */
-`;
-
 export const BlinkKeyframes = keyframes`
   0% {
     background-color: ${COLOR_GRAY_130};

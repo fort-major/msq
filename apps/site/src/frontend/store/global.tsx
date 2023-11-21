@@ -45,24 +45,24 @@ export function useLoader(): Accessor<boolean> {
 export function GlobalStore(props: IChildren) {
   const showLoader = createSignal(true);
 
-  const [snapClient] = createResource(() =>
-    InternalSnapClient.create({
+  const [snapClient] = createResource(async () => {
+    const client = await InternalSnapClient.create({
       snapId: import.meta.env.VITE_MSQ_SNAP_ID,
       snapVersion: import.meta.env.VITE_MSQ_SNAP_VERSION,
       debug: import.meta.env.VITE_MSQ_MODE === "DEV",
       forceReinstall: import.meta.env.VITE_MSQ_MODE === "DEV",
-    }),
-  );
+    });
 
-  const [identity] = createResource(snapClient, async (client) => {
     const isAuthorized = await client.getInner().isAuthorized();
-
     if (!isAuthorized) await client.login(window.location.origin, 0, import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
 
     makeAnonymousAgent(import.meta.env.VITE_MSQ_DFX_NETWORK_HOST).then((agent) => handleStatistics(agent, client));
-
     showLoader[1](false);
 
+    return client;
+  });
+
+  const [identity] = createResource(snapClient, (client) => {
     return MasqueradeIdentity.create(client.getInner());
   });
 

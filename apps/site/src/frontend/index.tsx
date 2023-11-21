@@ -15,7 +15,6 @@ import { MySessionsPage } from "./pages/cabinet/my-sessions";
 import { MyLinksPage } from "./pages/cabinet/my-links";
 import { MyAssetsPage } from "./pages/cabinet/my-assets";
 import { Loader } from "./components/loader";
-import CabinetRoot from "./pages/cabinet";
 import IntegrationRoot from "./pages/integration";
 import { StatisticsPage } from "./pages/statistics";
 import { NotificationBar } from "./components/notification-bar";
@@ -50,10 +49,10 @@ export function App() {
       <GlobalStore>
         <AssetsStore>
           <OriginDataStore>
-            <NotificationBar />
-            <Header />
             <Page>
               <Router>
+                <NotificationBar />
+                <Header />
                 <Routes>
                   <Route path="/" component={IndexPage} />
                   <Route path="/integration" component={IntegrationRoot}>
@@ -63,7 +62,7 @@ export function App() {
                       <Route path="/checkout" component={PaymentCheckoutPage} />
                     </Route>
                   </Route>
-                  <Route path="/cabinet" component={CabinetRoot}>
+                  <Route path="/cabinet">
                     <Route path="/my-masks" component={MyMasksPage} />
                     <Route path="/my-sessions" component={MySessionsPage} />
                     <Route path="/my-links" component={MyLinksPage} />

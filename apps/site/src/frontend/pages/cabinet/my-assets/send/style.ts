@@ -1,4 +1,4 @@
-import { styled } from "solid-styled-components";
+import { css, styled } from "solid-styled-components";
 import {
   BAR_HEIGHT,
   COLOR_BLACK,
@@ -8,18 +8,14 @@ import {
   HEADER_HEIGHT,
 } from "../../../../ui-kit";
 
+export const SendPageMixin = css`
+  display: flex !important;
+  flex-flow: column nowrap;
+  flex: 1;
+`;
+
 export const SendPopupBg = styled.div<{ center: boolean }>`
-  position: fixed;
-  overflow: auto;
-  z-index: 2;
-
-  box-sizing: border-box;
-
-  top: ${(HEADER_HEIGHT + BAR_HEIGHT).toString()}px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-
+  flex: 1;
   padding: 80px 40px;
 
   display: flex;

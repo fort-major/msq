@@ -4,10 +4,6 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* isolate tokens logic into the site
-* refactor payment flows to make them reusable
-
-* contact us btn to payment flow
 * all console errors
 * better payment recovery
 * trim-validate all inputs
@@ -19,7 +15,6 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * fix blinking on balance loading
 * make snap as futureproof as possible
 * isolate security logic
-* header with btn to integration pages
 * try importing with `https://`...
 * investigate other wallet-related ICRCs
 

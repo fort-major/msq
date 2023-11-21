@@ -25,6 +25,7 @@ import {
   FeeLineAmountSymbol,
   FeeLineReason,
   FeeLinesWrapper,
+  SendPageMixin,
   SendPopupBg,
   SendPopupBody,
   SendPopupHeading,
@@ -51,6 +52,8 @@ import {
   CheckoutResultSection,
 } from "../../../integration/payment/checkout/style";
 import { useSendPageProps } from "../../../../store/assets";
+import { CabinetPage } from "../../../../ui-kit";
+import { ContactUsBtn } from "../../../../components/contact-us-btn";
 
 export interface ISendPageProps {
   accountId: number;
@@ -151,171 +154,177 @@ export function SendPage() {
   };
 
   return (
-    <Show when={props()}>
-      <SendPopupBg center={txnResult() !== null}>
-        <SendPopupWrapper>
-          <Switch>
-            <Match when={txnResult() === null}>
-              <SendPopupHeading>Send {props()!.symbol}</SendPopupHeading>
-              <SendPopupBody>
-                <AccountCard
-                  fullWidth
-                  accountId={props()!.accountId}
-                  assetId={props()!.assetId}
-                  name={props()!.name}
-                  principal={props()!.principal}
-                  balance={props()!.balance}
-                  decimals={props()!.decimals}
-                  symbol={props()!.symbol}
-                />
-                <Input
-                  label="Principal ID"
-                  placeholder={DEFAULT_PRINCIPAL}
-                  required
-                  disabled={sending()}
-                  onErr={(e) => setCorrectArr(0, !e)}
-                  KindPrincipal={{ onChange: setRecipientPrincipal }}
-                />
-                <Input
-                  label="Subaccount"
-                  placeholder={DEFAULT_SUBACCOUNT}
-                  disabled={sending()}
-                  onErr={(e) => setCorrectArr(1, !e)}
-                  KindString={{ onChange: setRecipientSubaccount, validate: validateHex }}
-                />
-                <Input
-                  label="Memo"
-                  placeholder="Enter your memo"
-                  disabled={sending()}
-                  onErr={(e) => setCorrectArr(2, !e)}
-                  KindString={{ onChange: setMemo, validate: validateHex }}
-                />
-                <FeeLinesWrapper>
+    <CabinetPage class={SendPageMixin}>
+      <Show when={props()}>
+        <SendPopupBg center={txnResult() !== null}>
+          <SendPopupWrapper>
+            <Switch>
+              <Match when={txnResult() === null}>
+                <SendPopupHeading>Send {props()!.symbol}</SendPopupHeading>
+                <SendPopupBody>
+                  <AccountCard
+                    fullWidth
+                    accountId={props()!.accountId}
+                    assetId={props()!.assetId}
+                    name={props()!.name}
+                    principal={props()!.principal}
+                    balance={props()!.balance}
+                    decimals={props()!.decimals}
+                    symbol={props()!.symbol}
+                  />
                   <Input
-                    label="Send Amount"
-                    placeholder="1,234.5678"
+                    label="Principal ID"
+                    placeholder={DEFAULT_PRINCIPAL}
                     required
                     disabled={sending()}
-                    onErr={(e) => setCorrectArr(3, !e)}
-                    KindTokens={{
-                      onChange: setAmount,
-                      decimals: props()!.decimals,
-                      symbol: props()!.symbol,
-                      validate: (val) =>
-                        val + props()!.fee > props()!.balance
-                          ? `Insufficient balance (max ${tokensToStr(
-                              props()!.balance - props()!.fee,
-                              props()!.decimals,
-                            )})`
-                          : null,
-                    }}
+                    onErr={(e) => setCorrectArr(0, !e)}
+                    KindPrincipal={{ onChange: setRecipientPrincipal }}
                   />
-                  <Show when={amount() !== BigInt(0)}>
-                    <FeeLine>
-                      <FeeLineAmount>
-                        <FeeLineAmountQty>+{tokensToStr(props()!.fee, props()!.decimals, undefined, true)}</FeeLineAmountQty>
-                        <FeeLineAmountSymbol>{props()!.symbol}</FeeLineAmountSymbol>
-                      </FeeLineAmount>
-                      <FeeLineReason>System Fee</FeeLineReason>
-                    </FeeLine>
-                  </Show>
-                </FeeLinesWrapper>
-                <ButtonsWrapper>
-                  <Button
+                  <Input
+                    label="Subaccount"
+                    placeholder={DEFAULT_SUBACCOUNT}
                     disabled={sending()}
-                    onClick={() => props()!.onCancel(false)}
-                    fullWidth
-                    kind={EButtonKind.Additional}
-                    text="Cancel"
+                    onErr={(e) => setCorrectArr(1, !e)}
+                    KindString={{ onChange: setRecipientSubaccount, validate: validateHex }}
                   />
-                  <Show when={isCorrect()}>
+                  <Input
+                    label="Memo"
+                    placeholder="Enter your memo"
+                    disabled={sending()}
+                    onErr={(e) => setCorrectArr(2, !e)}
+                    KindString={{ onChange: setMemo, validate: validateHex }}
+                  />
+                  <FeeLinesWrapper>
+                    <Input
+                      label="Send Amount"
+                      placeholder="1,234.5678"
+                      required
+                      disabled={sending()}
+                      onErr={(e) => setCorrectArr(3, !e)}
+                      triggerChangeOnInput
+                      KindTokens={{
+                        onChange: setAmount,
+                        decimals: props()!.decimals,
+                        symbol: props()!.symbol,
+                        validate: (val) =>
+                          val + props()!.fee > props()!.balance
+                            ? `Insufficient balance (max ${tokensToStr(
+                                props()!.balance - props()!.fee,
+                                props()!.decimals,
+                              )})`
+                            : null,
+                      }}
+                    />
+                    <Show when={amount() !== BigInt(0)}>
+                      <FeeLine>
+                        <FeeLineAmount>
+                          <FeeLineAmountQty>
+                            +{tokensToStr(props()!.fee, props()!.decimals, undefined, true)}
+                          </FeeLineAmountQty>
+                          <FeeLineAmountSymbol>{props()!.symbol}</FeeLineAmountSymbol>
+                        </FeeLineAmount>
+                        <FeeLineReason>System Fee</FeeLineReason>
+                      </FeeLine>
+                    </Show>
+                  </FeeLinesWrapper>
+                  <ButtonsWrapper>
                     <Button
                       disabled={sending()}
-                      onClick={handleSend}
+                      onClick={() => props()!.onCancel(false)}
                       fullWidth
-                      kind={EButtonKind.Primary}
-                      text="Continue"
-                      icon={sending() ? EIconKind.Loader : EIconKind.ArrowRightUp}
+                      kind={EButtonKind.Additional}
+                      text="Cancel"
                     />
-                  </Show>
-                </ButtonsWrapper>
-              </SendPopupBody>
-            </Match>
+                    <Show when={isCorrect()}>
+                      <Button
+                        disabled={sending()}
+                        onClick={handleSend}
+                        fullWidth
+                        kind={EButtonKind.Primary}
+                        text="Continue"
+                        icon={sending() ? EIconKind.Loader : EIconKind.ArrowRightUp}
+                      />
+                    </Show>
+                  </ButtonsWrapper>
+                </SendPopupBody>
+              </Match>
 
-            <Match when={txnResult()!.success}>
-              <CheckoutResultContent>
-                <CheckoutResultSection>
-                  <H3>Success</H3>
-                  <Text24>
-                    <Span600>
-                      Transaction #{txnResult()!.blockIdx!.toString()} has been <SpanAccent>sucessfully</SpanAccent>{" "}
-                      executed
-                    </Span600>
-                  </Text24>
-                </CheckoutResultSection>
-                <CheckoutResultSection>
-                  <Text24>
-                    <Span600>
+              <Match when={txnResult()!.success}>
+                <CheckoutResultContent>
+                  <CheckoutResultSection>
+                    <H3>Success</H3>
+                    <Text24>
+                      <Span600>
+                        Transaction #{txnResult()!.blockIdx!.toString()} has been <SpanAccent>sucessfully</SpanAccent>{" "}
+                        executed
+                      </Span600>
+                    </Text24>
+                  </CheckoutResultSection>
+                  <CheckoutResultSection>
+                    <Text24>
+                      <Span600>
+                        <SpanGray165>
+                          {txnResult()!.totalAmount} {props()!.symbol} were deducted from your balance
+                        </SpanGray165>
+                      </Span600>
+                    </Text24>
+                  </CheckoutResultSection>
+                  <CheckoutResultSection>
+                    <Button
+                      classList={{ [CheckoutResultBtn]: true }}
+                      kind={EButtonKind.Primary}
+                      text="Go Back"
+                      onClick={() => props()!.onCancel(true)}
+                    />
+                  </CheckoutResultSection>
+                </CheckoutResultContent>
+              </Match>
+              <Match when={!txnResult()!.success}>
+                <CheckoutResultContent>
+                  <CheckoutResultSection>
+                    <H3>Fail</H3>
+                    <Text24>
+                      <Span600>
+                        The transaction has <SpanError>failed</SpanError> to execute due to the following error:
+                      </Span600>
+                    </Text24>
+                    <Text14>
+                      <Span400>
+                        <SpanGray140>{txnResult()!.error}</SpanGray140>
+                      </Span400>
+                    </Text14>
+                  </CheckoutResultSection>
+                  <CheckoutResultSection>
+                    <Text24>
+                      <Span600>
+                        <SpanGray165>No funds were deducted from your balance</SpanGray165>
+                      </Span600>
+                    </Text24>
+                    <Text20>
                       <SpanGray165>
-                        {txnResult()!.totalAmount} {props()!.symbol} were deducted from your balance
+                        Please, consider{" "}
+                        <SpanLink href={DISCORD_LINK} target="_blank">
+                          reporting
+                        </SpanLink>{" "}
+                        the error above
                       </SpanGray165>
-                    </Span600>
-                  </Text24>
-                </CheckoutResultSection>
-                <CheckoutResultSection>
-                  <Button
-                    classList={{ [CheckoutResultBtn]: true }}
-                    kind={EButtonKind.Primary}
-                    text="Go Back"
-                    onClick={() => props()!.onCancel(true)}
-                  />
-                </CheckoutResultSection>
-              </CheckoutResultContent>
-            </Match>
-            <Match when={!txnResult()!.success}>
-              <CheckoutResultContent>
-                <CheckoutResultSection>
-                  <H3>Fail</H3>
-                  <Text24>
-                    <Span600>
-                      The transaction has <SpanError>failed</SpanError> to execute due to the following error:
-                    </Span600>
-                  </Text24>
-                  <Text14>
-                    <Span400>
-                      <SpanGray140>{txnResult()!.error}</SpanGray140>
-                    </Span400>
-                  </Text14>
-                </CheckoutResultSection>
-                <CheckoutResultSection>
-                  <Text24>
-                    <Span600>
-                      <SpanGray165>No funds were deducted from your balance</SpanGray165>
-                    </Span600>
-                  </Text24>
-                  <Text20>
-                    <SpanGray165>
-                      Please, consider{" "}
-                      <SpanLink href={DISCORD_LINK} target="_blank">
-                        reporting
-                      </SpanLink>{" "}
-                      the error above
-                    </SpanGray165>
-                  </Text20>
-                </CheckoutResultSection>
-                <CheckoutResultSection>
-                  <Button
-                    kind={EButtonKind.Additional}
-                    classList={{ [CheckoutResultBtn]: true }}
-                    text="Go Back"
-                    onClick={() => props()!.onCancel(false)}
-                  />
-                </CheckoutResultSection>
-              </CheckoutResultContent>
-            </Match>
-          </Switch>
-        </SendPopupWrapper>
-      </SendPopupBg>
-    </Show>
+                    </Text20>
+                  </CheckoutResultSection>
+                  <CheckoutResultSection>
+                    <Button
+                      kind={EButtonKind.Additional}
+                      classList={{ [CheckoutResultBtn]: true }}
+                      text="Go Back"
+                      onClick={() => props()!.onCancel(false)}
+                    />
+                  </CheckoutResultSection>
+                </CheckoutResultContent>
+              </Match>
+            </Switch>
+          </SendPopupWrapper>
+        </SendPopupBg>
+        <ContactUsBtn />
+      </Show>
+    </CabinetPage>
   );
 }

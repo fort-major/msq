@@ -3,6 +3,14 @@ export interface IMetaMaskEthereumProvider {
   request: <R>(req: { method: string; params?: unknown }) => Promise<R>;
 }
 
+export interface ISnapRequest {
+  snapId: string;
+  request: {
+    method: string;
+    params: { body: string };
+  };
+}
+
 export type IGetSnapsResponse = Record<
   string,
   | {

@@ -1,5 +1,5 @@
 import detectEthereumProvider from "@metamask/detect-provider";
-import { IGetSnapsResponse, type IMetaMaskEthereumProvider } from "./types";
+import { IGetSnapsResponse, ISnapRequest, type IMetaMaskEthereumProvider } from "./types";
 import {
   ErrorCode,
   type IIdentityLinkRequest,
@@ -43,6 +43,7 @@ export interface IMasqueradeClientParams {
  */
 export class MasqueradeClient {
   private childWindow: Window | null = null;
+  private queueLocked: boolean = false;
 
   /**
    * ## Returns true if the user is logged in current website
@@ -314,18 +315,41 @@ export class MasqueradeClient {
   }
 
   async _requestSnap<T, R>(method: string, body?: T): Promise<R> {
-    const params = {
+    const req: ISnapRequest = {
       snapId: this.snapId,
       request: { method, params: { body: toCBOR(body) } },
     };
 
+    return await this.process(req);
+  }
+
+  // serializes the queue, so all the requests are processed one-by-one
+  private async process<R>(req: ISnapRequest): Promise<R> {
+    const d = Math.floor(Math.random() * 13);
+
+    while (this.queueLocked) {
+      await delay(d);
+    }
+
+    this.queueLocked = true;
+
     if (this.debug) {
-      console.log(`Sending ${debugStringify(params)} to the wallet...`);
+      const r = {
+        snapId: req.snapId,
+        request: {
+          method: req.request.method,
+          params: {
+            body: fromCBOR(req.request.params.body),
+          },
+        },
+      };
+
+      console.log(`Sending ${debugStringify(r)} to the wallet...`);
     }
 
     const response = await this.provider.request<string>({
       method: "wallet_invokeSnap",
-      params,
+      params: req,
     });
 
     const decodedResponse: R = fromCBOR(response);
@@ -333,6 +357,8 @@ export class MasqueradeClient {
     if (this.debug) {
       console.log(`Received ${debugStringify(decodedResponse)} from the wallet`);
     }
+
+    this.queueLocked = false;
 
     return decodedResponse;
   }
