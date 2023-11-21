@@ -38,17 +38,21 @@ export function MyLinksPage() {
 
   const handleUnlinkOne = async (origin: TOrigin, withOrigin: TOrigin) => {
     setLoading(true);
+    document.body.style.cursor = "wait";
 
     await unlinkOne!(origin, withOrigin);
 
+    document.body.style.cursor = "unset";
     setLoading(false);
   };
 
   const handleUnlinkAll = async (origin: TOrigin) => {
     setLoading(true);
+    document.body.style.cursor = "wait";
 
     await unlinkAll!(origin);
 
+    document.body.style.cursor = "unset";
     setLoading(false);
   };
 

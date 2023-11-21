@@ -4,8 +4,6 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* new status pages for trasnfers
-* loading cursor
 * fix two transfers from different accounts in a row
 * fix fees appear on blur
 * fix blinking on balance loading

@@ -43,6 +43,7 @@ export function LoginPage() {
 
   const onAddNewMask = async () => {
     setLoading(true);
+    document.body.style.cursor = "wait";
 
     const msq = _msq()!;
 
@@ -51,6 +52,7 @@ export function LoginPage() {
     const loginOptions = await msq.getLoginOptions(referrerOrigin!);
     setLoginOptions(loginOptions);
 
+    document.body.style.cursor = "unset";
     setLoading(false);
   };
 

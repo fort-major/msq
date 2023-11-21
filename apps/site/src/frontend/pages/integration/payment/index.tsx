@@ -54,12 +54,14 @@ export function PaymentPage() {
   createEffect(async () => {
     if (icrc1TransferRequest() && msq()) {
       const assetId = getAssetId()!;
+
+      if (assets[assetId] && assets[assetId]!.accounts.every((it) => it.balance !== undefined)) return;
+
       const result = await fetch([assetId]);
 
       // canister ID will be validated here
-      if (!result) {
+      if (!result || !result[0]) {
         await addAsset!(assetId);
-        return;
       }
 
       // validate other inputs
@@ -74,9 +76,11 @@ export function PaymentPage() {
 
   const handleAddAccount = async (assetId: string, assetName: string, symbol: string) => {
     setLoading(true);
+    document.body.style.cursor = "wait";
 
     await addAccount!(assetId, assetName, symbol);
 
+    document.body.style.cursor = "unset";
     setLoading(false);
   };
 
@@ -132,8 +136,8 @@ export function PaymentPage() {
   };
 
   const handleCheckoutCancel = () => {
-    setCheckoutPageProps(undefined);
     navigate("/integration/pay");
+    setCheckoutPageProps(undefined);
   };
 
   return (

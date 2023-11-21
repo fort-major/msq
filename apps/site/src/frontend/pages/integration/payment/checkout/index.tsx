@@ -109,6 +109,7 @@ export function PaymentCheckoutPage() {
 
   const handlePay = async () => {
     setLoading(true);
+    document.body.style.cursor = "wait";
 
     const totalAmount = calcTotalAmount();
     const totalAmountStr = tokensToStr(totalAmount, props()!.decimals, undefined, true);
@@ -126,6 +127,7 @@ export function PaymentCheckoutPage() {
     });
 
     if (!agreed) {
+      document.body.style.cursor = "unset";
       setLoading(false);
       return;
     }
@@ -178,6 +180,7 @@ export function PaymentCheckoutPage() {
 
       setTxnResult({ success: false, error: err });
     } finally {
+      document.body.style.cursor = "unset";
       setLoading(false);
     }
   };

@@ -23,17 +23,21 @@ export function MyMasksPage() {
 
   const handleEditPseudonym = async (origin: TOrigin, identityId: TIdentityId, newPseudonym: string) => {
     setLoading(true);
+    document.body.style.cursor = "wait";
 
     await editPseudonym!(origin, identityId, newPseudonym);
 
+    document.body.style.cursor = "unset";
     setLoading(false);
   };
 
   const handleAddNewMask = async (origin: TOrigin) => {
     setLoading(true);
+    document.body.style.cursor = "wait";
 
     await addNewMask!(origin);
 
+    document.body.style.cursor = "unset";
     setLoading(false);
   };
 

@@ -59,9 +59,11 @@ export function MySessionsPage() {
 
   const handleStopSession = async (origin: TOrigin) => {
     setLoading(true);
+    document.body.style.cursor = "wait";
 
     await stopSession!(origin);
 
+    document.body.style.cursor = "unset";
     setLoading(false);
   };
 

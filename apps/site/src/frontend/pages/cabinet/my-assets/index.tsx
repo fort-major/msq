@@ -97,16 +97,20 @@ export function MyAssetsPage() {
 
   const handleEdit = async (assetId: string, accountId: TAccountId, newName: string) => {
     setLoading(true);
+    document.body.style.cursor = "wait";
     await editAccount!(assetId, accountId, newName);
+    document.body.style.cursor = "unset";
     setLoading(false);
   };
 
   const handleAddAccount = async (assetId: string, assetName: string, symbol: string) => {
     setLoading(true);
     setAddingAccount(true);
+    document.body.style.cursor = "wait";
 
     await addAccount!(assetId, assetName, symbol);
 
+    document.body.style.cursor = "unset";
     setLoading(false);
     setAddingAccount(false);
   };
@@ -115,6 +119,7 @@ export function MyAssetsPage() {
     const assetId = newAssetId();
 
     setLoading(true);
+    document.body.style.cursor = "wait";
 
     try {
       addAsset!(assetId);
@@ -122,6 +127,7 @@ export function MyAssetsPage() {
       console.error(e);
       setError(`Token ${assetId} is not a valid ICRC-1 token or unresponsive`);
     } finally {
+      document.body.style.cursor = "unset";
       setLoading(false);
     }
   };
@@ -155,9 +161,11 @@ export function MyAssetsPage() {
 
     if (result) {
       setLoading(true);
+      document.body.style.cursor = "wait";
 
       await refresh!([assetId]);
 
+      document.body.style.cursor = "unset";
       setLoading(false);
     }
   };

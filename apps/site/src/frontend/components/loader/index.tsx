@@ -1,6 +1,7 @@
 import { keyframes, styled } from "solid-styled-components";
 import GroundPatternSvg from "#assets/loader-ground.svg";
 import { COLOR_BLACK } from "../../ui-kit";
+import { onCleanup, onMount } from "solid-js";
 
 const BOOP_SIZE = 70;
 const SPEED_PX_S = 150;
@@ -223,6 +224,14 @@ function LoaderBoop() {
 }
 
 export function Loader() {
+  onMount(() => {
+    document.body.style.cursor = "wait";
+  });
+
+  onCleanup(() => {
+    document.body.style.cursor = "unset";
+  });
+
   return (
     <LoaderWrapper>
       <LoaderText>Loading...</LoaderText>

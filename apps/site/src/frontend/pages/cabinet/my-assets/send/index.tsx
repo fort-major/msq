@@ -103,6 +103,7 @@ export function SendPage() {
 
   const handleSend = async () => {
     setSending(true);
+    document.body.style.cursor = "wait";
 
     const subaccount = recipientSubaccount() ? hexToBytes(recipientSubaccount()!) : undefined;
 
@@ -119,6 +120,7 @@ export function SendPage() {
     });
 
     if (!agreed) {
+      document.body.style.cursor = "unset";
       setSending(false);
       return;
     }
@@ -151,6 +153,7 @@ export function SendPage() {
 
       setTxnResult({ success: false, error: err });
     } finally {
+      document.body.style.cursor = "unset";
       setSending(false);
     }
   };
