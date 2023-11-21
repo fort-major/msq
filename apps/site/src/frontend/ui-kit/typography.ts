@@ -1,11 +1,13 @@
-import { styled } from "solid-styled-components";
+import { css, styled } from "solid-styled-components";
 import {
   COLOR_BLUE,
   COLOR_CHARTREUSE,
   COLOR_ERROR_RED,
   COLOR_GRAY_115,
+  COLOR_GRAY_120,
   COLOR_GRAY_130,
   COLOR_GRAY_140,
+  COLOR_GRAY_150,
   COLOR_GRAY_165,
   COLOR_WHITE,
 } from ".";
@@ -143,12 +145,20 @@ export const SpanGray140 = styled.span`
   color: ${COLOR_GRAY_140};
 `;
 
+export const SpanGray150 = styled.span`
+  color: ${COLOR_GRAY_150};
+`;
+
 export const SpanGray165 = styled.span`
   color: ${COLOR_GRAY_165};
 `;
 
 export const SpanGray115 = styled.span`
   color: ${COLOR_GRAY_115};
+`;
+
+export const SpanGray120 = styled.span`
+  color: ${COLOR_GRAY_120};
 `;
 
 export const Span600 = styled.span`
@@ -167,4 +177,8 @@ export const SpanLink = styled.a`
   color: ${COLOR_BLUE};
   text-decoration: underline;
   cursor: pointer;
+`;
+
+export const StrikedText = css`
+  text-decoration: line-through;
 `;

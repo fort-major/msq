@@ -55,6 +55,8 @@ import { useMasqueradeClient } from "../../../../store/global";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { ITxnResult } from "../../../cabinet/my-assets/send";
+import { TxnFailPage } from "../../../txn/fail";
+import { TxnSuccessPage } from "../../../txn/success";
 
 export interface IPaymentCheckoutPageProps {
   accountId: TAccountId;
@@ -85,9 +87,7 @@ export function PaymentCheckoutPage() {
   const navigate = useNavigate();
   const [txnResult, setTxnResult] = createSignal<ITxnResult | null>(null);
 
-  createEffect(() => {
-    if (!props()) navigate("/integration/pay");
-  });
+  if (!props()) navigate("/");
 
   const handleCopyRecipientPrincipal = () => {
     navigator.clipboard.writeText(props()!.recepientPrincipal);
@@ -337,75 +337,21 @@ export function PaymentCheckoutPage() {
           </CheckoutPageContent>
         </Match>
         <Match when={txnResult()!.success}>
-          <CheckoutResultContent>
-            <CheckoutResultSection>
-              <H3>Success</H3>
-              <Text24>
-                <Span600>
-                  Transaction #{txnResult()!.blockIdx!.toString()} has been <SpanAccent>sucessfully</SpanAccent>{" "}
-                  executed
-                </Span600>
-              </Text24>
-            </CheckoutResultSection>
-            <CheckoutResultSection>
-              <Text24>
-                <Span600>
-                  <SpanGray165>
-                    {txnResult()!.totalAmount} {props()!.symbol} were deducted from your balance
-                  </SpanGray165>
-                </Span600>
-              </Text24>
-            </CheckoutResultSection>
-            <CheckoutResultSection>
-              <Button
-                classList={{ [CheckoutResultBtn]: true }}
-                kind={EButtonKind.Primary}
-                text="Close"
-                onClick={handleClose}
-              />
-            </CheckoutResultSection>
-          </CheckoutResultContent>
+          <TxnSuccessPage
+            assetId={props()!.assetId}
+            accountId={props()!.accountId}
+            accountName={props()!.accountName}
+            accountPrincipal={props()!.accountPrincipal!}
+            accountBalance={props()!.accountBalance}
+            symbol={props()!.symbol}
+            decimals={props()!.decimals}
+            amount={calcTotalAmount()}
+            blockId={txnResult()!.blockIdx!}
+            onBack={handleClose}
+          />
         </Match>
         <Match when={!txnResult()!.success}>
-          <CheckoutResultContent>
-            <CheckoutResultSection>
-              <H3>Fail</H3>
-              <Text24>
-                <Span600>
-                  The transaction has <SpanError>failed</SpanError> to execute due to the following error:
-                </Span600>
-              </Text24>
-              <Text14>
-                <Span400>
-                  <SpanGray140>{txnResult()!.error}</SpanGray140>
-                </Span400>
-              </Text14>
-            </CheckoutResultSection>
-            <CheckoutResultSection>
-              <Text24>
-                <Span600>
-                  <SpanGray165>No funds were deducted from your balance</SpanGray165>
-                </Span600>
-              </Text24>
-              <Text20>
-                <SpanGray165>
-                  Please, consider{" "}
-                  <SpanLink href={DISCORD_LINK} target="_blank">
-                    reporting
-                  </SpanLink>{" "}
-                  the error above
-                </SpanGray165>
-              </Text20>
-            </CheckoutResultSection>
-            <CheckoutResultSection>
-              <Button
-                kind={EButtonKind.Additional}
-                classList={{ [CheckoutResultBtn]: true }}
-                text="Close"
-                onClick={handleClose}
-              />
-            </CheckoutResultSection>
-          </CheckoutResultContent>
+          <TxnFailPage error={txnResult()?.error!} onBack={handleClose} />
         </Match>
       </Switch>
     </CheckoutPageWrapper>

@@ -54,6 +54,8 @@ import {
 import { useSendPageProps } from "../../../../store/assets";
 import { CabinetPage } from "../../../../ui-kit";
 import { ContactUsBtn } from "../../../../components/contact-us-btn";
+import { TxnFailPage } from "../../../txn/fail";
+import { TxnSuccessPage } from "../../../txn/success";
 
 export interface ISendPageProps {
   accountId: number;
@@ -156,7 +158,7 @@ export function SendPage() {
   return (
     <CabinetPage class={SendPageMixin}>
       <Show when={props()}>
-        <SendPopupBg center={txnResult() !== null}>
+        <SendPopupBg>
           <SendPopupWrapper>
             <Switch>
               <Match when={txnResult() === null}>
@@ -250,75 +252,21 @@ export function SendPage() {
               </Match>
 
               <Match when={txnResult()!.success}>
-                <CheckoutResultContent>
-                  <CheckoutResultSection>
-                    <H3>Success</H3>
-                    <Text24>
-                      <Span600>
-                        Transaction #{txnResult()!.blockIdx!.toString()} has been <SpanAccent>sucessfully</SpanAccent>{" "}
-                        executed
-                      </Span600>
-                    </Text24>
-                  </CheckoutResultSection>
-                  <CheckoutResultSection>
-                    <Text24>
-                      <Span600>
-                        <SpanGray165>
-                          {txnResult()!.totalAmount} {props()!.symbol} were deducted from your balance
-                        </SpanGray165>
-                      </Span600>
-                    </Text24>
-                  </CheckoutResultSection>
-                  <CheckoutResultSection>
-                    <Button
-                      classList={{ [CheckoutResultBtn]: true }}
-                      kind={EButtonKind.Primary}
-                      text="Go Back"
-                      onClick={() => props()!.onCancel(true)}
-                    />
-                  </CheckoutResultSection>
-                </CheckoutResultContent>
+                <TxnSuccessPage
+                  assetId={props()!.assetId}
+                  accountId={props()!.accountId}
+                  accountName={props()!.name}
+                  accountPrincipal={props()!.principal!}
+                  accountBalance={props()!.balance}
+                  symbol={props()!.symbol}
+                  decimals={props()!.decimals}
+                  amount={amount() + props()!.fee}
+                  blockId={txnResult()!.blockIdx!}
+                  onBack={() => props()!.onCancel(true)}
+                />
               </Match>
               <Match when={!txnResult()!.success}>
-                <CheckoutResultContent>
-                  <CheckoutResultSection>
-                    <H3>Fail</H3>
-                    <Text24>
-                      <Span600>
-                        The transaction has <SpanError>failed</SpanError> to execute due to the following error:
-                      </Span600>
-                    </Text24>
-                    <Text14>
-                      <Span400>
-                        <SpanGray140>{txnResult()!.error}</SpanGray140>
-                      </Span400>
-                    </Text14>
-                  </CheckoutResultSection>
-                  <CheckoutResultSection>
-                    <Text24>
-                      <Span600>
-                        <SpanGray165>No funds were deducted from your balance</SpanGray165>
-                      </Span600>
-                    </Text24>
-                    <Text20>
-                      <SpanGray165>
-                        Please, consider{" "}
-                        <SpanLink href={DISCORD_LINK} target="_blank">
-                          reporting
-                        </SpanLink>{" "}
-                        the error above
-                      </SpanGray165>
-                    </Text20>
-                  </CheckoutResultSection>
-                  <CheckoutResultSection>
-                    <Button
-                      kind={EButtonKind.Additional}
-                      classList={{ [CheckoutResultBtn]: true }}
-                      text="Go Back"
-                      onClick={() => props()!.onCancel(false)}
-                    />
-                  </CheckoutResultSection>
-                </CheckoutResultContent>
+                <TxnFailPage error={txnResult()?.error!} onBack={() => props()!.onCancel(false)} />
               </Match>
             </Switch>
           </SendPopupWrapper>

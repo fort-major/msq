@@ -17,6 +17,8 @@ export enum EIconKind {
   Close,
   Loader,
   Login,
+  ArrowRight,
+  Check,
 }
 
 interface IIconProps {
@@ -181,6 +183,23 @@ export function Icon(props: IIconProps) {
             stroke-linecap="round"
             stroke-linejoin="round"
           />
+        </Svg>
+      </Match>
+      <Match when={props.kind === EIconKind.ArrowRight}>
+        <Svg {...props} pointer={!!props.onClick} handleClick={handleClick} viewBox="0 0 17 14">
+          <path
+            id="Rectangle 25"
+            d="M10.1637 1L16.0013 6.96216M16.0013 6.96216L9.96345 13M16.0013 6.96216L1 6.89989"
+            stroke={props.color || COLOR_WHITE}
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </Svg>
+      </Match>
+      <Match when={props.kind === EIconKind.Check}>
+        <Svg {...props} pointer={!!props.onClick} handleClick={handleClick} viewBox="0 0 17 13">
+          <path d="M0.5 7.5L5 12L16.5 0.5" stroke={props.color || COLOR_WHITE} />
         </Svg>
       </Match>
     </Switch>

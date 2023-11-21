@@ -8,7 +8,8 @@ export const CheckoutPageWrapper = styled.div`
   display: flex;
   flex-flow: row;
   justify-content: center;
-  flex: 1;
+
+  padding: 80px 40px;
 `;
 
 export const CheckoutPageContent = styled.div`
@@ -17,8 +18,6 @@ export const CheckoutPageContent = styled.div`
 
   width: 100%;
   max-width: 600px;
-
-  padding: 80px 0;
 
   gap: 30px;
 `;

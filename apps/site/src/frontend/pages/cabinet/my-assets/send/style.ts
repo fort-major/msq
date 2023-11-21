@@ -14,14 +14,13 @@ export const SendPageMixin = css`
   flex: 1;
 `;
 
-export const SendPopupBg = styled.div<{ center: boolean }>`
+export const SendPopupBg = styled.div`
   flex: 1;
   padding: 80px 40px;
 
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
-  ${(props) => (props.center ? "justify-content: center;" : "")}
 
   background-color: ${COLOR_BLACK};
 `;
@@ -30,6 +29,8 @@ export const SendPopupWrapper = styled.div`
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
+  width: 100%;
+  max-width: 600px;
 `;
 
 export const SendPopupHeading = styled.h3`

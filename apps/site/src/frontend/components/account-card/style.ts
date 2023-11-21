@@ -6,6 +6,7 @@ import {
   COLOR_GRAY_115,
   ANIM_DURATION,
   COLOR_GRAY_105,
+  COLOR_ACCENT,
 } from "../../ui-kit";
 
 export const AccountCardWrapper = styled.div<{ fullWidth?: boolean | undefined }>`
@@ -95,7 +96,6 @@ export const AccountCardDivider = styled.div`
 export const AccountCardFooterContent = styled.div`
   display: flex;
   align-items: flex-end;
-  gap: 10px;
   align-self: stretch;
 `;
 
@@ -107,6 +107,19 @@ export const AccountCardFooterBalanceWrapper = styled.div`
 
   justify-content: space-between;
   width: 100%;
+`;
+
+export const AccountCardCheckIconWrapper = styled.div`
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid ${COLOR_ACCENT};
+  border-radius: 100%;
 `;
 
 export const AccountCardFooterBalance = styled.div`

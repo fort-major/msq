@@ -13,6 +13,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * isolate security logic
 * try importing with `https://`...
 * investigate other wallet-related ICRCs
+* spans as mixins
 
 * payment with unknown token (add the token automatically)
 * payment by link

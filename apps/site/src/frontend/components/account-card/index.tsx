@@ -1,6 +1,7 @@
 import { TAccountId } from "@fort-major/masquerade-shared";
 import { DEFAULT_PRINCIPAL, eventHandler, tokensToStr } from "../../utils";
 import {
+  AccountCardCheckIconWrapper,
   AccountCardDivider,
   AccountCardFooter,
   AccountCardFooterBalance,
@@ -18,7 +19,18 @@ import { Match, Show, Switch, createSignal } from "solid-js";
 import { Input } from "../../ui-kit/input";
 import { Button, EButtonKind } from "../../ui-kit/button";
 import { EIconKind, Icon } from "../../ui-kit/icon";
-import { H5, Span600, SpanGray140, Text12, Text14, Text16, Text20 } from "../../ui-kit/typography";
+import {
+  H5,
+  Span600,
+  SpanGray140,
+  SpanGray150,
+  StrikedText,
+  Text12,
+  Text14,
+  Text16,
+  Text20,
+} from "../../ui-kit/typography";
+import { COLOR_ACCENT } from "../../ui-kit";
 
 export interface IAccountCardProps {
   accountId: TAccountId;
@@ -31,6 +43,8 @@ export interface IAccountCardProps {
   fullWidth?: boolean | undefined;
   targetBalance?: bigint | undefined;
   classList?: { [k: string]: boolean | undefined };
+
+  transferSuccess?: bigint | undefined;
 
   onClick?: (accountId: TAccountId, assetId: string) => void;
 
@@ -108,7 +122,22 @@ export function AccountCard(props: IAccountCardProps) {
         <AccountCardFooterContent>
           <AccountCardFooterBalanceWrapper>
             <AccountCardFooterBalance>
-              <H5>{tokensToStr(props.balance || 0n, props.decimals, undefined, true)}</H5>
+              <Show
+                when={props.transferSuccess}
+                fallback={<H5>{tokensToStr(props.balance || 0n, props.decimals, undefined, true)}</H5>}
+              >
+                <H5>
+                  <span style={{ display: "flex", gap: "15px", "align-items": "center" }}>
+                    <SpanGray150 class={StrikedText}>
+                      {tokensToStr(props.balance || 0n, props.decimals, undefined, true)}
+                    </SpanGray150>
+
+                    <Icon kind={EIconKind.ArrowRight} color={COLOR_ACCENT} />
+
+                    <span>{tokensToStr(props.balance! - props.transferSuccess!, props.decimals, undefined, true)}</span>
+                  </span>
+                </H5>
+              </Show>
               <Text12>
                 <Span600>{props.symbol}</Span600>
               </Text12>
@@ -120,6 +149,11 @@ export function AccountCard(props: IAccountCardProps) {
                   <Span600>Insufficient Funds</Span600>
                 </Text14>
               </AccountCardFooterInsufficientBalance>
+            </Show>
+            <Show when={props.transferSuccess}>
+              <AccountCardCheckIconWrapper>
+                <Icon kind={EIconKind.Check} color={COLOR_ACCENT} />
+              </AccountCardCheckIconWrapper>
             </Show>
           </AccountCardFooterBalanceWrapper>
           <AccountCardFooterButtons>
