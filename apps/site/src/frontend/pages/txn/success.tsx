@@ -1,5 +1,5 @@
-import { css, styled } from "solid-styled-components";
-import { H3, Span600, Text20 } from "../../ui-kit/typography";
+import { styled } from "solid-styled-components";
+import { H3, Size16, Size20, Text, Weight600 } from "../../ui-kit/typography";
 import { tokensToStr } from "../../utils";
 import { AccountCard } from "../../components/account-card";
 import { Button, EButtonKind } from "../../ui-kit/button";
@@ -27,9 +27,9 @@ export function TxnSuccessPage(props: ITxnSuccessPageProps) {
         <H3>
           -{tokensToStr(props.amount, props.decimals, undefined, true)} {props.symbol}
         </H3>
-        <Text20>
-          <Span600>Transaction #{props.blockId.toString()} has been successfully executed</Span600>
-        </Text20>
+        <Text size={20} weight={600}>
+          Transaction #{props.blockId.toString()} has been successfully executed
+        </Text>
       </TxnSuccessPageHeading>
       <AccountCard
         fullWidth
@@ -42,7 +42,7 @@ export function TxnSuccessPage(props: ITxnSuccessPageProps) {
         balance={props.accountBalance}
         transferSuccess={props.amount}
       />
-      <Button kind={EButtonKind.Additional} text="Go Back" onClick={props.onBack} />
+      <Button kind={EButtonKind.Primary} text="Go Back" onClick={props.onBack} />
     </TxnSuccessPageContent>
   );
 }

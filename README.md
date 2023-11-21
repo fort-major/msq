@@ -4,7 +4,6 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* spans as mixins
 * try importing with `https://`...
 * make snap as futureproof as possible
 * investigate other wallet-related ICRCs

@@ -2,7 +2,7 @@ import { styled } from "solid-styled-components";
 import { ANIM_DURATION, COLOR_GRAY_105, COLOR_GRAY_115, COLOR_GRAY_130, COLOR_WHITE } from "../../ui-kit";
 import { eventHandler, getClassName } from "../../utils";
 import { EIconKind, Icon } from "../../ui-kit/icon";
-import { Span600, Text16 } from "../../ui-kit/typography";
+import { Size16, Text, Weight600 } from "../../ui-kit/typography";
 
 interface IAddAccountBtnProps {
   disabled?: boolean | undefined;
@@ -19,9 +19,9 @@ export function AddAccountBtn(props: IAddAccountBtnProps) {
       <AssetAddAccountBtnIconWrapper>
         <Icon kind={props.loading ? EIconKind.Loader : EIconKind.Plus} />
       </AssetAddAccountBtnIconWrapper>
-      <Text16>
-        <Span600>Add New {props.symbol} Account</Span600>
-      </Text16>
+      <Text size={16} weight={600}>
+        Add New {props.symbol} Account
+      </Text>
     </AssetAddAccountBtn>
   );
 }

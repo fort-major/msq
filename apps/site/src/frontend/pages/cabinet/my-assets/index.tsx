@@ -12,42 +12,30 @@ import {
 } from "./style";
 import { Spoiler } from "../../../components/spoiler";
 import { AccountCard } from "../../../components/account-card";
-import {
-  DEFAULT_PRINCIPAL,
-  IAssetMetadata,
-  ONE_MIN_MS,
-  eventHandler,
-  getAssetMetadata,
-  makeAgent,
-  makeAnonymousAgent,
-  makeIcrc1Salt,
-  tokensToStr,
-} from "../../../utils";
+import { IAssetMetadata, eventHandler, getAssetMetadata, makeAnonymousAgent, tokensToStr } from "../../../utils";
 import { Principal, TAccountId, debugStringify } from "@fort-major/masquerade-shared";
-import { useLoader, useMasqueradeClient } from "../../../store/global";
-import { MasqueradeIdentity } from "@fort-major/masquerade-client";
-import { AnonymousIdentity } from "@dfinity/agent";
+import { useMasqueradeClient } from "../../../store/global";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
-import { SetStoreFunction, produce } from "solid-js/store";
 import { useNavigate } from "@solidjs/router";
 import { ISendPageProps } from "./send";
 import {
+  ColorError,
+  ColorGray115,
+  ColorGray130,
   H2,
   H4,
   H5,
-  Span500,
-  Span600,
-  SpanError,
-  SpanGray115,
-  SpanGray130,
-  Text12,
-  Text20,
+  Size12,
+  Size20,
+  Text,
+  Weight500,
+  Weight600,
 } from "../../../ui-kit/typography";
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { IReceivePopupProps, ReceivePopup } from "./receive";
 import { AddAccountBtn } from "../../../components/add-account-btn";
 import { useAssetData, useSendPageProps } from "../../../store/assets";
-import { CabinetContent, CabinetPage } from "../../../ui-kit";
+import { COLOR_ERROR_RED, CabinetContent, CabinetPage } from "../../../ui-kit";
 import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
 
@@ -192,7 +180,7 @@ export function MyAssetsPage() {
             each={Object.keys(assets)}
             fallback={
               <H5>
-                <SpanGray115>No assets yet</SpanGray115>
+                <span class={ColorGray115}>No assets yet</span>
               </H5>
             }
           >
@@ -207,36 +195,32 @@ export function MyAssetsPage() {
                     <Show
                       when={assets[assetId]?.metadata}
                       fallback={
-                        <Text20>
-                          <Span600>{assetId}</Span600>
-                        </Text20>
+                        <Text size={20} weight={600}>
+                          {assetId}
+                        </Text>
                       }
                     >
-                      <Text20>
-                        <Span600>{assets[assetId]!.metadata!.name}</Span600>
-                      </Text20>
+                      <Text size={20} weight={600}>
+                        {assets[assetId]!.metadata!.name}
+                      </Text>
                     </Show>
                     <Show
                       when={assets[assetId]?.metadata}
                       fallback={
-                        <Text20>
-                          <Span600>
-                            0 <SpanGray130>TOK</SpanGray130>
-                          </Span600>
-                        </Text20>
+                        <Text size={20} weight={600}>
+                          0 <span class={ColorGray130}>TOK</span>
+                        </Text>
                       }
                     >
-                      <Text20>
-                        <Span600>
-                          {tokensToStr(
-                            assets[assetId]!.totalBalance,
-                            assets[assetId]!.metadata!.decimals,
-                            undefined,
-                            true,
-                          )}{" "}
-                          <SpanGray130>{assets[assetId]!.metadata!.symbol}</SpanGray130>
-                        </Span600>
-                      </Text20>
+                      <Text size={20} weight={600}>
+                        {tokensToStr(
+                          assets[assetId]!.totalBalance,
+                          assets[assetId]!.metadata!.decimals,
+                          undefined,
+                          true,
+                        )}{" "}
+                        <span class={ColorGray130}>{assets[assetId]!.metadata!.symbol}</span>
+                      </Text>
                     </Show>
                   </AssetSpoilerHeader>
                 }
@@ -295,11 +279,9 @@ export function MyAssetsPage() {
                 />
               </AddAssetForm>
               <Show when={error()}>
-                <Text12 class={ErrorText}>
-                  <SpanError>
-                    <Span500>{error()}</Span500>
-                  </SpanError>
-                </Text12>
+                <Text size={12} weight={500} color={COLOR_ERROR_RED} class={ErrorText}>
+                  {error()}
+                </Text>
               </Show>
             </AddAssetFormWrapper>
           </AddAssetWrapper>

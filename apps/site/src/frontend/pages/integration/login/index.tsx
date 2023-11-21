@@ -8,7 +8,7 @@ import { Divider } from "../../../components/divider/style";
 import { LoginOption } from "../../../components/login-option";
 import { AddNewMaskBtn } from "../../../components/add-new-mask-btn";
 import { Spoiler } from "../../../components/spoiler";
-import { H1, Span600, SpanAccent, Text20 } from "../../../ui-kit/typography";
+import { ColorAccent, H1, Size20, Text, Weight600 } from "../../../ui-kit/typography";
 import { EIconKind, Icon } from "../../../ui-kit/icon";
 import { useOriginData } from "../../../store/origins";
 
@@ -70,11 +70,9 @@ export function LoginPage() {
         <LoginPageHeader>
           <H1>Choose a Mask to wear</H1>
         </LoginPageHeader>
-        <Text20>
-          <Span600>
-            <SpanAccent>{originToHostname(referrerOrigin!)}</SpanAccent> wants you to log in
-          </Span600>
-        </Text20>
+        <Text size={20} weight={600}>
+          <span class={ColorAccent}>{originToHostname(referrerOrigin!)}</span> wants you to log in
+        </Text>
       </LoginHeadingSection>
       <LoginOptionsWrapper>
         <LoginOptionsSection>
@@ -83,11 +81,9 @@ export function LoginPage() {
               <Spoiler
                 defaultOpen
                 header={
-                  <Text20>
-                    <Span600>
-                      Masks from <SpanAccent>{originToHostname(origin)}</SpanAccent>
-                    </Span600>
-                  </Text20>
+                  <Text size={20} weight={600}>
+                    Masks from <span class={ColorAccent}>{originToHostname(origin)}</span>
+                  </Text>
                 }
               >
                 <For each={principals}>

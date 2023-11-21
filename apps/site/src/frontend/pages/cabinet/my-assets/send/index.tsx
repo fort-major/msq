@@ -14,7 +14,7 @@ import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { EIconKind } from "../../../../ui-kit/icon";
 import { createStore } from "solid-js/store";
 import { useMasqueradeClient } from "../../../../store/global";
-import { DISCORD_LINK, debugStringify, hexToBytes } from "@fort-major/masquerade-shared";
+import { debugStringify, hexToBytes } from "@fort-major/masquerade-shared";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import {
@@ -32,25 +32,6 @@ import {
   SendPopupWrapper,
 } from "./style";
 import { useNavigate } from "@solidjs/router";
-import {
-  H3,
-  Span400,
-  Span600,
-  SpanAccent,
-  SpanError,
-  SpanGray115,
-  SpanGray140,
-  SpanGray165,
-  SpanLink,
-  Text14,
-  Text20,
-  Text24,
-} from "../../../../ui-kit/typography";
-import {
-  CheckoutResultBtn,
-  CheckoutResultContent,
-  CheckoutResultSection,
-} from "../../../integration/payment/checkout/style";
 import { useSendPageProps } from "../../../../store/assets";
 import { CabinetPage } from "../../../../ui-kit";
 import { ContactUsBtn } from "../../../../components/contact-us-btn";

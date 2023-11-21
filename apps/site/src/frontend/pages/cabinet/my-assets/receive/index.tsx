@@ -5,13 +5,14 @@ import {
   COLOR_ACCENT,
   COLOR_BLACK,
   COLOR_GRAY_108,
+  COLOR_GRAY_140,
   COLOR_GRAY_150,
   COLOR_WHITE,
   HEADER_HEIGHT,
 } from "../../../../ui-kit";
 import { Portal } from "solid-js/web";
 import { EIconKind, Icon } from "../../../../ui-kit/icon";
-import { H5, Span500, Span600, SpanGray140, Text12, Text16 } from "../../../../ui-kit/typography";
+import { ColorGray140, H5, Size12, Size16, Text, Weight500, Weight600 } from "../../../../ui-kit/typography";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { Show, createSignal, onCleanup, onMount } from "solid-js";
 
@@ -50,15 +51,13 @@ export function ReceivePopup(props: IReceivePopupProps) {
             <QR ref={handleRenderQR} />
             <DataWrapper>
               <DataItem>
-                <Text12>
-                  <Span500>
-                    <SpanGray140>Principal ID</SpanGray140>
-                  </Span500>
-                </Text12>
+                <Text size={12} weight={500} color={COLOR_GRAY_140}>
+                  Principal ID
+                </Text>
                 <DataItemContent>
-                  <Text16>
-                    <Span600 class={DataItemContentText}>{props.principal}</Span600>
-                  </Text16>
+                  <Text size={12} weight={600} class={DataItemContentText}>
+                    {props.principal}
+                  </Text>
                   <Show
                     when={copied()}
                     fallback={
@@ -76,15 +75,13 @@ export function ReceivePopup(props: IReceivePopupProps) {
                 </DataItemContent>
               </DataItem>
               <DataItem>
-                <Text12>
-                  <Span500>
-                    <SpanGray140>Subaccount</SpanGray140>
-                  </Span500>
-                </Text12>
+                <Text size={12} weight={500} color={COLOR_GRAY_140}>
+                  Subaccount
+                </Text>
                 <DataItemContent>
-                  <Text16>
-                    <Span600 class={DataItemContentText}>Default Subaccount</Span600>
-                  </Text16>
+                  <Text size={16} weight={600} class={DataItemContentText}>
+                    Default Subaccount
+                  </Text>
                 </DataItemContent>
               </DataItem>
             </DataWrapper>

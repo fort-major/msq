@@ -13,12 +13,10 @@ import {
 } from "./style";
 import { Principal, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { BoopAvatar } from "../../../components/boop-avatar";
-import { useLoader, useMasqueradeClient } from "../../../store/global";
-import { produce } from "solid-js/store";
-import { H2, H5, Span500, SpanAccent, SpanGray115, Text16, Text20 } from "../../../ui-kit/typography";
+import { useMasqueradeClient } from "../../../store/global";
+import { ColorAccent, ColorGray115, H2, H5, Size16, Size20, Text, Weight500 } from "../../../ui-kit/typography";
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { EIconKind } from "../../../ui-kit/icon";
-import { useAssetData } from "../../../store/assets";
 import { useOriginData } from "../../../store/origins";
 import { CabinetContent, CabinetPage } from "../../../ui-kit";
 import { CabinetNav } from "../../../components/cabinet-nav";
@@ -66,7 +64,7 @@ export function MyLinksPage() {
             each={allOriginDataKeysWithLinks()}
             fallback={
               <H5>
-                <SpanGray115>No links yet</SpanGray115>
+                <span class={ColorGray115}>No links yet</span>
               </H5>
             }
           >
@@ -84,11 +82,9 @@ export function MyLinksPage() {
                     </AvatarWrapper>
                   </LinksInfoAvatars>
                   <LinksInfoTextWrapper>
-                    <Text20>
-                      <Span500>
-                        You've linked your masks from <SpanAccent>{originToHostname(origin)}</SpanAccent> to:
-                      </Span500>
-                    </Text20>
+                    <Text size={20} weight={500}>
+                      You've linked your masks from <span class={ColorAccent}>{originToHostname(origin)}</span> to:
+                    </Text>
                   </LinksInfoTextWrapper>
                   <Button
                     kind={EButtonKind.Primary}
@@ -102,9 +98,9 @@ export function MyLinksPage() {
                   <For each={originsData[origin]!.linksTo}>
                     {(link) => (
                       <LinksListItem>
-                        <Text16>
-                          <Span500>{originToHostname(link)}</Span500>
-                        </Text16>
+                        <Text size={16} weight={500}>
+                          {originToHostname(link)}
+                        </Text>
                         <Button
                           kind={EButtonKind.Additional}
                           icon={EIconKind.Unlink}

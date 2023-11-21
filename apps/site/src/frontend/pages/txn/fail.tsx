@@ -1,8 +1,8 @@
 import { css, styled } from "solid-styled-components";
-import { H3, Span600, SpanGray120, Text16, Text20 } from "../../ui-kit/typography";
+import { ColorGray120, H3, LineHeight150, Size16, Size20, Text, Weight600 } from "../../ui-kit/typography";
 import { TxnPage, TxnPageContent } from "./style";
 import { Show, createSignal } from "solid-js";
-import { COLOR_GRAY_115 } from "../../ui-kit";
+import { COLOR_GRAY_115, COLOR_GRAY_120 } from "../../ui-kit";
 import { EIconKind, Icon } from "../../ui-kit/icon";
 import { eventHandler, truncateStr } from "../../utils";
 import { Button, EButtonKind } from "../../ui-kit/button";
@@ -24,9 +24,9 @@ export function TxnFailPage(props: ITxnFailPageProps) {
         <TxnFailText>
           <TxnFailHeading>
             <H3>Transaction Failed</H3>
-            <Text20>
-              <Span600>No funds were deducted from your balance</Span600>
-            </Text20>
+            <Text size={20} weight={600}>
+              No funds were deducted from your balance
+            </Text>
           </TxnFailHeading>
 
           <TextSpoiler defaultText={props.error} />
@@ -45,10 +45,6 @@ export function TxnFailPage(props: ITxnFailPageProps) {
     </TxnPage>
   );
 }
-
-const Line150 = css`
-  line-height: 150%;
-`;
 
 const TxnFailContentMixin = css`
   gap: 50px;
@@ -105,21 +101,21 @@ function TextSpoiler(props: { defaultText: string }) {
         <TextSpoilerIconWrapper>
           <Icon kind={EIconKind.Close} size={13} color={COLOR_GRAY_115} />
         </TextSpoilerIconWrapper>
-        <Text16>
-          <Span600>The following error has occurred:</Span600>
-        </Text16>
+        <Text size={16} weight={600}>
+          The following error has occurred:
+        </Text>
       </TextSpoilerHeading>
       <TextSpoilerContent>
-        <Text16 class={Line150}>
-          <SpanGray120>{text()}</SpanGray120>
-        </Text16>
+        <Text size={16} lineHeight={150} color={COLOR_GRAY_120}>
+          {text()}
+        </Text>
         <Show when={props.defaultText.length > SPOILER_MAX_TEXT}>
           <TextSpoilerShowMoreBtn onClick={handleClick}>
-            <Text16>
+            <Text size={16}>
               <Show when={!isOpen()} fallback="Hide">
                 Show more
               </Show>
-            </Text16>
+            </Text>
             <Icon kind={EIconKind.ChevronUp} rotation={isOpen() ? 0 : 180} />
           </TextSpoilerShowMoreBtn>
         </Show>

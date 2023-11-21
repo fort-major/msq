@@ -1,7 +1,7 @@
 import { AddNewMaskBtnIconWrapper, AddNewMaskBtnText, AddNewMaskBtnWrapper } from "./style";
 import { eventHandler } from "../../utils";
 import { EIconKind, Icon } from "../../ui-kit/icon";
-import { Span600, Text16 } from "../../ui-kit/typography";
+import { Text, Weight600 } from "../../ui-kit/typography";
 
 export interface IAddNewMaskBtnProps {
   onClick: () => void;
@@ -20,9 +20,9 @@ export function AddNewMaskBtn(props: IAddNewMaskBtnProps) {
       <AddNewMaskBtnIconWrapper>
         <Icon kind={props.loading ? EIconKind.Loader : EIconKind.Plus} />
       </AddNewMaskBtnIconWrapper>
-      <Text16 class={AddNewMaskBtnText}>
-        <Span600>Add New Mask</Span600>
-      </Text16>
+      <Text size={16} weight={600} class={AddNewMaskBtnText}>
+        Add New Mask
+      </Text>
     </AddNewMaskBtnWrapper>
   );
 }

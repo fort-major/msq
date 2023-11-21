@@ -1,8 +1,8 @@
 import { useLocation, useNavigate } from "@solidjs/router";
 import { CabinetNavItem, CabinetNavItemDot, CabinetNavWrapper } from "./styles";
 import { Match, Switch } from "solid-js";
-import { Span600, Text16 } from "../../ui-kit/typography";
 import { eventHandler } from "../../utils";
+import { Size16, Text, Weight600 } from "../../ui-kit/typography";
 
 interface IItemProps {
   title: string;
@@ -21,9 +21,9 @@ const Item = (props: IItemProps) => {
           <CabinetNavItemDot />
         </Match>
       </Switch>
-      <Text16>
-        <Span600>{props.title}</Span600>
-      </Text16>
+      <Text size={16} weight={600}>
+        {props.title}
+      </Text>
     </CabinetNavItem>
   );
 };

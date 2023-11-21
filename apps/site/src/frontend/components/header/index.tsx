@@ -1,11 +1,11 @@
 import LogoSvg from "#assets/msq-logo.svg";
 import { css, styled } from "solid-styled-components";
 import { BAR_HEIGHT, COLOR_BLACK, COLOR_GRAY_115, HEADER_HEIGHT } from "../../ui-kit";
-import { Span600, Text18 } from "../../ui-kit/typography";
 import { EIconKind, Icon } from "../../ui-kit/icon";
 import { Show } from "solid-js";
 import { useLocation, useNavigate } from "@solidjs/router";
 import { eventHandler } from "../../utils";
+import { Size18, Text, Weight600 } from "../../ui-kit/typography";
 
 const HeaderDiv = styled.header`
   position: fixed;
@@ -62,9 +62,9 @@ export function Header() {
       <img src={LogoSvg} alt="Masquerade Logo" />
       <Show when={showLink()}>
         <MyWalletLink onClick={handleClick}>
-          <Text18>
-            <Span600>My Wallet</Span600>
-          </Text18>
+          <Text size={18} weight={600}>
+            My Wallet
+          </Text>
           <Icon kind={EIconKind.Login} />
         </MyWalletLink>
       </Show>

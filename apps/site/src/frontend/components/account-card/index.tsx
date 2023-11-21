@@ -19,18 +19,8 @@ import { Match, Show, Switch, createSignal } from "solid-js";
 import { Input } from "../../ui-kit/input";
 import { Button, EButtonKind } from "../../ui-kit/button";
 import { EIconKind, Icon } from "../../ui-kit/icon";
-import {
-  H5,
-  Span600,
-  SpanGray140,
-  SpanGray150,
-  StrikedText,
-  Text12,
-  Text14,
-  Text16,
-  Text20,
-} from "../../ui-kit/typography";
-import { COLOR_ACCENT } from "../../ui-kit";
+import { ColorGray150, H5, StrikedText, Text } from "../../ui-kit/typography";
+import { COLOR_ACCENT, COLOR_GRAY_140 } from "../../ui-kit";
 
 export interface IAccountCardProps {
   accountId: TAccountId;
@@ -102,19 +92,26 @@ export function AccountCard(props: IAccountCardProps) {
           </Match>
           <Match when={!edited()}>
             <AccountCardHeaderNameWrapper classList={{ editable: !!props.onEdit }} onClick={handleEditStart}>
-              <Text16>
-                <Span600>{props.name}</Span600>
-              </Text16>
+              <Text size={16} weight={600}>
+                {props.name}
+              </Text>
               <Show when={props.onEdit}>
                 <Icon kind={EIconKind.Edit} size={12} />
               </Show>
             </AccountCardHeaderNameWrapper>
           </Match>
         </Switch>
-        <Show when={props.principal} fallback={<Text12 class={AccountCardHeaderPrincipal}>{DEFAULT_PRINCIPAL}</Text12>}>
-          <Text12>
-            <SpanGray140 class={AccountCardHeaderPrincipal}>{props.principal}</SpanGray140>
-          </Text12>
+        <Show
+          when={props.principal}
+          fallback={
+            <Text size={12} class={AccountCardHeaderPrincipal}>
+              {DEFAULT_PRINCIPAL}
+            </Text>
+          }
+        >
+          <Text size={12} color={COLOR_GRAY_140} class={AccountCardHeaderPrincipal}>
+            {props.principal}
+          </Text>
         </Show>
       </AccountCardHeader>
       <AccountCardFooter>
@@ -128,9 +125,9 @@ export function AccountCard(props: IAccountCardProps) {
               >
                 <H5>
                   <span style={{ display: "flex", gap: "15px", "align-items": "center" }}>
-                    <SpanGray150 class={StrikedText}>
+                    <span classList={{ [StrikedText]: true, [ColorGray150]: true }}>
                       {tokensToStr(props.balance || 0n, props.decimals, undefined, true)}
-                    </SpanGray150>
+                    </span>
 
                     <Icon kind={EIconKind.ArrowRight} color={COLOR_ACCENT} />
 
@@ -138,16 +135,16 @@ export function AccountCard(props: IAccountCardProps) {
                   </span>
                 </H5>
               </Show>
-              <Text12>
-                <Span600>{props.symbol}</Span600>
-              </Text12>
+              <Text size={12} weight={600}>
+                {props.symbol}
+              </Text>
             </AccountCardFooterBalance>
             <Show when={props.targetBalance && (props.balance || 0n) < props.targetBalance}>
               <AccountCardFooterInsufficientBalance>
                 <Icon kind={EIconKind.Warning} />
-                <Text14>
-                  <Span600>Insufficient Funds</Span600>
-                </Text14>
+                <Text size={14} weight={600}>
+                  Insufficient Funds
+                </Text>
               </AccountCardFooterInsufficientBalance>
             </Show>
             <Show when={props.transferSuccess}>

@@ -1,31 +1,15 @@
-import {
-  DISCORD_LINK,
-  Principal,
-  TAccountId,
-  bytesToHex,
-  calculateMSQFee,
-  debugStringify,
-  originToHostname,
-} from "@fort-major/masquerade-shared";
+import { Principal, TAccountId, bytesToHex, calculateMSQFee, debugStringify } from "@fort-major/masquerade-shared";
 import { AccountCard } from "../../../../components/account-card";
 import {
+  ColorGray140,
+  ColorGray165,
   H3,
   H5,
-  Span400,
-  Span500,
-  Span600,
-  SpanAccent,
-  SpanError,
-  SpanGray115,
-  SpanGray130,
-  SpanGray140,
-  SpanGray165,
-  SpanLink,
-  Text12,
-  Text14,
-  Text16,
-  Text20,
-  Text24,
+  Size12,
+  Size16,
+  Text,
+  Weight500,
+  Weight600,
 } from "../../../../ui-kit/typography";
 import {
   CheckoutFeeLine,
@@ -41,13 +25,10 @@ import {
   CheckoutTotalSum,
   CheckoutTotalWrapper,
   Elipsis,
-  CheckoutResultContent,
-  CheckoutResultSection,
-  CheckoutResultBtn,
   CopyIcon,
 } from "./style";
 import { EIconKind, Icon } from "../../../../ui-kit/icon";
-import { Match, Show, Switch, createEffect, createSignal } from "solid-js";
+import { Match, Show, Switch, createSignal } from "solid-js";
 import { getRandomMemo, makeAgent, makeIcrc1Salt, tokensToStr } from "../../../../utils";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { referrerOrigin, usePaymentCheckoutPageProps } from "../../../../store/integration";
@@ -58,7 +39,7 @@ import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { ITxnResult } from "../../../cabinet/my-assets/send";
 import { TxnFailPage } from "../../../txn/fail";
 import { TxnSuccessPage } from "../../../txn/success";
-import { COLOR_ACCENT } from "../../../../ui-kit";
+import { COLOR_ACCENT, COLOR_GRAY_140, COLOR_GRAY_165 } from "../../../../ui-kit";
 
 export interface IPaymentCheckoutPageProps {
   accountId: TAccountId;
@@ -215,15 +196,13 @@ export function PaymentCheckoutPage() {
             />
             <CheckoutForm>
               <CheckoutFormInput>
-                <Text12>
-                  <Span500>
-                    <SpanGray165>Principal ID</SpanGray165>
-                  </Span500>
-                </Text12>
+                <Text size={12} weight={500} color={COLOR_GRAY_165}>
+                  Principal ID
+                </Text>
                 <CheckoutFormInputField>
-                  <Text16>
-                    <Span600 class={Elipsis}>{props()!.recepientPrincipal}</Span600>
-                  </Text16>
+                  <Text size={16} weight={600} class={Elipsis}>
+                    {props()!.recepientPrincipal}
+                  </Text>
                   <Show
                     when={principalCopied()}
                     fallback={
@@ -245,17 +224,13 @@ export function PaymentCheckoutPage() {
                 </CheckoutFormInputField>
               </CheckoutFormInput>
               <CheckoutFormInput>
-                <Text12>
-                  <Span500>
-                    <SpanGray165>Subaccount ID</SpanGray165>
-                  </Span500>
-                </Text12>
+                <Text size={12} weight={500} color={COLOR_GRAY_165}>
+                  Subaccount ID
+                </Text>
                 <CheckoutFormInputField>
-                  <Text16>
-                    <Span600 class={Elipsis}>
-                      {props()!.recepientSubaccount ? bytesToHex(props()!.recepientSubaccount!) : "Default Subaccount"}
-                    </Span600>
-                  </Text16>
+                  <Text size={16} weight={600} class={Elipsis}>
+                    {props()!.recepientSubaccount ? bytesToHex(props()!.recepientSubaccount!) : "Default Subaccount"}
+                  </Text>
                   <Show when={props()!.recepientSubaccount}>
                     <Show
                       when={subaccountCopied()}
@@ -279,15 +254,13 @@ export function PaymentCheckoutPage() {
                 </CheckoutFormInputField>
               </CheckoutFormInput>
               <CheckoutFormInput>
-                <Text12>
-                  <Span500>
-                    <SpanGray165>Memo</SpanGray165>
-                  </Span500>
-                </Text12>
+                <Text size={12} weight={500} color={COLOR_GRAY_165}>
+                  Memo
+                </Text>
                 <CheckoutFormInputField>
-                  <Text16>
-                    <Span600 class={Elipsis}>{props()!.memo ? bytesToHex(props()!.memo!) : "-"}</Span600>
-                  </Text16>
+                  <Text size={16} weight={600} class={Elipsis}>
+                    {props()!.memo ? bytesToHex(props()!.memo!) : "-"}
+                  </Text>
                   <Show when={props()!.memo}>
                     <Show
                       when={memoCopied()}
@@ -308,69 +281,55 @@ export function PaymentCheckoutPage() {
             </CheckoutForm>
             <CheckoutFees>
               <CheckoutFeeLine>
-                <Text16>
-                  <SpanGray140>Amount</SpanGray140>
-                </Text16>
+                <Text size={16} color={COLOR_GRAY_140}>
+                  Amount
+                </Text>
                 <CheckoutFeeLineSum>
-                  <Text16>
-                    <SpanGray140>
-                      <Span600>{tokensToStr(props()!.amount, props()!.decimals, undefined, true)}</Span600>
-                    </SpanGray140>
-                  </Text16>
-                  <Text12>
-                    <SpanGray140>
-                      <Span500>{props()!.symbol}</Span500>
-                    </SpanGray140>
-                  </Text12>
+                  <Text size={16} weight={600} color={COLOR_GRAY_140}>
+                    {tokensToStr(props()!.amount, props()!.decimals, undefined, true)}
+                  </Text>
+                  <Text size={12} weight={500} color={COLOR_GRAY_140}>
+                    {props()!.symbol}
+                  </Text>
                 </CheckoutFeeLineSum>
               </CheckoutFeeLine>
               <CheckoutFeeLine>
-                <Text16>
-                  <SpanGray140>MSQ Fee</SpanGray140>
-                </Text16>
+                <Text size={16} color={COLOR_GRAY_140}>
+                  MSQ Fee
+                </Text>
                 <CheckoutFeeLineSum>
-                  <Text16>
-                    <SpanGray140>
-                      <Span600>{tokensToStr(msqFee, props()!.decimals, undefined, true)}</Span600>
-                    </SpanGray140>
-                  </Text16>
-                  <Text12>
-                    <SpanGray140>
-                      <Span500>{props()!.symbol}</Span500>
-                    </SpanGray140>
-                  </Text12>
+                  <Text size={16} color={COLOR_GRAY_140} weight={600}>
+                    {tokensToStr(msqFee, props()!.decimals, undefined, true)}
+                  </Text>
+                  <Text size={12} color={COLOR_GRAY_140} weight={500}>
+                    {props()!.symbol}
+                  </Text>
                 </CheckoutFeeLineSum>
               </CheckoutFeeLine>
               <CheckoutFeeLine>
-                <Text16>
-                  <SpanGray140>System Fee</SpanGray140>
-                </Text16>
+                <Text size={16} color={COLOR_GRAY_140}>
+                  System Fee
+                </Text>
                 <CheckoutFeeLineSum>
-                  <Text16>
-                    <SpanGray140>
-                      <Span600>{tokensToStr(calcSystemFee(), props()!.decimals, undefined, true)}</Span600>
-                    </SpanGray140>
-                  </Text16>
-                  <Text12>
-                    <SpanGray140>
-                      <Span500>{props()!.symbol}</Span500>
-                    </SpanGray140>
-                  </Text12>
+                  <Text size={16} weight={600} color={COLOR_GRAY_140}>
+                    {tokensToStr(calcSystemFee(), props()!.decimals, undefined, true)}
+                  </Text>
+                  <Text size={12} color={COLOR_GRAY_140} weight={500}>
+                    {props()!.symbol}
+                  </Text>
                 </CheckoutFeeLineSum>
               </CheckoutFeeLine>
             </CheckoutFees>
             <CheckoutTotalWrapper>
               <CheckoutTotalInfo>
-                <Text12>
-                  <Span500>
-                    <SpanGray140>Total Amount:</SpanGray140>
-                  </Span500>
-                </Text12>
+                <Text size={12} weight={500} color={COLOR_GRAY_140}>
+                  Total Amount:
+                </Text>
                 <CheckoutTotalSum>
                   <H5>{tokensToStr(calcTotalAmount(), props()!.decimals, undefined, true)}</H5>
-                  <Text12>
-                    <Span600>{props()!.symbol}</Span600>
-                  </Text12>
+                  <Text size={12} weight={600}>
+                    {props()!.symbol}
+                  </Text>
                 </CheckoutTotalSum>
               </CheckoutTotalInfo>
               <CheckoutTotalButtons>

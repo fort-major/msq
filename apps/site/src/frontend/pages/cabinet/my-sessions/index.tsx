@@ -16,22 +16,23 @@ import { BoopAvatar } from "../../../components/boop-avatar";
 import { ISession, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { Principal } from "@fort-major/masquerade-shared";
 import {
+  ColorAccent,
+  ColorGray115,
+  ColorGray140,
   H2,
   H5,
-  Span500,
-  Span600,
-  SpanAccent,
-  SpanGray115,
-  SpanGray140,
-  Text12,
-  Text16,
-  Text24,
+  Size12,
+  Size16,
+  Size24,
+  Text,
+  Weight500,
+  Weight600,
 } from "../../../ui-kit/typography";
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { EIconKind } from "../../../ui-kit/icon";
 import { useOriginData } from "../../../store/origins";
 import { useMasqueradeClient } from "../../../store/global";
-import { CabinetContent, CabinetPage } from "../../../ui-kit";
+import { COLOR_GRAY_140, CabinetContent, CabinetPage } from "../../../ui-kit";
 import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
 
@@ -79,7 +80,7 @@ export function MySessionsPage() {
             each={originsWithSession()}
             fallback={
               <H5>
-                <SpanGray115>No active sessions</SpanGray115>
+                <span class={ColorGray115}>No active sessions</span>
               </H5>
             }
           >
@@ -93,32 +94,28 @@ export function MySessionsPage() {
                       <SessionWebsiteEllipse />
                     </SessionWebsiteEllipseWrapper>
                     <SessionWebsiteDataWrapper>
-                      <Text24>
-                        <Span600>{originToHostname(origin)}</Span600>
-                      </Text24>
-                      <Text16>
-                        <Span500>
-                          <SpanGray140>{timestampToStr(originsData[origin]!.currentSession!.timestampMs)}</SpanGray140>
-                        </Span500>
-                      </Text16>
+                      <Text size={24} weight={600}>
+                        {originToHostname(origin)}
+                      </Text>
+                      <Text size={16} weight={500} color={COLOR_GRAY_140}>
+                        {timestampToStr(originsData[origin]!.currentSession!.timestampMs)}
+                      </Text>
                     </SessionWebsiteDataWrapper>
                   </SessionWebsiteWrapper>
                   <VerticalDivider height={60} />
                   <SessionInfoWrapper>
                     <BoopAvatar size={50} principal={mask.principal} />
                     <SessionInfoDataWrapper>
-                      <Text16>
-                        <Span600>
-                          {mask.pseudonym} (from{" "}
-                          <SpanAccent>
-                            {originToHostname(originsData[origin]!.currentSession!.deriviationOrigin)}
-                          </SpanAccent>
-                          )
-                        </Span600>
-                      </Text16>
-                      <Text12>
-                        <SpanGray140 class={SessionInfoDataPrincipal}>{mask.principal.toString()}</SpanGray140>
-                      </Text12>
+                      <Text size={16} weight={600}>
+                        {mask.pseudonym} (from{" "}
+                        <span class={ColorAccent}>
+                          {originToHostname(originsData[origin]!.currentSession!.deriviationOrigin)}
+                        </span>
+                        )
+                      </Text>
+                      <Text size={12} color={COLOR_GRAY_140} class={SessionInfoDataPrincipal}>
+                        {mask.principal.toString()}
+                      </Text>
                     </SessionInfoDataWrapper>
                   </SessionInfoWrapper>
                   <Button

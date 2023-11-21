@@ -65,111 +65,86 @@ export const H5 = styled.h5`
   line-height: 100%; /* 36px */
 `;
 
-export const Text24 = styled.p`
-  ${DefaultColor}
+export const Text = styled.p<{ size: number; color?: string; weight?: number; lineHeight?: number; striked?: boolean }>`
   ${DefaultFont}
 
-  font-size: 24px;
+  font-size: ${(props) => props.size}px;
   font-style: normal;
-  font-weight: 400;
-  line-height: 100%;
+  font-weight: ${(props) => props.weight || 400};
+  line-height: ${(props) => props.lineHeight || 100}%;
+  color: ${(props) => props.color || COLOR_WHITE};
+  ${(props) => (props.striked ? "text-decoration: line-through;" : "")}
 `;
 
-export const Text20 = styled.p`
-  ${DefaultColor}
-  ${DefaultFont}
-
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 100%;
-`;
-
-export const Text18 = styled.p`
-  ${DefaultColor}
-  ${DefaultFont}
-
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 100%;
-`;
-
-export const Text16 = styled.p`
-  ${DefaultColor}
-  ${DefaultFont}
-
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 100%;
-`;
-
-export const Text12 = styled.p`
-  ${DefaultColor}
-  ${DefaultFont}
-
+export const Size12 = css`
   font-size: 12px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 120%;
 `;
 
-export const Text14 = styled.p`
-  ${DefaultColor}
-  ${DefaultFont}
-
+export const Size14 = css`
   font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 120%;
 `;
 
-export const SpanAccent = styled.span`
+export const Size16 = css`
+  font-size: 16px;
+`;
+
+export const Size18 = css`
+  font-size: 18px;
+`;
+
+export const Size20 = css`
+  font-size: 20px;
+`;
+
+export const Size24 = css`
+  font-size: 24px;
+`;
+
+export const ColorAccent = css`
   color: ${COLOR_CHARTREUSE};
 `;
 
-export const SpanError = styled.span`
+export const ColorError = css`
   color: ${COLOR_ERROR_RED};
 `;
 
-export const SpanWhite = styled.span`
+export const ColorWhite = css`
   color: ${COLOR_WHITE};
 `;
 
-export const SpanGray130 = styled.span`
-  color: ${COLOR_GRAY_130};
-`;
-
-export const SpanGray140 = styled.span`
-  color: ${COLOR_GRAY_140};
-`;
-
-export const SpanGray150 = styled.span`
-  color: ${COLOR_GRAY_150};
-`;
-
-export const SpanGray165 = styled.span`
-  color: ${COLOR_GRAY_165};
-`;
-
-export const SpanGray115 = styled.span`
+export const ColorGray115 = css`
   color: ${COLOR_GRAY_115};
 `;
 
-export const SpanGray120 = styled.span`
+export const ColorGray120 = css`
   color: ${COLOR_GRAY_120};
 `;
 
-export const Span600 = styled.span`
+export const ColorGray130 = css`
+  color: ${COLOR_GRAY_130};
+`;
+
+export const ColorGray140 = css`
+  color: ${COLOR_GRAY_140};
+`;
+
+export const ColorGray150 = css`
+  color: ${COLOR_GRAY_150};
+`;
+
+export const ColorGray165 = css`
+  color: ${COLOR_GRAY_165};
+`;
+
+export const Weight600 = css`
   font-weight: 600;
 `;
 
-export const Span500 = styled.span`
+export const Weight500 = css`
   font-weight: 500;
 `;
 
-export const Span400 = styled.span`
+export const Weight400 = css`
   font-weight: 400;
 `;
 
@@ -181,4 +156,8 @@ export const SpanLink = styled.a`
 
 export const StrikedText = css`
   text-decoration: line-through;
+`;
+
+export const LineHeight150 = css`
+  line-height: 150%;
 `;

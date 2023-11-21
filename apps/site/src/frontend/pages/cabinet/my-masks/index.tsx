@@ -5,10 +5,20 @@ import { TIdentityId, TOrigin, originToHostname } from "@fort-major/masquerade-s
 import { LoginOption } from "../../../components/login-option";
 import { AddNewMaskBtn } from "../../../components/add-new-mask-btn";
 import { Divider } from "../../../components/divider/style";
-import { H2, H5, Span600, SpanAccent, SpanGray115, SpanGray140, Text16, Text24 } from "../../../ui-kit/typography";
+import {
+  ColorAccent,
+  ColorGray115,
+  ColorGray140,
+  H2,
+  H5,
+  Size16,
+  Size24,
+  Text,
+  Weight600,
+} from "../../../ui-kit/typography";
 import { useOriginData } from "../../../store/origins";
 import { useMasqueradeClient } from "../../../store/global";
-import { CabinetContent, CabinetPage } from "../../../ui-kit";
+import { COLOR_ACCENT, COLOR_GRAY_140, CabinetContent, CabinetPage } from "../../../ui-kit";
 import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
 
@@ -50,7 +60,7 @@ export function MyMasksPage() {
           <For
             fallback={
               <H5>
-                <SpanGray115>No masks yet</SpanGray115>
+                <span class={ColorGray115}>No masks yet</span>
               </H5>
             }
             each={Object.keys(originsData)}
@@ -60,16 +70,12 @@ export function MyMasksPage() {
                 defaultOpen={originsData[origin]!.masks.length < 3}
                 header={
                   <SpoilerHeading>
-                    <Text16>
-                      <SpanGray140>
-                        <Span600>Masks from</Span600>
-                      </SpanGray140>
-                    </Text16>
-                    <Text24>
-                      <SpanAccent>
-                        <Span600>{originToHostname(origin)}</Span600>
-                      </SpanAccent>
-                    </Text24>
+                    <Text size={16} weight={600} color={COLOR_GRAY_140}>
+                      Masks from
+                    </Text>
+                    <Text size={24} weight={600} color={COLOR_ACCENT}>
+                      {originToHostname(origin)}
+                    </Text>
                   </SpoilerHeading>
                 }
               >

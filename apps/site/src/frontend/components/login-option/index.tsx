@@ -4,8 +4,9 @@ import { LoginOptionContent, LoginOptionPrincipal, LoginOptionWrapper } from "./
 import { Show, createSignal } from "solid-js";
 import { eventHandler } from "../../utils";
 import { Input } from "../../ui-kit/input";
-import { Span600, SpanGray140, Text12, Text16 } from "../../ui-kit/typography";
 import { EIconKind, Icon } from "../../ui-kit/icon";
+import { ColorGray140, Size12, Size16, Text, Weight600 } from "../../ui-kit/typography";
+import { COLOR_GRAY_140 } from "../../ui-kit";
 
 export interface ILoginOptionProps {
   pseudonym: string;
@@ -38,9 +39,9 @@ export function LoginOption(props: ILoginOptionProps) {
         <Show
           when={isEdited()}
           fallback={
-            <Text16>
-              <Span600>{props.pseudonym}</Span600>
-            </Text16>
+            <Text size={16} weight={600}>
+              {props.pseudonym}
+            </Text>
           }
         >
           <Input
@@ -54,9 +55,9 @@ export function LoginOption(props: ILoginOptionProps) {
             }}
           />
         </Show>
-        <Text12 class={LoginOptionPrincipal}>
-          <SpanGray140>{props.principal}</SpanGray140>
-        </Text12>
+        <Text size={12} color={COLOR_GRAY_140} class={LoginOptionPrincipal}>
+          {props.principal}
+        </Text>
       </LoginOptionContent>
       <Show when={editable()}>
         <Icon kind={EIconKind.Edit} size={20} onClick={toggleEdit} />

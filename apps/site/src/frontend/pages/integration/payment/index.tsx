@@ -8,11 +8,8 @@ import {
   useReferrerWindow,
 } from "../../../store/integration";
 import { useNavigate } from "@solidjs/router";
-import { createStore, produce } from "solid-js/store";
-import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { Principal } from "@dfinity/principal";
-import { DEFAULT_PRINCIPAL, getAssetMetadata, makeAnonymousAgent, makeIcrc1Salt, tokensToStr } from "../../../utils";
-import { MasqueradeIdentity } from "@fort-major/masquerade-client";
+import { tokensToStr } from "../../../utils";
 import {
   AccountCardBase,
   AccountCardSelected,
@@ -24,7 +21,7 @@ import {
   PaymentPageHeading,
   PaymentPageWrapper,
 } from "./style";
-import { H3, Span600, SpanAccent, Text20 } from "../../../ui-kit/typography";
+import { ColorAccent, H3, Size20, Text, Weight600 } from "../../../ui-kit/typography";
 import { ErrorCode, TAccountId, err, originToHostname } from "@fort-major/masquerade-shared";
 import { AccountCard } from "../../../components/account-card";
 import { AddAccountBtn } from "../../../components/add-account-btn";
@@ -142,11 +139,9 @@ export function PaymentPage() {
     <PaymentPageContainer>
       <PaymentPageWrapper>
         <PaymentPageHeading>
-          <Text20>
-            <Span600>
-              Pending payment on <SpanAccent>{originToHostname(referrerOrigin!)}</SpanAccent>
-            </Span600>
-          </Text20>
+          <Text size={20} weight={600}>
+            Pending payment on <span class={ColorAccent}>{originToHostname(referrerOrigin!)}</span>
+          </Text>
           <Show when={getAssetId() && assets[getAssetId()!]?.metadata}>
             <H3>
               {tokensToStr(
@@ -161,9 +156,9 @@ export function PaymentPage() {
         </PaymentPageHeading>
         <Show when={assets[getAssetId()!]?.accounts && assets[getAssetId()!]?.metadata}>
           <PaymentPageContent>
-            <Text20>
-              <Span600>Select an account to continue:</Span600>
-            </Text20>
+            <Text size={20} weight={600}>
+              Select an account to continue:
+            </Text>
             <PaymentPageAccountsWrapper>
               <PaymentPageAccounts>
                 <For each={assets[getAssetId()!]?.accounts}>
