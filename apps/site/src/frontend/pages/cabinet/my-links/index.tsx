@@ -26,14 +26,14 @@ import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function MyLinksPage() {
   const msq = useMasqueradeClient();
-  const { originsData, fetch, unlinkOne, unlinkAll } = useOriginData();
+  const { originsData, init, unlinkOne, unlinkAll } = useOriginData();
   const allOriginDataKeysWithLinks = () =>
     Object.keys(originsData).filter((origin) => originsData[origin]!.linksTo.length !== 0);
 
   const [loading, setLoading] = createSignal(false);
 
   createEffect(() => {
-    if (msq()) fetch();
+    if (msq()) init();
   });
 
   const handleUnlinkOne = async (origin: TOrigin, withOrigin: TOrigin) => {
@@ -47,7 +47,7 @@ export function MyLinksPage() {
   const handleUnlinkAll = async (origin: TOrigin) => {
     setLoading(true);
 
-    unlinkAll!(origin);
+    await unlinkAll!(origin);
 
     setLoading(false);
   };

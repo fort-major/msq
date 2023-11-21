@@ -4,11 +4,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* all console errors
-* better payment recovery
-* trim-validate all inputs
-* add disabled states during submissions
-* blink animations everywhere
+* new status pages for trasnfers
 * loading cursor
 * fix two transfers from different accounts in a row
 * fix fees appear on blur
@@ -22,6 +18,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * payment by link
 * QR code link to payment page
 * donation page
+* trim-validate all inputs
 * error pages
 
 * refine frontend + add transitions + mobile + adaptive
@@ -39,6 +36,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * storybook + design system + encapsulate more comps
 * mock ICRC-1 tokens for development
 * dollars and exchange rates
+* transaction history & explorer
 * crypto gifts
 
 ## Local development

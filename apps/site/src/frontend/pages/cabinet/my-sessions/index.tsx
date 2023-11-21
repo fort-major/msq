@@ -37,14 +37,14 @@ import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function MySessionsPage() {
   const msq = useMasqueradeClient();
-  const { originsData, fetch, stopSession } = useOriginData();
+  const { originsData, init, stopSession } = useOriginData();
   const originsWithSession = () =>
     Object.keys(originsData).filter((origin) => originsData[origin]!.currentSession !== undefined);
 
   const [loading, setLoading] = createSignal(false);
 
   createEffect(() => {
-    if (msq()) fetch();
+    if (msq()) init();
   });
 
   const getMaskBySession = (session: ISession): { pseudonym: string; principal: Principal } => {

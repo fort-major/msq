@@ -53,7 +53,7 @@ import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function MyAssetsPage() {
   const msq = useMasqueradeClient();
-  const { assets, fetch, refresh, addAccount, editAccount, addAsset } = useAssetData();
+  const { assets, init, refresh, addAccount, editAccount, addAsset } = useAssetData();
 
   const [newAssetId, setNewAssetId] = createSignal<string>("");
   const [newAssetMetadata, setNewAssetMetadata] = createSignal<IAssetMetadata | null>(null);
@@ -67,11 +67,8 @@ export function MyAssetsPage() {
 
   const navigate = useNavigate();
 
-  createEffect(async () => {
-    if (msq()) {
-      await fetch();
-      await refresh();
-    }
+  createEffect(() => {
+    if (msq()) init();
   });
 
   const handleNewAssetIdInput = eventHandler(async (e: Event & { target: HTMLInputElement }) => {

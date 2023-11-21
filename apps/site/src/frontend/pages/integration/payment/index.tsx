@@ -25,7 +25,7 @@ import {
   PaymentPageWrapper,
 } from "./style";
 import { H3, Span600, SpanAccent, Text20 } from "../../../ui-kit/typography";
-import { TAccountId, originToHostname } from "@fort-major/masquerade-shared";
+import { ErrorCode, TAccountId, err, originToHostname } from "@fort-major/masquerade-shared";
 import { AccountCard } from "../../../components/account-card";
 import { AddAccountBtn } from "../../../components/add-account-btn";
 import { Button, EButtonKind } from "../../../ui-kit/button";
@@ -56,9 +56,16 @@ export function PaymentPage() {
       const assetId = getAssetId()!;
       const result = await fetch([assetId]);
 
+      // canister ID will be validated here
       if (!result) {
         await addAsset!(assetId);
         return;
+      }
+
+      // validate other inputs
+      Principal.fromText(icrc1TransferRequest()!.request.to.owner);
+      if (icrc1TransferRequest()!.request.amount < 0n) {
+        err(ErrorCode.INVALID_INPUT, `Amount is less than zero: ${icrc1TransferRequest()!.request.amount}`);
       }
 
       await refresh!([assetId]);

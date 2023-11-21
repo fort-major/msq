@@ -14,11 +14,11 @@ import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function MyMasksPage() {
   const msq = useMasqueradeClient();
-  const { originsData, fetch, addNewMask, editPseudonym } = useOriginData();
+  const { originsData, init, addNewMask, editPseudonym } = useOriginData();
   const [loading, setLoading] = createSignal(false);
 
   createEffect(() => {
-    if (msq()) fetch();
+    if (msq()) init();
   });
 
   const handleEditPseudonym = async (origin: TOrigin, identityId: TIdentityId, newPseudonym: string) => {

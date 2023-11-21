@@ -41,6 +41,7 @@ export type SendPagePropsStore = [Accessor<ISendPageProps | undefined>, Setter<I
 
 export interface IAssetDataStore {
   assets: AllAssetData;
+  init: (assetIds?: string[]) => Promise<void>;
   fetch: (assetIds?: string[]) => Promise<boolean[] | undefined>;
   refresh: (assetIds?: string[]) => Promise<void>;
   addAccount: (assetId: string, assetName: string, symbol: string) => Promise<void>;
@@ -75,6 +76,7 @@ export function AssetsStore(props: IChildren) {
   const [allAssetData, setAllAssetData] = createStore<AllAssetData>();
   const [sendPageProps, setSendPageProps] = createSignal<ISendPageProps | undefined>(undefined);
   const [refreshPeriodically, setRefreshPeriodically] = createSignal(true);
+  const [initialized, setInitialized] = createSignal(false);
   const _msq = useMasqueradeClient();
 
   onMount(async () => {
@@ -85,17 +87,17 @@ export function AssetsStore(props: IChildren) {
     }
   });
 
-  onMount(async () => {
-    while (refreshPeriodically()) {
-      await delay(ONE_SEC_MS * 5);
-
-      if (_msq()) await refreshAccountNames();
-    }
-  });
-
   onCleanup(() => {
     setRefreshPeriodically(false);
   });
+
+  const init = async () => {
+    if (initialized()) return;
+
+    await fetch();
+    await refresh();
+    setInitialized(true);
+  };
 
   const fetch = async (assetIds?: string[]): Promise<boolean[] | undefined> => {
     const msq = _msq()!;
@@ -237,28 +239,6 @@ export function AssetsStore(props: IChildren) {
     await msq.editAssetAccount(assetId, accountId, newName);
   };
 
-  const refreshAccountNames = async () => {
-    const msq = _msq()!;
-
-    const assetIds = Object.keys(allAssetData);
-    const fetchedAllAssetData = await msq.getAllAssetData(assetIds);
-
-    for (let [assetId, fethedAssetData] of Object.entries(fetchedAllAssetData)) {
-      setAllAssetData(
-        produce((state) => {
-          const ad = state[assetId];
-          const fetchedAccounts = fethedAssetData!.accounts;
-
-          if (!ad) return;
-
-          for (let accountId = 0; accountId < fetchedAccounts.length; accountId++) {
-            ad.accounts[accountId].name = fetchedAccounts[accountId];
-          }
-        }),
-      );
-    }
-  };
-
   const updateBalanceOf = async (ledger: IcrcLedgerCanister, assetId: string, accountId: number) => {
     // first we query to be fast
     let balance = await ledger.balance({
@@ -298,6 +278,7 @@ export function AssetsStore(props: IChildren) {
     <AssetDataContext.Provider
       value={{
         assets: allAssetData,
+        init,
         fetch,
         refresh,
         addAccount,

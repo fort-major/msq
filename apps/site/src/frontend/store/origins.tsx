@@ -8,6 +8,7 @@ export type AllOriginData = Record<TOrigin, IOriginDataExternal | undefined>;
 export interface IOriginDataStore {
   originsData: AllOriginData;
 
+  init: (origins?: TOrigin[]) => Promise<void>;
   fetch: (origins?: TOrigin[], ignoreDiminishing?: boolean) => Promise<void>;
   addNewMask: (origin: TOrigin) => Promise<void>;
   editPseudonym: (origin: TOrigin, identityId: TIdentityId, newPseudonym: string) => Promise<void>;
@@ -31,21 +32,16 @@ export function useOriginData() {
 export function OriginDataStore(props: IChildren) {
   const [allOriginData, setAllOriginData] = createStore<AllOriginData>({});
   const [fetchedAt, setFetchedAt] = createSignal(0);
-  const [refreshPeriodically, setRefreshPeriodically] = createSignal(true);
+  const [initialized, setInitialized] = createSignal(false);
   const _msq = useMasqueradeClient();
 
-  onMount(async () => {
-    while (refreshPeriodically()) {
-      await delay(ONE_SEC_MS * 7);
+  const init = async (origins?: TOrigin[]) => {
+    if (initialized()) return;
 
-      if (_msq()) {
-        const origins = Object.keys(allOriginData);
-        await fetch(origins);
-      }
-    }
-  });
+    await fetch(origins, true);
 
-  onCleanup(() => setRefreshPeriodically(false));
+    setInitialized(true);
+  };
 
   const fetch = async (origins?: TOrigin[], ignoreDiminishing?: boolean) => {
     if (Date.now() - fetchedAt() < ONE_SEC_MS * 5 && !ignoreDiminishing) return;
@@ -131,7 +127,7 @@ export function OriginDataStore(props: IChildren) {
     <OriginDataContext.Provider
       value={{
         originsData: allOriginData,
-
+        init,
         fetch,
         addNewMask,
         editPseudonym,
