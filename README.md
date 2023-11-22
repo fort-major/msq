@@ -4,20 +4,18 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* try importing with `https://`...
-* make snap as futureproof as possible
-* investigate other wallet-related ICRCs
-
-* payment with unknown token (add the token automatically)
+* Install metamask error
+* error pages
+* set snap homepage
 * payment by link
 * QR code link to payment page
 * donation page
 * trim-validate all inputs
-* error pages
-
-* refine frontend + add transitions + mobile + adaptive
-* refine security: freeze deps versions, check all events safety
+* txn history
 * landing pages
+
+* adaptive (best-effort)
+* refine security: freeze deps versions, check all events safety, xss safety
 * demo shop project add order list
 * REPLACE CHARGING TOKENS (maybe make it a part of configuration)
 * bump all dep versions
@@ -27,6 +25,9 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * update tests
 * readme update + inner readmes
 
+* try implementing it as an agent again
+
+* replace METAMASK_LINK
 * storybook + design system + encapsulate more comps
 * mock ICRC-1 tokens for development
 * dollars and exchange rates

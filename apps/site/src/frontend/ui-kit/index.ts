@@ -40,10 +40,14 @@ export const Root = styled.div`
 export const Page = styled.main`
   position: relative;
   background-color: ${COLOR_BLACK};
-  padding-top: ${(HEADER_HEIGHT + BAR_HEIGHT).toString()}px;
+  margin-top: ${(HEADER_HEIGHT + BAR_HEIGHT).toString()}px;
   display: flex;
   flex-flow: column nowrap;
   flex: 1;
+
+  @media (max-width: 1024px) {
+    margin-top: ${(BAR_HEIGHT * 2 + HEADER_HEIGHT).toString()}px;
+  }
 `;
 
 export const CabinetPage = styled.div`

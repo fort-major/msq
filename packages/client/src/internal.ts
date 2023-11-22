@@ -21,29 +21,25 @@ import {
   IICRC1EditAssetAccountRequest,
   IStateGetAllAssetDataRequest,
   IStateGetAllOriginDataRequest,
+  unreacheable,
+  ErrorCode,
 } from "@fort-major/masquerade-shared";
 import { MasqueradeClient } from "./client";
 
-export interface IInternalSnapClientParams {
-  snapId?: string | undefined;
-  snapVersion?: string | undefined;
-  shouldBeFlask?: boolean | undefined;
-  debug?: boolean | undefined;
-  forceReinstall?: boolean | undefined;
-}
-
 export class InternalSnapClient {
-  static async create(params?: IInternalSnapClientParams): Promise<InternalSnapClient> {
-    const inner = await MasqueradeClient.create(params);
-
-    return new InternalSnapClient(inner);
+  static create(client: MasqueradeClient | undefined): InternalSnapClient {
+    return new InternalSnapClient(client);
   }
 
   getInner(): MasqueradeClient {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     return this.inner;
   }
 
   async register(toOrigin: TOrigin): Promise<IMask | null> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     const body: IIdentityAddRequest = { toOrigin };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.identity.add, body);
@@ -54,6 +50,8 @@ export class InternalSnapClient {
     withIdentityId: TIdentityId,
     withDeriviationOrigin: TOrigin = toOrigin,
   ): Promise<true> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     const body: IIdentityLoginRequest = {
       toOrigin,
       withLinkedOrigin: withDeriviationOrigin,
@@ -64,42 +62,56 @@ export class InternalSnapClient {
   }
 
   async getLoginOptions(forOrigin: TOrigin): Promise<IIdentityGetLoginOptionsResponse> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     const body: IIdentityGetLoginOptionsRequest = { forOrigin };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.identity.getLoginOptions, body);
   }
 
   async getAllOriginData(origins?: string[]): Promise<IStateGetAllOriginDataResponse> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     const body: IStateGetAllOriginDataRequest = { origins };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.state.getAllOriginData, body);
   }
 
   async getAllAssetData(assetIds?: string[]): Promise<IStateGetAllAssetDataResponse> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     const body: IStateGetAllAssetDataRequest = { assetIds };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.state.getAllAssetData, body);
   }
 
   async addAsset(assetId: string, assetName: string, assetSymbol: string): Promise<IAssetDataExternal | null> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     const body: IICRC1AddAssetRequest = { assetId, name: assetName, symbol: assetSymbol };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAsset, body);
   }
 
   async addAssetAccount(assetId: string, assetName: string, assetSymbol: string): Promise<string | null> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     const body: IICRC1AddAssetAccountRequest = { assetId, name: assetName, symbol: assetSymbol };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAssetAccount, body);
   }
 
   async editAssetAccount(assetId: string, accountId: number, newName: string): Promise<void> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     const body: IICRC1EditAssetAccountRequest = { assetId, accountId, newName };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.editAssetAccount, body);
   }
 
   async editPseudonym(origin: TOrigin, identityId: TIdentityId, newPseudonym: string): Promise<void> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     const body: IIdentityEditPseudonymRequest = {
       origin,
       identityId,
@@ -110,6 +122,8 @@ export class InternalSnapClient {
   }
 
   async stopSession(origin: TOrigin): Promise<boolean> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     const body: IIdentityStopSessionRequest = {
       origin,
     };
@@ -118,6 +132,8 @@ export class InternalSnapClient {
   }
 
   async unlinkOne(origin: TOrigin, withOrigin: TOrigin): Promise<boolean> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     const body: IIdentityUnlinkOneRequest = {
       origin,
       withOrigin,
@@ -127,6 +143,8 @@ export class InternalSnapClient {
   }
 
   async unlinkAll(origin: TOrigin): Promise<boolean> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     const body: IIdentityUnlinkAllRequest = {
       origin,
     };
@@ -135,16 +153,22 @@ export class InternalSnapClient {
   }
 
   async showICRC1TransferConfirm(body: IShowICRC1TransferConfirmRequest): Promise<boolean> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.showTransferConfirm, body);
   }
 
   async getStats(): Promise<IStatistics> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     return await this.inner._requestSnap(SNAP_METHODS.protected.statistics.get);
   }
 
   async resetStats(): Promise<true> {
+    if (!this.inner) unreacheable("Don't use uninitialized client");
+
     return await this.inner._requestSnap(SNAP_METHODS.protected.statistics.reset);
   }
 
-  constructor(private readonly inner: MasqueradeClient) {}
+  constructor(private readonly inner: MasqueradeClient | undefined) {}
 }

@@ -8,6 +8,7 @@ import { createBackendActor } from "../../backend";
 import { Order } from "../../../declarations/demo_backend/demo_backend.did";
 import { OrderComp } from "../../components/order";
 import { Principal } from "@dfinity/principal";
+import { TMsqCreateOk } from "@fort-major/masquerade-client";
 
 interface IProfile {
   pseudonym: string;
@@ -26,9 +27,13 @@ export const IndexPage = () => {
   const [loading, setLoading] = createSignal<boolean>(false);
   const [order, setOrder] = createSignal<Order | null>(null);
 
-  const [msq] = createResource(() =>
-    MasqueradeClient.create({ forceReinstall: import.meta.env.VITE_MSQ_MODE === "DEV" }),
-  );
+  const [msq] = createResource(async () => {
+    const result = await MasqueradeClient.create({ forceReinstall: import.meta.env.VITE_MSQ_MODE === "DEV" });
+
+    if (!result.hasOwnProperty("Ok")) throw new Error("Install MetaMask, Unblock or Enable MSQ Snap");
+
+    return (result as TMsqCreateOk).Ok;
+  });
 
   const [backend] = createResource(identity, async (identity) => {
     const agent = new HttpAgent({ identity, host: import.meta.env.VITE_MSQ_DFX_NETWORK_HOST });

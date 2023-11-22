@@ -11,7 +11,7 @@ export const NotificationBarWrapper = styled.div`
   display: flex;
   width: 100%;
   height: ${BAR_HEIGHT.toString()}px;
-  padding: 10px;
+  padding: 10px 20px;
   box-sizing: border-box;
   justify-content: center;
   align-items: center;
@@ -19,4 +19,8 @@ export const NotificationBarWrapper = styled.div`
   flex-shrink: 0;
 
   background-color: ${COLOR_DARK_BLUE};
+
+  @media (max-width: 1024px) {
+    height: ${(BAR_HEIGHT * 2).toString()}px;
+  }
 `;

@@ -24,6 +24,7 @@ import { PaymentCheckoutPage } from "./pages/integration/payment/checkout";
 import { IndexPage } from "./pages/index";
 import { AssetsStore } from "./store/assets";
 import { OriginDataStore } from "./store/origins";
+import { Error404Page, ErrorEnableMsqPage, ErrorInstallMetaMaskPage, ErrorUnblockMsqPage } from "./pages/error";
 
 const root = document.getElementById("root");
 
@@ -45,41 +46,47 @@ function LoaderWrapper() {
 
 export function App() {
   return (
-    <Root>
+    <Router>
       <GlobalStore>
         <AssetsStore>
           <OriginDataStore>
-            <Page>
-              <Router>
+            <Root>
+              <Page>
                 <NotificationBar />
                 <Header />
                 <Routes>
-                  <Route path="/" component={IndexPage} />
-                  <Route path="/integration" component={IntegrationRoot}>
-                    <Route path="/login" component={LoginPage} />
-                    <Route path="/pay">
-                      <Route path="/" component={PaymentPage} />
-                      <Route path="/checkout" component={PaymentCheckoutPage} />
+                  <Route path="/" component={IndexPage}>
+                    <Route path="/install-metamask" component={ErrorInstallMetaMaskPage} />
+                    <Route path="/unblock-msq" component={ErrorUnblockMsqPage} />
+                    <Route path="/enable-msq" component={ErrorEnableMsqPage} />
+
+                    <Route path="/integration" component={IntegrationRoot}>
+                      <Route path="/login" component={LoginPage} />
+                      <Route path="/pay">
+                        <Route path="/" component={PaymentPage} />
+                        <Route path="/checkout" component={PaymentCheckoutPage} />
+                      </Route>
                     </Route>
-                  </Route>
-                  <Route path="/cabinet">
-                    <Route path="/my-masks" component={MyMasksPage} />
-                    <Route path="/my-sessions" component={MySessionsPage} />
-                    <Route path="/my-links" component={MyLinksPage} />
-                    <Route path="/my-assets">
-                      <Route path="/" component={MyAssetsPage} />
-                      <Route path="/send" component={SendPage} />
+                    <Route path="/cabinet">
+                      <Route path="/my-masks" component={MyMasksPage} />
+                      <Route path="/my-sessions" component={MySessionsPage} />
+                      <Route path="/my-links" component={MyLinksPage} />
+                      <Route path="/my-assets">
+                        <Route path="/" component={MyAssetsPage} />
+                        <Route path="/send" component={SendPage} />
+                      </Route>
                     </Route>
+                    <Route path="/statistics" component={StatisticsPage} />
+                    <Route path="*" component={Error404Page} />
                   </Route>
-                  <Route path="/statistics" component={StatisticsPage} />
                 </Routes>
-              </Router>
-            </Page>
-            <LoaderWrapper />
+              </Page>
+              <LoaderWrapper />
+            </Root>
           </OriginDataStore>
         </AssetsStore>
       </GlobalStore>
-    </Root>
+    </Router>
   );
 }
 

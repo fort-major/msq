@@ -1,6 +1,6 @@
 import { Principal } from "@dfinity/principal";
 import { BoopAvatarWrapper } from "./style";
-import { makeAvatarSvg } from "@fort-major/masquerade-shared";
+import { FACE_EXPRESSIONS, IAngle, makeAvatarSvg, makeAvatarSvgCustom } from "@fort-major/masquerade-shared";
 
 export interface IBoopAvatarProps {
   /**
@@ -18,6 +18,36 @@ export function BoopAvatar(props: IBoopAvatarProps) {
       size={props.size}
       ref={(r) => {
         r.innerHTML = makeAvatarSvg(props.principal);
+      }}
+    />
+  );
+}
+
+export interface ICustomBoopAvatarProps {
+  id: string;
+  size: number;
+  angle: IAngle;
+  faceExpression: 1 | 2 | 3 | 4;
+  bodyColor: string;
+  bgColor: string;
+  eyeWhiteColor: string;
+  classList?: { [k: string]: boolean };
+}
+
+export function CustomBoopAvatar(props: ICustomBoopAvatarProps) {
+  return (
+    <BoopAvatarWrapper
+      classList={props.classList}
+      size={props.size}
+      ref={(r) => {
+        r.innerHTML = makeAvatarSvgCustom(
+          props.id,
+          props.bodyColor,
+          props.angle,
+          FACE_EXPRESSIONS[props.faceExpression - 1],
+          props.bgColor,
+          props.eyeWhiteColor,
+        );
       }}
     />
   );

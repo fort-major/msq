@@ -33,6 +33,17 @@ const HeaderDiv = styled.header`
     width: 90px;
     height: 30px;
   }
+
+  @media (max-width: 1024px) {
+    top: ${(BAR_HEIGHT * 2).toString()}px;
+    border-bottom: none;
+    padding: 20px;
+
+    & > img {
+      width: 60px;
+      height: 20px;
+    }
+  }
 `;
 
 const MyWalletLink = styled.p`

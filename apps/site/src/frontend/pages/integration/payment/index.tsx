@@ -131,7 +131,7 @@ export function PaymentPage() {
   };
 
   const handleCheckoutCancel = () => {
-    navigate("/integration/pay");
+    navigate("/integration/pay", { replace: true });
     setCheckoutPageProps(undefined);
   };
 

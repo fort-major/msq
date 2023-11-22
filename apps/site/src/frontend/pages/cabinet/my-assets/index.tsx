@@ -18,19 +18,7 @@ import { useMasqueradeClient } from "../../../store/global";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { useNavigate } from "@solidjs/router";
 import { ISendPageProps } from "./send";
-import {
-  ColorError,
-  ColorGray115,
-  ColorGray130,
-  H2,
-  H4,
-  H5,
-  Size12,
-  Size20,
-  Text,
-  Weight500,
-  Weight600,
-} from "../../../ui-kit/typography";
+import { ColorGray115, ColorGray130, H2, H4, H5, Text } from "../../../ui-kit/typography";
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { IReceivePopupProps, ReceivePopup } from "./receive";
 import { AddAccountBtn } from "../../../components/add-account-btn";

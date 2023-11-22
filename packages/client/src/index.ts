@@ -1,5 +1,13 @@
-export { MasqueradeClient, type IMasqueradeClientParams } from "./client";
-export { InternalSnapClient, IInternalSnapClientParams } from "./internal";
+export {
+  MasqueradeClient,
+  type IMasqueradeClientParams,
+  type TMasqueradeCreateResult,
+  type TMsqCreateOk,
+  type TMsqCreateErrInstallMetaMask,
+  type TMsqCreateErrUnblockMetaMask,
+  type TMsqCreateErrEnableMetaMask,
+} from "./client";
+export { InternalSnapClient } from "./internal";
 export { MasqueradeIdentity } from "./identity";
 
 // these env variables are inlined during build process

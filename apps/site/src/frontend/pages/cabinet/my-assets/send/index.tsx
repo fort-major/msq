@@ -75,7 +75,7 @@ export function SendPage() {
   const [props] = useSendPageProps();
 
   onMount(() => {
-    if (!props()) navigate("/cabinet/my-assets");
+    if (!props()) navigate("/unknown", { replace: true });
   });
 
   const msq = useMasqueradeClient();

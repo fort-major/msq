@@ -38,6 +38,16 @@ export interface IMasqueradeClientParams {
   forceReinstall?: boolean | undefined;
 }
 
+export type TMasqueradeCreateResult =
+  | TMsqCreateOk
+  | TMsqCreateErrInstallMetaMask
+  | TMsqCreateErrUnblockMetaMask
+  | TMsqCreateErrEnableMetaMask;
+export type TMsqCreateOk = { Ok: MasqueradeClient };
+export type TMsqCreateErrInstallMetaMask = { InstallMetaMask: null };
+export type TMsqCreateErrUnblockMetaMask = { UnblockMSQ: null };
+export type TMsqCreateErrEnableMetaMask = { EnableMSQ: null };
+
 /**
  * ## A client to interact with the Masquerade Snap
  */
@@ -377,13 +387,19 @@ export class MasqueradeClient {
    * @param params - {@link IMasqueradeClientParams}
    * @returns - an initialized {@link MasqueradeClient} object that can be used right away
    */
-  static async create(params?: IMasqueradeClientParams): Promise<MasqueradeClient> {
-    const provider = await detectEthereumProvider<IMetaMaskEthereumProvider>({
-      mustBeMetaMask: true,
-    });
+  static async create(params?: IMasqueradeClientParams): Promise<TMasqueradeCreateResult> {
+    let provider;
 
-    if (!provider) {
-      err(ErrorCode.METAMASK_ERROR, "Install MetaMask");
+    try {
+      provider = await detectEthereumProvider<IMetaMaskEthereumProvider>({
+        mustBeMetaMask: true,
+      });
+
+      if (!provider) {
+        return { InstallMetaMask: null };
+      }
+    } catch {
+      return { InstallMetaMask: null };
     }
 
     const version = await provider!.request<string>({
@@ -396,7 +412,7 @@ export class MasqueradeClient {
     const forceReinstall = params?.forceReinstall ?? DEFAULT_FORCE_REINSTALL;
 
     if ((params?.shouldBeFlask ?? DEFAULT_SHOULD_BE_FLASK) && !isFlask) {
-      err(ErrorCode.METAMASK_ERROR, "Install MetaMask Flask");
+      return { InstallMetaMask: null };
     }
 
     const getSnapsResponse: IGetSnapsResponse = await provider.request({ method: "wallet_getSnaps" });
@@ -408,15 +424,15 @@ export class MasqueradeClient {
         params: { [snapId]: { version: snapVersion } },
       });
 
-      return new MasqueradeClient(provider, snapId, debug);
+      return { Ok: new MasqueradeClient(provider, snapId, debug) };
     }
 
     if (msqSnap.blocked) {
-      err(ErrorCode.METAMASK_ERROR, "Unblock the Masquerade snap");
+      return { UnblockMSQ: null };
     }
 
     if (!msqSnap.enabled) {
-      err(ErrorCode.METAMASK_ERROR, "Enable the Masquerade snap");
+      return { EnableMSQ: null };
     }
 
     if (msqSnap.version !== snapVersion || forceReinstall) {
@@ -426,7 +442,7 @@ export class MasqueradeClient {
       });
     }
 
-    return new MasqueradeClient(provider, snapId, debug);
+    return { Ok: new MasqueradeClient(provider, snapId, debug) };
   }
 
   private constructor(

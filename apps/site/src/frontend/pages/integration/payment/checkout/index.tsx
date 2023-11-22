@@ -28,7 +28,7 @@ import {
   CopyIcon,
 } from "./style";
 import { EIconKind, Icon } from "../../../../ui-kit/icon";
-import { Match, Show, Switch, createSignal } from "solid-js";
+import { Match, Show, Switch, createSignal, onMount } from "solid-js";
 import { getRandomMemo, makeAgent, makeIcrc1Salt, tokensToStr } from "../../../../utils";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { referrerOrigin, usePaymentCheckoutPageProps } from "../../../../store/integration";
@@ -73,7 +73,9 @@ export function PaymentCheckoutPage() {
   const [subaccountCopied, setSubaccountCopied] = createSignal(false);
   const [memoCopied, setMemoCopied] = createSignal(false);
 
-  if (!props()) navigate("/");
+  onMount(() => {
+    if (!props()) navigate("/", { replace: true });
+  });
 
   const handleCopyRecipientPrincipal = () => {
     navigator.clipboard.writeText(props()!.recepientPrincipal);

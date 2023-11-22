@@ -1,8 +1,8 @@
-import { Accessor, Resource, Setter, createContext, createResource, createSignal, onMount, useContext } from "solid-js";
-import { InternalSnapClient, MasqueradeIdentity } from "@fort-major/masquerade-client";
-import { IChildren, handleStatistics, makeAgent, makeAnonymousAgent } from "../utils";
+import { Accessor, Resource, createContext, createResource, createSignal, useContext } from "solid-js";
+import { InternalSnapClient, MasqueradeClient, MasqueradeIdentity, TMsqCreateOk } from "@fort-major/masquerade-client";
+import { IChildren, SHOULD_BE_FLASK, handleStatistics, makeAnonymousAgent } from "../utils";
 import { unreacheable } from "@fort-major/masquerade-shared";
-import { AnonymousIdentity, HttpAgent } from "@dfinity/agent";
+import { useNavigate } from "@solidjs/router";
 
 interface IGlobalContext {
   snapClient: Resource<InternalSnapClient>;
@@ -44,20 +44,42 @@ export function useLoader(): Accessor<boolean> {
 
 export function GlobalStore(props: IChildren) {
   const showLoader = createSignal(true);
+  const navigate = useNavigate();
 
   const [snapClient] = createResource(async () => {
-    const client = await InternalSnapClient.create({
+    const inner = await MasqueradeClient.create({
       snapId: import.meta.env.VITE_MSQ_SNAP_ID,
       snapVersion: import.meta.env.VITE_MSQ_SNAP_VERSION,
+      shouldBeFlask: SHOULD_BE_FLASK,
       debug: import.meta.env.VITE_MSQ_MODE === "DEV",
       forceReinstall: import.meta.env.VITE_MSQ_MODE === "DEV",
     });
 
-    const isAuthorized = await client.getInner().isAuthorized();
-    if (!isAuthorized) await client.login(window.location.origin, 0, import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
+    let client = InternalSnapClient.create(undefined);
+    if (inner.hasOwnProperty("InstallMetaMask")) {
+      showLoader[1](false);
+      navigate("/install-metamask");
+    }
 
-    makeAnonymousAgent(import.meta.env.VITE_MSQ_DFX_NETWORK_HOST).then((agent) => handleStatistics(agent, client));
-    showLoader[1](false);
+    if (inner.hasOwnProperty("UnblockMSQ")) {
+      showLoader[1](false);
+      navigate("/unblock-msq");
+    }
+
+    if (inner.hasOwnProperty("EnableMSQ")) {
+      showLoader[1](false);
+      navigate("/enable-msq");
+    }
+
+    if (inner.hasOwnProperty("Ok")) {
+      client = InternalSnapClient.create((inner as TMsqCreateOk).Ok);
+
+      const isAuthorized = await client.getInner().isAuthorized();
+      if (!isAuthorized) await client.login(window.location.origin, 0, import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
+
+      makeAnonymousAgent(import.meta.env.VITE_MSQ_DFX_NETWORK_HOST).then((agent) => handleStatistics(agent, client));
+      showLoader[1](false);
+    }
 
     return client;
   });
