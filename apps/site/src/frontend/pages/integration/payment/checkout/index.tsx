@@ -31,7 +31,7 @@ import { EIconKind, Icon } from "../../../../ui-kit/icon";
 import { Match, Show, Switch, createSignal, onMount } from "solid-js";
 import { getRandomMemo, makeAgent, makeIcrc1Salt, tokensToStr } from "../../../../utils";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
-import { referrerOrigin, usePaymentCheckoutPageProps } from "../../../../store/integration";
+import { referrerOrigin } from "../../../../store/integration";
 import { useNavigate } from "@solidjs/router";
 import { useMasqueradeClient } from "../../../../store/global";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
@@ -40,6 +40,7 @@ import { ITxnResult } from "../../../cabinet/my-assets/send";
 import { TxnFailPage } from "../../../txn/fail";
 import { TxnSuccessPage } from "../../../txn/success";
 import { COLOR_ACCENT, COLOR_GRAY_140, COLOR_GRAY_165 } from "../../../../ui-kit";
+import { usePaymentCheckoutPageProps } from "../../../../store/assets";
 
 export interface IPaymentCheckoutPageProps {
   accountId: TAccountId;
@@ -61,6 +62,7 @@ export interface IPaymentCheckoutPageProps {
   onSuccess(blockId: bigint): void;
   onFail(): void;
   onCancel(): void;
+  onBack(): void;
 }
 
 export function PaymentCheckoutPage() {
@@ -174,10 +176,6 @@ export function PaymentCheckoutPage() {
       document.body.style.cursor = "unset";
       setLoading(false);
     }
-  };
-
-  const handleClose = () => {
-    window.close();
   };
 
   return (
@@ -365,11 +363,11 @@ export function PaymentCheckoutPage() {
             decimals={props()!.decimals}
             amount={calcTotalAmount()}
             blockId={txnResult()!.blockIdx!}
-            onBack={handleClose}
+            onBack={props()!.onBack}
           />
         </Match>
         <Match when={!txnResult()!.success}>
-          <TxnFailPage error={txnResult()?.error!} onBack={handleClose} />
+          <TxnFailPage error={txnResult()?.error!} onBack={props()!.onBack} />
         </Match>
       </Switch>
     </CheckoutPageWrapper>

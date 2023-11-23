@@ -1,13 +1,12 @@
-import { For, Show, createEffect, createSignal, onMount } from "solid-js";
-import { useLoader, useMasqueradeClient } from "../../../store/global";
+import { For, Show, createEffect, createSignal } from "solid-js";
+import { useMasqueradeClient } from "../../../store/global";
 import {
   referrerOrigin,
   sendICRC1TransferResult,
   useIcrc1TransferRequestMsg,
-  usePaymentCheckoutPageProps,
   useReferrerWindow,
 } from "../../../store/integration";
-import { useNavigate } from "@solidjs/router";
+import { useNavigate, useSearchParams } from "@solidjs/router";
 import { Principal } from "@dfinity/principal";
 import { tokensToStr } from "../../../utils";
 import {
@@ -21,7 +20,7 @@ import {
   PaymentPageHeading,
   PaymentPageWrapper,
 } from "./style";
-import { ColorAccent, H3, Size20, Text, Weight600 } from "../../../ui-kit/typography";
+import { ColorAccent, H3, Text } from "../../../ui-kit/typography";
 import { ErrorCode, TAccountId, err, originToHostname } from "@fort-major/masquerade-shared";
 import { AccountCard } from "../../../components/account-card";
 import { AddAccountBtn } from "../../../components/add-account-btn";
@@ -29,7 +28,7 @@ import { Button, EButtonKind } from "../../../ui-kit/button";
 import { EIconKind } from "../../../ui-kit/icon";
 import { IReceivePopupProps, ReceivePopup } from "../../cabinet/my-assets/receive";
 import { IPaymentCheckoutPageProps } from "./checkout";
-import { useAssetData } from "../../../store/assets";
+import { useAssetData, usePaymentCheckoutPageProps } from "../../../store/assets";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function PaymentPage() {
@@ -83,6 +82,7 @@ export function PaymentPage() {
     const assetId = getAssetId()!;
 
     setReceivePopupProps({
+      assetId,
       principal: assets[assetId]!.accounts[accountId].principal!,
       symbol: assets[assetId]!.metadata!.symbol,
       onClose: handleReceiveClose,
@@ -91,6 +91,10 @@ export function PaymentPage() {
 
   const handleReceiveClose = () => {
     setReceivePopupProps(null);
+  };
+
+  const handleCheckoutBack = () => {
+    window.close();
   };
 
   const handleCheckoutStart = (accountId: TAccountId) => {
@@ -116,6 +120,7 @@ export function PaymentPage() {
       onSuccess: handleCheckoutSuccess,
       onFail: handleCheckoutFail,
       onCancel: handleCheckoutCancel,
+      onBack: handleCheckoutBack,
     };
 
     setCheckoutPageProps(p);
@@ -192,7 +197,7 @@ export function PaymentPage() {
               />
             </PaymentPageAccountsWrapper>
             <PaymentPageButtons>
-              <Button kind={EButtonKind.Additional} onClick={() => window.close()} text="Dismiss" fullWidth />
+              <Button kind={EButtonKind.Additional} onClick={handleCheckoutBack} text="Dismiss" fullWidth />
               <Show
                 when={
                   (assets[getAssetId()!]!.accounts[selectedAccountId()].balance || 0n) >=

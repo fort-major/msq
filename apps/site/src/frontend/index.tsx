@@ -25,6 +25,7 @@ import { IndexPage } from "./pages/index";
 import { AssetsStore } from "./store/assets";
 import { OriginDataStore } from "./store/origins";
 import { Error404Page, ErrorEnableMsqPage, ErrorInstallMetaMaskPage, ErrorUnblockMsqPage } from "./pages/error";
+import { UrlBasedPaymentPage } from "./pages/integration/payment/url-payment";
 
 const root = document.getElementById("root");
 
@@ -66,6 +67,10 @@ export function App() {
                         <Route path="/" component={PaymentPage} />
                         <Route path="/checkout" component={PaymentCheckoutPage} />
                       </Route>
+                    </Route>
+                    <Route path="/pay">
+                      <Route path="/" component={UrlBasedPaymentPage} />
+                      <Route path="/send" component={SendPage} />
                     </Route>
                     <Route path="/cabinet">
                       <Route path="/my-masks" component={MyMasksPage} />

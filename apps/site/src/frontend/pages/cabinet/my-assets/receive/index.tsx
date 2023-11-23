@@ -4,6 +4,7 @@ import {
   BAR_HEIGHT,
   COLOR_ACCENT,
   COLOR_BLACK,
+  COLOR_BLUE,
   COLOR_GRAY_108,
   COLOR_GRAY_140,
   COLOR_GRAY_150,
@@ -12,27 +13,38 @@ import {
 } from "../../../../ui-kit";
 import { Portal } from "solid-js/web";
 import { EIconKind, Icon } from "../../../../ui-kit/icon";
-import { ColorGray140, H5, Size12, Size16, Text, Weight500, Weight600 } from "../../../../ui-kit/typography";
+import { H5, Text } from "../../../../ui-kit/typography";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
-import { Show, createSignal, onCleanup, onMount } from "solid-js";
+import { Show, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { createPaymentLink } from "../../../../utils";
 
 export interface IReceivePopupProps {
+  assetId: string;
   principal: string;
   symbol: string;
   onClose(): void;
 }
 
 export function ReceivePopup(props: IReceivePopupProps) {
-  const [copied, setCopied] = createSignal(false);
+  const [principalCopied, setPrincipalCopied] = createSignal(false);
+  const [linkCopied, setLinkCopied] = createSignal(false);
 
-  const handleCopy = () => {
+  const handleCopyPrincipal = () => {
     navigator.clipboard.writeText(props.principal);
-    setCopied(true);
+    setPrincipalCopied(true);
+  };
+
+  const paymentLink = createMemo(() => createPaymentLink("t", props.assetId, props.principal));
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(paymentLink().toString());
+    setLinkCopied(true);
   };
 
   const handleRenderQR = (ref: HTMLDivElement) => {
     const qr = new QRCode(ref, { colorDark: COLOR_BLACK, width: 300, height: 300 });
-    qr.makeCode(props.principal);
+
+    qr.makeCode(paymentLink().toString());
   };
 
   onMount(() => {
@@ -52,6 +64,30 @@ export function ReceivePopup(props: IReceivePopupProps) {
             <DataWrapper>
               <DataItem>
                 <Text size={12} weight={500} color={COLOR_GRAY_140}>
+                  MSQ payment link
+                </Text>
+                <DataItemContent>
+                  <Text size={12} weight={600} class={DataItemContentText}>
+                    {paymentLink().toString()}
+                  </Text>
+                  <Show
+                    when={linkCopied()}
+                    fallback={
+                      <Icon kind={EIconKind.Copy} size={14} onClick={handleCopyLink} classList={{ [CopyIcon]: true }} />
+                    }
+                  >
+                    <Icon
+                      kind={EIconKind.Check}
+                      size={14}
+                      onClick={handleCopyLink}
+                      classList={{ [CopyIcon]: true }}
+                      color={COLOR_ACCENT}
+                    />
+                  </Show>
+                </DataItemContent>
+              </DataItem>
+              <DataItem>
+                <Text size={12} weight={500} color={COLOR_GRAY_140}>
                   Principal ID
                 </Text>
                 <DataItemContent>
@@ -59,15 +95,20 @@ export function ReceivePopup(props: IReceivePopupProps) {
                     {props.principal}
                   </Text>
                   <Show
-                    when={copied()}
+                    when={principalCopied()}
                     fallback={
-                      <Icon kind={EIconKind.Copy} size={14} onClick={handleCopy} classList={{ [CopyIcon]: true }} />
+                      <Icon
+                        kind={EIconKind.Copy}
+                        size={14}
+                        onClick={handleCopyPrincipal}
+                        classList={{ [CopyIcon]: true }}
+                      />
                     }
                   >
                     <Icon
                       kind={EIconKind.Check}
                       size={14}
-                      onClick={handleCopy}
+                      onClick={handleCopyPrincipal}
                       classList={{ [CopyIcon]: true }}
                       color={COLOR_ACCENT}
                     />

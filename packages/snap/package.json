@@ -16,7 +16,7 @@
   ],
   "main": "dist/bundle.js",
   "types": "",
-  "author": "seniorjoinu <senior.joinu@gmail.com>",
+  "author": "fort-major.org",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
   "bugs": {
     "url": "https://github.com/fort-major/masquerade/issues"
   },
-  "homepage": "https://github.com/fort-major/masquerade#readme",
+  "homepage": "https://snap.msq.tech",
   "scripts": {
     "prod:build": "tsc && pnpm run version:set && mm-snap build -s src/index.ts && mm-snap manifest --fix",
     "prod:pub": "npm publish",

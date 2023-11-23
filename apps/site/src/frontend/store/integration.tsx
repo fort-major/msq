@@ -17,16 +17,10 @@ import { IPaymentCheckoutPageProps } from "../pages/integration/payment/checkout
 
 export const referrerOrigin = document.referrer ? new URL(document.referrer).origin : null;
 
-type PaymentCheckoutPageStore = [
-  Accessor<IPaymentCheckoutPageProps | undefined>,
-  Setter<IPaymentCheckoutPageProps | undefined>,
-];
-
 interface IIntegrationContext {
   referrerWindow: [Accessor<MessageEventSource | undefined>, Setter<MessageEventSource | undefined>];
   loginRequestMsg: Accessor<ILoginRequestMsg | undefined>;
   icrc1TransferRequestMsg: Accessor<IICRC1TransferRequestMsg | undefined>;
-  paymentCheckoutPageProps: PaymentCheckoutPageStore;
 }
 
 const IntegrationContext = createContext<IIntegrationContext>();
@@ -61,23 +55,12 @@ export function useIcrc1TransferRequestMsg() {
   return ctx.icrc1TransferRequestMsg;
 }
 
-export function usePaymentCheckoutPageProps() {
-  const ctx = useContext(IntegrationContext);
-
-  if (!ctx) {
-    unreacheable("Integration context is uninitialized");
-  }
-
-  return ctx.paymentCheckoutPageProps;
-}
-
 export function IntegrationStore(props: IChildren) {
   const [referrerWindow, setReferrerWindow] = createSignal<MessageEventSource | undefined>(undefined);
   const [loginRequestMsg, setLoginRequestMsg] = createSignal<ILoginRequestMsg | undefined>(undefined);
   const [icrc1TransferRequestMsg, setIcrc1TransferRequestMsg] = createSignal<IICRC1TransferRequestMsg | undefined>(
     undefined,
   );
-  const [paymentCheckoutPageProps, setPaymentCheckoutPageProps] = createSignal<IPaymentCheckoutPageProps | undefined>();
 
   window.onmessage = (msg) => {
     if (!msg || !msg.isTrusted || msg.origin !== referrerOrigin) {
@@ -130,7 +113,6 @@ export function IntegrationStore(props: IChildren) {
         referrerWindow: [referrerWindow, setReferrerWindow],
         loginRequestMsg,
         icrc1TransferRequestMsg,
-        paymentCheckoutPageProps: [paymentCheckoutPageProps, setPaymentCheckoutPageProps],
       }}
     >
       {props.children}

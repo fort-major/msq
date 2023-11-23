@@ -39,7 +39,7 @@ export interface IAccountCardProps {
   onClick?: (accountId: TAccountId, assetId: string) => void;
 
   onSend?: (accountId: TAccountId, assetId: string) => void;
-  onReceive?: (symbol: string, principal: string) => void;
+  onReceive?: (assetId: string, symbol: string, principal: string) => void;
   onEdit?: (newName: string) => void;
 }
 
@@ -70,7 +70,7 @@ export function AccountCard(props: IAccountCardProps) {
   };
 
   const handleReceive = () => {
-    props.onReceive!(props.symbol, props.principal!);
+    props.onReceive!(props.assetId, props.symbol, props.principal!);
   };
 
   return (

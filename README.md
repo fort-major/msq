@@ -4,16 +4,10 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 ## TODO
 
-* Install metamask error
-* error pages
-* set snap homepage
-* payment by link
-* QR code link to payment page
-* donation page
-* trim-validate all inputs
-* txn history
 * landing pages
+* add assets via frontend
 
+* set snap homepage
 * adaptive (best-effort)
 * refine security: freeze deps versions, check all events safety, xss safety
 * demo shop project add order list
@@ -30,6 +24,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * replace METAMASK_LINK
 * storybook + design system + encapsulate more comps
 * mock ICRC-1 tokens for development
+* txn history
 * dollars and exchange rates
 * transaction history & explorer
 * crypto gifts

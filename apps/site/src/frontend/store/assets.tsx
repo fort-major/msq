@@ -18,6 +18,7 @@ import { MasqueradeIdentity } from "@fort-major/masquerade-client";
 import { IMask, TAccountId, TOrigin, delay, unreacheable } from "@fort-major/masquerade-shared";
 import { AnonymousIdentity } from "@dfinity/agent";
 import { ISendPageProps } from "../pages/cabinet/my-assets/send";
+import { IPaymentCheckoutPageProps } from "../pages/integration/payment/checkout";
 
 export type IAssetDataExt = {
   accounts: {
@@ -38,6 +39,10 @@ export type IAssetDataExt = {
 // undefined == not loaded yet, null == erroed
 export type AllAssetData = Record<string, IAssetDataExt | undefined | null>;
 export type SendPagePropsStore = [Accessor<ISendPageProps | undefined>, Setter<ISendPageProps | undefined>];
+type PaymentCheckoutPageStore = [
+  Accessor<IPaymentCheckoutPageProps | undefined>,
+  Setter<IPaymentCheckoutPageProps | undefined>,
+];
 
 export interface IAssetDataStore {
   assets: AllAssetData;
@@ -48,6 +53,7 @@ export interface IAssetDataStore {
   editAccount: (assetId: string, accountId: TAccountId, newName: string) => Promise<void>;
   addAsset: (assetId: string) => Promise<void>;
   sendPageProps: SendPagePropsStore;
+  paymentCheckoutPageProps: PaymentCheckoutPageStore;
 }
 
 const AssetDataContext = createContext<IAssetDataStore>();
@@ -72,9 +78,20 @@ export function useSendPageProps(): SendPagePropsStore {
   return c.sendPageProps;
 }
 
+export function usePaymentCheckoutPageProps() {
+  const ctx = useContext(AssetDataContext);
+
+  if (!ctx) {
+    unreacheable("Integration context is uninitialized");
+  }
+
+  return ctx.paymentCheckoutPageProps;
+}
+
 export function AssetsStore(props: IChildren) {
   const [allAssetData, setAllAssetData] = createStore<AllAssetData>();
   const [sendPageProps, setSendPageProps] = createSignal<ISendPageProps | undefined>(undefined);
+  const [paymentCheckoutPageProps, setPaymentCheckoutPageProps] = createSignal<IPaymentCheckoutPageProps | undefined>();
   const [refreshPeriodically, setRefreshPeriodically] = createSignal(true);
   const [initialized, setInitialized] = createSignal(false);
   const _msq = useMasqueradeClient();
@@ -285,6 +302,7 @@ export function AssetsStore(props: IChildren) {
         editAccount,
         addAsset,
         sendPageProps: [sendPageProps, setSendPageProps],
+        paymentCheckoutPageProps: [paymentCheckoutPageProps, setPaymentCheckoutPageProps],
       }}
     >
       {props.children}

@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { For, Show, createEffect, createSignal } from "solid-js";
 import {
   AddAssetForm,
   AddAssetFormWrapper,
@@ -122,7 +122,8 @@ export function MyAssetsPage() {
       decimals: assetData.metadata!.decimals,
       fee: assetData.metadata!.fee,
 
-      onCancel: handleCancelSend,
+      onComplete: handleCancelSend,
+      onCancel: () => handleCancelSend(false),
     };
 
     setSendPopupProps(sendProps);
@@ -146,8 +147,9 @@ export function MyAssetsPage() {
     }
   };
 
-  const handleReceive = (symbol: string, principalId: string) => {
+  const handleReceive = (assetId: string, symbol: string, principalId: string) => {
     setReceivePopupProps({
+      assetId,
       principal: principalId,
       symbol,
       onClose: handleReceiveClose,

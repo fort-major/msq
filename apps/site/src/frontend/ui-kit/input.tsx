@@ -1,5 +1,5 @@
 import { Principal } from "@dfinity/principal";
-import { Show, createSignal } from "solid-js";
+import { Show, createEffect, createSignal, on } from "solid-js";
 import { eventHandler, strToTokens, tokensToStr } from "../utils";
 import { debugStringify, unreacheable } from "@fort-major/masquerade-shared";
 import { styled } from "solid-styled-components";
@@ -87,6 +87,15 @@ export function Input(props: IInputProps) {
   const [error, setError] = createSignal<string | null>(null);
   const [focused, setFocused] = createSignal(false);
 
+  createEffect(
+    on(defaultValue, (v) => {
+      if (v === value()) return;
+
+      setValue(v);
+      handleNewValue(false);
+    }),
+  );
+
   const handleChange = eventHandler((e: Event & { currentTarget: HTMLInputElement; target: HTMLInputElement }) => {
     setValue(e.target.value.trim());
 
@@ -139,7 +148,10 @@ export function Input(props: IInputProps) {
           }
         } catch (e) {
           props.onErr?.(true);
-          setError(`Invalid input - ${debugStringify(e)}`);
+          console.warn(e);
+
+          const err = (e as object).toString() || debugStringify(e);
+          setError(`Invalid input - ${err}`);
           return;
         }
       },
@@ -181,7 +193,10 @@ export function Input(props: IInputProps) {
           }
         } catch (e) {
           props.onErr?.(true);
-          setError(`Invalid input - ${JSON.stringify(e)}`);
+          console.warn(e);
+
+          const err = (e as object).toString() || debugStringify(e);
+          setError(`Invalid input - ${err}`);
           return;
         }
       },

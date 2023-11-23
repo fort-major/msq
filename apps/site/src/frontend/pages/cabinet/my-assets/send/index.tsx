@@ -8,7 +8,7 @@ import {
   makeIcrc1Salt,
   tokensToStr,
 } from "../../../../utils";
-import { Match, Show, Switch, createSignal, onMount } from "solid-js";
+import { Match, Show, Switch, createEffect, createSignal, onMount } from "solid-js";
 import { Principal } from "@dfinity/principal";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { EIconKind } from "../../../../ui-kit/icon";
@@ -48,7 +48,15 @@ export interface ISendPageProps {
   symbol: string;
   fee: bigint;
 
-  onCancel: (result: boolean) => void;
+  default?: {
+    recepientPrincipal: Principal;
+    recepientSubaccount?: string;
+    memo?: string;
+    amount?: bigint;
+  };
+
+  onComplete: (result: boolean) => void;
+  onCancel: () => void;
 }
 
 export interface ITxnResult {
@@ -63,6 +71,7 @@ const validateHex = (hex: string) =>
   hex.split("").every((c) => VALID_HEX_SYMBOLS.includes(c)) && hex.length % 2 == 0 ? null : "Invalid hex string";
 
 export function SendPage() {
+  const [props] = useSendPageProps();
   const [recipientPrincipal, setRecipientPrincipal] = createSignal<Principal | null>(null);
   const [recipientSubaccount, setRecipientSubaccount] = createSignal<string | null>(null);
   const [memo, setMemo] = createSignal<string | null>(null);
@@ -72,10 +81,33 @@ export function SendPage() {
   const [sending, setSending] = createSignal(false);
 
   const navigate = useNavigate();
-  const [props] = useSendPageProps();
 
   onMount(() => {
     if (!props()) navigate("/unknown", { replace: true });
+  });
+
+  createEffect(() => {
+    if (props()?.default?.recepientPrincipal) {
+      setRecipientPrincipal(props()!.default!.recepientPrincipal);
+    }
+  });
+
+  createEffect(() => {
+    if (props()?.default?.recepientSubaccount) {
+      setRecipientSubaccount(props()!.default!.recepientSubaccount || null);
+    }
+  });
+
+  createEffect(() => {
+    if (props()?.default?.memo) {
+      setMemo(props()!.default!.memo || null);
+    }
+  });
+
+  createEffect(() => {
+    if (props()?.default?.amount) {
+      setAmount(props()!.default!.amount || 0n);
+    }
   });
 
   const msq = useMasqueradeClient();
@@ -164,21 +196,25 @@ export function SendPage() {
                     required
                     disabled={sending()}
                     onErr={(e) => setCorrectArr(0, !e)}
-                    KindPrincipal={{ onChange: setRecipientPrincipal }}
+                    KindPrincipal={{ onChange: setRecipientPrincipal, defaultValue: recipientPrincipal() || undefined }}
                   />
                   <Input
                     label="Subaccount"
                     placeholder={DEFAULT_SUBACCOUNT}
                     disabled={sending()}
                     onErr={(e) => setCorrectArr(1, !e)}
-                    KindString={{ onChange: setRecipientSubaccount, validate: validateHex }}
+                    KindString={{
+                      onChange: setRecipientSubaccount,
+                      validate: validateHex,
+                      defaultValue: recipientSubaccount() || undefined,
+                    }}
                   />
                   <Input
                     label="Memo"
                     placeholder="Enter your memo"
                     disabled={sending()}
                     onErr={(e) => setCorrectArr(2, !e)}
-                    KindString={{ onChange: setMemo, validate: validateHex }}
+                    KindString={{ onChange: setMemo, validate: validateHex, defaultValue: memo() || undefined }}
                   />
                   <FeeLinesWrapper>
                     <Input
@@ -199,6 +235,7 @@ export function SendPage() {
                                 props()!.decimals,
                               )})`
                             : null,
+                        defaultValue: amount() || undefined,
                       }}
                     />
                     <Show when={amount() !== BigInt(0)}>
@@ -216,7 +253,7 @@ export function SendPage() {
                   <ButtonsWrapper>
                     <Button
                       disabled={sending()}
-                      onClick={() => props()!.onCancel(false)}
+                      onClick={() => props()!.onCancel()}
                       fullWidth
                       kind={EButtonKind.Additional}
                       text="Cancel"
@@ -246,11 +283,11 @@ export function SendPage() {
                   decimals={props()!.decimals}
                   amount={amount() + props()!.fee}
                   blockId={txnResult()!.blockIdx!}
-                  onBack={() => props()!.onCancel(true)}
+                  onBack={() => props()!.onComplete(true)}
                 />
               </Match>
               <Match when={!txnResult()!.success}>
-                <TxnFailPage error={txnResult()?.error!} onBack={() => props()!.onCancel(false)} />
+                <TxnFailPage error={txnResult()?.error!} onBack={() => props()!.onComplete(false)} />
               </Match>
             </Switch>
           </SendPopupWrapper>

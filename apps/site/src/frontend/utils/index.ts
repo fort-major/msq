@@ -222,6 +222,22 @@ export function truncateStr(str: string, n: number) {
   return str.length > n ? str.slice(0, n - 1) + "..." : str;
 }
 
+export function createPaymentLink(
+  kind: "t" | "d",
+  assetId: string,
+  recipientPrincipal: string,
+  amount?: bigint,
+  recipientSubaccount?: string,
+  memo?: string,
+): URL {
+  return new URL(
+    `/pay?kind=${kind}&canister-id=${assetId}&to-principal=${recipientPrincipal}${
+      recipientSubaccount ? `&to-subaccount=${recipientSubaccount}` : ""
+    }${amount ? `&amount=${amount}` : ""}${memo ? `&memo=${memo}` : ""}`,
+    import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN,
+  );
+}
+
 // ---------- SECURITY RELATED STUFF ------------
 
 export function eventHandler<E extends Event>(fn: (e: E) => void | Promise<void>) {
