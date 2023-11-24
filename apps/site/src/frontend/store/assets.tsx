@@ -1,6 +1,6 @@
 import { SetStoreFunction, createStore, produce } from "solid-js/store";
 import { useMasqueradeClient } from "./global";
-import { Accessor, Setter, createContext, createSignal, onCleanup, onMount, useContext } from "solid-js";
+import { Accessor, Setter, createContext, createEffect, createSignal, onCleanup, onMount, useContext } from "solid-js";
 import {
   DEFAULT_PRINCIPAL,
   IAssetMetadata,
@@ -15,7 +15,7 @@ import {
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { Principal } from "@dfinity/principal";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
-import { IMask, TAccountId, TOrigin, delay, unreacheable } from "@fort-major/masquerade-shared";
+import { IMask, PRE_LISTED_TOKENS, TAccountId, TOrigin, delay, unreacheable } from "@fort-major/masquerade-shared";
 import { AnonymousIdentity } from "@dfinity/agent";
 import { ISendPageProps } from "../pages/cabinet/my-assets/send";
 import { IPaymentCheckoutPageProps } from "../pages/integration/payment/checkout";
@@ -88,6 +88,8 @@ export function usePaymentCheckoutPageProps() {
   return ctx.paymentCheckoutPageProps;
 }
 
+const PRE_DEFINED_ASSETS = Object.values(PRE_LISTED_TOKENS).map((it) => it.assetId);
+
 export function AssetsStore(props: IChildren) {
   const [allAssetData, setAllAssetData] = createStore<AllAssetData>();
   const [sendPageProps, setSendPageProps] = createSignal<ISendPageProps | undefined>(undefined);
@@ -119,7 +121,19 @@ export function AssetsStore(props: IChildren) {
   const fetch = async (assetIds?: string[]): Promise<boolean[] | undefined> => {
     const msq = _msq()!;
 
-    const fetchedAllAssetData = await msq.getAllAssetData(assetIds);
+    let fetchedAllAssetData = await msq.getAllAssetData(assetIds);
+
+    // CREATE PRE-DEFINED ASSETS
+    const assetsToCreate = [];
+    for (let assetId of PRE_DEFINED_ASSETS) {
+      if (fetchedAllAssetData[assetId]) continue;
+      assetsToCreate.push({ assetId });
+    }
+    if (assetsToCreate.length > 0) {
+      await msq.addAsset({ assets: assetsToCreate });
+      fetchedAllAssetData = await msq.getAllAssetData(assetIds);
+    }
+
     const allAssetDataKeys = Object.keys(fetchedAllAssetData);
 
     const allAssetData = fetchedAllAssetData as unknown as AllAssetData;
@@ -227,7 +241,7 @@ export function AssetsStore(props: IChildren) {
 
     // then we update to be sure
     metadata = await getAssetMetadata(ledger, true);
-    const assetData = await msq.addAsset(assetId, metadata.name, metadata.symbol);
+    const assetData = await msq.addAsset({ assets: [{ assetId, name: metadata.name, symbol: metadata.symbol }] });
 
     if (assetData === null) {
       setAllAssetData(assetId, undefined);
@@ -237,7 +251,7 @@ export function AssetsStore(props: IChildren) {
     setAllAssetData(
       produce((state) => {
         state[assetId]!.metadata = metadata;
-        state[assetId]!.accounts[0].name = assetData.accounts[0];
+        state[assetId]!.accounts[0].name = assetData[0].accounts[0];
       }),
     );
 

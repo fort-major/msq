@@ -85,12 +85,10 @@ export class InternalSnapClient {
     return await this.inner._requestSnap(SNAP_METHODS.protected.state.getAllAssetData, body);
   }
 
-  async addAsset(assetId: string, assetName: string, assetSymbol: string): Promise<IAssetDataExternal | null> {
+  async addAsset(req: IICRC1AddAssetRequest): Promise<IAssetDataExternal[] | null> {
     if (!this.inner) unreacheable("Don't use uninitialized client");
 
-    const body: IICRC1AddAssetRequest = { assetId, name: assetName, symbol: assetSymbol };
-
-    return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAsset, body);
+    return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAsset, req);
   }
 
   async addAssetAccount(assetId: string, assetName: string, assetSymbol: string): Promise<string | null> {

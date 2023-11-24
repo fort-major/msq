@@ -5,7 +5,6 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 ## TODO
 
 * landing pages
-* add assets via frontend
 
 * monitoring
 * set snap homepage
@@ -20,6 +19,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * update tests
 * readme update + inner readmes
 * make discord friendlier
+* sitemap.xml, rss.xml and robots.txt, better opengraph
 
 * try implementing it as an agent again
 
@@ -55,7 +55,7 @@ DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automati
 * `cd apps/nns && dfx nns install && cd ../..` - install nns canisters
 * `pnpm run gen` - generates javascript declaration files
 * `pnpm run dev:build` - builds frontends for dev network
-* `pnpm run dev:deployBE` - deploys all backend canisters
+* `pnpm run dev:deploy` - deploys all backend canisters (please run this command after you deploy to the mainnet to rebuild the env vars)
   * if this command fails because of locked `Cargo.toml`, run `pnpm run cargo:repair` and repeat
 * `pnpm run dev` - starts a development server with both: MSQ website and Demo project
 

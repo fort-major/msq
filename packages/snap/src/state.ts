@@ -253,10 +253,7 @@ function makeDefaultState(): IState {
   return {
     version: 1,
     originData: {},
-    assetData: Object.values(PRE_LISTED_TOKENS).reduce(
-      (prev, cur) => ({ ...prev, [cur.assetId]: makeDefaultAssetData() }),
-      {} as Record<string, IAssetData>,
-    ),
+    assetData: {},
     statistics: makeDefaultStatistics(),
   };
 }

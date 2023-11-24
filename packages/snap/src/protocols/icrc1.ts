@@ -50,7 +50,7 @@ export async function protected_handleShowICRC1TransferConfirm(bodyCBOR: string)
         heading("🚨 BE CAREFUL! 🚨"),
         text("This action is irreversible. You won't be able to recover your funds!"),
         divider(),
-        text("**Proceed?** 🚀"),
+        text("**Confirm?** 🚀"),
       ]),
     },
   });
@@ -69,31 +69,33 @@ export async function protected_handleShowICRC1TransferConfirm(bodyCBOR: string)
   return Boolean(agreed);
 }
 
-export async function protected_handleAddAsset(bodyCBOR: string): Promise<IAssetDataExternal | null> {
+export async function protected_handleAddAsset(bodyCBOR: string): Promise<IAssetDataExternal[] | null> {
   const body = zodParse(ZICRC1AddAssetRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
 
-  const agreed = await snap.request({
-    method: "snap_dialog",
-    params: {
-      type: "confirmation",
-      content: panel([
-        heading(`🔒 Confirm New Asset 🔒`),
-        text(
-          `Are you sure you want to add **${body.name}** (**${body.symbol}**) token to your list of managed assets?`,
-        ),
-        text(`This will allow you to manage **${body.symbol}** token accounts.`),
-        divider(),
-        text("**Proceed?** 🚀"),
-      ]),
-    },
-  });
+  const assetNames = body.assets.filter((it) => it.name && it.symbol).map((it) => `${it.name} (${it.symbol})`);
 
-  if (!agreed) return null;
+  if (assetNames.length > 0) {
+    const agreed = await snap.request({
+      method: "snap_dialog",
+      params: {
+        type: "confirmation",
+        content: panel([
+          heading(`🔒 Confirm New Assets 🔒`),
+          text(`Are you sure you want to add the following tokens to your managed assets list?`),
+          ...assetNames.map((it) => text(` - **${it}**`)),
+          divider(),
+          text("**Confirm?** 🚀"),
+        ]),
+      },
+    });
 
-  const assetDataExternal: IAssetDataExternal = {
-    accounts: Object.values(manager.addAsset(body.assetId).accounts),
-  };
+    if (!agreed) return null;
+  }
+
+  const assetDataExternal: IAssetDataExternal[] = body.assets.map((it) => ({
+    accounts: Object.values(manager.addAsset(it.assetId).accounts),
+  }));
 
   return assetDataExternal;
 }
@@ -111,7 +113,7 @@ export async function protected_handleAddAssetAccount(bodyCBOR: string): Promise
         text(`Are you sure you want to create a new **${body.name}** (**${body.symbol}**) token account?`),
         text(`This will allow you to send and receive **${body.symbol}** tokens.`),
         divider(),
-        text("**Proceed?** 🚀"),
+        text("**Confirm?** 🚀"),
       ]),
     },
   });

@@ -53,7 +53,7 @@ export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<IMa
         heading("🔒 Confirm Mask Creation 🔒"),
         text(`Are you sure you want to create another mask for **${originToHostname(body.toOrigin)}**?`),
         divider(),
-        text("**Agree?** 🚀"),
+        text("**Confirm?** 🚀"),
       ]),
     },
   });
@@ -172,7 +172,7 @@ export async function protected_handleIdentityUnlinkAll(bodyCBOR: string): Promi
           "You will be logged out from **these websites**, if you're currently logged in using one of the linked masks.",
         ),
         divider(),
-        text("Proceed? 🚀"),
+        text("**Confirm?** 🚀"),
       ]),
     },
   });
@@ -229,7 +229,7 @@ export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<bool
         divider(),
         text(`You will become anonymous, but **${originToHostname(origin)}** may still track your actions!`),
         divider(),
-        text("**Proceed?** 🚀"),
+        text("**Confirm?** 🚀"),
       ]),
     },
   });
@@ -370,7 +370,7 @@ export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigi
         ),
         text(`Only proceed if **${originToHostname(origin)}** explicitly proposed this action to you.`),
         divider(),
-        text("Proceed? 🚀"),
+        text("**Confirm?** 🚀"),
       ]),
     },
   });
@@ -433,7 +433,7 @@ export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOri
           )}**, if you're currently logged in using one of the linked masks.`,
         ),
         divider(),
-        text("Proceed? 🚀"),
+        text("**Confirm?** 🚀"),
       ]),
     },
   });

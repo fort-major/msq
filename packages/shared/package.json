@@ -1,6 +1,6 @@
 {
   "name": "@fort-major/masquerade-shared",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "main": "./dist/cjs/index",
   "module": "./dist/esm/index",
   "unpkg": "./dist/esm/index",
