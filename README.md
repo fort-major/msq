@@ -7,6 +7,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * landing pages
 * add assets via frontend
 
+* monitoring
 * set snap homepage
 * adaptive (best-effort)
 * refine security: freeze deps versions, check all events safety, xss safety
@@ -18,6 +19,7 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 * update comments
 * update tests
 * readme update + inner readmes
+* make discord friendlier
 
 * try implementing it as an agent again
 
