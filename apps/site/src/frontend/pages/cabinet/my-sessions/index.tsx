@@ -119,6 +119,7 @@ export function MySessionsPage() {
                     </SessionInfoDataWrapper>
                   </SessionInfoWrapper>
                   <Button
+                    label="log out"
                     kind={EButtonKind.Primary}
                     icon={EIconKind.PowerOff}
                     iconOnlySize={50}

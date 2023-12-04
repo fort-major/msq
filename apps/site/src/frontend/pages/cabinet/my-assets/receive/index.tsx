@@ -126,7 +126,13 @@ export function ReceivePopup(props: IReceivePopupProps) {
                 </DataItemContent>
               </DataItem>
             </DataWrapper>
-            <Button kind={EButtonKind.Primary} text="Done" classList={{ [DoneBtn]: true }} onClick={props.onClose} />
+            <Button
+              label="done"
+              kind={EButtonKind.Primary}
+              text="Done"
+              classList={{ [DoneBtn]: true }}
+              onClick={props.onClose}
+            />
           </ReceivePopupWrapper>
         </ReceivePopupContainer>
       </ReceivePopupBg>

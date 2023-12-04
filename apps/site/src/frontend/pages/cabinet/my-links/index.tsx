@@ -87,6 +87,7 @@ export function MyLinksPage() {
                     </Text>
                   </LinksInfoTextWrapper>
                   <Button
+                    label="unlink all"
                     kind={EButtonKind.Primary}
                     text="Unlink All"
                     icon={EIconKind.Unlink}
@@ -102,6 +103,7 @@ export function MyLinksPage() {
                           {originToHostname(link)}
                         </Text>
                         <Button
+                          label="unlink"
                           kind={EButtonKind.Additional}
                           icon={EIconKind.Unlink}
                           iconOnlySize={40}

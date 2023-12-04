@@ -222,7 +222,13 @@ export function UrlBasedPaymentPage() {
                 />
               </PaymentPageAccountsWrapper>
               <PaymentPageButtons>
-                <Button kind={EButtonKind.Additional} onClick={handleCompleteSend} text="Dismiss" fullWidth />
+                <Button
+                  label="dismiss"
+                  kind={EButtonKind.Additional}
+                  onClick={handleCompleteSend}
+                  text="Dismiss"
+                  fullWidth
+                />
                 <Show
                   when={
                     (assets[getAssetId()!]!.accounts[selectedAccountId()].balance || 0n) >=
@@ -230,6 +236,7 @@ export function UrlBasedPaymentPage() {
                   }
                   fallback={
                     <Button
+                      label="top up the balance"
                       kind={EButtonKind.Secondary}
                       text="Top up the Balance"
                       icon={EIconKind.ArrowLeftDown}
@@ -240,6 +247,7 @@ export function UrlBasedPaymentPage() {
                   }
                 >
                   <Button
+                    label="continue"
                     kind={EButtonKind.Primary}
                     text="Continue"
                     icon={EIconKind.ArrowRightUp}

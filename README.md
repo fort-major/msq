@@ -2,35 +2,6 @@
 
 Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
-## TODO
-
-* landing pages
-
-* monitoring
-* set snap homepage
-* adaptive (best-effort)
-* refine security: freeze deps versions, check all events safety, xss safety
-* demo shop project add order list
-* REPLACE CHARGING TOKENS (maybe make it a part of configuration)
-* bump all dep versions
-* test Masquerade site domain migration
-* test snap storage survives upgrades
-* update comments
-* update tests
-* readme update + inner readmes
-* make discord friendlier
-* sitemap.xml, rss.xml and robots.txt, better opengraph
-
-* try implementing it as an agent again
-
-* replace METAMASK_LINK
-* storybook + design system + encapsulate more comps
-* mock ICRC-1 tokens for development
-* txn history
-* dollars and exchange rates
-* transaction history & explorer
-* crypto gifts
-
 ## Local development
 
 This project is managed with `pnpm` and `turborepo`.

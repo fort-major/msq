@@ -252,6 +252,7 @@ export function SendPage() {
                   </FeeLinesWrapper>
                   <ButtonsWrapper>
                     <Button
+                      label="cancel"
                       disabled={sending()}
                       onClick={() => props()!.onCancel()}
                       fullWidth
@@ -260,6 +261,7 @@ export function SendPage() {
                     />
                     <Show when={isCorrect()}>
                       <Button
+                        label="continue"
                         disabled={sending()}
                         onClick={handleSend}
                         fullWidth

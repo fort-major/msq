@@ -31,13 +31,14 @@ export function TxnFailPage(props: ITxnFailPageProps) {
         </TxnFailText>
         <TxnFailButtons>
           <Button
+            label="report the error"
             kind={EButtonKind.Primary}
             text="Report the Error"
             onClick={handleReport}
             icon={EIconKind.ArrowRightUp}
             fullWidth
           />
-          <Button kind={EButtonKind.Additional} text="Go Back" onClick={props.onBack} fullWidth />
+          <Button label="go back" kind={EButtonKind.Additional} text="Go Back" onClick={props.onBack} fullWidth />
         </TxnFailButtons>
       </TxnPageContent>
     </TxnPage>

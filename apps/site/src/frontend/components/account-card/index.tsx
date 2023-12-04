@@ -156,6 +156,7 @@ export function AccountCard(props: IAccountCardProps) {
           <AccountCardFooterButtons>
             <Show when={props.onSend}>
               <Button
+                label="send"
                 kind={EButtonKind.Primary}
                 icon={EIconKind.ArrowRightUp}
                 iconOnlySize={40}
@@ -165,6 +166,7 @@ export function AccountCard(props: IAccountCardProps) {
             </Show>
             <Show when={props.onReceive}>
               <Button
+                label="receive"
                 kind={EButtonKind.Secondary}
                 icon={EIconKind.ArrowLeftDown}
                 iconOnlySize={40}

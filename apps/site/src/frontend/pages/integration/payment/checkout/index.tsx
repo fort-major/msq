@@ -334,6 +334,7 @@ export function PaymentCheckoutPage() {
               </CheckoutTotalInfo>
               <CheckoutTotalButtons>
                 <Button
+                  label="cancel"
                   kind={EButtonKind.Additional}
                   text="Cancel"
                   onClick={props()!.onCancel}
@@ -341,6 +342,7 @@ export function PaymentCheckoutPage() {
                   disabled={loading()}
                 />
                 <Button
+                  label="continue"
                   kind={EButtonKind.Primary}
                   text="Continue"
                   icon={loading() ? EIconKind.Loader : EIconKind.ArrowRightUp}

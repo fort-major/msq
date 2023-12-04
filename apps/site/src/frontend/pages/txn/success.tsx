@@ -42,7 +42,7 @@ export function TxnSuccessPage(props: ITxnSuccessPageProps) {
         balance={props.accountBalance}
         transferSuccess={props.amount}
       />
-      <Button kind={EButtonKind.Primary} text="Go Back" onClick={props.onBack} />
+      <Button label="go back" kind={EButtonKind.Primary} text="Go Back" onClick={props.onBack} />
     </TxnSuccessPageContent>
   );
 }

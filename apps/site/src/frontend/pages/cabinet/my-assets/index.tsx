@@ -260,6 +260,7 @@ export function MyAssetsPage() {
                   onInput={handleNewAssetIdInput}
                 />
                 <Button
+                  label="add token"
                   disabled={loading() || newAssetId() === "" || error() !== null || newAssetMetadata() === null}
                   kind={EButtonKind.Primary}
                   onClick={handleAddAsset}

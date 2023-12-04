@@ -21,6 +21,7 @@ export enum EButtonKind {
 }
 
 interface IButtonProps {
+  label: string;
   text?: string | undefined;
   icon?: EIconKind | undefined;
   iconOnlySize?: number | undefined;
@@ -48,6 +49,7 @@ export function Button(props: IButtonProps) {
         ...props.classList,
       }}
       onClick={handleClick}
+      aria-label={props.label}
     >
       <Show when={props.text !== undefined}>
         <p>{props.text!}</p>

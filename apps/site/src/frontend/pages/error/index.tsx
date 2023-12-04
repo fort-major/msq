@@ -119,6 +119,7 @@ export function ErrorPage(props: IErrorPageProps) {
         <ButtonsWrapper>
           <Show when={props.button2}>
             <Button
+              label={props.button2!.text}
               classList={{ [Btn]: true }}
               kind={EButtonKind.Additional}
               text={props.button2!.text}
@@ -128,6 +129,7 @@ export function ErrorPage(props: IErrorPageProps) {
           </Show>
           <Show when={props.button}>
             <Button
+              label={props.button!.text}
               classList={{ [Btn]: true }}
               kind={EButtonKind.Primary}
               text={props.button!.text}
