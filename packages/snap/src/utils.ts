@@ -77,8 +77,12 @@ export async function getSignIdentity(
   identityId: TIdentityId,
   salt: Uint8Array,
 ): Promise<Secp256k1KeyIdentity> {
+  // the MSQ site has constant origin
+  // this will allow us to change the domain name without users losing their funds and accounts
+  const orig = isMasquerade(origin) ? "https://msq.tech" : origin;
+
   // shared prefix may be used in following updates
-  const entropy = await getEntropy(origin, identityId, "identity-sign\nshared", salt);
+  const entropy = await getEntropy(orig, identityId, "identity-sign\nshared", salt);
 
   return Secp256k1KeyIdentity.fromSecretKey(entropy);
 }
