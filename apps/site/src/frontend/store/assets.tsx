@@ -164,6 +164,7 @@ export function AssetsStore(props: IChildren) {
     if (!assetIds) assetIds = Object.keys(allAssetData);
 
     for (let assetId of assetIds) {
+      // @ts-expect-error - types are fine here
       const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
 
       getAssetMetadata(ledger, false)
@@ -204,6 +205,7 @@ export function AssetsStore(props: IChildren) {
     setAllAssetData(assetId, "accounts", accountId, "principal", principal.toText());
 
     const agent = await makeAnonymousAgent();
+    // @ts-expect-error - types are fine here
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
 
     try {
@@ -218,6 +220,7 @@ export function AssetsStore(props: IChildren) {
 
     const anonIdentity = new AnonymousIdentity();
     const agent = await makeAgent(anonIdentity);
+    // @ts-expect-error - types are fine here
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
 
     // first we query to be fast
@@ -274,6 +277,7 @@ export function AssetsStore(props: IChildren) {
     // first we query to be fast
     let balance = await ledger.balance({
       certified: false,
+      // @ts-expect-error - types are fine here
       owner: Principal.fromText(allAssetData[assetId]!.accounts[accountId].principal!),
     });
 
@@ -292,6 +296,7 @@ export function AssetsStore(props: IChildren) {
     // then we update to be sure
     balance = await ledger.balance({
       certified: true,
+      // @ts-expect-error - types are fine here
       owner: Principal.fromText(allAssetData[assetId]!.accounts[accountId].principal!),
     });
 

@@ -25,35 +25,33 @@
   "bugs": {
     "url": "https://github.com/fort-major/masquerade/issues"
   },
-  "homepage": "https://snap.msq.tech",
+  "homepage": "https://icp.msq.tech",
   "scripts": {
-    "prod:build": "tsc && pnpm run version:set && mm-snap build -s src/index.ts && mm-snap manifest --fix",
+    "prod:build": "tsc && pnpm run version:set && pnpm run prod:build-snap && mm-snap manifest --fix",
+    "prod:build-snap": "mm-snap build -s ./src/index.ts",
     "prod:pub": "npm publish",
-    "dev:build": "tsc && mm-snap build -s src/index.ts",
-    "dev": "mm-snap watch -s src/index.ts -d dist",
+    "dev:build": "tsc && mm-snap build -s ./src/index.ts",
+    "dev": "mm-snap watch -s ./src/index.ts -d dist",
     "dev:runSnap": "pnpm run dev",
     "test": "jest",
     "lint": "eslint --fix src --ext .ts --ext .tsx",
-    "format": "pnpm exec prettier src/**/*.{ts,tsx} --write",
+    "format": "pnpm exec prettier ./src/**/*.{ts,tsx} --write",
     "version:set": "node ../../set-version.js",
-    "doc": "typedoc src/**/*.{ts,tsx}"
+    "doc": "typedoc ./src/**/*.{ts,tsx}"
   },
   "devDependencies": {
-    "@metamask/snaps-cli": "^1.0.2",
-    "@metamask/snaps-jest": "^1.0.0",
-    "@metamask/snaps-types": "^1.0.2",
-    "@types/jest": "29.5.4",
-    "@types/lodash.debounce": "^4.0.8",
-    "@types/node": "20.7.1",
-    "cbor-x": "1.5.4",
-    "envify": "4.1.0",
-    "jest": "29.6.4",
+    "@metamask/snaps-cli": "3.0.5",
+    "@metamask/snaps-jest": "4.0.1",
+    "@metamask/snaps-types": "3.1.0",
+    "@types/jest": "29.5.10",
+    "@types/node": "20.10.3",
+    "cbor-x": "1.5.6",
+    "jest": "29.7.0",
     "ts-jest": "29.1.1"
   },
   "dependencies": {
-    "@dfinity/identity-secp256k1": "0.19.3",
+    "@dfinity/identity-secp256k1": "0.20.2",
     "@fort-major/masquerade-shared": "workspace:*",
-    "@metamask/snaps-ui": "1.0.2",
-    "lodash.debounce": "^4.0.8"
+    "@metamask/snaps-ui": "3.1.0"
   }
 }

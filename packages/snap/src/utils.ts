@@ -56,7 +56,7 @@ export function guardMethods(method: string, origin: TOrigin): void {
  * @returns
  */
 export function isMasquerade(origin: TOrigin): boolean {
-  return origin === JSON.parse(process.env.MSQ_SNAP_SITE_ORIGIN as string);
+  return origin === (process.env.MSQ_SNAP_SITE_ORIGIN as string);
 }
 
 /**

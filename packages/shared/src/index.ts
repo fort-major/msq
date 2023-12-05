@@ -1,5 +1,6 @@
 import { type ZodType, type z } from "zod";
 import { type TOrigin } from "./types";
+import { debugStringify } from "./encoding";
 
 export * from "./types";
 export * from "./encoding";
@@ -88,7 +89,7 @@ export function zodParse<S extends ZodType>(schema: S, obj: unknown): z.infer<ty
   try {
     return schema.parse(obj);
   } catch (e) {
-    err(ErrorCode.INVALID_INPUT, JSON.stringify(e));
+    err(ErrorCode.INVALID_INPUT, debugStringify(e));
   }
 }
 
@@ -99,37 +100,47 @@ export function originToHostname(origin: TOrigin): string {
 export const PRE_LISTED_TOKENS: Record<string, { assetId: string; chargingAccountId?: string }> = {
   ICP: {
     assetId: "ryjl3-tyaaa-aaaaa-aaaba-cai",
-    // chargingAccountId: "lkj2e-m4lgc-c7t3p-xulz6-3obuk-auqff-lscnn-nxxmf-7hkw4-6huri-rae",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
   ckBTC: {
     assetId: "mxzaz-hqaaa-aaaar-qaada-cai",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
   CHAT: {
     assetId: "2ouva-viaaa-aaaaq-aaamq-cai",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
   SONIC: {
     assetId: "qbizb-wiaaa-aaaaq-aabwq-cai",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
   SNS1: {
     assetId: "zfcdd-tqaaa-aaaaq-aaaga-cai",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
   OGY: {
     assetId: "jwcfb-hyaaa-aaaaj-aac4q-cai",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
   MOD: {
     assetId: "xsi2v-cyaaa-aaaaq-aabfq-cai",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
   GHOST: {
     assetId: "4c4fd-caaaa-aaaaq-aaa3a-cai",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
   KINIC: {
     assetId: "73mez-iiaaa-aaaaq-aaasq-cai",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
   HOT: {
     assetId: "6rdgd-kyaaa-aaaaq-aaavq-cai",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
   CAT: {
     assetId: "uf2wh-taaaa-aaaaq-aabna-cai",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
 };
 

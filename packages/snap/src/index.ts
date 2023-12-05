@@ -1,5 +1,13 @@
 import type { OnRpcRequestHandler } from "@metamask/snaps-types";
-import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR, zodParse } from "@fort-major/masquerade-shared";
+import {
+  ErrorCode,
+  SNAP_METHODS,
+  ZSnapRPCRequest,
+  debugStringify,
+  err,
+  toCBOR,
+  zodParse,
+} from "@fort-major/masquerade-shared";
 import { guardMethods as guardProtectedMethods } from "./utils";
 import {
   protected_handleAddAsset,
@@ -38,7 +46,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
   const req = zodParse(ZSnapRPCRequest, request);
 
   // restrict access to protected methods to be only executed
-  // from the Internet Computer Snap website
+  // from the MSQ Snap website
   guardProtectedMethods(req.method, origin);
 
   let result: Promise<unknown>;

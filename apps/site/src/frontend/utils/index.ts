@@ -1,4 +1,4 @@
-import { AnonymousIdentity, HttpAgent, Identity } from "@dfinity/agent";
+import { Agent, AnonymousIdentity, HttpAgent, Identity } from "@dfinity/agent";
 import { InternalSnapClient } from "@fort-major/masquerade-client";
 import { createStatisticsBackendActor } from "../backend";
 import { ErrorCode, TAccountId, debugStringify, err, hexToBytes, strToBytes } from "@fort-major/masquerade-shared";
@@ -38,7 +38,7 @@ export const ONE_HOUR_MS = ONE_MIN_MS * 60;
 export const ONE_DAY_MS = ONE_HOUR_MS * 24;
 export const ONE_WEEK_MS = ONE_DAY_MS * 7;
 
-export async function handleStatistics(agent: HttpAgent, client: InternalSnapClient) {
+export async function handleStatistics(agent: Agent, client: InternalSnapClient) {
   const stats = await client.getStats();
   const now = Date.now();
 
@@ -65,7 +65,7 @@ export function timestampToStr(timestampMs: number) {
   return `${day}.${month}.${year} ${hours}:${minutes}`;
 }
 
-export async function makeAgent(identity?: Identity | undefined, host?: string): Promise<HttpAgent> {
+export async function makeAgent(identity?: Identity | undefined, host?: string): Promise<Agent> {
   const storedHost = getIcHost();
 
   let icHost: string | undefined;
@@ -84,7 +84,7 @@ export async function makeAgent(identity?: Identity | undefined, host?: string):
   return agent;
 }
 
-export async function makeAnonymousAgent(host?: string): Promise<HttpAgent> {
+export async function makeAnonymousAgent(host?: string): Promise<Agent> {
   const id = new AnonymousIdentity();
   return makeAgent(id, host);
 }

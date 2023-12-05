@@ -130,12 +130,14 @@ export function PaymentCheckoutPage() {
       makeIcrc1Salt(props()!.assetId, props()!.accountId),
     );
     const agent = await makeAgent(identity);
+    // @ts-expect-error - types are fine here
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(props()!.assetId) });
 
     try {
       const blockIdx = await ledger.transfer({
         created_at_time: props()!.createdAt ? props()!.createdAt : BigInt(Date.now()) * 1_000_000n,
         to: {
+          // @ts-expect-error - types are fine here
           owner: Principal.fromText(props()!.recepientPrincipal),
           subaccount: props()!.recepientSubaccount ? [props()!.recepientSubaccount!] : [],
         },
@@ -157,6 +159,7 @@ export function PaymentCheckoutPage() {
         await ledger.transfer({
           created_at_time: BigInt(Date.now()) * 1_000_000n,
           to: {
+            // @ts-expect-error - types are fine here
             owner: Principal.fromText(msqRecipientId),
             subaccount: [],
           },
