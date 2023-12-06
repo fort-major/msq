@@ -1,9 +1,10 @@
 import { For, Show, createResource } from "solid-js";
 import { createStatisticsBackendActor } from "../../backend";
-import { HttpAgent } from "@dfinity/agent";
 import { makeAnonymousAgent, timestampToStr } from "../../utils";
-import { Chart, Title, Tooltip, Legend, Colors } from "chart.js";
 import { Line } from "solid-chartjs";
+import { COLOR_ACCENT } from "../../ui-kit";
+import { Stat, StatsWrapper } from "./style";
+import { Text } from "../../ui-kit/typography";
 
 interface IStat {
   labels: string[];
@@ -17,6 +18,8 @@ function makeDefaultStat(label: string): IStat {
       {
         label,
         data: [],
+        // @ts-expect-error
+        backgroundColor: COLOR_ACCENT,
       },
     ],
   };
@@ -47,6 +50,8 @@ export function StatisticsPage() {
 
     const actor = createStatisticsBackendActor(agent);
     const statisticsHistory = await actor.get_stats();
+
+    console.log("STATISTICS", statisticsHistory);
 
     const result: IStatisticsUnwrapped = {
       masks_created: makeDefaultStat("Masks Created"),
@@ -100,9 +105,22 @@ export function StatisticsPage() {
 
   return (
     <Show when={stats() != null}>
-      <For each={Object.values(stats()!)}>
-        {(stat: IStat) => <Line data={stat} options={chartOptions} width={500} height={500} />}
-      </For>
+      <StatsWrapper>
+        <For each={Object.values(stats()!)}>
+          {(stat: IStat) => (
+            <Stat>
+              <Text size={24}>{stat.datasets[0].label}</Text>
+              <Line
+                plugins={{ colors: { enabled: true } }}
+                data={stat}
+                options={chartOptions}
+                width={500}
+                height={500}
+              />
+            </Stat>
+          )}
+        </For>
+      </StatsWrapper>
     </Show>
   );
 }

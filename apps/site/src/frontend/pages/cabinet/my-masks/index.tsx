@@ -67,7 +67,7 @@ export function MyMasksPage() {
           >
             {(origin) => (
               <Spoiler
-                defaultOpen={originsData[origin]!.masks.length < 3}
+                defaultOpen={true}
                 header={
                   <SpoilerHeading>
                     <Text size={16} weight={600} color={COLOR_GRAY_140}>
