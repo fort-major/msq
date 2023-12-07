@@ -184,6 +184,8 @@ export async function getAssetMetadata(
   const fee = (metadata.find((it) => it[0] === IcrcMetadataResponseEntries.FEE)![1] as { Nat: bigint }).Nat;
   const decimals = (metadata.find((it) => it[0] === IcrcMetadataResponseEntries.DECIMALS)![1] as { Nat: bigint }).Nat;
 
+  // TODO: add xss purification
+
   return { name, symbol, fee, decimals: Number(decimals) };
 }
 
@@ -230,12 +232,26 @@ export function createPaymentLink(
   recipientSubaccount?: string,
   memo?: string,
 ): URL {
-  return new URL(
-    `/pay?kind=${kind}&canister-id=${assetId}&to-principal=${recipientPrincipal}${
-      recipientSubaccount ? `&to-subaccount=${recipientSubaccount}` : ""
-    }${amount ? `&amount=${amount}` : ""}${memo ? `&memo=${memo}` : ""}`,
-    import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN,
-  );
+  const baseUrl = new URL(import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
+  const params = baseUrl.searchParams;
+
+  params.append("kind", kind);
+  params.append("canister-id", assetId);
+  params.append("to-principal", recipientPrincipal);
+
+  if (recipientSubaccount) {
+    params.append("to-subaccount", recipientSubaccount);
+  }
+
+  if (amount) {
+    params.append("amount", amount.toString());
+  }
+
+  if (memo) {
+    params.append("memo", memo);
+  }
+
+  return baseUrl;
 }
 
 // ---------- SECURITY RELATED STUFF ------------

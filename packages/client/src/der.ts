@@ -1,3 +1,8 @@
+/**
+ * This file is just a copy of https://github.com/dfinity/agent-js/blob/40d98004cd7cb1da7fe62794762b9ffc24a4d21e/packages/identity-secp256k1/src/der.ts
+ * Secp256k1 identity is a huge dependency, but we only need a public key part of it in our code, so we take it.
+ */
+
 export const bufEquals = (b1: ArrayBuffer, b2: ArrayBuffer): boolean => {
   if (b1.byteLength !== b2.byteLength) return false;
   const u1 = new Uint8Array(b1);

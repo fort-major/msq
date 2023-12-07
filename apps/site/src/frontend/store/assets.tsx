@@ -1,12 +1,11 @@
-import { SetStoreFunction, createStore, produce } from "solid-js/store";
+import { createStore, produce } from "solid-js/store";
 import { useMasqueradeClient } from "./global";
-import { Accessor, Setter, createContext, createEffect, createSignal, onCleanup, onMount, useContext } from "solid-js";
+import { Accessor, Setter, createContext, createSignal, onCleanup, onMount, useContext } from "solid-js";
 import {
   DEFAULT_PRINCIPAL,
   IAssetMetadata,
   IChildren,
   ONE_MIN_MS,
-  ONE_SEC_MS,
   getAssetMetadata,
   makeAgent,
   makeAnonymousAgent,
@@ -15,7 +14,7 @@ import {
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { Principal } from "@dfinity/principal";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
-import { IMask, PRE_LISTED_TOKENS, TAccountId, TOrigin, delay, unreacheable } from "@fort-major/masquerade-shared";
+import { PRE_LISTED_TOKENS, TAccountId, delay, unreacheable } from "@fort-major/masquerade-shared";
 import { AnonymousIdentity } from "@dfinity/agent";
 import { ISendPageProps } from "../pages/cabinet/my-assets/send";
 import { IPaymentCheckoutPageProps } from "../pages/integration/payment/checkout";

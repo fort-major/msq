@@ -26,7 +26,7 @@ describe("Signatures", () => {
       params: { body: toCBOR(req1) },
     });
 
-    expect(() => ok(resp1.response)).toThrowError();
+    expect(() => ok(resp1.response)).toThrow();
 
     const resp2 = await snap.request({
       origin: "https://google.com",
@@ -34,7 +34,7 @@ describe("Signatures", () => {
       params: { body: toCBOR(undefined) },
     });
 
-    expect(() => ok(resp2.response)).toThrowError();
+    expect(() => ok(resp2.response)).toThrow();
 
     await snap.close();
   });
@@ -212,17 +212,21 @@ describe("Signatures", () => {
     });
 
     // get pubkeys on this origins
+    const req4: IIdentityGetPublicKeyRequest = {
+      salt: new Uint8Array(),
+    };
+
     const resp1 = await snap.request({
       origin: "http://google.com",
       method: SNAP_METHODS.public.identity.getPublicKey,
-      params: { body: toCBOR({}) },
+      params: { body: toCBOR(req4) },
     });
     const pubkey1 = bytesToHex(fromCBOR(ok(resp1.response) as string));
 
     const resp2 = await snap.request({
       origin: "https://google.com",
       method: SNAP_METHODS.public.identity.getPublicKey,
-      params: { body: toCBOR({}) },
+      params: { body: toCBOR(req4) },
     });
     const pubkey2 = bytesToHex(fromCBOR(ok(resp2.response) as string));
 
@@ -244,7 +248,7 @@ describe("Signatures", () => {
     const resp3 = await snap.request({
       origin: "http://google.com",
       method: SNAP_METHODS.public.identity.getPublicKey,
-      params: { body: toCBOR({}) },
+      params: { body: toCBOR(req4) },
     });
     const pubkey3 = bytesToHex(fromCBOR(ok(resp3.response) as string));
 
@@ -307,10 +311,14 @@ describe("Signatures", () => {
     expect(ok(resp3.response)).toBe(toCBOR(true));
 
     // get pubkeys
+    const req4: IIdentityGetPublicKeyRequest = {
+      salt: new Uint8Array(),
+    };
+
     const resp4 = await snap.request({
       origin: site,
       method: SNAP_METHODS.public.identity.getPublicKey,
-      params: { body: toCBOR(undefined) },
+      params: { body: toCBOR(req4) },
     });
 
     const pubkey1 = bytesToHex(fromCBOR(ok(resp4.response) as string));
@@ -318,7 +326,7 @@ describe("Signatures", () => {
     const resp5 = await snap.request({
       origin: anotherSite,
       method: SNAP_METHODS.public.identity.getPublicKey,
-      params: { body: toCBOR(undefined) },
+      params: { body: toCBOR(req4) },
     });
 
     const pubkey2 = bytesToHex(fromCBOR(ok(resp5.response) as string));
@@ -329,7 +337,7 @@ describe("Signatures", () => {
 
     const req5: IIdentitySignRequest = {
       challenge: new Uint8Array([100, 200]),
-      salt: new Uint8Array([]),
+      salt: new Uint8Array(),
     };
 
     const resp6 = await snap.request({

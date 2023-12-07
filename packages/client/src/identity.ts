@@ -88,6 +88,8 @@ export class MasqueradeIdentity extends SignIdentity {
   }
 }
 
+// This is just a copy of a public key from this file https://github.com/dfinity/agent-js/blob/40d98004cd7cb1da7fe62794762b9ffc24a4d21e/packages/identity-secp256k1/src/secp256k1.ts
+// Secp256k1 identity is a huge dependency, but we only need a public key part of it in our code, so we take it.
 class Secp256k1PublicKeyLite implements PublicKey {
   public static fromRaw(rawKey: ArrayBuffer): Secp256k1PublicKeyLite {
     return new Secp256k1PublicKeyLite(rawKey);
