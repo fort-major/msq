@@ -146,6 +146,9 @@ importers:
       '@metamask/detect-provider':
         specifier: 2.0.0
         version: 2.0.0
+      icrc-35:
+        specifier: ^0.1.12
+        version: 0.1.12
     devDependencies:
       '@metamask/snaps-types':
         specifier: 3.1.0
@@ -206,9 +209,6 @@ importers:
       cbor-x:
         specifier: 1.5.6
         version: 1.5.6
-      envify:
-        specifier: 4.1.0
-        version: 4.1.0
       jest:
         specifier: 29.7.0
         version: 29.7.0(@types/node@20.10.3)
@@ -3889,7 +3889,7 @@ packages:
       '@metamask/rpc-errors': 6.1.0
       '@metamask/utils': 8.2.1
       immer: 9.0.21
-      nanoid: 3.3.6
+      nanoid: 3.3.7
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -7586,14 +7586,6 @@ packages:
       tapable: 2.2.1
     dev: true
 
-  /envify@4.1.0:
-    resolution: {integrity: sha512-IKRVVoAYr4pIx4yIWNsz9mOsboxlNXiu7TNBnem/K/uTHdkyzXWDzHCK7UTolqBbgaBz0tQHsD3YNls0uIIjiw==}
-    hasBin: true
-    dependencies:
-      esprima: 4.0.1
-      through: 2.3.8
-    dev: true
-
   /error-ex@1.3.2:
     resolution: {integrity: sha512-7dFHNmqeFSEt2ZBsCriorKnn3Z2pj+fd9kmI6QoWw4//DL+icEBfc0U7qJCisqrTsKTjw4fNFy2pW9OqStD84g==}
     dependencies:
@@ -8939,6 +8931,12 @@ packages:
     dependencies:
       safer-buffer: 2.1.2
     dev: true
+
+  /icrc-35@0.1.12:
+    resolution: {integrity: sha512-xszywn0FSMnOFdi7/xo7ZePqB9+Kp2Zlqa1D+veeqbYyzlTGOhxxU10gz5PP8/2uqYT4U+BX25JBDsB6HRb7qg==}
+    dependencies:
+      zod: 3.22.4
+    dev: false
 
   /idna-uts46-hx@2.3.1:
     resolution: {integrity: sha512-PWoF9Keq6laYdIRwwCdhTPl60xRqAloYNMQLiyUnG42VjT53oW07BXIRM+NK7eQjzXjAk2gUvX9caRxlnF9TAA==}

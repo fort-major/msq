@@ -5,6 +5,7 @@ import { Line } from "solid-chartjs";
 import { COLOR_ACCENT } from "../../ui-kit";
 import { Stat, StatsWrapper } from "./style";
 import { Text } from "../../ui-kit/typography";
+import { log } from "@fort-major/masquerade-shared";
 
 interface IStat {
   labels: string[];
@@ -51,7 +52,7 @@ export function StatisticsPage() {
     const actor = createStatisticsBackendActor(agent);
     const statisticsHistory = await actor.get_stats();
 
-    console.log("STATISTICS", statisticsHistory);
+    log("statistics", statisticsHistory);
 
     const result: IStatisticsUnwrapped = {
       masks_created: makeDefaultStat("Masks Created"),

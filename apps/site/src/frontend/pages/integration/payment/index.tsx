@@ -1,12 +1,6 @@
 import { For, Show, createEffect, createSignal } from "solid-js";
-import { useMasqueradeClient } from "../../../store/global";
-import {
-  referrerOrigin,
-  sendICRC1TransferResult,
-  useIcrc1TransferRequestMsg,
-  useReferrerWindow,
-} from "../../../store/integration";
-import { useNavigate, useSearchParams } from "@solidjs/router";
+import { useICRC35, useMasqueradeClient } from "../../../store/global";
+import { useNavigate } from "@solidjs/router";
 import { Principal } from "@dfinity/principal";
 import { tokensToStr } from "../../../utils";
 import {
@@ -21,7 +15,7 @@ import {
   PaymentPageWrapper,
 } from "./style";
 import { ColorAccent, H3, Text } from "../../../ui-kit/typography";
-import { ErrorCode, TAccountId, err, originToHostname } from "@fort-major/masquerade-shared";
+import { ErrorCode, IICRC1TransferRequest, TAccountId, err, originToHostname } from "@fort-major/masquerade-shared";
 import { AccountCard } from "../../../components/account-card";
 import { AddAccountBtn } from "../../../components/add-account-btn";
 import { Button, EButtonKind } from "../../../ui-kit/button";
@@ -33,39 +27,43 @@ import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function PaymentPage() {
   const msq = useMasqueradeClient();
-  const icrc1TransferRequest = useIcrc1TransferRequestMsg();
   const { assets, fetch, refresh, addAsset, addAccount } = useAssetData();
   const [selectedAccountId, setSelectedAccountId] = createSignal<TAccountId>(0);
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
-  const [checkoutPageProps, setCheckoutPageProps] = usePaymentCheckoutPageProps();
-  const [referrerWindow] = useReferrerWindow();
+  const [_, setCheckoutPageProps] = usePaymentCheckoutPageProps();
+  const [icrc35Request] = useICRC35<IICRC1TransferRequest>();
   const navigate = useNavigate();
 
   const [loading, setLoading] = createSignal(false);
 
-  const getAssetId = () => icrc1TransferRequest()?.request.canisterId;
-
-  if (referrerOrigin === null || referrerOrigin === window.location.origin) navigate("/");
+  const getAssetId = () => icrc35Request()!.body.canisterId;
 
   createEffect(async () => {
-    if (icrc1TransferRequest() && msq()) {
-      const assetId = getAssetId()!;
-
-      const result = await fetch([assetId]);
-
-      // canister ID will be validated here
-      if (!result || !result[0]) {
-        await addAsset!(assetId);
-      }
-
-      // validate other inputs
-      Principal.fromText(icrc1TransferRequest()!.request.to.owner);
-      if (icrc1TransferRequest()!.request.amount < 0n) {
-        err(ErrorCode.INVALID_INPUT, `Amount is less than zero: ${icrc1TransferRequest()!.request.amount}`);
-      }
-
-      await refresh!([assetId]);
+    if (!icrc35Request()) {
+      navigate("/");
+      return;
     }
+
+    if (!msq()) {
+      return;
+    }
+
+    const assetId = getAssetId()!;
+
+    const result = await fetch([assetId]);
+
+    // canister ID will be validated here
+    if (!result || !result[0]) {
+      await addAsset!(assetId);
+    }
+
+    // validate other inputs
+    Principal.fromText(icrc35Request()!.body.to.owner);
+    if (icrc35Request()!.body.amount < 0n) {
+      err(ErrorCode.INVALID_INPUT, `Amount is less than zero: ${icrc35Request()!.body.amount}`);
+    }
+
+    await refresh!([assetId]);
   });
 
   const handleAddAccount = async (assetId: string, assetName: string, symbol: string) => {
@@ -106,16 +104,18 @@ export function PaymentPage() {
       accountBalance: assets[assetId]!.accounts[accountId].balance!,
       accountPrincipal: assets[assetId]!.accounts[accountId].principal,
 
-      assetId: icrc1TransferRequest()!.request.canisterId,
+      assetId: icrc35Request()!.body.canisterId,
       symbol: assets[assetId]!.metadata!.symbol,
       decimals: assets[assetId]!.metadata!.decimals,
       fee: assets[assetId]!.metadata!.fee,
 
-      amount: icrc1TransferRequest()!.request.amount,
-      recepientPrincipal: icrc1TransferRequest()!.request.to.owner,
-      recepientSubaccount: icrc1TransferRequest()!.request.to.subaccount,
-      memo: icrc1TransferRequest()!.request.memo,
-      createdAt: icrc1TransferRequest()!.request.createdAt,
+      peerOrigin: icrc35Request()!.peerOrigin,
+
+      amount: icrc35Request()!.body.amount,
+      recepientPrincipal: icrc35Request()!.body.to.owner,
+      recepientSubaccount: icrc35Request()!.body.to.subaccount,
+      memo: icrc35Request()!.body.memo,
+      createdAt: icrc35Request()!.body.createdAt,
 
       onSuccess: handleCheckoutSuccess,
       onFail: handleCheckoutFail,
@@ -128,11 +128,13 @@ export function PaymentPage() {
   };
 
   const handleCheckoutSuccess = (blockId: bigint) => {
-    sendICRC1TransferResult(referrerWindow()!, blockId, null);
+    icrc35Request()!.respond(blockId);
+    icrc35Request()!.closeConnection();
   };
 
   const handleCheckoutFail = () => {
-    sendICRC1TransferResult(referrerWindow()!, undefined, null);
+    icrc35Request()!.respond(undefined);
+    icrc35Request()!.closeConnection();
   };
 
   const handleCheckoutCancel = () => {
@@ -141,103 +143,100 @@ export function PaymentPage() {
   };
 
   return (
-    <PaymentPageContainer>
-      <PaymentPageWrapper>
-        <PaymentPageHeading>
-          <Text size={20} weight={600}>
-            Pending payment on <span class={ColorAccent}>{originToHostname(referrerOrigin!)}</span>
-          </Text>
-          <Show when={getAssetId() && assets[getAssetId()!]?.metadata}>
-            <H3>
-              {tokensToStr(
-                icrc1TransferRequest()!.request.amount,
-                assets[getAssetId()!]!.metadata!.decimals,
-                undefined,
-                true,
-              )}{" "}
-              {assets[getAssetId()!]!.metadata!.symbol}
-            </H3>
-          </Show>
-        </PaymentPageHeading>
-        <Show when={assets[getAssetId()!]?.accounts && assets[getAssetId()!]?.metadata}>
-          <PaymentPageContent>
+    <Show when={icrc35Request()}>
+      <PaymentPageContainer>
+        <PaymentPageWrapper>
+          <PaymentPageHeading>
             <Text size={20} weight={600}>
-              Select an account to continue:
+              Pending payment on <span class={ColorAccent}>{originToHostname(icrc35Request()!.peerOrigin)}</span>
             </Text>
-            <PaymentPageAccountsWrapper>
-              <PaymentPageAccounts>
-                <For each={assets[getAssetId()!]?.accounts}>
-                  {(account, idx) => (
-                    <AccountCard
-                      classList={{ [AccountCardBase]: true, [AccountCardSelected]: idx() === selectedAccountId() }}
-                      onClick={(accountId) => setSelectedAccountId(accountId)}
-                      accountId={idx()}
-                      assetId={icrc1TransferRequest()!.request.canisterId}
-                      name={account.name}
-                      balance={account.balance}
-                      principal={account.principal}
-                      decimals={assets[getAssetId()!]!.metadata!.decimals}
-                      symbol={assets[getAssetId()!]!.metadata!.symbol}
-                      targetBalance={icrc1TransferRequest()!.request.amount + assets[getAssetId()!]!.metadata!.fee}
-                    />
-                  )}
-                </For>
-              </PaymentPageAccounts>
-              <AddAccountBtn
-                disabled={loading()}
-                loading={loading()}
-                symbol={assets[getAssetId()!]!.metadata!.symbol}
-                onClick={() =>
-                  handleAddAccount(
-                    icrc1TransferRequest()!.request.canisterId,
-                    assets[getAssetId()!]!.metadata!.name,
-                    assets[getAssetId()!]!.metadata!.symbol,
-                  )
-                }
-              />
-            </PaymentPageAccountsWrapper>
-            <PaymentPageButtons>
-              <Button
-                label="dismiss"
-                kind={EButtonKind.Additional}
-                onClick={handleCheckoutBack}
-                text="Dismiss"
-                fullWidth
-              />
-              <Show
-                when={
-                  (assets[getAssetId()!]!.accounts[selectedAccountId()].balance || 0n) >=
-                  icrc1TransferRequest()!.request.amount + assets[getAssetId()!]!.metadata!.fee
-                }
-                fallback={
-                  <Button
-                    label="top up the balance"
-                    kind={EButtonKind.Secondary}
-                    text="Top up the Balance"
-                    icon={EIconKind.ArrowLeftDown}
-                    onClick={() => handleReceive(selectedAccountId())}
-                    disabled={assets[getAssetId()!]!.accounts[selectedAccountId()].principal === undefined}
-                    fullWidth
-                  />
-                }
-              >
-                <Button
-                  label="go to checkout"
-                  kind={EButtonKind.Primary}
-                  text="Go to Checkout"
-                  icon={EIconKind.ArrowRightUp}
-                  fullWidth
-                  onClick={() => handleCheckoutStart(selectedAccountId())}
+            <Show when={getAssetId() && assets[getAssetId()!]?.metadata}>
+              <H3>
+                {tokensToStr(icrc35Request()!.body.amount, assets[getAssetId()!]!.metadata!.decimals, undefined, true)}{" "}
+                {assets[getAssetId()!]!.metadata!.symbol}
+              </H3>
+            </Show>
+          </PaymentPageHeading>
+          <Show when={assets[getAssetId()!]?.accounts && assets[getAssetId()!]?.metadata}>
+            <PaymentPageContent>
+              <Text size={20} weight={600}>
+                Select an account to continue:
+              </Text>
+              <PaymentPageAccountsWrapper>
+                <PaymentPageAccounts>
+                  <For each={assets[getAssetId()!]?.accounts}>
+                    {(account, idx) => (
+                      <AccountCard
+                        classList={{ [AccountCardBase]: true, [AccountCardSelected]: idx() === selectedAccountId() }}
+                        onClick={(accountId) => setSelectedAccountId(accountId)}
+                        accountId={idx()}
+                        assetId={icrc35Request()!.body.canisterId}
+                        name={account.name}
+                        balance={account.balance}
+                        principal={account.principal}
+                        decimals={assets[getAssetId()!]!.metadata!.decimals}
+                        symbol={assets[getAssetId()!]!.metadata!.symbol}
+                        targetBalance={icrc35Request()!.body.amount + assets[getAssetId()!]!.metadata!.fee}
+                      />
+                    )}
+                  </For>
+                </PaymentPageAccounts>
+                <AddAccountBtn
+                  disabled={loading()}
+                  loading={loading()}
+                  symbol={assets[getAssetId()!]!.metadata!.symbol}
+                  onClick={() =>
+                    handleAddAccount(
+                      icrc35Request()!.body.canisterId,
+                      assets[getAssetId()!]!.metadata!.name,
+                      assets[getAssetId()!]!.metadata!.symbol,
+                    )
+                  }
                 />
-              </Show>
-            </PaymentPageButtons>
-          </PaymentPageContent>
+              </PaymentPageAccountsWrapper>
+              <PaymentPageButtons>
+                <Button
+                  label="dismiss"
+                  kind={EButtonKind.Additional}
+                  onClick={handleCheckoutBack}
+                  text="Dismiss"
+                  fullWidth
+                />
+                <Show
+                  when={
+                    (assets[getAssetId()!]!.accounts[selectedAccountId()].balance || 0n) >=
+                    icrc35Request()!.body.amount + assets[getAssetId()!]!.metadata!.fee
+                  }
+                  fallback={
+                    <Button
+                      label="top up the balance"
+                      kind={EButtonKind.Secondary}
+                      text="Top up the Balance"
+                      icon={EIconKind.ArrowLeftDown}
+                      onClick={() => handleReceive(selectedAccountId())}
+                      disabled={assets[getAssetId()!]!.accounts[selectedAccountId()].principal === undefined}
+                      fullWidth
+                    />
+                  }
+                >
+                  <Button
+                    label="go to checkout"
+                    kind={EButtonKind.Primary}
+                    text="Go to Checkout"
+                    icon={EIconKind.ArrowRightUp}
+                    fullWidth
+                    onClick={() => handleCheckoutStart(selectedAccountId())}
+                  />
+                </Show>
+              </PaymentPageButtons>
+            </PaymentPageContent>
+          </Show>
+        </PaymentPageWrapper>
+        <Show when={receivePopupProps()}>
+          <ReceivePopup {...receivePopupProps()!} />
         </Show>
-      </PaymentPageWrapper>
-      <Show when={receivePopupProps()}>
-        <ReceivePopup {...receivePopupProps()!} />
-      </Show>
-      <ContactUsBtn />
-    </PaymentPageContainer>
+        <ContactUsBtn />
+      </PaymentPageContainer>
+    </Show>
   );
 }

@@ -15,7 +15,6 @@ import { MySessionsPage } from "./pages/cabinet/my-sessions";
 import { MyLinksPage } from "./pages/cabinet/my-links";
 import { MyAssetsPage } from "./pages/cabinet/my-assets";
 import { Loader } from "./components/loader";
-import IntegrationRoot from "./pages/integration";
 import { StatisticsPage } from "./pages/statistics";
 import { NotificationBar } from "./components/notification-bar";
 import { SendPage } from "./pages/cabinet/my-assets/send";
@@ -26,6 +25,7 @@ import { AssetsStore } from "./store/assets";
 import { OriginDataStore } from "./store/origins";
 import { Error404Page, ErrorEnableMsqPage, ErrorInstallMetaMaskPage, ErrorUnblockMsqPage } from "./pages/error";
 import { UrlBasedPaymentPage } from "./pages/integration/payment/url-payment";
+import { ICRC35Page } from "./pages/icrc35";
 
 const root = document.getElementById("root");
 
@@ -61,7 +61,9 @@ export function App() {
                     <Route path="/unblock-msq" component={ErrorUnblockMsqPage} />
                     <Route path="/enable-msq" component={ErrorEnableMsqPage} />
 
-                    <Route path="/integration" component={IntegrationRoot}>
+                    <Route path="/icrc35" component={ICRC35Page} />
+
+                    <Route path="/integration">
                       <Route path="/login" component={LoginPage} />
                       <Route path="/pay">
                         <Route path="/" component={PaymentPage} />

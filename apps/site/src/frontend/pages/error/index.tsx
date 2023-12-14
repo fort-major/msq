@@ -38,7 +38,7 @@ export function ErrorInstallMetaMaskPage() {
       shouldBeFlask: SHOULD_BE_FLASK,
     });
 
-    if (msq.hasOwnProperty("Ok")) navigate("/", { replace: true });
+    if ("Ok" in msq) navigate("/", { replace: true });
   });
 
   return (
@@ -75,7 +75,7 @@ export function ErrorEnableMsqPage() {
       shouldBeFlask: SHOULD_BE_FLASK,
     });
 
-    if (msq.hasOwnProperty("Ok")) navigate("/", { replace: true });
+    if ("Ok" in msq) navigate("/", { replace: true });
   });
 
   return (

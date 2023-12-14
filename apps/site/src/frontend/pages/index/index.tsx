@@ -1,7 +1,7 @@
 import { Outlet, useLocation, useNavigate } from "@solidjs/router";
 import { ErrorPage } from "../error";
 import { EIconKind } from "../../ui-kit/icon";
-import { DISCORD_ERROR_LINK, DISCORD_LINK, debugStringify } from "@fort-major/masquerade-shared";
+import { DISCORD_ERROR_LINK, DISCORD_LINK, debugStringify, logError } from "@fort-major/masquerade-shared";
 import isMobile from "ismobilejs";
 import { createEffect } from "solid-js";
 
@@ -33,16 +33,13 @@ export function IndexPage() {
   try {
     return <Outlet />;
   } catch (e) {
-    const eStr = (e as { toString: (() => string) | undefined }).toString?.();
-    const error = eStr || debugStringify(e);
-
-    console.error(error);
+    logError(e);
 
     return (
       <ErrorPage
         header="Houston, we have a problem"
         text="Something unexpected just happened! Refresh the page to make it work again or consider reporting the error to us."
-        error={error}
+        error={debugStringify(e)}
         button={{
           text: "Report the Error",
           icon: EIconKind.ArrowRightUp,

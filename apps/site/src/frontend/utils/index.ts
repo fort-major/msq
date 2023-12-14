@@ -232,7 +232,7 @@ export function createPaymentLink(
   recipientSubaccount?: string,
   memo?: string,
 ): URL {
-  const baseUrl = new URL(import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
+  const baseUrl = new URL("pay", import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
   const params = baseUrl.searchParams;
 
   params.append("kind", kind);

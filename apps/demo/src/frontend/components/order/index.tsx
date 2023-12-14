@@ -29,12 +29,12 @@ export function OrderComp(props: Order & { onPay(): void; loading: boolean }) {
           {tokensToStr(props.total, 8)} <span>ICP</span>
         </OrderFooterTotal>
         <Switch>
-          <Match when={props.status.hasOwnProperty("Created")}>
+          <Match when={"Created" in props.status}>
             <BuyBtn disabled={props.loading} onClick={props.onPay}>
               Pay
             </BuyBtn>
           </Match>
-          <Match when={props.status.hasOwnProperty("Paid")}>
+          <Match when={"Paid" in props.status}>
             <OrderStatus>Paid</OrderStatus>
           </Match>
         </Switch>

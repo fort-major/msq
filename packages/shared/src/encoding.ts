@@ -89,5 +89,23 @@ export function fromCBOR<T>(hex: string): T {
  * @returns
  */
 export function debugStringify(obj: unknown): string {
-  return JSON.stringify(obj, (key, value) => (typeof value === "bigint" ? value.toString() : value), 2);
+  return JSON.stringify(
+    obj,
+    (key, value) => {
+      if (typeof value === "bigint") {
+        return value.toString();
+      } else if (value instanceof Error) {
+        const error: any = {};
+
+        Object.getOwnPropertyNames(value).forEach(function (propName) {
+          error[propName] = (value as any)[propName];
+        });
+
+        return error;
+      } else {
+        return value;
+      }
+    },
+    2,
+  );
 }

@@ -1,4 +1,4 @@
-import { Principal, TAccountId, bytesToHex, calculateMSQFee, debugStringify } from "@fort-major/masquerade-shared";
+import { Principal, TAccountId, bytesToHex, calculateMSQFee, debugStringify, log } from "@fort-major/masquerade-shared";
 import { AccountCard } from "../../../../components/account-card";
 import {
   ColorGray140,
@@ -31,7 +31,6 @@ import { EIconKind, Icon } from "../../../../ui-kit/icon";
 import { Match, Show, Switch, createSignal, onMount } from "solid-js";
 import { getRandomMemo, makeAgent, makeIcrc1Salt, tokensToStr } from "../../../../utils";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
-import { referrerOrigin } from "../../../../store/integration";
 import { useNavigate } from "@solidjs/router";
 import { useMasqueradeClient } from "../../../../store/global";
 import { MasqueradeIdentity } from "@fort-major/masquerade-client";
@@ -52,6 +51,8 @@ export interface IPaymentCheckoutPageProps {
   symbol: string;
   decimals: number;
   fee: bigint;
+
+  peerOrigin?: string;
 
   amount: bigint;
   recepientPrincipal: string;
@@ -108,7 +109,7 @@ export function PaymentCheckoutPage() {
     const totalAmountStr = tokensToStr(totalAmount, props()!.decimals, undefined, true);
 
     const agreed = await msq()!.showICRC1TransferConfirm({
-      requestOrigin: referrerOrigin!,
+      requestOrigin: props()!.peerOrigin || "unknown",
       from: props()!.accountPrincipal!,
       to: {
         owner: props()!.recepientPrincipal,
@@ -167,7 +168,7 @@ export function PaymentCheckoutPage() {
           memo: getRandomMemo(),
         });
       } catch (e) {
-        console.error("Have a happy day 😊 (unable to pay MSQ fee)", e);
+        log("Have a happy day 😊 (unable to pay MSQ fee)", e);
       }
     } catch (e) {
       let err = debugStringify(e);

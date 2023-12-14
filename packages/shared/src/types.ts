@@ -238,7 +238,7 @@ export const ZICRC1Account = z.object({
 });
 export type IICRC1Account = z.infer<typeof ZICRC1Account>;
 
-const ZICRC1TransferRequest = z.object({
+export const ZICRC1TransferRequest = z.object({
   canisterId: ZPrincipalStr,
   to: ZICRC1Account,
   amount: z.bigint(),
@@ -294,6 +294,7 @@ export type IRequestReceivedMsg = z.infer<typeof ZRequestReceivedMsg>;
 
 export const ZLoginRequestMsg = z.object({
   domain: ZMsgDomain,
+  origin: z.string().url(),
   type: z.literal("login_request"),
 });
 export type ILoginRequestMsg = z.infer<typeof ZLoginRequestMsg>;
@@ -307,6 +308,7 @@ export type ILoginResultMsg = z.infer<typeof ZLoginResultMsg>;
 
 export const ZICRC1TransferRequestMsg = z.object({
   domain: ZMsgDomain,
+  origin: z.string().url(),
   type: z.literal("transfer_icrc1_request"),
   request: ZICRC1TransferRequest,
 });

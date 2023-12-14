@@ -1,44 +1,43 @@
-import { For, Match, Switch, createEffect, createSignal } from "solid-js";
+import { For, Match, Show, Switch, createEffect, createSignal } from "solid-js";
 import { IMask, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
 import { DismissBtn, LoginHeadingSection, LoginOptionsSection, LoginOptionsWrapper, LoginPageHeader } from "./style";
-import { useMasqueradeClient } from "../../../store/global";
-import { referrerOrigin, sendLoginResult, useLoginRequestMsg, useReferrerWindow } from "../../../store/integration";
+import { useICRC35, useMasqueradeClient } from "../../../store/global";
 import { useNavigate } from "@solidjs/router";
 import { Divider } from "../../../components/divider/style";
 import { LoginOption } from "../../../components/login-option";
 import { AddNewMaskBtn } from "../../../components/add-new-mask-btn";
 import { Spoiler } from "../../../components/spoiler";
-import { ColorAccent, H1, Size20, Text, Weight600 } from "../../../ui-kit/typography";
+import { ColorAccent, H1, Text } from "../../../ui-kit/typography";
 import { EIconKind, Icon } from "../../../ui-kit/icon";
-import { useOriginData } from "../../../store/origins";
 
 export function LoginPage() {
   const [loginOptions, setLoginOptions] = createSignal<[TOrigin, IMask[]][] | null>(null);
   const _msq = useMasqueradeClient();
-  const loginRequest = useLoginRequestMsg();
-  const [referrerWindow] = useReferrerWindow();
+  const [icrc35Request] = useICRC35<undefined>();
   const navigate = useNavigate();
 
   const [loading, setLoading] = createSignal(false);
 
-  if (referrerOrigin === null || referrerOrigin === window.location.origin) {
-    navigate("/");
-  }
-
   createEffect(async () => {
-    if (_msq() === undefined || loginRequest() === undefined) {
+    if (icrc35Request() === undefined) {
+      navigate("/");
       return;
     }
 
-    const loginOptions = await _msq()!.getLoginOptions(referrerOrigin!);
+    if (_msq() === undefined) {
+      return;
+    }
+
+    const loginOptions = await _msq()!.getLoginOptions(icrc35Request()!.peerOrigin);
 
     setLoginOptions(loginOptions);
   });
 
   const onLogin = async (loginOrigin: string, identityId: number) => {
-    await _msq()!.login(referrerOrigin!, identityId, loginOrigin);
+    await _msq()!.login(icrc35Request()!.peerOrigin, identityId, loginOrigin);
 
-    sendLoginResult(referrerWindow()!, true, 0);
+    icrc35Request()!.respond(true);
+    window.close();
   };
 
   const onAddNewMask = async () => {
@@ -47,9 +46,9 @@ export function LoginPage() {
 
     const msq = _msq()!;
 
-    await msq.register(referrerOrigin!);
+    await msq.register(icrc35Request()!.peerOrigin);
 
-    const loginOptions = await msq.getLoginOptions(referrerOrigin!);
+    const loginOptions = await msq.getLoginOptions(icrc35Request()!.peerOrigin);
     setLoginOptions(loginOptions);
 
     document.body.style.cursor = "unset";
@@ -57,11 +56,13 @@ export function LoginPage() {
   };
 
   const onDismiss = () => {
-    sendLoginResult(referrerWindow()!, false, 0);
+    icrc35Request()!.respond(false);
+
+    window.close();
   };
 
   return (
-    <>
+    <Show when={icrc35Request()}>
       <LoginHeadingSection>
         <DismissBtn onClick={onDismiss}>
           <Icon kind={EIconKind.ChevronUp} size={12} rotation={-90} />
@@ -71,7 +72,7 @@ export function LoginPage() {
           <H1>Choose a Mask to wear</H1>
         </LoginPageHeader>
         <Text size={20} weight={600}>
-          <span class={ColorAccent}>{originToHostname(referrerOrigin!)}</span> wants you to log in
+          <span class={ColorAccent}>{originToHostname(icrc35Request()!.peerOrigin)}</span> wants you to log in
         </Text>
       </LoginHeadingSection>
       <LoginOptionsWrapper>
@@ -99,7 +100,7 @@ export function LoginPage() {
                   )}
                 </For>
                 <Switch>
-                  <Match when={origin === referrerOrigin}>
+                  <Match when={origin === icrc35Request()!.peerOrigin}>
                     <Divider />
                     <AddNewMaskBtn loading={loading()} onClick={onAddNewMask} />
                   </Match>
@@ -109,6 +110,6 @@ export function LoginPage() {
           </For>
         </LoginOptionsSection>
       </LoginOptionsWrapper>
-    </>
+    </Show>
   );
 }

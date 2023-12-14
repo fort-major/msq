@@ -1,6 +1,6 @@
 packages:
-  - 'packages/shared'
-  - 'packages/client'
-  - 'packages/snap'
-  - 'apps/site'
-  - 'apps/demo'
+  - "packages/shared"
+  - "packages/client"
+  - "packages/snap"
+  - "apps/site"
+  - "apps/demo"

@@ -48,15 +48,15 @@ interface Control<R> {
 }
 
 function inputIsTokens(props: IInputProps): boolean {
-  return props.hasOwnProperty("KindTokens");
+  return "KindTokens" in props;
 }
 
 function inputIsPrincipal(props: IInputProps): boolean {
-  return props.hasOwnProperty("KindPrincipal");
+  return "KindPrincipal" in props;
 }
 
 function inputIsString(props: IInputProps): boolean {
-  return props.hasOwnProperty("KindString");
+  return "KindString" in props;
 }
 
 function matchInputProps<R>(props: IInputProps, control: Control<R>): R | undefined {

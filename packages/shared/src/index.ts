@@ -66,6 +66,7 @@ export enum ErrorCode {
   METAMASK_ERROR = "MSQ_METAMASK_ERROR",
   UNAUTHORIZED = "MSQ_UNAUTHORIZED",
   SECURITY_VIOLATION = "MSQ_SECURITY_VIOLATION",
+  UNWRAP_ERROR = "MSQ_UNWRAP_ERROR",
 }
 
 export function err(code: ErrorCode, msg: string): never {
@@ -82,6 +83,24 @@ export function unreacheable(msg?: string): never {
 
 export async function delay(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function makeTime(): string {
+  const now = new Date();
+
+  const h = now.getHours().toString().padStart(2, "0");
+  const m = now.getMinutes().toString().padStart(2, "0");
+  const s = now.getSeconds().toString().padStart(2, "0");
+
+  return `${h}:${m}:${s}`;
+}
+
+export function log(...args: any[]) {
+  console.log(`[${makeTime()}]`, "<MSQ>", ...args);
+}
+
+export function logError(...args: any[]) {
+  console.error(`[${makeTime()}]`, "<MSQ>", ...args);
 }
 
 // ZodError do not work properly inside a snap, so we rethrow them here

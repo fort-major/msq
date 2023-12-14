@@ -1,4 +1,4 @@
-import { type ActorSubclass, HttpAgent, Identity } from "@dfinity/agent";
+import { HttpAgent, Identity } from "@dfinity/agent";
 import { MasqueradeClient } from "@fort-major/masquerade-client";
 import { Match, Show, Switch, createEffect, createResource, createSignal } from "solid-js";
 import { Body, BodyHeading, Header, LoginButton, Logo, ProfileWrapper } from "./style";
@@ -28,9 +28,12 @@ export const IndexPage = () => {
   const [order, setOrder] = createSignal<Order | null>(null);
 
   const [msq] = createResource(async () => {
-    const result = await MasqueradeClient.create({ forceReinstall: import.meta.env.VITE_MSQ_MODE === "DEV" });
+    const result = await MasqueradeClient.create({
+      debug: import.meta.env.VITE_MSQ_MODE === "DEV",
+      forceReinstall: import.meta.env.VITE_MSQ_MODE === "DEV",
+    });
 
-    if (!result.hasOwnProperty("Ok")) throw new Error("Install MetaMask, Unblock or Enable MSQ Snap");
+    if (!("Ok" in result)) throw new Error("Install MetaMask, Unblock or Enable MSQ Snap");
 
     return (result as TMsqCreateOk).Ok;
   });
@@ -60,7 +63,6 @@ export const IndexPage = () => {
   });
 
   const handleLogin = async () => {
-    console.log("handleLogin");
     const identity = await msq()!.requestLogin();
 
     if (identity === null) return;
@@ -75,21 +77,16 @@ export const IndexPage = () => {
   };
 
   const handleAdd = () => {
-    console.log("handleAdd");
-
     setQty((qty) => (qty < inStock() ? qty + 1 : qty));
     setInStock((inStock) => (inStock > 0 ? inStock - 1 : inStock));
   };
 
   const handleRemove = () => {
-    console.log("handleRemove");
-
     setQty((qty) => (qty > 0 ? qty - 1 : qty));
     setInStock((inStock) => (inStock < defaultInStock() ? inStock + 1 : inStock));
   };
 
   const handleContinue = async () => {
-    console.log("handleContinue");
     setLoading(true);
 
     const orderId = await backend()!.create_order(qty());
@@ -103,28 +100,33 @@ export const IndexPage = () => {
   };
 
   const handlePay = async () => {
-    console.log("handlePay");
-
     setLoading(true);
 
-    const blockIndex = await msq()!.requestICRC1Transfer(
-      Principal.fromText(ICP_TOKEN_ID),
-      { owner: Principal.fromText(RECIPIENT_PRINCIPAL) },
-      order()!.total,
-      new Uint8Array(order()!.memo),
-    );
+    try {
+      const blockIndex = await msq()!.requestICRC1Transfer(
+        Principal.fromText(ICP_TOKEN_ID),
+        { owner: Principal.fromText(RECIPIENT_PRINCIPAL) },
+        order()!.total,
+        new Uint8Array(order()!.memo),
+      );
 
-    if (blockIndex === null) {
-      alert("The payment was rejected!");
+      if (blockIndex === null) {
+        setTimeout(() => {
+          alert("The payment was rejected!");
+
+          setLoading(false);
+        }, 500);
+        return;
+      }
+
+      await backend()!.complete_order(order()!.id, blockIndex);
+      setOrder({ ...order()!, status: { Paid: null } });
 
       setLoading(false);
-      return;
+    } catch (e) {
+      setLoading(false);
+      throw e;
     }
-
-    await backend()!.complete_order(order()!.id, blockIndex);
-    setOrder({ ...order()!, status: { Paid: null } });
-
-    setLoading(false);
   };
 
   const handleLink = async () => {

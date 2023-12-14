@@ -48,6 +48,8 @@ export interface ISendPageProps {
   symbol: string;
   fee: bigint;
 
+  peerOrigin?: string;
+
   default?: {
     recepientPrincipal: Principal;
     recepientSubaccount?: string;
@@ -121,7 +123,7 @@ export function SendPage() {
     const subaccount = recipientSubaccount() ? hexToBytes(recipientSubaccount()!) : undefined;
 
     const agreed = await msq()!.showICRC1TransferConfirm({
-      requestOrigin: window.location.origin,
+      requestOrigin: window.origin,
       ticker: props()!.symbol,
       from: props()!.principal,
       to: {

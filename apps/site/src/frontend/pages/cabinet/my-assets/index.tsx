@@ -13,7 +13,7 @@ import {
 import { Spoiler } from "../../../components/spoiler";
 import { AccountCard } from "../../../components/account-card";
 import { IAssetMetadata, eventHandler, getAssetMetadata, makeAnonymousAgent, tokensToStr } from "../../../utils";
-import { Principal, TAccountId, debugStringify } from "@fort-major/masquerade-shared";
+import { Principal, TAccountId, debugStringify, logError } from "@fort-major/masquerade-shared";
 import { useMasqueradeClient } from "../../../store/global";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { useNavigate } from "@solidjs/router";
@@ -101,7 +101,7 @@ export function MyAssetsPage() {
     try {
       addAsset!(assetId);
     } catch (e) {
-      console.error(e);
+      logError(e);
       setError(`Token ${assetId} is not a valid ICRC-1 token or unresponsive`);
     } finally {
       document.body.style.cursor = "unset";

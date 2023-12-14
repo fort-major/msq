@@ -1,25 +1,20 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import { IGetSnapsResponse, ISnapRequest, type IMetaMaskEthereumProvider } from "./types";
 import {
-  ErrorCode,
   type IIdentityLinkRequest,
   type IIdentityUnlinkRequest,
-  type ILoginRequestMsg,
-  type IICRC1TransferRequestMsg,
   type Principal,
   SNAP_METHODS,
   type TOrigin,
-  debugStringify,
   delay,
-  err,
   fromCBOR,
   toCBOR,
-  ZRequestReceivedMsg,
-  ZLoginResultMsg,
-  ZICRC1TransferResultMsg,
+  log,
 } from "@fort-major/masquerade-shared";
-import { SNAP_ID, SNAP_SITE_ORIGIN as MASQUERADE_SITE_ORIGIN, SNAP_VERSION } from ".";
+import { SNAP_ID, SNAP_VERSION } from ".";
 import { MasqueradeIdentity } from "./identity";
+import { ICRC35Connection, openICRC35Window } from "icrc-35";
+import { MSQICRC35Plugin, createICRC35 } from "./plugin";
 
 const DEFAULT_SHOULD_BE_FLASK = false;
 const DEFAULT_DEBUG = false;
@@ -52,7 +47,6 @@ export type TMsqCreateErrEnableMetaMask = { EnableMSQ: null };
  * ## A client to interact with the Masquerade Snap
  */
 export class MasqueradeClient {
-  private childWindow: Window | null = null;
   private queueLocked: boolean = false;
 
   /**
@@ -82,78 +76,15 @@ export class MasqueradeClient {
       return MasqueradeIdentity.create(this);
     }
 
-    if (this.childWindow !== null) {
-      err(ErrorCode.SECURITY_VIOLATION, "Another operation is in-progress");
-    }
+    const icrc35 = createICRC35(
+      await ICRC35Connection.establish({
+        mode: "parent",
+        debug: this.debug,
+        ...openICRC35Window(MSQICRC35Plugin.Origin),
+      }),
+    );
 
-    const self = this;
-
-    const url = new URL("/integration/login", MASQUERADE_SITE_ORIGIN);
-    self.childWindow = window.open(url, "_blank");
-
-    if (self.childWindow === null) {
-      err(ErrorCode.UNKOWN, "Unable to open a new browser window");
-    }
-
-    const loginResult = await new Promise<boolean>(async (resolve, reject) => {
-      let loginRequestReceived = false;
-
-      const loginRequestMsg: ILoginRequestMsg = {
-        domain: "msq",
-        type: "login_request",
-      };
-
-      function handleMsg(msg: MessageEvent) {
-        if (msg.origin !== MASQUERADE_SITE_ORIGIN || !msg.isTrusted) {
-          return;
-        }
-
-        if (self.debug) {
-          console.log(msg);
-        }
-
-        try {
-          if (!loginRequestReceived) {
-            ZRequestReceivedMsg.parse(msg.data);
-            loginRequestReceived = true;
-
-            if (self.debug) {
-              console.log("Received ready msg, waiting for the result...");
-            }
-
-            return;
-          }
-
-          // try parsing until it happens
-          try {
-            let loginResultMsg = ZLoginResultMsg.parse(msg.data);
-            resolve(loginResultMsg.result);
-
-            window.removeEventListener("message", handleMsg);
-            self.childWindow = null;
-          } catch (_) {
-            return;
-          }
-        } catch (e) {
-          reject(e);
-
-          window.removeEventListener("message", handleMsg);
-          self.childWindow = null;
-        }
-      }
-
-      window.addEventListener("message", handleMsg);
-
-      while (!loginRequestReceived) {
-        await delay(100);
-
-        try {
-          self.childWindow!.postMessage(loginRequestMsg, MASQUERADE_SITE_ORIGIN);
-        } catch (e) {
-          /* ignore */
-        }
-      }
-    });
+    const loginResult = await icrc35.plugins.MSQ.login();
 
     return loginResult ? MasqueradeIdentity.create(this) : null;
   }
@@ -247,80 +178,20 @@ export class MasqueradeClient {
     memo?: Uint8Array | undefined,
     createdAt?: bigint | undefined,
   ): Promise<bigint | null> {
-    if (this.childWindow !== null) {
-      err(ErrorCode.SECURITY_VIOLATION, "Another operation is in-progress");
-    }
+    const icrc35 = createICRC35(
+      await ICRC35Connection.establish({
+        mode: "parent",
+        debug: this.debug,
+        ...openICRC35Window(MSQICRC35Plugin.Origin),
+      }),
+    );
 
-    const self = this;
-
-    const url = new URL("/integration/pay", MASQUERADE_SITE_ORIGIN);
-    self.childWindow = window.open(url, "_blank");
-
-    if (self.childWindow === null) {
-      err(ErrorCode.UNKOWN, "Unable to open a new browser window");
-    }
-
-    // eslint-disable-next-line no-async-promise-executor
-    return await new Promise<bigint | null>(async (resolve, reject) => {
-      let transferRequestReceived = false;
-
-      const transferRequestMsg: IICRC1TransferRequestMsg = {
-        domain: "msq",
-        type: "transfer_icrc1_request",
-        request: {
-          canisterId: tokenCanisterId.toText(),
-          to: { owner: to.owner.toText(), subaccount: to.subaccount },
-          amount,
-          memo,
-          createdAt: createdAt,
-        },
-      };
-
-      function handleMsg(msg: MessageEvent) {
-        if (msg.origin !== MASQUERADE_SITE_ORIGIN || !msg.isTrusted) {
-          return;
-        }
-
-        if (self.debug) {
-          console.log(msg);
-        }
-
-        try {
-          if (!transferRequestReceived) {
-            ZRequestReceivedMsg.parse(msg.data);
-            transferRequestReceived = true;
-            return;
-          }
-
-          // try parsing until it happens
-          try {
-            const resultMsg = ZICRC1TransferResultMsg.parse(msg.data);
-            resolve(resultMsg.result ?? null);
-
-            window.removeEventListener("message", handleMsg);
-            self.childWindow = null;
-          } catch (_) {
-            return;
-          }
-        } catch (e) {
-          reject(e);
-
-          window.removeEventListener("message", handleMsg);
-          self.childWindow = null;
-        }
-      }
-
-      window.addEventListener("message", handleMsg);
-
-      while (!transferRequestReceived) {
-        await delay(100);
-
-        try {
-          self.childWindow!.postMessage(transferRequestMsg, MASQUERADE_SITE_ORIGIN);
-        } catch (e) {
-          /* ignore */
-        }
-      }
+    return icrc35.plugins.MSQ.pay({
+      canisterId: tokenCanisterId.toText(),
+      to: { owner: to.owner.toText(), subaccount: to.subaccount },
+      amount,
+      memo,
+      createdAt: createdAt,
     });
   }
 
@@ -354,7 +225,7 @@ export class MasqueradeClient {
         },
       };
 
-      console.log(`Sending ${debugStringify(r)} to the wallet...`);
+      log("sending", r, "to the wallet...");
     }
 
     const response = await this.provider.request<string>({
@@ -365,7 +236,7 @@ export class MasqueradeClient {
     const decodedResponse: R = fromCBOR(response);
 
     if (this.debug) {
-      console.log(`Received ${debugStringify(decodedResponse)} from the wallet`);
+      log("received", decodedResponse, "from the wallet");
     }
 
     this.queueLocked = false;
