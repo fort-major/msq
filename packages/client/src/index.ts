@@ -9,8 +9,8 @@ export {
 } from "./client";
 export { InternalSnapClient } from "./internal";
 export { MasqueradeIdentity } from "./identity";
-export { MSQICRC35Plugin, createICRC35 } from "./plugin";
-export { ICRC35AsyncRequest, ICRC35Connection, openICRC35Window } from "icrc-35";
+export { MSQICRC35Client } from "./icrc35-client";
+export { ICRC35Connection, openICRC35Window, ICRC35AsyncRequest } from "icrc-35";
 
 // these env variables are inlined during build process
 // see ../inline-env-vars.js

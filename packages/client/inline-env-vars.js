@@ -1,5 +1,5 @@
 const fs = require("fs");
-const files = ["index.js", "plugin.js"];
+const files = ["index.js", "icrc35-client.js"];
 
 for (let file of files) {
   let fileEsm = fs.readFileSync(`dist/esm/${file}`, "utf8");

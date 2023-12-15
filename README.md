@@ -25,8 +25,8 @@ DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automati
 * `dfx extension install nns` - install nns extension to your dfx
 * `cd apps/nns && dfx nns install && cd ../..` - install nns canisters
 * `pnpm run gen` - generates javascript declaration files
-* `pnpm run dev:build` - builds frontends for dev network (please run this command after you deploy to the mainnet to rebuild the env vars)
-* `pnpm run dev:deploy` - deploys all canisters locally
+* `pnpm run dev:build` - builds frontends for dev network 
+* `pnpm run dev:deploy` - deploys all canisters locally (please run this command after you deploy to the mainnet to rebuild the env vars)
   * if this command fails because of locked `Cargo.toml`, run `pnpm run cargo:repair` and repeat
 * `pnpm run dev` - starts a development server with both: MSQ website and Demo project
 

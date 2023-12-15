@@ -14,7 +14,7 @@ import {
 import { SNAP_ID, SNAP_VERSION } from ".";
 import { MasqueradeIdentity } from "./identity";
 import { ICRC35Connection, openICRC35Window } from "icrc-35";
-import { MSQICRC35Plugin, createICRC35 } from "./plugin";
+import { MSQICRC35Client } from "./icrc35-client";
 
 const DEFAULT_SHOULD_BE_FLASK = false;
 const DEFAULT_DEBUG = false;
@@ -76,15 +76,16 @@ export class MasqueradeClient {
       return MasqueradeIdentity.create(this);
     }
 
-    const icrc35 = createICRC35(
-      await ICRC35Connection.establish({
-        mode: "parent",
-        debug: this.debug,
-        ...openICRC35Window(MSQICRC35Plugin.Origin),
-      }),
-    );
+    const connection = await ICRC35Connection.establish({
+      mode: "parent",
+      debug: this.debug,
+      ...openICRC35Window(MSQICRC35Client.Origin),
+    });
+    const client = new MSQICRC35Client(connection);
 
-    const loginResult = await icrc35.plugins.MSQ.login();
+    const loginResult = await client.login();
+
+    connection.close();
 
     return loginResult ? MasqueradeIdentity.create(this) : null;
   }
@@ -178,21 +179,24 @@ export class MasqueradeClient {
     memo?: Uint8Array | undefined,
     createdAt?: bigint | undefined,
   ): Promise<bigint | null> {
-    const icrc35 = createICRC35(
-      await ICRC35Connection.establish({
-        mode: "parent",
-        debug: this.debug,
-        ...openICRC35Window(MSQICRC35Plugin.Origin),
-      }),
-    );
+    const connection = await ICRC35Connection.establish({
+      mode: "parent",
+      debug: this.debug,
+      ...openICRC35Window(MSQICRC35Client.Origin),
+    });
+    const client = new MSQICRC35Client(connection);
 
-    return icrc35.plugins.MSQ.pay({
+    const res = await client.pay({
       canisterId: tokenCanisterId.toText(),
       to: { owner: to.owner.toText(), subaccount: to.subaccount },
       amount,
       memo,
       createdAt: createdAt,
     });
+
+    connection.close();
+
+    return res;
   }
 
   async _requestSnap<T, R>(method: string, body?: T): Promise<R> {

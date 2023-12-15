@@ -36,7 +36,7 @@ export function PaymentPage() {
 
   const [loading, setLoading] = createSignal(false);
 
-  const getAssetId = () => icrc35Request()!.body.canisterId;
+  const getAssetId = () => icrc35Request()!.payload.canisterId;
 
   createEffect(async () => {
     if (!icrc35Request()) {
@@ -58,9 +58,9 @@ export function PaymentPage() {
     }
 
     // validate other inputs
-    Principal.fromText(icrc35Request()!.body.to.owner);
-    if (icrc35Request()!.body.amount < 0n) {
-      err(ErrorCode.INVALID_INPUT, `Amount is less than zero: ${icrc35Request()!.body.amount}`);
+    Principal.fromText(icrc35Request()!.payload.to.owner);
+    if (icrc35Request()!.payload.amount < 0n) {
+      err(ErrorCode.INVALID_INPUT, `Amount is less than zero: ${icrc35Request()!.payload.amount}`);
     }
 
     await refresh!([assetId]);
@@ -104,18 +104,18 @@ export function PaymentPage() {
       accountBalance: assets[assetId]!.accounts[accountId].balance!,
       accountPrincipal: assets[assetId]!.accounts[accountId].principal,
 
-      assetId: icrc35Request()!.body.canisterId,
+      assetId: icrc35Request()!.payload.canisterId,
       symbol: assets[assetId]!.metadata!.symbol,
       decimals: assets[assetId]!.metadata!.decimals,
       fee: assets[assetId]!.metadata!.fee,
 
       peerOrigin: icrc35Request()!.peerOrigin,
 
-      amount: icrc35Request()!.body.amount,
-      recepientPrincipal: icrc35Request()!.body.to.owner,
-      recepientSubaccount: icrc35Request()!.body.to.subaccount,
-      memo: icrc35Request()!.body.memo,
-      createdAt: icrc35Request()!.body.createdAt,
+      amount: icrc35Request()!.payload.amount,
+      recepientPrincipal: icrc35Request()!.payload.to.owner,
+      recepientSubaccount: icrc35Request()!.payload.to.subaccount,
+      memo: icrc35Request()!.payload.memo,
+      createdAt: icrc35Request()!.payload.createdAt,
 
       onSuccess: handleCheckoutSuccess,
       onFail: handleCheckoutFail,
@@ -152,7 +152,12 @@ export function PaymentPage() {
             </Text>
             <Show when={getAssetId() && assets[getAssetId()!]?.metadata}>
               <H3>
-                {tokensToStr(icrc35Request()!.body.amount, assets[getAssetId()!]!.metadata!.decimals, undefined, true)}{" "}
+                {tokensToStr(
+                  icrc35Request()!.payload.amount,
+                  assets[getAssetId()!]!.metadata!.decimals,
+                  undefined,
+                  true,
+                )}{" "}
                 {assets[getAssetId()!]!.metadata!.symbol}
               </H3>
             </Show>
@@ -170,13 +175,13 @@ export function PaymentPage() {
                         classList={{ [AccountCardBase]: true, [AccountCardSelected]: idx() === selectedAccountId() }}
                         onClick={(accountId) => setSelectedAccountId(accountId)}
                         accountId={idx()}
-                        assetId={icrc35Request()!.body.canisterId}
+                        assetId={icrc35Request()!.payload.canisterId}
                         name={account.name}
                         balance={account.balance}
                         principal={account.principal}
                         decimals={assets[getAssetId()!]!.metadata!.decimals}
                         symbol={assets[getAssetId()!]!.metadata!.symbol}
-                        targetBalance={icrc35Request()!.body.amount + assets[getAssetId()!]!.metadata!.fee}
+                        targetBalance={icrc35Request()!.payload.amount + assets[getAssetId()!]!.metadata!.fee}
                       />
                     )}
                   </For>
@@ -187,7 +192,7 @@ export function PaymentPage() {
                   symbol={assets[getAssetId()!]!.metadata!.symbol}
                   onClick={() =>
                     handleAddAccount(
-                      icrc35Request()!.body.canisterId,
+                      icrc35Request()!.payload.canisterId,
                       assets[getAssetId()!]!.metadata!.name,
                       assets[getAssetId()!]!.metadata!.symbol,
                     )
@@ -205,7 +210,7 @@ export function PaymentPage() {
                 <Show
                   when={
                     (assets[getAssetId()!]!.accounts[selectedAccountId()].balance || 0n) >=
-                    icrc35Request()!.body.amount + assets[getAssetId()!]!.metadata!.fee
+                    icrc35Request()!.payload.amount + assets[getAssetId()!]!.metadata!.fee
                   }
                   fallback={
                     <Button
