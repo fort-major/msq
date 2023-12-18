@@ -1,16 +1,6 @@
 import { Principal, TAccountId, bytesToHex, calculateMSQFee, debugStringify, log } from "@fort-major/masquerade-shared";
 import { AccountCard } from "../../../../components/account-card";
-import {
-  ColorGray140,
-  ColorGray165,
-  H3,
-  H5,
-  Size12,
-  Size16,
-  Text,
-  Weight500,
-  Weight600,
-} from "../../../../ui-kit/typography";
+import { H3, H5, Text } from "../../../../ui-kit/typography";
 import {
   CheckoutFeeLine,
   CheckoutFeeLineSum,
@@ -29,7 +19,7 @@ import {
 } from "./style";
 import { EIconKind, Icon } from "../../../../ui-kit/icon";
 import { Match, Show, Switch, createSignal, onMount } from "solid-js";
-import { getRandomMemo, makeAgent, makeIcrc1Salt, tokensToStr } from "../../../../utils";
+import { makeAgent, makeIcrc1Salt, tokensToStr } from "../../../../utils";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { useNavigate } from "@solidjs/router";
 import { useMasqueradeClient } from "../../../../store/global";
@@ -165,7 +155,7 @@ export function PaymentCheckoutPage() {
             subaccount: [],
           },
           amount: msqFee,
-          memo: getRandomMemo(),
+          memo: undefined,
         });
       } catch (e) {
         log("Have a happy day 😊 (unable to pay MSQ fee)", e);

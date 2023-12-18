@@ -128,3 +128,16 @@ export const AddAssetInput = styled.input`
 export const ErrorText = css`
   padding-left: 25px;
 `;
+
+export const AssetLogo = styled.img`
+  height: 30px;
+  width: 30px;
+  border-radius: 100%;
+`;
+
+export const NameAndLogo = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 10px;
+`;

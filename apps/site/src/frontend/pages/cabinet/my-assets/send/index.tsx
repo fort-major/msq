@@ -1,13 +1,6 @@
 import { AccountCard } from "../../../../components/account-card";
 import { Input } from "../../../../ui-kit/input";
-import {
-  DEFAULT_PRINCIPAL,
-  DEFAULT_SUBACCOUNT,
-  getRandomMemo,
-  makeAgent,
-  makeIcrc1Salt,
-  tokensToStr,
-} from "../../../../utils";
+import { DEFAULT_PRINCIPAL, DEFAULT_SUBACCOUNT, makeAgent, makeIcrc1Salt, tokensToStr } from "../../../../utils";
 import { Match, Show, Switch, createEffect, createSignal, onMount } from "solid-js";
 import { Principal } from "@dfinity/principal";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
@@ -157,7 +150,7 @@ export function SendPage() {
           subaccount: subaccount ? [subaccount] : [],
         },
         amount: amount(),
-        memo: memo() ? hexToBytes(memo()!) : getRandomMemo(),
+        memo: memo() ? hexToBytes(memo()!) : undefined,
       });
 
       setTxnResult({

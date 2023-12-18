@@ -116,48 +116,75 @@ export function originToHostname(origin: TOrigin): string {
   return new URL(origin).hostname;
 }
 
-export const PRE_LISTED_TOKENS: Record<string, { assetId: string; chargingAccountId?: string }> = {
-  ICP: {
+export const PRE_LISTED_TOKENS: Record<
+  string,
+  { name: string; assetId: string; logoSrc?: string; chargingAccountId?: string }
+> = {
+  "ryjl3-tyaaa-aaaaa-aaaba-cai": {
+    name: "ICP",
     assetId: "ryjl3-tyaaa-aaaaa-aaaba-cai",
+    logoSrc: "https://nns.ic0.app/_app/immutable/assets/icp-rounded.0be14f6b.svg",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
-  ckBTC: {
+  "mxzaz-hqaaa-aaaar-qaada-cai": {
+    name: "ckBTC",
     assetId: "mxzaz-hqaaa-aaaar-qaada-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
-  CHAT: {
+  "ss2fx-dyaaa-aaaar-qacoq-cai": {
+    name: "ckETH",
+    assetId: "ss2fx-dyaaa-aaaar-qacoq-cai",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+  },
+  "2ouva-viaaa-aaaaq-aaamq-cai": {
+    name: "CHAT",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/3e3x2-xyaaa-aaaaq-aaalq-cai/logo.png",
     assetId: "2ouva-viaaa-aaaaq-aaamq-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
-  SONIC: {
+  "qbizb-wiaaa-aaaaq-aabwq-cai": {
+    name: "SONIC",
     assetId: "qbizb-wiaaa-aaaaq-aabwq-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
-  SNS1: {
+  "zfcdd-tqaaa-aaaaq-aaaga-cai": {
+    name: "SNS1",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/zxeu2-7aaaa-aaaaq-aaafa-cai/logo.png",
     assetId: "zfcdd-tqaaa-aaaaq-aaaga-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
-  OGY: {
+  "jwcfb-hyaaa-aaaaj-aac4q-cai": {
+    name: "OGY",
     assetId: "jwcfb-hyaaa-aaaaj-aac4q-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
-  MOD: {
+  "xsi2v-cyaaa-aaaaq-aabfq-cai": {
+    name: "MOD",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/x4kx5-ziaaa-aaaaq-aabeq-cai/logo.png",
     assetId: "xsi2v-cyaaa-aaaaq-aabfq-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
-  GHOST: {
+  "4c4fd-caaaa-aaaaq-aaa3a-cai": {
+    name: "GHOST",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/4m6il-zqaaa-aaaaq-aaa2a-cai/logo.png",
     assetId: "4c4fd-caaaa-aaaaq-aaa3a-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
-  KINIC: {
+  "73mez-iiaaa-aaaaq-aaasq-cai": {
+    name: "KINIC",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/7jkta-eyaaa-aaaaq-aaarq-cai/logo.png",
     assetId: "73mez-iiaaa-aaaaq-aaasq-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
-  HOT: {
+  "6rdgd-kyaaa-aaaaq-aaavq-cai": {
+    name: "HOT",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/67bll-riaaa-aaaaq-aaauq-cai/logo.png",
     assetId: "6rdgd-kyaaa-aaaaq-aaavq-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
-  CAT: {
+  "uf2wh-taaaa-aaaaq-aabna-cai": {
+    name: "CAT",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/uly3p-iqaaa-aaaaq-aabma-cai/logo.png",
     assetId: "uf2wh-taaaa-aaaaq-aabna-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
@@ -180,6 +207,7 @@ export function calculateMSQFee(assetId: string, amount: bigint): [bigint, strin
 export const ICRC_1_TOKENS: ListedTokenSymbol[] = [
   "ICP",
   "ckBTC",
+  "ckETH",
   "CHAT",
   "SONIC",
   "SNS1",
@@ -191,6 +219,7 @@ export const ICRC_1_TOKENS: ListedTokenSymbol[] = [
 ];
 export const ICRC_1_INDEX_TOKENS: ListedTokenSymbol[] = [
   "ckBTC",
+  "ckETH",
   "CHAT",
   "SONIC",
   "SNS1",

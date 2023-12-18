@@ -25,14 +25,7 @@ export type IAssetDataExt = {
     principal?: string | undefined;
     balance: bigint | undefined;
   }[];
-  metadata?:
-    | {
-        name: string;
-        symbol: string;
-        decimals: number;
-        fee: bigint;
-      }
-    | undefined;
+  metadata?: IAssetMetadata | undefined;
   totalBalance: bigint;
 };
 // undefined == not loaded yet, null == erroed
@@ -51,6 +44,7 @@ export interface IAssetDataStore {
   addAccount: (assetId: string, assetName: string, symbol: string) => Promise<void>;
   editAccount: (assetId: string, accountId: TAccountId, newName: string) => Promise<void>;
   addAsset: (assetId: string) => Promise<void>;
+  removeAssetLogo: (assetId: string) => void;
   sendPageProps: SendPagePropsStore;
   paymentCheckoutPageProps: PaymentCheckoutPageStore;
 }
@@ -184,7 +178,10 @@ export function AssetsStore(props: IChildren) {
             });
           }
         })
-        .catch(() => setAllAssetData(assetId, null));
+        .catch((e) => {
+          console.error(e);
+          setAllAssetData(assetId, null);
+        });
     }
   };
 
@@ -309,6 +306,10 @@ export function AssetsStore(props: IChildren) {
     );
   };
 
+  const removeAssetLogo = (assetId: string) => {
+    setAllAssetData(assetId, "metadata", "logoSrc", undefined);
+  };
+
   return (
     <AssetDataContext.Provider
       value={{
@@ -319,6 +320,7 @@ export function AssetsStore(props: IChildren) {
         addAccount,
         editAccount,
         addAsset,
+        removeAssetLogo,
         sendPageProps: [sendPageProps, setSendPageProps],
         paymentCheckoutPageProps: [paymentCheckoutPageProps, setPaymentCheckoutPageProps],
       }}

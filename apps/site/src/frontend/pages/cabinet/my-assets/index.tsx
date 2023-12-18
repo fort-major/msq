@@ -5,10 +5,12 @@ import {
   AddAssetInput,
   AddAssetWrapper,
   AssetAccountsWrapper,
+  AssetLogo,
   AssetSpoilerContent,
   AssetSpoilerHeader,
   ErrorText,
   MyAssetsPageContent,
+  NameAndLogo,
 } from "./style";
 import { Spoiler } from "../../../components/spoiler";
 import { AccountCard } from "../../../components/account-card";
@@ -29,7 +31,7 @@ import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function MyAssetsPage() {
   const msq = useMasqueradeClient();
-  const { assets, init, refresh, addAccount, editAccount, addAsset } = useAssetData();
+  const { assets, init, refresh, addAccount, editAccount, addAsset, removeAssetLogo } = useAssetData();
 
   const [newAssetId, setNewAssetId] = createSignal<string>("");
   const [newAssetMetadata, setNewAssetMetadata] = createSignal<IAssetMetadata | null>(null);
@@ -191,9 +193,18 @@ export function MyAssetsPage() {
                         </Text>
                       }
                     >
-                      <Text size={20} weight={600}>
-                        {assets[assetId]!.metadata!.name}
-                      </Text>
+                      <NameAndLogo>
+                        <Show when={assets[assetId]!.metadata!.logoSrc}>
+                          <AssetLogo
+                            onError={() => removeAssetLogo(assetId)}
+                            src={assets[assetId]!.metadata!.logoSrc}
+                            alt="logo"
+                          />
+                        </Show>
+                        <Text size={20} weight={600}>
+                          {assets[assetId]!.metadata!.name}
+                        </Text>
+                      </NameAndLogo>
                     </Show>
                     <Show
                       when={assets[assetId]?.metadata}

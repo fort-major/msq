@@ -1,9 +1,18 @@
 import { Agent, AnonymousIdentity, HttpAgent, Identity } from "@dfinity/agent";
 import { InternalSnapClient } from "@fort-major/masquerade-client";
 import { createStatisticsBackendActor } from "../backend";
-import { ErrorCode, TAccountId, debugStringify, err, hexToBytes, strToBytes } from "@fort-major/masquerade-shared";
+import {
+  ErrorCode,
+  PRE_LISTED_TOKENS,
+  TAccountId,
+  debugStringify,
+  err,
+  hexToBytes,
+  strToBytes,
+} from "@fort-major/masquerade-shared";
 import { JSX, JSXElement } from "solid-js";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
+import D from "dompurify";
 
 // null = default
 // <empty string> = ic
@@ -171,6 +180,7 @@ export interface IAssetMetadata {
   symbol: string;
   decimals: number;
   fee: bigint;
+  logoSrc?: string;
 }
 
 export async function getAssetMetadata(
@@ -184,40 +194,44 @@ export async function getAssetMetadata(
   const fee = (metadata.find((it) => it[0] === IcrcMetadataResponseEntries.FEE)![1] as { Nat: bigint }).Nat;
   const decimals = (metadata.find((it) => it[0] === IcrcMetadataResponseEntries.DECIMALS)![1] as { Nat: bigint }).Nat;
 
-  // TODO: add xss purification
+  let logoEntry = metadata.find((it) => it[0] === IcrcMetadataResponseEntries.LOGO);
+  let logo: string | undefined = undefined;
 
-  return { name, symbol, fee, decimals: Number(decimals) };
+  if (logoEntry) {
+    logo = (logoEntry![1] as { Text: string }).Text;
+    // base64 decode svg, so it could be xss-purified, then encode back
+    if (logo.includes("image/svg")) {
+      if (logo.includes("base64")) {
+        let [prefix, body] = logo.split(";base64,");
+        body = btoa(D.sanitize(atob(body)));
+        logo = `${prefix};base64,${body}`;
+      } else {
+        let [prefix, body] = logo.split(",");
+        body = D.sanitize(body);
+        logo = `${prefix},${body}`;
+      }
+    }
+  }
+
+  if (typeof fee !== "bigint" || typeof decimals !== "bigint") {
+    err(ErrorCode.ICRC1_ERROR, "Invalid metadata");
+  }
+
+  return {
+    name: D.sanitize(name),
+    symbol: D.sanitize(symbol),
+    fee,
+    decimals: Number(decimals),
+    logoSrc: logo ? D.sanitize(logo) : defaultLogo(ledger.canisterId.toText()),
+  };
+}
+
+export function defaultLogo(assetId: string): string | undefined {
+  return PRE_LISTED_TOKENS[assetId]?.logoSrc;
 }
 
 export function getClassName(comp: { class: (props: JSX.HTMLAttributes<any>) => string }): string {
   return comp.class({});
-}
-
-const MSQ_MEMOS = [
-  "83b07a4ce1709f7b77a4e9bc4ac00a49de13ce99d5e76a0a1c4c7455350f7a34",
-  "df083fb1bf5eabf830f111769848461c603099e884389d07171dd8048bbfdadb",
-  "f6bd79f96ef58c9cfbcb46d420cc3ad6389bd90d4d4cd5dc95bbcf53d1105973",
-  "da65a9d7a0efdfddf79ab33cfeb1da4ace2b522004e6939b8cfc4c3c6df78528",
-  "293379697d8e4c4603cc58e5c59d19e8b797d979553ee4ab56c8f7fe78a0ee8c",
-  "ba20c55ac984170a3a7536d8f0ccbc64204ca54f037fb17fbc81a9ea324e8ca1",
-  "e0101f8f3b58b6fa535f1f7bee443c0e327e6463614bc7acf9c1b06fe6067e86",
-  "195398033db920c02106bc5820a458785cd703b86b6dd50e6377d97ff240169c",
-  "0ea1f625dfe7a61301008a6d0d837531c2d4f5dc1145712a45b12087c3de3ecd",
-  "ce71f46798ed04adeb656dc83c57598b8273b8043fcf7f111ebcf3fdfcf8c402",
-  "bd5ea9f6128b501a61a307f5f085760002452c26b9e26cdb84c842eaebcfb4d5",
-  "c296eef2fff4288028ab6ea6730823df8e706adee2d89292b06c0ff912bf8f21",
-  "39b578ec01ff08e8ca1e699b40f380d86e0480f57fd75ccb84cd2fc5b318d4bd",
-  "a0f45b1de3d665baa2d24d6a351098a5fa41672526398e6cea1a4a8d7b9e35ab",
-  "55d8f666c5ef7fa43f4364a4df1d2f83934ff36c6755159efa5a6ecbe33e2650",
-  "5ee9eb84d459ca585dba872339313d20e801ab5c38097ffa6084466372fad649",
-  "f0ef77af015de7d9083a2abf93e0fda42bee042ff2965624c692144357d6be4c",
-  "e010e60c2ee5f82c84e3a06c47f16d11174d1fec301c3e1cb6a5db7d4555d90d",
-  "f33e12cd9e796c38bf06c07f181f0d903ae401f96a801daef2834c42ef9813d4",
-  "55999a3e977b06ce2ef3694908eaab62bae25f0bef08edd047638ed18da95e21",
-];
-
-export function getRandomMemo(): Uint8Array {
-  return hexToBytes(MSQ_MEMOS[Math.floor(Math.random() * MSQ_MEMOS.length)]);
 }
 
 export function truncateStr(str: string, n: number) {
