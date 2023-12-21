@@ -228,7 +228,11 @@ export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<bool
         heading("🔒 Log out request 🔒"),
         text(`**${originToHostname(origin)}** wants you to log out.`),
         divider(),
-        text(`You will become anonymous, but **${originToHostname(origin)}** may still track your actions!`),
+        text(
+          `You will become anonymous, but **${originToHostname(
+            origin,
+          )}** may still track your actions! To prevent that, clean your browser's cache right after logging out.`,
+        ),
         divider(),
         text("**Confirm?** 🚀"),
       ]),
@@ -369,7 +373,11 @@ export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigi
             origin,
           )}**'s canisters on your behalf without notice!`,
         ),
-        text(`Only proceed if **${originToHostname(origin)}** explicitly proposed this action to you.`),
+        text(
+          `Only proceed if **${originToHostname(
+            origin,
+          )}** recently has updated its domain name and you want to access it using your old masks.`,
+        ),
         divider(),
         text("**Confirm?** 🚀"),
       ]),
