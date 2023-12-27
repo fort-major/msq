@@ -24,6 +24,6 @@
   "dependencies": {
     "@fort-major/masquerade-shared": "workspace:*",
     "@metamask/detect-provider": "2.0.0",
-    "icrc-35": "^0.2.1"
+    "icrc-35": "^0.2.2"
   }
 }

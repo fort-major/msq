@@ -44,7 +44,7 @@ export type TMsqCreateErrUnblockMetaMask = { UnblockMSQ: null };
 export type TMsqCreateErrEnableMetaMask = { EnableMSQ: null };
 
 /**
- * ## A client to interact with the Masquerade Snap
+ * ## A client to interact with the MSQ Snap
  */
 export class MasqueradeClient {
   private queueLocked: boolean = false;
@@ -65,6 +65,7 @@ export class MasqueradeClient {
    * ## Proposes the user to log in to current website
    *
    * Opens up a separate browser window with the Masquerade website that will guide the user through the authorization process.
+   * Under the hood uses ICRC-35 protocol.
    *
    * @see {@link requestLogout}
    * @see {@link isAuthorized}
@@ -157,9 +158,10 @@ export class MasqueradeClient {
   }
 
   /**
-   * ## Proposes the user to transfer tokens via ICRC-1 token standard
+   * ## Proposes the user to transfer tokens via ICRC-1 token standard.
    *
    * Opens up a separate browser window with the Masquerade website that will guide the user through the payment process.
+   * Under the hood uses ICRC-35 protocol.
    *
    * This function greatly simplifies payments, since now you can just request the user to pay you for something,
    * without worrying about user identity being different on your website than on the wallet website.

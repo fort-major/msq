@@ -39,7 +39,11 @@ export const IndexPage = () => {
   });
 
   const [backend] = createResource(identity, async (identity) => {
-    const agent = new HttpAgent({ identity, host: import.meta.env.VITE_MSQ_DFX_NETWORK_HOST });
+    const agent = new HttpAgent({
+      identity,
+      verifyQuerySignatures: false,
+      host: import.meta.env.VITE_MSQ_DFX_NETWORK_HOST,
+    });
 
     if (import.meta.env.VITE_MSQ_MODE === "DEV") {
       await agent.fetchRootKey();

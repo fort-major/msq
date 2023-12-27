@@ -153,8 +153,8 @@ importers:
         specifier: 2.0.0
         version: 2.0.0
       icrc-35:
-        specifier: ^0.2.1
-        version: 0.2.1
+        specifier: ^0.2.2
+        version: 0.2.2
     devDependencies:
       '@metamask/snaps-types':
         specifier: 3.1.0
@@ -8952,8 +8952,8 @@ packages:
       safer-buffer: 2.1.2
     dev: true
 
-  /icrc-35@0.2.1:
-    resolution: {integrity: sha512-SkFsPXlqdra5VCwPmMN9F2LE3B3Qg1uRyyjEi/8ljBEY6fbl3WlFZoxTNV83HX5nD5Lu1aJdTBFR2gxDNMHrGw==}
+  /icrc-35@0.2.2:
+    resolution: {integrity: sha512-sJ4HwZP/J5LEJVIIQc5Bcj/A0rsLtgeC68ciFbP7GSEzSU4BFfoYR/MokmUxiL4+UnyJpjaYhU+L2dmr5MxKnQ==}
     dependencies:
       zod: 3.22.4
     dev: false

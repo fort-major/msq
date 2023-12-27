@@ -61,7 +61,7 @@ export function App() {
                     <Route path="/unblock-msq" component={ErrorUnblockMsqPage} />
                     <Route path="/enable-msq" component={ErrorEnableMsqPage} />
 
-                    <Route path="/icrc35" component={ICRC35Page} />
+                    <Route path="/icrc-35" component={ICRC35Page} />
 
                     <Route path="/integration">
                       <Route path="/login" component={LoginPage} />

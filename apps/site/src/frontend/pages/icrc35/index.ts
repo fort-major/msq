@@ -1,8 +1,8 @@
 import { useNavigate } from "@solidjs/router";
 import { useICRC35 } from "../../store/global";
 import { onMount } from "solid-js";
-import { ICRC35Connection, MSQICRC35Client } from "@fort-major/masquerade-client";
-import { ZICRC1TransferRequest } from "@fort-major/masquerade-shared";
+import { ICRC35AsyncRequest, ICRC35Connection, LOGIN_ROUTE, PAY_ROUTE } from "@fort-major/masquerade-client";
+import { IICRC1TransferRequest, ZICRC1TransferRequest } from "@fort-major/masquerade-shared";
 import { z } from "zod";
 
 export function ICRC35Page() {
@@ -20,41 +20,36 @@ export function ICRC35Page() {
       debug: import.meta.env.VITE_MSQ_MODE === "DEV",
     });
 
+    const disableHandlers = () => {
+      connection.removeRequestHandler(LOGIN_ROUTE, loginHandler);
+      connection.removeRequestHandler(PAY_ROUTE, payHandler);
+    };
+
+    const loginHandler = (request: ICRC35AsyncRequest<undefined>) => {
+      disableHandlers();
+      z.undefined().parse(request.payload);
+
+      setIcrc35Request(request);
+      connection.onBeforeConnectionClosed(() => request.respond(false));
+
+      navigate("/integration/login");
+    };
+
+    const payHandler = (request: ICRC35AsyncRequest<IICRC1TransferRequest>) => {
+      disableHandlers();
+      ZICRC1TransferRequest.parse(request.payload);
+
+      setIcrc35Request(request);
+      connection.onBeforeConnectionClosed(() => request.respond(null));
+
+      navigate("/integration/pay");
+    };
+
+    connection.onRequest(LOGIN_ROUTE, loginHandler);
+    connection.onRequest(PAY_ROUTE, payHandler);
+
     const closeHandler = () => connection.close();
     window.addEventListener("beforeunload", closeHandler);
-
-    const client = new MSQICRC35Client(connection);
-    const req = await client.nextMsqRequest();
-
-    try {
-      switch (req.route) {
-        case MSQICRC35Client.LoginRoute: {
-          z.undefined().parse(req.payload);
-
-          setIcrc35Request(req);
-          connection.onBeforeConnectionClosed(() => req.respond(false));
-
-          navigate("/integration/login");
-          break;
-        }
-
-        case MSQICRC35Client.PayRoute: {
-          ZICRC1TransferRequest.parse(req.payload);
-
-          setIcrc35Request(req);
-          connection.onBeforeConnectionClosed(() => req.respond(null));
-
-          navigate("/integration/pay");
-          break;
-        }
-      }
-    } catch (e) {
-      setIcrc35Request(undefined);
-      window.removeEventListener("close", closeHandler);
-      connection.close();
-
-      throw e;
-    }
   });
 
   return undefined;
