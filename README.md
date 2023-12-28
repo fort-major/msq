@@ -1,6 +1,13 @@
-# Masquerade
+# Masquerade (MSQ)
 
 Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
+
+*[Join Our Discord](https://discord.gg/Z5WMHBReHd)*
+
+## Documentation
+
+1. [MSQ's Architecture](./documentation/architecture.md)
+2. [How to integrate MSQ into your Dapp](./documentation/integration.md)
 
 ## Local development
 
@@ -46,19 +53,17 @@ DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automati
 
 * `pnpm run doc`
 
-### Documentation
-
-#### How to use MSQ for local development
-
-// TODO: tell about `setIcHost()` and `getIcHost()`
-
-## Prod deployment
+### Prod deployment
 
 * `pnpm run gen`
 * `pnpm run prod:build`
 * `pnpm run prod:deploy`
 
-## Publish
+### Publishing
 
 * (opt) `npm login` - don't forget to log in to your npm account
-* `pnpm run pub`
+* `pnpm run prod:pub`
+
+## Contribution
+
+Feel free to open an issue if you found a bug or want to suggest a feature.
