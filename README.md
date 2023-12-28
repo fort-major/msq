@@ -26,6 +26,15 @@ You would need files called `.env.dev` and `.env.prod` in the root folder. Set t
 If you change any devserver host (snap, snap website or demo website), then you should also change it in `.env.dev`.
 DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automatically. The same goes for env variables starting with `MSQ_`.
 
+### Project structure
+
+* `/packages/snap` contains the MSQ Snap module;
+* `/apps/site` contains the MSQ companion dapp;
+* `/packages/client` contains the client library used by third party developers to integrate with MSQ;
+* `/packages/shared` contains a library with shared utility functions, types and constants;
+* `/apps/demo` contains a demo dapp project that showcases the integration;
+* `/apps/nns` contains a complete set of nns-canisters for development purposes.
+
 ### Run locally
 
 * `dfx start` - (in a separate terminal window)
