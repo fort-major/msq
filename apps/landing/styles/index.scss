@@ -1,0 +1,9 @@
+@import "./reset.scss";
+@import "./vars.scss";
+@import "./hero-screen.scss";
+@import "./no-install-screen.scss";
+
+body {
+    background-color: $black;
+    position: relative;
+}

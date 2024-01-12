@@ -1,0 +1,90 @@
+@keyframes textrun {
+    0% {
+        left: -50%;
+    }
+    100% {
+        left: -25%;
+    }
+}
+
+#no-install-screen {
+    margin-top: 220px;
+
+    width: 100%;
+    overflow-x: hidden;
+
+    position: relative;
+    height: 565px;
+
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+
+    .running-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        color: $gray-110;
+        font-family: $header-font;
+        font-size: 300px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 100%;
+        text-transform: uppercase;
+
+        white-space: nowrap;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        
+        span {
+            position: relative;
+            left: -50%;
+            animation: textrun 8s linear infinite;    
+        }
+    }
+
+    hgroup {
+        position: relative;
+        z-index: 1;
+
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: flex-end;
+
+        width: 1140px;
+        
+        div {
+            display: flex;
+            flex-flow: column nowrap;
+
+            gap: 30px;
+
+            h3 {
+                color: $white;
+                font-family: $font;
+                font-size: 40px;
+                font-style: normal;
+                font-weight: 600;
+                line-height: 90%;
+                letter-spacing: -2px;
+
+                width: 535px;
+            }
+
+            .install-mm-btn {
+                @include btn;
+                padding: 15px 40px 15px 30px;
+                background-color: $white;
+                width: 233px;
+
+                img {
+                    width: 21px;
+                    height: 20px;
+                }
+            }
+        }
+    }
+}

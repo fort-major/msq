@@ -1,0 +1,22 @@
+{
+  "name": "landing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "sass ./styles/index.scss ./dist/index.css && pnpm run pack",
+    "watch": "sass --watch ./styles/index.scss ./dist/index.css",
+    "dev": "pnpm run build && cd dist && static-server",
+    "pack": "pnpm run pack-index && pnpm run pack-images && pnpm run pack-fonts",
+    "pack-images": "cp -r img dist",
+    "pack-fonts": "cp -r fonts dist",
+    "pack-index": "cp index.html ./dist/index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "sass": "^1.69.7",
+    "static-server": "^2.2.1"
+  }
+}
