@@ -1,3 +1,5 @@
+// ----------- COLORS -----------
+
 $black: #0A0B15;
 $white: #fff;
 
@@ -39,6 +41,10 @@ $gray-190: #E6E6E7;
 $header-font: "Unique";
 $font: "DM Sans";
 
+// ----------- SIZES --------------
+
+$section-max-width: 1140px;
+
 // ----------- MIXINS -------------
 
 @mixin btn {
@@ -68,4 +74,9 @@ $font: "DM Sans";
         width: 15px;
         height: 15px;
     }
+}
+
+@mixin feature-block {
+    border-radius: 25px;
+    overflow: hidden;
 }

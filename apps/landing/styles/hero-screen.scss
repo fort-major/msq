@@ -3,7 +3,7 @@
 #hero-screen {
     width: 100%;
     min-height: 100vh;
-    padding: 50px 100px;
+    padding: 50px 0;
 
     display: flex;
     flex-flow: column nowrap;
@@ -32,11 +32,12 @@
 
         flex-grow: 1;
         width: 100%;
-        max-width: 1140px;
 
         position: relative;
 
         div {
+            width: 90%;
+            padding: 0 150px;
             position: relative;
 
             img {
@@ -45,8 +46,9 @@
 
             hgroup {
                 position: absolute;
-                bottom: 37px;
-                right: 0;
+                bottom: 10%;
+                right: 150px;
+                right: calc(150px + 2%);
 
                 display: flex;
                 flex-flow: column nowrap;

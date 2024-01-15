@@ -22,6 +22,8 @@
     justify-content: center;
 
     .running-text {
+        pointer-events: none;
+
         position: absolute;
         top: 0;
         left: 0;
@@ -42,7 +44,7 @@
         span {
             position: relative;
             left: -50%;
-            animation: textrun 8s linear infinite;    
+            animation: textrun 10s linear infinite;    
         }
     }
 
@@ -52,11 +54,13 @@
 
         display: flex;
         flex-flow: column nowrap;
-        align-items: flex-end;
+        align-items: center;
 
-        width: 1140px;
+        width: 100%;
         
         div {
+            padding: 0 150px;
+            width: 90%;
             display: flex;
             flex-flow: column nowrap;
 

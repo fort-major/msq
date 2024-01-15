@@ -1,0 +1,90 @@
+#feature-screen-2 {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+
+    margin-top: 250px;
+
+    .features-wrapper {
+        width: $section-max-width;
+
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        
+        & > hgroup > div {
+            position: relative;
+            z-index: 1;
+
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+
+            h3 {
+                align-self: stretch;
+
+                color: $white;
+                text-align: center;
+                font-family: $font;
+                font-size: 40px;
+                font-style: normal;
+                font-weight: 600;
+                line-height: 90%;
+                letter-spacing: -2px;
+            }
+
+            p {
+                color: $white;
+                text-align: center;
+                font-family: $font;
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 140%;
+                letter-spacing: -0.32px;
+            }
+        }
+
+        .frequent-updates-feature {
+            @include feature-block;
+            background-color: $gray-110;
+            height: 540px;
+
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+            justify-content: flex-start;
+
+            position: relative;
+            padding: 50px;
+
+            & > img {
+                position: absolute;
+                bottom: 0;
+            }
+        }
+
+        .crypto-is-for-sharing-feature {
+            @include feature-block;
+            background-color: $gray-110;
+            height: 540px;
+
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+            justify-content: flex-end;
+
+            position: relative;
+            padding: 50px;
+
+            overflow: visible;
+
+            & > img {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+            }
+        }
+    }
+}

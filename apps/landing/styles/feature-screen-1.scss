@@ -1,0 +1,93 @@
+#feature-screen-1 {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+
+    position: relative;
+    width: 100%;
+
+    .features-wrapper {
+        width: 90%;
+        padding: 0 150px;
+
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+
+        img {
+            width: 100%;
+        }
+        
+        & > hgroup > div {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+
+            h3 {
+                align-self: stretch;
+
+                color: $white;
+                text-align: center;
+                font-family: $font;
+                font-size: 40px;
+                font-style: normal;
+                font-weight: 600;
+                line-height: 90%;
+                letter-spacing: -2px;
+            }
+
+            p {
+                color: $white;
+                text-align: center;
+                font-family: $font;
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 140%;
+                letter-spacing: -0.32px;
+            }
+        }
+
+        .privacy-feature {
+            @include feature-block;
+            background-color: $gray-110;
+            min-height: 460px;
+
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+            justify-content: flex-end;
+
+            position: relative;
+            padding: 50px;
+
+            align-self: flex-start;
+
+            & > img {
+                position: absolute;
+                top: -39px;
+            }
+        }
+
+        .simple-ui-feature {
+            @include feature-block;
+            background-color: $gray-110;
+            min-height: 540px;
+
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+            justify-content: flex-start;
+
+            position: relative;
+            padding: 50px;
+
+            & > img {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+            }
+        }
+    }
+}

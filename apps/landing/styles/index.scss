@@ -2,8 +2,15 @@
 @import "./vars.scss";
 @import "./hero-screen.scss";
 @import "./no-install-screen.scss";
+@import "./feature-screen-1.scss";
+@import "./friendly-community-screen.scss";
+@import "./feature-screen-2.scss";
 
 body {
     background-color: $black;
     position: relative;
+}
+
+h1, h2, img {
+    pointer-events: none;
 }
