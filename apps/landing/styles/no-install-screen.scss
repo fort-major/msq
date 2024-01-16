@@ -57,36 +57,39 @@
         align-items: center;
 
         width: 100%;
-        
-        div {
-            padding: 0 150px;
-            width: 90%;
-            display: flex;
-            flex-flow: column nowrap;
 
-            gap: 30px;
+        & > div {
+            width: $section-max-width;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
 
-            h3 {
-                color: $white;
-                font-family: $font;
-                font-size: 40px;
-                font-style: normal;
-                font-weight: 600;
-                line-height: 90%;
-                letter-spacing: -2px;
-
-                width: 535px;
-            }
-
-            .install-mm-btn {
-                @include btn;
-                padding: 15px 40px 15px 30px;
-                background-color: $white;
-                width: 233px;
-
-                img {
-                    width: 21px;
-                    height: 20px;
+            & > div {
+                display: flex;
+                flex-flow: column nowrap;
+    
+                gap: 30px;
+    
+                h3 {
+                    color: $white;
+                    font-family: $font;
+                    font-size: 40px;
+                    font-style: normal;
+                    font-weight: 600;
+                    line-height: 90%;
+                    letter-spacing: -2px;
+                }
+    
+                .install-mm-btn {
+                    @include btn;
+                    padding: 15px 40px 15px 30px;
+                    background-color: $white;
+                    width: 233px;
+    
+                    img {
+                        width: 21px;
+                        height: 20px;
+                    }
                 }
             }
         }

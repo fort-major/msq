@@ -3,7 +3,7 @@
     flex-flow: row nowrap;
     justify-content: center;
 
-    margin-top: 250px;
+    margin-top: 200px;
 
     .features-wrapper {
         width: $section-max-width;
@@ -67,7 +67,7 @@
 
         .crypto-is-for-sharing-feature {
             @include feature-block;
-            background-color: $gray-110;
+            background-color: $gray-105;
             height: 540px;
 
             display: flex;
