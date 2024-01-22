@@ -1,6 +1,6 @@
 {
   "name": "@fort-major/masquerade-client",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "main": "./dist/cjs/index",
   "module": "./dist/esm/index",
   "unpkg": "./dist/esm/index",
@@ -24,6 +24,6 @@
   "dependencies": {
     "@fort-major/masquerade-shared": "workspace:*",
     "@metamask/detect-provider": "2.0.0",
-    "icrc-35": "^0.2.2"
+    "icrc-35": "0.2.3"
   }
 }

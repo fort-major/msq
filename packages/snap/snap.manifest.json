@@ -1,5 +1,5 @@
 {
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Privacy-focused MetaMask snap for the Internet Computer (ICP)",
   "proposedName": "MSQ - Safe ICP Wallet",
   "repository": {
@@ -7,7 +7,7 @@
     "url": "https://github.com/fort-major/masquerade.git"
   },
   "source": {
-    "shasum": "oSHs6/ZXMeI3wkUc1+Lcy6iq/oXIbQwG9ViTqksBOdk=",
+    "shasum": "2hRosjhYwFKzmx0ovn0YVqfSmLu5sMmcCyd7aankAzE=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",

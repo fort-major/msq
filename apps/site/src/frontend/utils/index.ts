@@ -15,9 +15,8 @@ import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger
 import D from "dompurify";
 
 // null = default
-// <empty string> = ic
 // <string> = custom host
-export function setIcHost(host: string | null) {
+export function setIcHost(host: string | null = null) {
   if (host === null) {
     localStorage.removeItem("msq-ic-host");
   } else {
