@@ -1,0 +1,32 @@
+type ICRC1Statistics = record {
+    ICP : nat;
+    ckBTC : nat;
+    CHAT : nat;
+    SONIC : nat;
+    SNS1 : nat;
+    OGY : nat;
+    MOD : nat;
+    GHOST : nat;
+    KINIC : nat;
+    HOT : nat;
+    CAT : nat;
+};
+
+type ProdStatistics = record {
+    masks_created : nat32;
+    signatures_produced : nat32;
+    origins_linked : nat32;
+    origins_unlinked : nat32;
+    icrc1_accounts_created : nat32;
+    icrc1_sent : ICRC1Statistics;
+};
+
+type Statistics = record {
+    timestamp : nat64;
+    prod : ProdStatistics;
+};
+
+service : {
+    "increment_stats" : (ProdStatistics) -> ();
+    "get_stats" : () -> (vec Statistics) query;
+};
