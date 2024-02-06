@@ -1,6 +1,7 @@
 type ICRC1Statistics = record {
     ICP : nat;
     ckBTC : nat;
+    ckETH : nat;
     CHAT : nat;
     SONIC : nat;
     SNS1 : nat;

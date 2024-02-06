@@ -12,7 +12,7 @@
     "dev:deployFE": "dotenv -e .env.dev -- turbo dev:deployFE",
     "dev:deployBE": "dotenv -e .env.dev -- turbo dev:deployBE",
     "dev:nns": "turbo dev:nns",
-    "gen": "turbo gen",
+    "dev:gen": "turbo dev:gen",
     "dev:runSnap": "dotenv -e .env.dev -- turbo dev:runSnap",
     "test": "dotenv -e .env.dev -- turbo test",
     "lint": "turbo lint",

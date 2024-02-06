@@ -84,6 +84,7 @@ export const ZStatistics = z.object({
     icrc1_sent: z.object({
       ICP: z.bigint().nonnegative(),
       ckBTC: z.bigint().nonnegative(),
+      ckETH: z.bigint().nonnegative(),
       CHAT: z.bigint().nonnegative(),
       SONIC: z.bigint().nonnegative(),
       SNS1: z.bigint().nonnegative(),

@@ -12,6 +12,7 @@ use ic_cdk::{
 struct ICRC1Statistics {
     pub ICP: Nat,
     pub ckBTC: Nat,
+    pub ckETH: Nat,
     pub CHAT: Nat,
     pub SONIC: Nat,
     pub SNS1: Nat,
@@ -27,6 +28,7 @@ impl ICRC1Statistics {
     fn merge(&mut self, other: ICRC1Statistics) {
         self.ICP += other.ICP;
         self.ckBTC += other.ckBTC;
+        self.ckETH += other.ckETH;
         self.CHAT += other.CHAT;
         self.SONIC += other.SONIC;
         self.SNS1 += other.SNS1;

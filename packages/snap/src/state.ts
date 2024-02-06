@@ -16,6 +16,8 @@ import {
   TAccountId,
   EStatisticsKind,
   PRE_LISTED_TOKENS,
+  ICP_INDEX_TOKENS,
+  ICRC_1_TOKENS,
 } from "@fort-major/masquerade-shared";
 import { generateRandomPseudonym, getSignIdentity } from "./utils";
 
@@ -232,8 +234,10 @@ export class StateManager {
           unreacheable("No icrc1 stat body provided");
         }
 
-        // @ts-expect-error - types are consistent
-        this.state.statistics.prod.icrc1_sent[icrc1_sent.ticker] += icrc1_sent.qty;
+        if (ICRC_1_TOKENS.includes(icrc1_sent.ticker)) {
+          // @ts-expect-error - types are consistent
+          this.state.statistics.prod.icrc1_sent[icrc1_sent.ticker] += icrc1_sent.qty;
+        }
 
         break;
       }
@@ -270,6 +274,7 @@ function makeDefaultStatistics(): IStatistics {
       icrc1_sent: {
         ICP: BigInt(0),
         ckBTC: BigInt(0),
+        ckETH: BigInt(0),
         CHAT: BigInt(0),
         SONIC: BigInt(0),
         SNS1: BigInt(0),

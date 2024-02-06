@@ -230,7 +230,7 @@ export const ICRC_1_INDEX_TOKENS: ListedTokenSymbol[] = [
   "CAT",
 ];
 export const ICP_INDEX_TOKENS: ListedTokenSymbol[] = ["ICP", "OGY"];
-export const ICRC_2_TOKENS: ListedTokenSymbol[] = ["ICP", "ckBTC"];
+export const ICRC_2_TOKENS: ListedTokenSymbol[] = ["ICP", "ckBTC", "ckETH"];
 
 export const DISCORD_LINK = "https://discord.gg/Z5WMHBReHd";
 export const DISCORD_ERROR_LINK = "https://discord.gg/CawgFfR46X";

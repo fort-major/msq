@@ -34,6 +34,7 @@ interface IStatisticsUnwrapped {
   icrc1_accounts_created: IStat;
   icp_sent: IStat;
   ckBtc_sent: IStat;
+  ckEth_sent: IStat;
   chat_sent: IStat;
   sonic_sent: IStat;
   sns1_sent: IStat;
@@ -62,6 +63,7 @@ export function StatisticsPage() {
       icrc1_accounts_created: makeDefaultStat("ICRC-1 Accounts Created"),
       icp_sent: makeDefaultStat("ICP Sent"),
       ckBtc_sent: makeDefaultStat("ckBTC Sent"),
+      ckEth_sent: makeDefaultStat("ckETH Sent"),
       chat_sent: makeDefaultStat("CHAT Sent"),
       sonic_sent: makeDefaultStat("SONIC Sent"),
       sns1_sent: makeDefaultStat("SNS1 Sent"),
@@ -86,6 +88,7 @@ export function StatisticsPage() {
 
       result.icp_sent.datasets[0].data.push(Number(episode.prod.icrc1_sent.ICP / BigInt(100000000)));
       result.ckBtc_sent.datasets[0].data.push(Number(episode.prod.icrc1_sent.ckBTC / BigInt(100000000)));
+      result.ckEth_sent.datasets[0].data.push(Number(episode.prod.icrc1_sent.ckETH / BigInt(100000000)));
       result.chat_sent.datasets[0].data.push(Number(episode.prod.icrc1_sent.CHAT / BigInt(100000000)));
       result.sonic_sent.datasets[0].data.push(Number(episode.prod.icrc1_sent.SONIC / BigInt(100000000)));
       result.sns1_sent.datasets[0].data.push(Number(episode.prod.icrc1_sent.SNS1 / BigInt(100000000)));
