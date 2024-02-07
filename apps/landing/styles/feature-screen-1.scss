@@ -13,7 +13,7 @@
         grid-template-columns: 1fr 1fr;
         gap: 40px;
 
-        img {
+        & > img {
             width: 100%;
         }
         
@@ -64,6 +64,7 @@
             align-self: flex-start;
 
             & > img {
+                width: 676px;
                 position: absolute;
                 top: -39px;
             }
@@ -82,10 +83,66 @@
             position: relative;
             padding: 50px;
 
-            & > img {
+            & > .img-sm {
+                display: none;
+            }
+
+            & > .img-lg {
                 position: absolute;
                 bottom: 0;
                 left: 0;
+            }
+        }
+    }
+}
+
+@include mobile {
+    #feature-screen-1 {
+        margin-top: 40px;
+        flex-flow: column nowrap;
+
+        width: 100%;
+        padding: 0 10px;
+
+        & > .features-wrapper {
+            width: auto;
+            display: flex;
+            flex-flow: column nowrap;
+
+            gap: 10px;
+
+            hgroup {
+                padding: 30px 25px !important;
+                align-self: auto !important;
+            }
+
+            .privacy-feature {
+                overflow: visible !important;
+                min-height: 520px;
+
+                img {
+                    position: absolute;
+                    left: calc(50% - 409px);
+                    top: -60px;
+                    width: 818px;
+                }
+            }
+
+            .simple-ui-feature {
+                justify-content: flex-end;
+
+                .img-lg {
+                    display: none;
+                }
+
+                .img-sm {
+                    display: block;
+                    width: 496px;
+
+                    position: absolute;
+                    left: calc(50% - 180px);
+                    top: 22px;
+                }
             }
         }
     }

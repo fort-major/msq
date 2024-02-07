@@ -84,3 +84,23 @@
         }
     }
 }
+
+@include mobile {
+    #lets-make-crypto-global {
+        margin-top: 120px;
+
+        hgroup {
+            h4 {
+                font-size: 95px;
+            }
+
+            div {
+                .discord {
+                    right: -60px;
+                    bottom: auto;
+                    top: 0;
+                }
+            }
+        }
+    }
+}

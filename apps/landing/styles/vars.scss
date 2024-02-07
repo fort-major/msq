@@ -80,3 +80,9 @@ $section-max-width: 1140px;
     border-radius: 25px;
     overflow: hidden;
 }
+
+@mixin mobile {
+    @media (min-width: 300px) and (max-width: 1280px) {
+        @content;
+    }
+}

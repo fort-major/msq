@@ -10,21 +10,29 @@
     align-items: center;
     gap: 83px;
 
-    header {
+    & > header {
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
         justify-content: center;
         
         height: 30px;
+
+        #menu {
+            display: none;
+        }
     }
 
-    h1 {
+    & > h1 {
         position: absolute;
         top: -1000px;
     }
 
-    main {
+    .pad {
+        display: none;
+    }
+
+    & > main {
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
@@ -35,16 +43,16 @@
 
         position: relative;
 
-        div {
+        & > div {
             width: 90%;
             padding: 0 150px;
             position: relative;
 
-            img {
+            & > img {
                 width: 100%;
             }
 
-            hgroup {
+            & > hgroup {
                 position: absolute;
                 bottom: 10%;
                 right: 150px;
@@ -55,6 +63,10 @@
                 gap: 25px;
 
                 padding: 8px;
+
+                h1 {
+                    display: none;
+                }
 
                 h2 {
                     width: 274px;
@@ -124,6 +136,122 @@
                     }
                 }
             }
+        }
+    }
+}
+
+
+@include mobile {
+    #hero-screen {
+        display: flex;
+        flex-flow: column nowrap;
+        gap: 10px;
+        padding: 10px;
+
+        width: 100%;
+        position: relative;
+
+        header {
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            align-self: stretch;
+            justify-content: space-between;
+
+            padding: 18px 30px;
+            height: 60px;
+            
+            background-color: $gray-108;
+            border-radius: 25px;
+
+            img:not(#menu) {
+                height: 24px;
+            }
+
+            #menu {
+                display: block;
+            }
+        }
+
+        main {
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: flex-end;
+
+            padding: 30px 30px 60px 30px;
+            background-color: $gray-108;
+            border-radius: 25px;
+
+            position: relative;
+
+            & > div {
+                width: 100%;
+                padding: 0;
+
+                & > img {
+                    display: none;
+                }
+
+                & > hgroup {
+                    display: flex;
+                    flex-flow: column nowrap;
+                    gap: 15px;
+                    padding: 0;
+
+                    position: relative;
+                    bottom: auto;
+                    right: auto;
+
+                    h1 {
+                        display: block;
+                        font-family: $header-font;
+                        text-transform: uppercase;
+                        font-size: 95px;
+                        line-height: 80%;
+                        color: $white;
+
+                        width: 100%;
+                    }
+
+                    h2 {
+                        width: 100%;
+                    }
+
+                    & > .buttons {
+                        align-self: center;
+
+                        display: flex;
+                        flex-flow: row nowrap;
+                        align-items: center;
+                        justify-content: center;
+
+                        position: absolute;
+                        bottom: -90px;
+                        width: 100%;
+
+                        & > .go-to-wallet-btn {
+                            flex-grow: 1;
+                            min-width: 220px;
+                        }
+
+                        & > a {
+                            position: relative;
+                            left: auto;
+                            right: auto;
+                            bottom: auto;
+                            top: auto;
+
+                            transform: none;
+                        }
+                    }
+                }
+            }
+        }
+
+        .pad {
+            display: block;
+            height: 30px;
+            width: 100%;
         }
     }
 }
