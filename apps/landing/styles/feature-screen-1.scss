@@ -130,6 +130,7 @@
 
             .simple-ui-feature {
                 justify-content: flex-end;
+                gap: 50px;
 
                 .img-lg {
                     display: none;
@@ -137,11 +138,11 @@
 
                 .img-sm {
                     display: block;
-                    width: 496px;
+                    height: 343px;
 
-                    position: absolute;
-                    left: calc(50% - 180px);
-                    top: 22px;
+                    align-self: flex-start;
+
+                    position: relative;
                 }
             }
         }
