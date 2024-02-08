@@ -232,7 +232,7 @@ export const ICRC_1_INDEX_TOKENS: ListedTokenSymbol[] = [
 export const ICP_INDEX_TOKENS: ListedTokenSymbol[] = ["ICP", "OGY"];
 export const ICRC_2_TOKENS: ListedTokenSymbol[] = ["ICP", "ckBTC"];
 
-export const DISCORD_LINK = "https://discord.gg/Z5WMHBReHd";
-export const DISCORD_ERROR_LINK = "https://discord.gg/CawgFfR46X";
+export const DISCORD_LINK = "https://discord.gg/N7kUfMfvA8";
+export const DISCORD_ERROR_LINK = "https://discord.gg/N7kUfMfvA8";
 // export const METAMASK_LINK = "https://metamask.io/download/";
 export const METAMASK_LINK = "https://metamask.io/flask/";

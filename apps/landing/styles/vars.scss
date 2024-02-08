@@ -82,7 +82,7 @@ $section-max-width: 1140px;
 }
 
 @mixin mobile {
-    @media (min-width: 300px) and (max-width: 1280px) {
+    @media (min-width: 300px) and (max-width: 1279px) {
         @content;
     }
 }

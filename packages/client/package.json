@@ -1,6 +1,6 @@
 {
   "name": "@fort-major/masquerade-client",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "main": "./dist/cjs/index",
   "module": "./dist/esm/index",
   "unpkg": "./dist/esm/index",

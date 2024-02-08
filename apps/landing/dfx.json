@@ -1,0 +1,20 @@
+{
+  "canisters": {
+    "msq_landing": {
+      "build": ["pnpm run prod:build"],
+      "frontend": {
+        "entrypoint": "index.html"
+      },
+      "source": ["dist"],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

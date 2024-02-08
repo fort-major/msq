@@ -2,13 +2,15 @@
 
 #hero-screen {
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
+    height: -webkit-fill-available;
+    max-height: 1200px;
     padding: 50px 0;
 
     display: flex;
     flex-flow: column nowrap;
     align-items: center;
-    gap: 83px;
+    gap: 20px;
 
     & > header {
         display: flex;
@@ -33,43 +35,35 @@
     }
 
     & > main {
-        display: flex;
-        flex-flow: row nowrap;
-        align-items: center;
-        justify-content: center;
-
-        flex-grow: 1;
-        width: 100%;
-
+        flex-shrink: 1;
         position: relative;
 
         & > div {
-            width: 90%;
-            padding: 0 150px;
             position: relative;
 
             & > img {
-                width: 100%;
+                height: calc(100vh - 140px);
+                max-height: 900px;
+                max-width: 95vw;
             }
 
             & > hgroup {
                 position: absolute;
-                bottom: 10%;
-                right: 150px;
-                right: calc(150px + 2%);
+                bottom: 3vh;
+                right: 20px;
 
                 display: flex;
                 flex-flow: column nowrap;
                 gap: 25px;
-
-                padding: 8px;
 
                 h1 {
                     display: none;
                 }
 
                 h2 {
-                    width: 274px;
+                    width: 20vw;
+                    min-width: 250px;
+                    max-width: 320px;
                     color: $white;
                     font-family: $font;
                     font-size: 16px;
@@ -83,63 +77,69 @@
                     }
                 }
 
-                .go-to-wallet-btn {
-                    @include btn;
-                    background-color: $chartreuse;
-                    width: 225px;
-                }
+                .buttons {
+                    position: relative;
+                    display: flex;
+                    flex-flow: row nowrap;
+                    align-items: center;
 
-                .github {
-                    @include btn;
-                    background-color: $orange;
-
-                    transform: rotate(-10deg);
-
-                    position: absolute;
-                    right: 30px;
-                    bottom: -30px;
-
-                    transition: transform .3s ease-out;
-                    padding: 15px;
-
-                    &:hover {
-                        transform: none;
+                    .go-to-wallet-btn {
+                        @include btn;
+                        background-color: $chartreuse;
+                        width: 225px;
                     }
 
-                    img {
-                        width: 26px;
-                        height: 26px;
+                    .github {
+                        @include btn;
+                        background-color: $orange;
+
+                        transform: rotate(-10deg);
+
+                        position: absolute;
+                        left: 200px;
+                        bottom: -30px;
+
+                        transition: transform .3s ease-out;
+                        padding: 15px;
+
+                        &:hover {
+                            transform: none;
+                        }
+
+                        img {
+                            width: 26px;
+                            height: 26px;
+                        }
                     }
-                }
 
-                .discord {
-                    @include btn;
-                    background-color: $blue;
+                    .discord {
+                        @include btn;
+                        background-color: $blue;
 
-                    transform: rotate(5deg);
+                        transform: rotate(5deg);
 
-                    position: absolute;
-                    right: -15px;
-                    bottom: -10px;
+                        position: relative;
+                        left: 15px;
+                        bottom: -10px;
 
-                    transition: transform .3s ease-out;
+                        transition: transform .3s ease-out;
 
-                    &:hover {
-                        transform: none;
-                    }
+                        &:hover {
+                            transform: none;
+                        }
 
-                    padding: 15px;
+                        padding: 15px;
 
-                    img {
-                        width: 26px;
-                        height: 26px;
+                        img {
+                            width: 26px;
+                            height: 26px;
+                        }
                     }
                 }
             }
         }
     }
 }
-
 
 @include mobile {
     #hero-screen {
@@ -183,6 +183,8 @@
             border-radius: 25px;
 
             position: relative;
+            width: 100%;
+            flex-grow: 1;
 
             & > div {
                 width: 100%;
@@ -235,13 +237,13 @@
                         }
 
                         & > a {
-                            position: relative;
-                            left: auto;
-                            right: auto;
-                            bottom: auto;
-                            top: auto;
+                            position: relative !important;
+                            left: auto !important;
+                            right: auto !important;
+                            bottom: auto !important;
+                            top: auto !important;
 
-                            transform: none;
+                            transform: none !important;
                         }
                     }
                 }
@@ -252,6 +254,77 @@
             display: block;
             height: 30px;
             width: 100%;
+        }
+    }
+
+    #overlay-nav {
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        padding: 10px;
+
+        & > .wrapper {
+            background-color: $gray-108;
+            border-radius: 25px;
+
+            position: relative;
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+            flex-flow: column nowrap;
+            gap: 20px;
+
+            & > .header {
+                display: flex;
+                padding: 18px 30px;
+                flex-flow: row nowrap;
+                align-items: center;
+                justify-content: space-between;
+
+                img:not(#close-menu) {
+                    height: 24px;
+                }
+
+                #close-menu {
+                    pointer-events: all;
+                }
+            }
+
+            & > .content {
+                flex-grow: 1;
+
+                display: flex;
+                flex-flow: column nowrap;
+                justify-content: space-between;
+
+                padding: 0 30px 30px 30px;
+
+                ul {
+                    color: $white;
+                    font-family: $font;
+                    font-weight: 600;
+                    font-size: 24px;
+                    letter-spacing: -5%;
+                    line-height: 90%;
+
+                    display: flex;
+                    flex-flow: column nowrap;
+                    gap: 40px;
+
+                    a {
+                        color: $white !important;
+                    }
+                }
+
+                & > a {
+                    @include btn();
+                    background-color: $chartreuse;
+                }
+            }
         }
     }
 }

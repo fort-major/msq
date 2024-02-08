@@ -1,6 +1,6 @@
 {
   "name": "masquerade-site",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "type": "module",
   "main": "index.js",
   "license": "MIT",
@@ -11,7 +11,7 @@
     "prod:deployBE": "dfx deploy msq_statistics --network=ic",
     "dev:build": "pnpm run propagateEnv && tsc && vite build --mode dev",
     "dev": "pnpm run propagateEnv && vite --mode dev",
-    "gen": "dfx generate",
+    "dev:gen": "dfx generate",
     "dev:deploy": "dfx deploy",
     "dev:deployFE": "dfx deploy msq_frontend --no-asset-upgrade",
     "dev:deployBE": "dfx deploy msq_statistics",

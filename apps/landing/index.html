@@ -1,7 +1,17 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <title>MSQ</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NVR6BN09L1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-NVR6BN09L1');
+    </script>
+
+    <title>MSQ - Safe ICP Wallet</title>
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,10 +24,49 @@
       rel="stylesheet"
     />
     <link href="/index.css" media="screen" rel="stylesheet" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#e0ff25">
+    <meta name="apple-mobile-web-app-title" content="MSQ">
+    <meta name="application-name" content="MSQ">
+    <meta name="msapplication-TileColor" content="#e0ff25">
+    <meta name="theme-color" content="#ffffff">
+
+    <link href="https://icp.msq.tech" rel="canonical" />
+    <meta content="Pay with MSQ. Buy goods, tip for services, donate to charities, and gift coins to your loved ones." name="description" />
+    <meta content="MSQ - Safe ICP Wallet" property="og:title" />
+    <meta content="Pay with MSQ. Buy goods, tip for services, donate to charities, and gift coins to your loved ones." property="og:description" />
+    <meta content="website" property="og:type" />
+    <meta content="https://icp.msq.tech" property="og:url" />
+    <meta content="https://icp.msq.tech/image_social.jpg" property="og:image" />
+    <meta content="summary" name="twitter:card" />
+    <meta content="MSQ - Safe ICP Wallet" name="twitter:title" />
+    <meta content="Pay with MSQ. Buy goods, tip for services, donate to charities, and gift coins to your loved ones." name="twitter:description" />
+    <meta content="https://icp.msq.tech/image_social.jpg" name="twitter:image" />
+
+    <script>
+        function openNav() {
+            document.getElementById('overlay-nav').style.setProperty('display', 'flex');
+            document.body.style.setProperty('height', '100vh');
+            document.body.style.setProperty('overflow', 'hidden');
+        }
+
+        function closeNav() {
+            document.getElementById('overlay-nav').style.setProperty('display', 'none');
+            document.body.style.setProperty('height', null)
+            document.body.style.setProperty('overflow', null);
+        }
+    </script>
   </head>
   <body>
     <section id="hero-screen">
-      <header><img src="/img/msq-logo-landing.svg" alt="MSQ logo" /><img id="menu" src="/img/menu.svg" alt="ICP menu"/></header>
+      <header>
+        <img src="/img/msq-logo-landing.svg" alt="MSQ logo" />
+        <img id="menu" src="/img/menu.svg" alt="ICP menu" onclick="openNav()" style="pointer-events: all;"/>
+      </header>
       <h1>Use the Internet Computer with MetaMask</h1>
       <main>
         <div>
@@ -34,14 +83,14 @@
 
             <div class="buttons">
                 <a class="go-to-wallet-btn" href="https://msq.tech">
-                <span>Open MSQ App</span>
-                <img src="/img/arrow-right-top.svg" alt="arrow icon" />
+                    <span>Open MSQ App</span>
+                    <img src="/img/arrow-right-top.svg" alt="arrow icon" />
                 </a>
-                <a class="discord" href="https://discord.gg/pySVmfrB5s">
-                <img src="/img/discord.svg" alt="discord icon" />
+                    <a class="discord" href="https://discord.gg/N7kUfMfvA8">
+                    <img src="/img/discord.svg" alt="discord icon" />
                 </a>
-                <a class="github" href="https://github.com/fort-major/masquerade">
-                <img src="/img/github.svg" alt="github icon" />
+                    <a class="github" href="https://github.com/fort-major/masquerade">
+                    <img src="/img/github.svg" alt="github icon" />
                 </a>
             </div>
           </hgroup>
@@ -118,7 +167,7 @@
                     Experiencing issues with MSQ, found a bug, or just want to chat?
                     Join our Discord Community to connect with others like you!
                 </h6>
-                <a href="https://discord.gg/pySVmfrB5s" class="discord-btn">
+                <a href="https://discord.gg/N7kUfMfvA8" class="discord-btn">
                     <img src="/img/discord.svg" alt="discord icon" />
                     <span>Join Discord</span>
                 </a>
@@ -214,7 +263,7 @@
             <span>Go to My Wallet</span>
             <img src="/img/arrow-right-top.svg" alt="arrow icon" />
           </a>
-          <a class="discord" href="https://discord.gg/pySVmfrB5s">
+          <a class="discord" href="https://discord.gg/N7kUfMfvA8">
             <img src="/img/discord.svg" alt="discord icon" />
           </a>
           <a class="github" href="https://github.com/fort-major/masquerade">
@@ -229,5 +278,25 @@
         alt="Powered By Internet Computer"
       />
     </footer>
+    <nav id="overlay-nav" style="display: none;">
+        <div class="wrapper">
+            <div class="header">
+                <img src="/img/msq-logo-landing.svg" alt="MSQ logo" />
+                <img id="close-menu" src="/img/cross.svg" alt="close" onclick="closeNav()" />
+            </div>
+            <div class="content">
+                <ul>
+                    <a href="#hero-screen" onclick="closeNav()"><li>Get MSQ</li></a>
+                    <a href="#no-install-screen" onclick="closeNav()"><li>Key Features</li></a>
+                    <a href="#best-community-section" onclick="closeNav()"><li>Community</li></a>
+                    <a href="#integration-screen" onclick="closeNav()"><li>For Devs</li></a>
+                </ul>
+                <a href="https://discord.gg/N7kUfMfvA8" target="_blank">
+                    <span>Contact Us</span>
+                    <img src="/img/arrow-right-top.svg" alt="arrow icon" />
+                </a>
+            </div>
+        </div>
+    </nav>
   </body>
 </html>
