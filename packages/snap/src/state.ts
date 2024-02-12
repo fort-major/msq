@@ -270,6 +270,7 @@ function makeDefaultStatistics(): IStatistics {
       icrc1_sent: {
         ICP: BigInt(0),
         ckBTC: BigInt(0),
+        ckETH: BigInt(0),
         CHAT: BigInt(0),
         SONIC: BigInt(0),
         SNS1: BigInt(0),

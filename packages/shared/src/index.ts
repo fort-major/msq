@@ -156,6 +156,7 @@ export const PRE_LISTED_TOKENS: Record<
   "jwcfb-hyaaa-aaaaj-aac4q-cai": {
     name: "OGY",
     assetId: "jwcfb-hyaaa-aaaaj-aac4q-cai",
+    logoSrc: "https://msq.tech/ogy.svg",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
   "xsi2v-cyaaa-aaaaq-aabfq-cai": {
@@ -230,9 +231,9 @@ export const ICRC_1_INDEX_TOKENS: ListedTokenSymbol[] = [
   "CAT",
 ];
 export const ICP_INDEX_TOKENS: ListedTokenSymbol[] = ["ICP", "OGY"];
-export const ICRC_2_TOKENS: ListedTokenSymbol[] = ["ICP", "ckBTC"];
+export const ICRC_2_TOKENS: ListedTokenSymbol[] = ["ICP", "ckBTC", "ckETH"];
 
-export const DISCORD_LINK = "https://discord.gg/N7kUfMfvA8";
-export const DISCORD_ERROR_LINK = "https://discord.gg/N7kUfMfvA8";
+export const DISCORD_LINK = "https://discord.gg/RMxyF5Huhs";
+export const DISCORD_ERROR_LINK = "https://discord.gg/RMxyF5Huhs";
 // export const METAMASK_LINK = "https://metamask.io/download/";
 export const METAMASK_LINK = "https://metamask.io/flask/";
