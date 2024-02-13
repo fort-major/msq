@@ -27,8 +27,7 @@ import {
   ZIdentityUnlinkAllRequest,
   ZIdentityGetPublicKeyRequest,
   EStatisticsKind,
-  debugStringify,
-} from "@fort-major/masquerade-shared";
+} from "@fort-major/msq-shared";
 import { StateManager } from "../state";
 import { getSignIdentity } from "../utils";
 

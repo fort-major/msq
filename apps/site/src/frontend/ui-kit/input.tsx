@@ -1,7 +1,7 @@
 import { Principal } from "@dfinity/principal";
 import { Show, createEffect, createSignal, on } from "solid-js";
 import { eventHandler, strToTokens, tokensToStr } from "../utils";
-import { debugStringify, unreacheable } from "@fort-major/masquerade-shared";
+import { debugStringify, unreacheable } from "@fort-major/msq-shared";
 import { styled } from "solid-styled-components";
 import {
   ANIM_DURATION,

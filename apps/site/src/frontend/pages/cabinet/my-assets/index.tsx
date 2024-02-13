@@ -15,8 +15,8 @@ import {
 import { Spoiler } from "../../../components/spoiler";
 import { AccountCard } from "../../../components/account-card";
 import { IAssetMetadata, eventHandler, getAssetMetadata, makeAnonymousAgent, tokensToStr } from "../../../utils";
-import { Principal, TAccountId, debugStringify, logError } from "@fort-major/masquerade-shared";
-import { useMasqueradeClient } from "../../../store/global";
+import { Principal, TAccountId, debugStringify, logError } from "@fort-major/msq-shared";
+import { useMsqClient } from "../../../store/global";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { useNavigate } from "@solidjs/router";
 import { ISendPageProps } from "./send";
@@ -30,7 +30,7 @@ import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function MyAssetsPage() {
-  const msq = useMasqueradeClient();
+  const msq = useMsqClient();
   const { assets, init, refresh, addAccount, editAccount, addAsset, removeAssetLogo } = useAssetData();
 
   const [newAssetId, setNewAssetId] = createSignal<string>("");

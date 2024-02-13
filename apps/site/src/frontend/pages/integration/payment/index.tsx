@@ -1,5 +1,5 @@
 import { For, Show, createEffect, createSignal } from "solid-js";
-import { useICRC35, useMasqueradeClient } from "../../../store/global";
+import { useICRC35, useMsqClient } from "../../../store/global";
 import { useNavigate } from "@solidjs/router";
 import { Principal } from "@dfinity/principal";
 import { tokensToStr } from "../../../utils";
@@ -15,7 +15,7 @@ import {
   PaymentPageWrapper,
 } from "./style";
 import { ColorAccent, H3, Text } from "../../../ui-kit/typography";
-import { ErrorCode, IICRC1TransferRequest, TAccountId, err, originToHostname } from "@fort-major/masquerade-shared";
+import { ErrorCode, IICRC1TransferRequest, TAccountId, err, originToHostname } from "@fort-major/msq-shared";
 import { AccountCard } from "../../../components/account-card";
 import { AddAccountBtn } from "../../../components/add-account-btn";
 import { Button, EButtonKind } from "../../../ui-kit/button";
@@ -26,7 +26,7 @@ import { useAssetData, usePaymentCheckoutPageProps } from "../../../store/assets
 import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function PaymentPage() {
-  const msq = useMasqueradeClient();
+  const msq = useMsqClient();
   const { assets, fetch, refresh, addAsset, addAccount } = useAssetData();
   const [selectedAccountId, setSelectedAccountId] = createSignal<TAccountId>(0);
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);

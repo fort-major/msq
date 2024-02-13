@@ -1,5 +1,5 @@
 import { Agent, AnonymousIdentity, HttpAgent, Identity } from "@dfinity/agent";
-import { InternalSnapClient } from "@fort-major/masquerade-client";
+import { InternalSnapClient } from "@fort-major/msq-client";
 import { createStatisticsBackendActor } from "../backend";
 import {
   ErrorCode,
@@ -8,9 +8,8 @@ import {
   TAccountId,
   debugStringify,
   err,
-  hexToBytes,
   strToBytes,
-} from "@fort-major/masquerade-shared";
+} from "@fort-major/msq-shared";
 import { JSX, JSXElement } from "solid-js";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
 import D from "dompurify";

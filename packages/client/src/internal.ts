@@ -22,15 +22,15 @@ import {
   IStateGetAllAssetDataRequest,
   IStateGetAllOriginDataRequest,
   unreacheable,
-} from "@fort-major/masquerade-shared";
-import { MasqueradeClient } from "./client";
+} from "@fort-major/msq-shared";
+import { MsqClient } from "./client";
 
 export class InternalSnapClient {
-  static create(client: MasqueradeClient | undefined): InternalSnapClient {
+  static create(client: MsqClient | undefined): InternalSnapClient {
     return new InternalSnapClient(client);
   }
 
-  getInner(): MasqueradeClient {
+  getInner(): MsqClient {
     if (!this.inner) unreacheable("Don't use uninitialized client");
 
     return this.inner;
@@ -167,5 +167,5 @@ export class InternalSnapClient {
     return await this.inner._requestSnap(SNAP_METHODS.protected.statistics.reset);
   }
 
-  constructor(private readonly inner: MasqueradeClient | undefined) {}
+  constructor(private readonly inner: MsqClient | undefined) {}
 }

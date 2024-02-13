@@ -1,13 +1,7 @@
 import { Accessor, Resource, Setter, createContext, createResource, createSignal, useContext } from "solid-js";
-import {
-  ICRC35AsyncRequest,
-  InternalSnapClient,
-  MasqueradeClient,
-  MasqueradeIdentity,
-  TMsqCreateOk,
-} from "@fort-major/masquerade-client";
+import { ICRC35AsyncRequest, InternalSnapClient, MsqClient, MsqIdentity, TMsqCreateOk } from "@fort-major/msq-client";
 import { IChildren, SHOULD_BE_FLASK, handleStatistics, makeAnonymousAgent } from "../utils";
-import { IICRC1TransferRequest, unreacheable } from "@fort-major/masquerade-shared";
+import { IICRC1TransferRequest, unreacheable } from "@fort-major/msq-shared";
 import { useNavigate } from "@solidjs/router";
 
 export type ICRC35Store<T extends undefined | IICRC1TransferRequest = undefined | IICRC1TransferRequest> = [
@@ -17,14 +11,14 @@ export type ICRC35Store<T extends undefined | IICRC1TransferRequest = undefined 
 
 interface IGlobalContext {
   snapClient: Resource<InternalSnapClient>;
-  identity: Resource<MasqueradeIdentity>;
+  identity: Resource<MsqIdentity>;
   showLoader: Accessor<boolean>;
   icrc35: ICRC35Store;
 }
 
 const GlobalContext = createContext<IGlobalContext>();
 
-export function useMasqueradeClient(): Accessor<InternalSnapClient | undefined> {
+export function useMsqClient(): Accessor<InternalSnapClient | undefined> {
   const ctx = useContext(GlobalContext);
 
   if (!ctx) {
@@ -34,7 +28,7 @@ export function useMasqueradeClient(): Accessor<InternalSnapClient | undefined> 
   return ctx.snapClient;
 }
 
-export function useIdentity(): Accessor<MasqueradeIdentity | undefined> {
+export function useIdentity(): Accessor<MsqIdentity | undefined> {
   const ctx = useContext(GlobalContext);
 
   if (!ctx) {
@@ -70,7 +64,7 @@ export function GlobalStore(props: IChildren) {
   const navigate = useNavigate();
 
   const [snapClient] = createResource(async () => {
-    const inner = await MasqueradeClient.create({
+    const inner = await MsqClient.create({
       snapId: import.meta.env.VITE_MSQ_SNAP_ID,
       snapVersion: import.meta.env.VITE_MSQ_SNAP_VERSION,
       shouldBeFlask: SHOULD_BE_FLASK,
@@ -109,7 +103,7 @@ export function GlobalStore(props: IChildren) {
   });
 
   const [identity] = createResource(snapClient, (client) => {
-    return MasqueradeIdentity.create(client.getInner());
+    return MsqIdentity.create(client.getInner());
   });
 
   return (

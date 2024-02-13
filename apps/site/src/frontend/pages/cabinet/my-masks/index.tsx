@@ -1,29 +1,19 @@
 import { MyMasksContent, SpoilerHeading } from "./style";
 import { For, createEffect, createSignal } from "solid-js";
 import { Spoiler } from "../../../components/spoiler";
-import { TIdentityId, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
+import { TIdentityId, TOrigin, originToHostname } from "@fort-major/msq-shared";
 import { LoginOption } from "../../../components/login-option";
 import { AddNewMaskBtn } from "../../../components/add-new-mask-btn";
 import { Divider } from "../../../components/divider/style";
-import {
-  ColorAccent,
-  ColorGray115,
-  ColorGray140,
-  H2,
-  H5,
-  Size16,
-  Size24,
-  Text,
-  Weight600,
-} from "../../../ui-kit/typography";
+import { ColorGray115, H2, H5, Text } from "../../../ui-kit/typography";
 import { useOriginData } from "../../../store/origins";
-import { useMasqueradeClient } from "../../../store/global";
+import { useMsqClient } from "../../../store/global";
 import { COLOR_ACCENT, COLOR_GRAY_140, CabinetContent, CabinetPage } from "../../../ui-kit";
 import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function MyMasksPage() {
-  const msq = useMasqueradeClient();
+  const msq = useMsqClient();
   const { originsData, init, addNewMask, editPseudonym } = useOriginData();
   const [loading, setLoading] = createSignal(false);
 

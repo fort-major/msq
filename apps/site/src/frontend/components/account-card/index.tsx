@@ -1,4 +1,4 @@
-import { TAccountId } from "@fort-major/masquerade-shared";
+import { TAccountId } from "@fort-major/msq-shared";
 import { DEFAULT_PRINCIPAL, eventHandler, tokensToStr } from "../../utils";
 import {
   AccountCardCheckIconWrapper,

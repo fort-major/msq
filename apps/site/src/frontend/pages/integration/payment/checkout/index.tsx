@@ -1,4 +1,4 @@
-import { Principal, TAccountId, bytesToHex, calculateMSQFee, debugStringify, log } from "@fort-major/masquerade-shared";
+import { Principal, TAccountId, bytesToHex, calculateMSQFee, debugStringify, log } from "@fort-major/msq-shared";
 import { AccountCard } from "../../../../components/account-card";
 import { H3, H5, Text } from "../../../../ui-kit/typography";
 import {
@@ -22,8 +22,8 @@ import { Match, Show, Switch, createSignal, onMount } from "solid-js";
 import { makeAgent, makeIcrc1Salt, tokensToStr } from "../../../../utils";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { useNavigate } from "@solidjs/router";
-import { useMasqueradeClient } from "../../../../store/global";
-import { MasqueradeIdentity } from "@fort-major/masquerade-client";
+import { useMsqClient } from "../../../../store/global";
+import { MsqIdentity } from "@fort-major/msq-client";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { ITxnResult } from "../../../cabinet/my-assets/send";
 import { TxnFailPage } from "../../../txn/fail";
@@ -59,7 +59,7 @@ export interface IPaymentCheckoutPageProps {
 export function PaymentCheckoutPage() {
   const [props] = usePaymentCheckoutPageProps();
   const [loading, setLoading] = createSignal(false);
-  const msq = useMasqueradeClient();
+  const msq = useMsqClient();
   const navigate = useNavigate();
   const [txnResult, setTxnResult] = createSignal<ITxnResult | null>(null);
   const [principalCopied, setPrincipalCopied] = createSignal(false);
@@ -116,10 +116,7 @@ export function PaymentCheckoutPage() {
       return;
     }
 
-    const identity = await MasqueradeIdentity.create(
-      msq()!.getInner(),
-      makeIcrc1Salt(props()!.assetId, props()!.accountId),
-    );
+    const identity = await MsqIdentity.create(msq()!.getInner(), makeIcrc1Salt(props()!.assetId, props()!.accountId));
     const agent = await makeAgent(identity);
     // @ts-expect-error - types are fine here
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(props()!.assetId) });
@@ -128,7 +125,7 @@ export function PaymentCheckoutPage() {
       const blockIdx = await ledger.transfer({
         created_at_time: props()!.createdAt ? props()!.createdAt : BigInt(Date.now()) * 1_000_000n,
         to: {
-          // @ts-expect-error - types are fine here
+          // @ts-expect-error - types are fine, @dfinity/candid and @dfinity/principal are using different peers for some reason
           owner: Principal.fromText(props()!.recepientPrincipal),
           subaccount: props()!.recepientSubaccount ? [props()!.recepientSubaccount!] : [],
         },

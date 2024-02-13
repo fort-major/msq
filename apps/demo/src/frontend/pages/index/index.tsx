@@ -1,6 +1,6 @@
 import { HttpAgent, Identity } from "@dfinity/agent";
-import { MasqueradeClient } from "@fort-major/masquerade-client";
-import { Match, Show, Switch, createEffect, createResource, createSignal } from "solid-js";
+import { MsqClient, TMsqCreateOk } from "@fort-major/msq-client";
+import { Match, Switch, createEffect, createResource, createSignal } from "solid-js";
 import { Body, BodyHeading, Header, LoginButton, Logo, ProfileWrapper } from "./style";
 import MetaMaskLogoSvg from "#assets/metamask.svg";
 import { PlushieCard } from "../../components/plushie-card";
@@ -8,7 +8,6 @@ import { createBackendActor } from "../../backend";
 import { Order } from "../../../declarations/demo_backend/demo_backend.did";
 import { OrderComp } from "../../components/order";
 import { Principal } from "@dfinity/principal";
-import { TMsqCreateOk } from "@fort-major/masquerade-client";
 
 interface IProfile {
   pseudonym: string;
@@ -28,7 +27,7 @@ export const IndexPage = () => {
   const [order, setOrder] = createSignal<Order | null>(null);
 
   const [msq] = createResource(async () => {
-    const result = await MasqueradeClient.create({
+    const result = await MsqClient.create({
       debug: import.meta.env.VITE_MSQ_MODE === "DEV",
       forceReinstall: import.meta.env.VITE_MSQ_MODE === "DEV",
     });

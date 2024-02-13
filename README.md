@@ -1,4 +1,4 @@
-# Masquerade (MSQ)
+# MSQ - Safe ICP Wallet
 
 Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
@@ -75,8 +75,3 @@ DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automati
 ## Contribution
 
 Feel free to open an issue if you found a bug or want to suggest a feature.
-
-| Record Type | Host | Value | | --- | --- | --- | 
-| CNAME | foo.bar.com | icp1.io | 
-| TXT | _canister-id.foo.bar.com | hwvjt-wqaaa-aaaam-qadra-cai | 
-| CNAME | _acme-challenge.foo.bar.com | _acme-challenge.foo.bar.com.icp2.io |

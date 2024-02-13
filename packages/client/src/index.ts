@@ -1,14 +1,14 @@
 export {
-  MasqueradeClient,
-  type IMasqueradeClientParams,
-  type TMasqueradeCreateResult,
+  MsqClient,
+  type IMsqClientParams,
+  type TMsqCreateResult,
   type TMsqCreateOk,
   type TMsqCreateErrInstallMetaMask,
   type TMsqCreateErrUnblockMetaMask,
   type TMsqCreateErrEnableMetaMask,
 } from "./client";
 export { InternalSnapClient } from "./internal";
-export { MasqueradeIdentity } from "./identity";
+export { MsqIdentity } from "./identity";
 export { MSQICRC35Client, LOGIN_ROUTE, PAY_ROUTE } from "./icrc35-client";
 export { ICRC35Connection, openICRC35Window, ICRC35AsyncRequest } from "icrc-35";
 

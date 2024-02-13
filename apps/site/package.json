@@ -1,5 +1,5 @@
 {
-  "name": "masquerade-site",
+  "name": "msq-site",
   "version": "0.2.6",
   "type": "module",
   "main": "index.js",
@@ -29,8 +29,8 @@
   },
   "dependencies": {
     "@dfinity/ledger-icrc": "2.0.0",
-    "@fort-major/masquerade-client": "workspace:*",
-    "@fort-major/masquerade-shared": "workspace:*",
+    "@fort-major/msq-client": "workspace:*",
+    "@fort-major/msq-shared": "workspace:*",
     "@solidjs/router": "0.9.1",
     "chart.js": "4.4.1",
     "dompurify": "3.0.6",

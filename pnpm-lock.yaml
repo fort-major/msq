@@ -72,7 +72,7 @@ importers:
 
   apps/demo:
     dependencies:
-      '@fort-major/masquerade-client':
+      '@fort-major/msq-client':
         specifier: workspace:*
         version: link:../../packages/client
       '@solidjs/router':
@@ -118,10 +118,10 @@ importers:
       '@dfinity/ledger-icrc':
         specifier: 2.0.0
         version: 2.0.0(@dfinity/agent@0.19.3)(@dfinity/candid@0.19.3)(@dfinity/principal@0.19.3)(@dfinity/utils@1.0.0)
-      '@fort-major/masquerade-client':
+      '@fort-major/msq-client':
         specifier: workspace:*
         version: link:../../packages/client
-      '@fort-major/masquerade-shared':
+      '@fort-major/msq-shared':
         specifier: workspace:*
         version: link:../../packages/shared
       '@solidjs/router':
@@ -164,15 +164,15 @@ importers:
 
   packages/client:
     dependencies:
-      '@fort-major/masquerade-shared':
+      '@fort-major/msq-shared':
         specifier: workspace:*
         version: link:../shared
       '@metamask/sdk':
         specifier: ^0.14.3
         version: 0.14.3(react-native@0.73.4)(react@18.2.0)
       icrc-35:
-        specifier: ^0.2.2
-        version: 0.2.2
+        specifier: 0.2.3
+        version: 0.2.3
     devDependencies:
       '@metamask/snaps-types':
         specifier: 3.1.0
@@ -208,7 +208,7 @@ importers:
       '@dfinity/identity-secp256k1':
         specifier: 0.20.2
         version: 0.20.2(@dfinity/candid@0.20.2)(@dfinity/principal@0.20.2)
-      '@fort-major/masquerade-shared':
+      '@fort-major/msq-shared':
         specifier: workspace:*
         version: link:../shared
       '@metamask/snaps-ui':
@@ -9914,8 +9914,8 @@ packages:
       safer-buffer: 2.1.2
     dev: true
 
-  /icrc-35@0.2.2:
-    resolution: {integrity: sha512-sJ4HwZP/J5LEJVIIQc5Bcj/A0rsLtgeC68ciFbP7GSEzSU4BFfoYR/MokmUxiL4+UnyJpjaYhU+L2dmr5MxKnQ==}
+  /icrc-35@0.2.3:
+    resolution: {integrity: sha512-m/C2A/aYh7UXSLk9SDgad3ltMQJIYYtTSB8rSgX7nK+Tt1HZYQtwiV65FbwZP559HKN9QGeGdtqkegRaFGL9BQ==}
     dependencies:
       zod: 3.22.4
     dev: false
@@ -11450,7 +11450,7 @@ packages:
     resolution: {integrity: sha512-L0syTWJUdWzfUmKgkScr6fSBVTh6QDr8eKEkRtn40OBd8LPagrJGySBboWSgbyn9eIb4ayW3Y347HxgXBSAjmg==}
     engines: {node: '>=18'}
     dependencies:
-      '@babel/runtime': 7.23.1
+      '@babel/runtime': 7.23.9
     dev: false
 
   /metro-source-map@0.80.5:

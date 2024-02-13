@@ -9,19 +9,19 @@ import {
   fromCBOR,
   toCBOR,
   log,
-} from "@fort-major/masquerade-shared";
+} from "@fort-major/msq-shared";
 import { SNAP_ID, SNAP_VERSION } from ".";
-import { MasqueradeIdentity } from "./identity";
+import { MsqIdentity } from "./identity";
 import { ICRC35Connection, openICRC35Window } from "icrc-35";
 import { MSQICRC35Client } from "./icrc35-client";
-import { CommunicationLayerPreference, MetaMaskSDK, SDKProvider } from "@metamask/sdk";
+import { MetaMaskSDK, SDKProvider } from "@metamask/sdk";
 
 const DEFAULT_SHOULD_BE_FLASK = false;
 const DEFAULT_DEBUG = false;
 const DEFAULT_FORCE_REINSTALL = false;
 
-export interface IMasqueradeClientParams {
-  /** snap id, for example `npm:@fort-major/masquerade` */
+export interface IMsqClientParams {
+  /** snap id, for example `npm:@fort-major/msq` */
   snapId?: string | undefined;
   /** snap version, for example `0.2.0` */
   snapVersion?: string | undefined;
@@ -33,12 +33,12 @@ export interface IMasqueradeClientParams {
   forceReinstall?: boolean | undefined;
 }
 
-export type TMasqueradeCreateResult =
+export type TMsqCreateResult =
   | TMsqCreateOk
   | TMsqCreateErrInstallMetaMask
   | TMsqCreateErrUnblockMetaMask
   | TMsqCreateErrEnableMetaMask;
-export type TMsqCreateOk = { Ok: MasqueradeClient };
+export type TMsqCreateOk = { Ok: MsqClient };
 export type TMsqCreateErrInstallMetaMask = { InstallMetaMask: null };
 export type TMsqCreateErrUnblockMetaMask = { UnblockMSQ: null };
 export type TMsqCreateErrEnableMetaMask = { EnableMSQ: null };
@@ -46,7 +46,7 @@ export type TMsqCreateErrEnableMetaMask = { EnableMSQ: null };
 /**
  * ## A client to interact with the MSQ Snap
  */
-export class MasqueradeClient {
+export class MsqClient {
   private queueLocked: boolean = false;
 
   /**
@@ -64,17 +64,17 @@ export class MasqueradeClient {
   /**
    * ## Proposes the user to log in to current website
    *
-   * Opens up a separate browser window with the Masquerade website that will guide the user through the authorization process.
+   * Opens up a separate browser window with the MSQ website that will guide the user through the authorization process.
    * Under the hood uses ICRC-35 protocol.
    *
    * @see {@link requestLogout}
    * @see {@link isAuthorized}
    *
-   * @returns - {@link MasqueradeIdentity} if the login was a success, `null` otherwise
+   * @returns - {@link MsqIdentity} if the login was a success, `null` otherwise
    */
-  async requestLogin(): Promise<MasqueradeIdentity | null> {
+  async requestLogin(): Promise<MsqIdentity | null> {
     if (await this.isAuthorized()) {
-      return MasqueradeIdentity.create(this);
+      return MsqIdentity.create(this);
     }
 
     const connection = await ICRC35Connection.establish({
@@ -88,7 +88,7 @@ export class MasqueradeClient {
 
     connection.close();
 
-    return loginResult ? MasqueradeIdentity.create(this) : null;
+    return loginResult ? MsqIdentity.create(this) : null;
   }
 
   /**
@@ -160,7 +160,7 @@ export class MasqueradeClient {
   /**
    * ## Proposes the user to transfer tokens via ICRC-1 token standard.
    *
-   * Opens up a separate browser window with the Masquerade website that will guide the user through the payment process.
+   * Opens up a separate browser window with the MSQ website that will guide the user through the payment process.
    * Under the hood uses ICRC-35 protocol.
    *
    * This function greatly simplifies payments, since now you can just request the user to pay you for something,
@@ -252,7 +252,7 @@ export class MasqueradeClient {
   }
 
   /**
-   * ## Connects to the Masquerade MetaMask Snap
+   * ## Connects to the MSQ MetaMask Snap
    *
    * Opens up a MetaMask pop-up to guide the user through the process.
    *
@@ -260,12 +260,12 @@ export class MasqueradeClient {
    *
    * This function will:
    *  - check if MetaMask is installed, throwing an error if not
-   *  - check if the Masquerade snap is installed, installing it automatically if not
+   *  - check if the MSQ snap is installed, installing it automatically if not
    *
-   * @param params - {@link IMasqueradeClientParams}
-   * @returns - an initialized {@link MasqueradeClient} object that can be used right away
+   * @param params - {@link IMsqClientParams}
+   * @returns - an initialized {@link MsqClient} object that can be used right away
    */
-  static async create(params?: IMasqueradeClientParams): Promise<TMasqueradeCreateResult> {
+  static async create(params?: IMsqClientParams): Promise<TMsqCreateResult> {
     let provider;
 
     try {
@@ -298,7 +298,7 @@ export class MasqueradeClient {
         params: { [snapId]: { version: snapVersion } },
       });
 
-      return { Ok: new MasqueradeClient(provider, snapId, debug) };
+      return { Ok: new MsqClient(provider, snapId, debug) };
     }
 
     if (msqSnap.blocked) {
@@ -316,7 +316,7 @@ export class MasqueradeClient {
       });
     }
 
-    return { Ok: new MasqueradeClient(provider, snapId, debug) };
+    return { Ok: new MsqClient(provider, snapId, debug) };
   }
 
   private constructor(

@@ -1,4 +1,4 @@
-import { type IStatistics } from "@fort-major/masquerade-shared";
+import { type IStatistics } from "@fort-major/msq-shared";
 import { StateManager } from "../state";
 
 /**

@@ -1,7 +1,7 @@
 import { Outlet, useLocation, useNavigate } from "@solidjs/router";
 import { ErrorPage } from "../error";
 import { EIconKind } from "../../ui-kit/icon";
-import { DISCORD_ERROR_LINK, DISCORD_LINK, debugStringify, logError } from "@fort-major/masquerade-shared";
+import { DISCORD_ERROR_LINK, DISCORD_LINK, debugStringify, logError } from "@fort-major/msq-shared";
 import isMobile from "ismobilejs";
 import { createEffect } from "solid-js";
 

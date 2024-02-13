@@ -6,7 +6,7 @@ import {
   type TProtectedSnapMethodsKind,
   err,
   hexToBytes,
-} from "@fort-major/masquerade-shared";
+} from "@fort-major/msq-shared";
 import { Secp256k1KeyIdentity } from "@dfinity/identity-secp256k1";
 
 // this is executed during the 'verify' build step process
@@ -26,7 +26,7 @@ const PROTECTED_METHODS = Object.keys(SNAP_METHODS.protected).flatMap((key) =>
 );
 
 /**
- * ## Checks if the method is protected - can only be called from the Masquerade website
+ * ## Checks if the method is protected - can only be called from the MSQ website
  *
  * If not - throws an error
  *
@@ -40,22 +40,22 @@ export function guardMethods(method: string, origin: TOrigin): void {
     return;
   }
 
-  // validate origin to be Masquerade website
-  if (!isMasquerade(origin)) {
+  // validate origin to be MSQ website
+  if (!isMsq(origin)) {
     return err(
       ErrorCode.PROTECTED_METHOD,
-      `Method ${method} can only be executed from the Masquerade website ("${origin}" != ${process.env.MSQ_SNAP_SITE_ORIGIN})`,
+      `Method ${method} can only be executed from the MSQ website ("${origin}" != ${process.env.MSQ_SNAP_SITE_ORIGIN})`,
     );
   }
 }
 
 /**
- * Checks if the provided origin is of the Masquerade website
+ * Checks if the provided origin is of the MSQ website
  *
  * @param origin
  * @returns
  */
-export function isMasquerade(origin: TOrigin): boolean {
+export function isMsq(origin: TOrigin): boolean {
   return origin === (process.env.MSQ_SNAP_SITE_ORIGIN as string);
 }
 
@@ -79,7 +79,7 @@ export async function getSignIdentity(
 ): Promise<Secp256k1KeyIdentity> {
   // the MSQ site has constant origin
   // this will allow us to change the domain name without users losing their funds and accounts
-  const orig = isMasquerade(origin) ? "https://msq.tech" : origin;
+  const orig = isMsq(origin) ? "https://msq.tech" : origin;
 
   // shared prefix may be used in following updates
   const entropy = await getEntropy(orig, identityId, "identity-sign\nshared", salt);
@@ -92,7 +92,7 @@ async function getBaseEntropy(origin: TOrigin, identityId: TIdentityId, internal
     method: "snap_getEntropy",
     params: {
       version: 1,
-      salt: `\x0amasquerade-snap\n${origin}\n${identityId}\n${internalSalt}`,
+      salt: `\x0amsq-snap\n${origin}\n${identityId}\n${internalSalt}`,
     },
   });
 

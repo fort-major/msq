@@ -2,12 +2,12 @@ import { css, styled } from "solid-styled-components";
 import { EIconKind } from "../../ui-kit/icon";
 import { H2, Text } from "../../ui-kit/typography";
 import { Button, EButtonKind } from "../../ui-kit/button";
-import { Show, onCleanup, onMount } from "solid-js";
+import { Show, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { ErrorSpoiler } from "../../components/error-spoiler";
 import { COLOR_GRAY_105, COLOR_GRAY_140, COLOR_GRAY_190 } from "../../ui-kit";
-import { DISCORD_LINK, METAMASK_LINK } from "@fort-major/masquerade-shared";
-import { MasqueradeClient } from "@fort-major/masquerade-client";
+import { DISCORD_LINK, METAMASK_LINK } from "@fort-major/msq-shared";
+import { MsqClient } from "@fort-major/msq-client";
 import { SHOULD_BE_FLASK } from "../../utils";
 import isMobile from "ismobilejs";
 
@@ -32,7 +32,7 @@ export function ErrorInstallMetaMaskPage() {
   const navigate = useNavigate();
 
   onMount(async () => {
-    const msq = await MasqueradeClient.create({
+    const msq = await MsqClient.create({
       snapId: import.meta.env.VITE_MSQ_SNAP_ID,
       snapVersion: import.meta.env.VITE_MSQ_SNAP_VERSION,
       shouldBeFlask: SHOULD_BE_FLASK,
@@ -68,7 +68,7 @@ export function ErrorEnableMsqPage() {
   const navigate = useNavigate();
 
   onMount(async () => {
-    const msq = await MasqueradeClient.create({
+    const msq = await MsqClient.create({
       snapId: import.meta.env.VITE_MSQ_SNAP_ID,
       snapVersion: import.meta.env.VITE_MSQ_SNAP_VERSION,
       shouldBeFlask: SHOULD_BE_FLASK,

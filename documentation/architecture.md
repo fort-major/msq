@@ -142,7 +142,7 @@ Sometimes a functionality may be utilized by sending a simple JSON-RPC call stra
 
 But some functionalities (as the authorization flow, for example) require the user to perform actions on the Dapp frontend. In this scenario interactions between the Dapp frontend and the web-service are performed via the [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) browser API. These browser-based interactions follow [ICRC-35 standard](https://github.com/dfinity/wg-identity-authentication/blob/main/topics/icrc_35_webpage_apis.md).
 
-Additionally to that, the library provides a `MasqueradeIdentity` primitive, which greatly simplifies MSQ's integration into existing dapps built on top of `@dfinity/*` JS libraries. This primitive implements the `Identity` interface from `@dfinity/identity` and can be supplied into any other primitive that expects an argument of this type, such as `HttpAgent` from `@dfinity/agent`.
+Additionally to that, the library provides a `MsqIdentity` primitive, which greatly simplifies MSQ's integration into existing dapps built on top of `@dfinity/*` JS libraries. This primitive implements the `Identity` interface from `@dfinity/identity` and can be supplied into any other primitive that expects an argument of this type, such as `HttpAgent` from `@dfinity/agent`.
 
 > One interesting feature of MSQ is that it allows each website to interact with an unbound number of user's key pairs. The message signing method accepts not only the message that should be signed, but also a salt that is used for key pair derivation. All of these key pairs are scoped by websites origin.
 
@@ -162,7 +162,7 @@ Authorization is the core functionality of MSQ. It offers both: simple UI and gr
 1. The user has MetaMask browser extension installed.
 2. The user has opened a browser tab with the website `https://example-1.com`, which is integrated with MSQ.
 3. The user is not authorized within `https://example-1.com`.
-4. `https://example-1.com` did execute `MasqueradeClient.create()` function, which connects to the MetaMask and installs the MSQ snap if needed.
+4. `https://example-1.com` did execute `MsqClient.create()` function, which connects to the MetaMask and installs the MSQ snap if needed.
 
 ##### Flow
 
@@ -190,7 +190,7 @@ This flow is also very important as it drastically simplifies the process of pay
 
 1. The user has MetaMask browser extension installed.
 2. The user has opened a browser tab with the website `https://example-1.com`, which is integrated with MSQ.
-3. `https://example-1.com` did execute `MasqueradeClient.create()` function, which connects to the MetaMask and installs the MSQ snap if needed.
+3. `https://example-1.com` did execute `MsqClient.create()` function, which connects to the MetaMask and installs the MSQ snap if needed.
 4. Completion of user story 4.1 is optional.
 
 ##### Flow
@@ -292,7 +292,7 @@ Masks can also be un-linked: if website A linked its identities to website B, A 
 
 1. The user has MetaMask browser extension installed.
 2. The user has opened a browser tab with the website `https://example-1.com`, which is integrated with MSQ.
-3. `https://example-1.com` did execute `MasqueradeClient.create()` function, which connects to the MetaMask and installs the MSQ snap if needed.
+3. `https://example-1.com` did execute `MsqClient.create()` function, which connects to the MetaMask and installs the MSQ snap if needed.
 4. `https://example-1.com` recently acquired a new domain - `https://example-2.com`, which they now consider their main domain and want their users to migrate their identities to this domain.
 5. Completion of user story 4.1 is optional.
 

@@ -4,15 +4,15 @@
   "proposedName": "MSQ - Safe ICP Wallet",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fort-major/masquerade.git"
+    "url": "https://github.com/fort-major/msq.git"
   },
   "source": {
-    "shasum": "daUnyEgpnK5aCEldwMax3GCklqGL1AUFCje0Di3AYdk=",
+    "shasum": "MNJFNw6XVKc6YFasnFOg5ob2rgbZh59VOb2fJdA1zVA=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
         "iconPath": "icon.svg",
-        "packageName": "@fort-major/masquerade",
+        "packageName": "@fort-major/msq",
         "registry": "https://registry.npmjs.org"
       }
     }

@@ -1,8 +1,8 @@
-import { IMask, IOriginDataExternal, TIdentityId, TOrigin, delay, unreacheable } from "@fort-major/masquerade-shared";
+import { IOriginDataExternal, TIdentityId, TOrigin, unreacheable } from "@fort-major/msq-shared";
 import { IChildren, ONE_SEC_MS } from "../utils";
-import { SetStoreFunction, createStore, produce } from "solid-js/store";
-import { Accessor, createContext, createMemo, createSignal, onCleanup, onMount, useContext } from "solid-js";
-import { useMasqueradeClient } from "./global";
+import { createStore, produce } from "solid-js/store";
+import { createContext, createSignal, useContext } from "solid-js";
+import { useMsqClient } from "./global";
 
 export type AllOriginData = Record<TOrigin, IOriginDataExternal | undefined>;
 export interface IOriginDataStore {
@@ -33,7 +33,7 @@ export function OriginDataStore(props: IChildren) {
   const [allOriginData, setAllOriginData] = createStore<AllOriginData>({});
   const [fetchedAt, setFetchedAt] = createSignal(0);
   const [initialized, setInitialized] = createSignal(false);
-  const _msq = useMasqueradeClient();
+  const _msq = useMsqClient();
 
   const init = async (origins?: TOrigin[]) => {
     if (initialized()) return;

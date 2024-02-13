@@ -1,5 +1,5 @@
 {
-  "name": "@fort-major/masquerade-shared",
+  "name": "@fort-major/msq-shared",
   "version": "0.2.6",
   "main": "./dist/cjs/index",
   "module": "./dist/esm/index",

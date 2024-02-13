@@ -1,8 +1,8 @@
 import { useNavigate } from "@solidjs/router";
 import { useICRC35 } from "../../store/global";
 import { onMount } from "solid-js";
-import { ICRC35AsyncRequest, ICRC35Connection, LOGIN_ROUTE, PAY_ROUTE } from "@fort-major/masquerade-client";
-import { IICRC1TransferRequest, ZICRC1TransferRequest } from "@fort-major/masquerade-shared";
+import { ICRC35AsyncRequest, ICRC35Connection, LOGIN_ROUTE, PAY_ROUTE } from "@fort-major/msq-client";
+import { IICRC1TransferRequest, ZICRC1TransferRequest } from "@fort-major/msq-shared";
 import { z } from "zod";
 
 export function ICRC35Page() {

@@ -1,5 +1,5 @@
 import { createStore, produce } from "solid-js/store";
-import { useMasqueradeClient } from "./global";
+import { useMsqClient } from "./global";
 import { Accessor, Setter, createContext, createSignal, onCleanup, onMount, useContext } from "solid-js";
 import {
   DEFAULT_PRINCIPAL,
@@ -13,8 +13,8 @@ import {
 } from "../utils";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { Principal } from "@dfinity/principal";
-import { MasqueradeIdentity } from "@fort-major/masquerade-client";
-import { PRE_LISTED_TOKENS, TAccountId, delay, unreacheable } from "@fort-major/masquerade-shared";
+import { MsqIdentity } from "@fort-major/msq-client";
+import { PRE_LISTED_TOKENS, TAccountId, delay, unreacheable } from "@fort-major/msq-shared";
 import { AnonymousIdentity } from "@dfinity/agent";
 import { ISendPageProps } from "../pages/cabinet/my-assets/send";
 import { IPaymentCheckoutPageProps } from "../pages/integration/payment/checkout";
@@ -89,7 +89,7 @@ export function AssetsStore(props: IChildren) {
   const [paymentCheckoutPageProps, setPaymentCheckoutPageProps] = createSignal<IPaymentCheckoutPageProps | undefined>();
   const [refreshPeriodically, setRefreshPeriodically] = createSignal(true);
   const [initialized, setInitialized] = createSignal(false);
-  const _msq = useMasqueradeClient();
+  const _msq = useMsqClient();
 
   onMount(async () => {
     while (refreshPeriodically()) {
@@ -169,7 +169,7 @@ export function AssetsStore(props: IChildren) {
           }
 
           for (let idx = 0; idx < allAssetData[assetId]!.accounts.length; idx++) {
-            MasqueradeIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, idx)).then((identity) => {
+            MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, idx)).then((identity) => {
               const principal = identity.getPrincipal();
 
               setAllAssetData(assetId, "accounts", idx, "principal", principal.toText());
@@ -195,7 +195,7 @@ export function AssetsStore(props: IChildren) {
 
     setAllAssetData(assetId, "accounts", accountId, { name, balance: BigInt(0), principal: DEFAULT_PRINCIPAL });
 
-    const identity = await MasqueradeIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, accountId));
+    const identity = await MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, accountId));
     const principal = identity.getPrincipal();
 
     setAllAssetData(assetId, "accounts", accountId, "principal", principal.toText());
@@ -254,7 +254,7 @@ export function AssetsStore(props: IChildren) {
       }),
     );
 
-    const identity = await MasqueradeIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, 0));
+    const identity = await MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, 0));
     const principal = identity.getPrincipal();
 
     setAllAssetData(assetId, "accounts", 0, "principal", principal.toText());

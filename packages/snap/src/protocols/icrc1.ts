@@ -11,7 +11,7 @@ import {
   fromCBOR,
   originToHostname,
   zodParse,
-} from "@fort-major/masquerade-shared";
+} from "@fort-major/msq-shared";
 import { divider, heading, panel, text } from "@metamask/snaps-ui";
 import { StateManager } from "../state";
 

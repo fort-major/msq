@@ -1,4 +1,4 @@
-import { DISCORD_LINK } from "@fort-major/masquerade-shared";
+import { DISCORD_LINK } from "@fort-major/msq-shared";
 import { ContactUsBtnText, ContactUsBtnWrapper } from "./style";
 import { EIconKind, Icon } from "../../ui-kit/icon";
 

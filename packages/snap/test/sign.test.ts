@@ -8,8 +8,8 @@ import {
   bytesToHex,
   fromCBOR,
   toCBOR,
-} from "@fort-major/masquerade-shared";
-import { MASQUERADE_SNAP_SITE, ok } from "./utils";
+} from "@fort-major/msq-shared";
+import { MSQ_SNAP_SITE, ok } from "./utils";
 
 describe("Signatures", () => {
   it("shouldn't be possible to sign or get pubkey without a session", async () => {
@@ -50,7 +50,7 @@ describe("Signatures", () => {
     };
 
     const resp1 = await snap.request({
-      origin: MASQUERADE_SNAP_SITE,
+      origin: MSQ_SNAP_SITE,
       method: SNAP_METHODS.protected.identity.login,
       params: { body: toCBOR(req1) },
     });
@@ -87,7 +87,7 @@ describe("Signatures", () => {
     };
 
     const resp1 = await snap.request({
-      origin: MASQUERADE_SNAP_SITE,
+      origin: MSQ_SNAP_SITE,
       method: SNAP_METHODS.protected.identity.login,
       params: { body: toCBOR(req1) },
     });
@@ -133,7 +133,7 @@ describe("Signatures", () => {
     };
 
     const resp1 = await snap.request({
-      origin: MASQUERADE_SNAP_SITE,
+      origin: MSQ_SNAP_SITE,
       method: SNAP_METHODS.protected.identity.login,
       params: { body: toCBOR(req1) },
     });
@@ -200,13 +200,13 @@ describe("Signatures", () => {
     };
 
     await snap.request({
-      origin: MASQUERADE_SNAP_SITE,
+      origin: MSQ_SNAP_SITE,
       method: SNAP_METHODS.protected.identity.login,
       params: { body: toCBOR(req1) },
     });
 
     await snap.request({
-      origin: MASQUERADE_SNAP_SITE,
+      origin: MSQ_SNAP_SITE,
       method: SNAP_METHODS.protected.identity.login,
       params: { body: toCBOR(req2) },
     });
@@ -240,7 +240,7 @@ describe("Signatures", () => {
     };
 
     await snap.request({
-      origin: MASQUERADE_SNAP_SITE,
+      origin: MSQ_SNAP_SITE,
       method: SNAP_METHODS.protected.identity.login,
       params: { body: toCBOR(req3) },
     });
@@ -288,7 +288,7 @@ describe("Signatures", () => {
     };
 
     const resp2 = await snap.request({
-      origin: MASQUERADE_SNAP_SITE,
+      origin: MSQ_SNAP_SITE,
       method: SNAP_METHODS.protected.identity.login,
       params: { body: toCBOR(req2) },
     });
@@ -303,7 +303,7 @@ describe("Signatures", () => {
     };
 
     const resp3 = await snap.request({
-      origin: MASQUERADE_SNAP_SITE,
+      origin: MSQ_SNAP_SITE,
       method: SNAP_METHODS.protected.identity.login,
       params: { body: toCBOR(req3) },
     });

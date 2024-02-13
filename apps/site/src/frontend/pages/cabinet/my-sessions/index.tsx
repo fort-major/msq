@@ -13,31 +13,19 @@ import {
 import { timestampToStr } from "../../../utils";
 import { VerticalDivider } from "../../../components/divider/style";
 import { BoopAvatar } from "../../../components/boop-avatar";
-import { ISession, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
-import { Principal } from "@fort-major/masquerade-shared";
-import {
-  ColorAccent,
-  ColorGray115,
-  ColorGray140,
-  H2,
-  H5,
-  Size12,
-  Size16,
-  Size24,
-  Text,
-  Weight500,
-  Weight600,
-} from "../../../ui-kit/typography";
+import { ISession, TOrigin, originToHostname } from "@fort-major/msq-shared";
+import { Principal } from "@fort-major/msq-shared";
+import { ColorAccent, ColorGray115, H2, H5, Text } from "../../../ui-kit/typography";
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { EIconKind } from "../../../ui-kit/icon";
 import { useOriginData } from "../../../store/origins";
-import { useMasqueradeClient } from "../../../store/global";
+import { useMsqClient } from "../../../store/global";
 import { COLOR_GRAY_140, CabinetContent, CabinetPage } from "../../../ui-kit";
 import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function MySessionsPage() {
-  const msq = useMasqueradeClient();
+  const msq = useMsqClient();
   const { originsData, init, stopSession } = useOriginData();
   const originsWithSession = () =>
     Object.keys(originsData).filter((origin) => originsData[origin]!.currentSession !== undefined);

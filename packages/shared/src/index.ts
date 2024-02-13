@@ -7,11 +7,11 @@ export * from "./encoding";
 export * from "./avatar";
 
 /**
- * ## Enumerates all available Masquerade snap methods
+ * ## Enumerates all available MSQ snap methods
  *
  * There are two kinds of methods:
  *  - __public__ - these methods can be called from any origin, but all changes and data are scoped to that origin
- *  - __protected__ - these methods can only be called from the Masquerade website
+ *  - __protected__ - these methods can only be called from the MSQ website
  */
 export const SNAP_METHODS = {
   protected: {

@@ -1,7 +1,7 @@
 import { For, Match, Show, Switch, createEffect, createSignal } from "solid-js";
-import { IMask, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
+import { IMask, TOrigin, originToHostname } from "@fort-major/msq-shared";
 import { DismissBtn, LoginHeadingSection, LoginOptionsSection, LoginOptionsWrapper, LoginPageHeader } from "./style";
-import { useICRC35, useMasqueradeClient } from "../../../store/global";
+import { useICRC35, useMsqClient } from "../../../store/global";
 import { useNavigate } from "@solidjs/router";
 import { Divider } from "../../../components/divider/style";
 import { LoginOption } from "../../../components/login-option";
@@ -12,7 +12,7 @@ import { EIconKind, Icon } from "../../../ui-kit/icon";
 
 export function LoginPage() {
   const [loginOptions, setLoginOptions] = createSignal<[TOrigin, IMask[]][] | null>(null);
-  const _msq = useMasqueradeClient();
+  const _msq = useMsqClient();
   const [icrc35Request] = useICRC35<undefined>();
   const navigate = useNavigate();
 

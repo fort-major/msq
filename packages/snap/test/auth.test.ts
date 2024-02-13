@@ -10,8 +10,8 @@ import {
   fromCBOR,
   toCBOR,
   zodParse,
-} from "@fort-major/masquerade-shared";
-import { MASQUERADE_SNAP_SITE, ok } from "./utils";
+} from "@fort-major/msq-shared";
+import { MSQ_SNAP_SITE, ok } from "./utils";
 
 describe("Authentication", () => {
   it("should have no session by default", async () => {
@@ -36,15 +36,12 @@ describe("Authentication", () => {
     };
 
     const { response } = await snap.request({
-      origin: MASQUERADE_SNAP_SITE,
+      origin: MSQ_SNAP_SITE,
       method: SNAP_METHODS.protected.identity.getLoginOptions,
       params: { body: toCBOR(req) },
     });
 
-    const result = zodParse(
-      ZIdentityGetLoginOptionsResponse,
-      fromCBOR(ok(response) as string),
-    );
+    const result = zodParse(ZIdentityGetLoginOptionsResponse, fromCBOR(ok(response) as string));
 
     expect(result.length).toBeGreaterThanOrEqual(1);
 
@@ -62,7 +59,7 @@ describe("Authentication", () => {
     };
 
     const snapResp1 = await snap.request({
-      origin: MASQUERADE_SNAP_SITE,
+      origin: MSQ_SNAP_SITE,
       method: SNAP_METHODS.protected.identity.login,
       params: { body: toCBOR(req) },
     });
@@ -128,7 +125,7 @@ describe("Authentication", () => {
     };
 
     const snapResp1 = await snap.request({
-      origin: MASQUERADE_SNAP_SITE,
+      origin: MSQ_SNAP_SITE,
       method: SNAP_METHODS.protected.identity.login,
       params: { body: toCBOR(req) },
     });
@@ -169,7 +166,7 @@ describe("Authentication", () => {
     };
 
     const snapResp2 = await snap.request({
-      origin: MASQUERADE_SNAP_SITE,
+      origin: MSQ_SNAP_SITE,
       method: SNAP_METHODS.protected.identity.login,
       params: { body: toCBOR(req2) },
     });
@@ -210,7 +207,7 @@ describe("Authentication", () => {
 
     // try login again
     const snapResp5 = await snap.request({
-      origin: MASQUERADE_SNAP_SITE,
+      origin: MSQ_SNAP_SITE,
       method: SNAP_METHODS.protected.identity.login,
       params: { body: toCBOR(req2) },
     });
@@ -253,14 +250,12 @@ describe("Authentication", () => {
       };
 
       const resp1 = await snap.request({
-        origin: MASQUERADE_SNAP_SITE,
+        origin: MSQ_SNAP_SITE,
         method: SNAP_METHODS.protected.identity.getLoginOptions,
         params: { body: toCBOR(req1) },
       });
 
-      const options: IIdentityGetLoginOptionsResponse = fromCBOR(
-        ok(resp1.response) as string,
-      );
+      const options: IIdentityGetLoginOptionsResponse = fromCBOR(ok(resp1.response) as string);
 
       expect(options.length).toBe(2);
       expect(options[0][0]).toBe(s);
@@ -273,7 +268,7 @@ describe("Authentication", () => {
       };
 
       const resp2 = await snap.request({
-        origin: MASQUERADE_SNAP_SITE,
+        origin: MSQ_SNAP_SITE,
         method: SNAP_METHODS.protected.identity.login,
         params: { body: toCBOR(req2) },
       });

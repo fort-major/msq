@@ -1,6 +1,6 @@
 import { Principal } from "@dfinity/principal";
 import { BoopAvatarWrapper } from "./style";
-import { FACE_EXPRESSIONS, IAngle, makeAvatarSvg, makeAvatarSvgCustom } from "@fort-major/masquerade-shared";
+import { FACE_EXPRESSIONS, IAngle, makeAvatarSvg, makeAvatarSvgCustom } from "@fort-major/msq-shared";
 
 export interface IBoopAvatarProps {
   /**

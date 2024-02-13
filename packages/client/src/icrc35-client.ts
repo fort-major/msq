@@ -1,5 +1,5 @@
-import { IICRC1TransferRequest } from "@fort-major/masquerade-shared";
-import { IICRC35Connection, ICRC35AsyncRequest } from "icrc-35";
+import { IICRC1TransferRequest } from "@fort-major/msq-shared";
+import { IICRC35Connection } from "icrc-35";
 
 export const LOGIN_ROUTE = "msq:login";
 export const PAY_ROUTE = "msq:pay";

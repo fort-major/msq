@@ -16,7 +16,7 @@ import {
   TAccountId,
   EStatisticsKind,
   PRE_LISTED_TOKENS,
-} from "@fort-major/masquerade-shared";
+} from "@fort-major/msq-shared";
 import { generateRandomPseudonym, getSignIdentity } from "./utils";
 
 /**

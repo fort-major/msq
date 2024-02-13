@@ -6,7 +6,7 @@ import {
   ZStateGetAllOriginDataRequest,
   fromCBOR,
   zodParse,
-} from "@fort-major/masquerade-shared";
+} from "@fort-major/msq-shared";
 import { StateManager } from "../state";
 
 export async function protected_handleStateGetAllOriginData(bodyCBOR: string): Promise<IStateGetAllOriginDataResponse> {

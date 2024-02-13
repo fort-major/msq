@@ -1,19 +1,19 @@
 import { type PublicKey, SignIdentity, type Signature, DerEncodedPublicKey } from "@dfinity/agent";
-import { type MasqueradeClient } from "./client";
+import { type MsqClient } from "./client";
 import {
   type IIdentitySignRequest,
   SNAP_METHODS,
   IIdentityGetPublicKeyRequest,
   makeAvatarSvg,
-} from "@fort-major/masquerade-shared";
+} from "@fort-major/msq-shared";
 import { SECP256K1_OID, wrapDER } from "./der";
 
 /**
- * ## An identity that proxies all incoming `sign` requests to the Masquerade Snap
+ * ## An identity that proxies all incoming `sign` requests to the MSQ Snap
  */
-export class MasqueradeIdentity extends SignIdentity {
+export class MsqIdentity extends SignIdentity {
   private constructor(
-    private readonly client: MasqueradeClient,
+    private readonly client: MsqClient,
     private readonly publicKey: Secp256k1PublicKeyLite,
     public salt: Uint8Array,
   ) {
@@ -21,22 +21,19 @@ export class MasqueradeIdentity extends SignIdentity {
   }
 
   /**
-   * ## Creates an instance of {@link MasqueradeIdentity}
+   * ## Creates an instance of {@link MsqIdentity}
    *
-   * Don't create this object manually, unless you know what you're doing. Use {@link MasqueradeClient.requestLogin} instead.
+   * Don't create this object manually, unless you know what you're doing. Use {@link MsqClient.requestLogin} instead.
    *
-   * @param client - {@link MasqueradeClient}
+   * @param client - {@link MsqClient}
    * @param salt - (optional) {@link Uint8Array} - salt for custom key deriviation
    * @returns
    */
-  public static async create(
-    client: MasqueradeClient,
-    salt: Uint8Array = new Uint8Array(),
-  ): Promise<MasqueradeIdentity> {
+  public static async create(client: MsqClient, salt: Uint8Array = new Uint8Array()): Promise<MsqIdentity> {
     const body: IIdentityGetPublicKeyRequest = { salt };
     const rawPubkey: ArrayBuffer = await client._requestSnap(SNAP_METHODS.public.identity.getPublicKey, body);
 
-    return new MasqueradeIdentity(client, Secp256k1PublicKeyLite.fromRaw(rawPubkey), salt);
+    return new MsqIdentity(client, Secp256k1PublicKeyLite.fromRaw(rawPubkey), salt);
   }
 
   /**
@@ -69,7 +66,7 @@ export class MasqueradeIdentity extends SignIdentity {
   }
 
   /**
-   * ## Signs an arbitrary blob of data with Secp256k1 by passing it to the Masquerade snap
+   * ## Signs an arbitrary blob of data with Secp256k1 by passing it to the MSQ snap
    *
    * This function will only work if the user is logged in. Otherwise it throws an error.
    *

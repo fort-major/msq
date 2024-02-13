@@ -11,10 +11,10 @@ import {
   AvatarCount,
   AvatarCountText,
 } from "./style";
-import { Principal, TOrigin, originToHostname } from "@fort-major/masquerade-shared";
+import { Principal, TOrigin, originToHostname } from "@fort-major/msq-shared";
 import { BoopAvatar } from "../../../components/boop-avatar";
-import { useMasqueradeClient } from "../../../store/global";
-import { ColorAccent, ColorGray115, H2, H5, Size16, Size20, Text, Weight500 } from "../../../ui-kit/typography";
+import { useMsqClient } from "../../../store/global";
+import { ColorAccent, ColorGray115, H2, H5, Text } from "../../../ui-kit/typography";
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { EIconKind } from "../../../ui-kit/icon";
 import { useOriginData } from "../../../store/origins";
@@ -23,7 +23,7 @@ import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function MyLinksPage() {
-  const msq = useMasqueradeClient();
+  const msq = useMsqClient();
   const { originsData, init, unlinkOne, unlinkAll } = useOriginData();
   const allOriginDataKeysWithLinks = () =>
     Object.keys(originsData).filter((origin) => originsData[origin]!.linksTo.length !== 0);

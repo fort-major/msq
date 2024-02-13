@@ -1,13 +1,5 @@
 import type { OnRpcRequestHandler } from "@metamask/snaps-types";
-import {
-  ErrorCode,
-  SNAP_METHODS,
-  ZSnapRPCRequest,
-  debugStringify,
-  err,
-  toCBOR,
-  zodParse,
-} from "@fort-major/masquerade-shared";
+import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR, zodParse } from "@fort-major/msq-shared";
 import { guardMethods as guardProtectedMethods } from "./utils";
 import {
   protected_handleAddAsset,

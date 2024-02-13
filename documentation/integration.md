@@ -14,7 +14,7 @@ In order to interact with MSQ you'll need to install our client library as a dep
 
 "dependencies": {
     ...
-    "@fort-major/masquerade-client": "0.2.4",
+    "@fort-major/msq-client": "0.2",
     ...
 }
 ```
@@ -28,21 +28,21 @@ The version of the client library is always tied to the version of the Snap itse
 First of all, you have to connect to MetaMask and the Snap. Our client library does all of this under the hood, so no worries - it is easy:
 
 ```typescript
-const result = await MasqueradeClient.create();
+const result = await MsqClient.create();
 ```
 
 This function returns the following data structure:
 
 ```typescript
-type Result = { Ok: MasqueradeClient } | { InstallMetaMask: null } | { UnblockMSQ: null } | { EnableMSQ: null };
+type Result = { Ok: MsqClient } | { InstallMetaMask: null } | { UnblockMSQ: null } | { EnableMSQ: null };
 ```
 
 which you can use to understand, if there was an error during the connection procedure and render a nice error screen. If everything is okay, you should be able to retrieve the client:
 
 ```typescript
-import { TMsqCreateOk, MasqueradeClient } from "@fort-major/masquerade-client";
+import { TMsqCreateOk, MsqClient } from "@fort-major/msq-client";
 
-const msq: MasqueradeClient = (result as TMsqCreateOk).Ok;
+const msq: MsqClient = (result as TMsqCreateOk).Ok;
 ```
 
 This is it! Now your app is connected to MetaMask and MSQ. If the user doesn't have MSQ installed, it will install itself to their MetaMask automatically.

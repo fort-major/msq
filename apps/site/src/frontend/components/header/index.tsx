@@ -70,7 +70,7 @@ export function Header() {
 
   return (
     <HeaderDiv classList={{ [WithMyWalletBtn]: showLink() }}>
-      <img src={LogoSvg} alt="Masquerade Logo" />
+      <img src={LogoSvg} alt="MSQ Logo" />
       <Show when={showLink()}>
         <MyWalletLink onClick={handleClick}>
           <Text size={18} weight={600}>

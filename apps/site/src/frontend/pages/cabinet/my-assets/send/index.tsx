@@ -6,9 +6,9 @@ import { Principal } from "@dfinity/principal";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { EIconKind } from "../../../../ui-kit/icon";
 import { createStore } from "solid-js/store";
-import { useMasqueradeClient } from "../../../../store/global";
-import { debugStringify, hexToBytes } from "@fort-major/masquerade-shared";
-import { MasqueradeIdentity } from "@fort-major/masquerade-client";
+import { useMsqClient } from "../../../../store/global";
+import { debugStringify, hexToBytes } from "@fort-major/msq-shared";
+import { MsqIdentity } from "@fort-major/msq-client";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import {
   ButtonsWrapper,
@@ -105,7 +105,7 @@ export function SendPage() {
     }
   });
 
-  const msq = useMasqueradeClient();
+  const msq = useMsqClient();
 
   const isCorrect = () => correctArr.every((it) => it);
 
@@ -133,10 +133,7 @@ export function SendPage() {
       return;
     }
 
-    const identity = await MasqueradeIdentity.create(
-      msq()!.getInner(),
-      makeIcrc1Salt(props()!.assetId, props()!.accountId),
-    );
+    const identity = await MsqIdentity.create(msq()!.getInner(), makeIcrc1Salt(props()!.assetId, props()!.accountId));
     const agent = await makeAgent(identity);
     // @ts-expect-error - types are fine here
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(props()!.assetId) });

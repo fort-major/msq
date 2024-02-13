@@ -7,10 +7,10 @@ import {
   IShowICRC1TransferConfirmRequest,
   SNAP_METHODS,
   toCBOR,
-} from "@fort-major/masquerade-shared";
+} from "@fort-major/msq-shared";
 
 describe("Protected methods", () => {
-  it("should only be called from Masquerade website", async () => {
+  it("should only be called from MSQ website", async () => {
     const snap = await installSnap();
     const badSite = "https://bad-site.com";
 

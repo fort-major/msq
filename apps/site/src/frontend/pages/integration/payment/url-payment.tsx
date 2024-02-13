@@ -1,7 +1,7 @@
-import { ErrorCode, Principal, TAccountId, err } from "@fort-major/masquerade-shared";
+import { ErrorCode, Principal, TAccountId, err } from "@fort-major/msq-shared";
 import { useNavigate, useSearchParams } from "@solidjs/router";
 import { For, Show, createEffect, createMemo, createSignal } from "solid-js";
-import { useMasqueradeClient } from "../../../store/global";
+import { useMsqClient } from "../../../store/global";
 import { useAssetData, useSendPageProps } from "../../../store/assets";
 import { IReceivePopupProps, ReceivePopup } from "../../cabinet/my-assets/receive";
 import {
@@ -45,7 +45,7 @@ interface UrlBasedICRC1TransferRequest {
 }
 
 export function UrlBasedPaymentPage() {
-  const msq = useMasqueradeClient();
+  const msq = useMsqClient();
   const { assets, fetch, refresh, addAsset, addAccount } = useAssetData();
   const [selectedAccountId, setSelectedAccountId] = createSignal<TAccountId>(0);
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);

@@ -70,7 +70,7 @@ export const ZOriginDataExternal = z.object({
 });
 
 /**
- * Anonimized and squashed activities the user does with Masquerade
+ * Anonimized and squashed activities the user does with MSQ
  */
 export type IStatistics = z.infer<typeof ZStatistics>;
 export const ZStatistics = z.object({

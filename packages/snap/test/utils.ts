@@ -1,4 +1,4 @@
-import { ErrorCode, debugStringify, err } from "@fort-major/masquerade-shared";
+import { ErrorCode, debugStringify, err } from "@fort-major/msq-shared";
 import { Json } from "@metamask/snaps-types";
 
 export function ok(resp: { result: Json } | { error: Json }): Json {
@@ -9,4 +9,4 @@ export function ok(resp: { result: Json } | { error: Json }): Json {
   return (resp as { result: Json }).result;
 }
 
-export const MASQUERADE_SNAP_SITE = "http://localhost:8000";
+export const MSQ_SNAP_SITE = "http://localhost:8000";
