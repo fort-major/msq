@@ -140,7 +140,7 @@ Different functionalities require different intraction methods between a web-ser
 
 Sometimes a functionality may be utilized by sending a simple JSON-RPC call straight to the Snap (for example, when checking for the existing authorization session).
 
-But some functionalities (as the authorization flow, for example) require the user to perform actions on the Dapp frontend. In this scenario interactions between the Dapp frontend and the web-service are performed via the [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) browser API. These browser-based interactions follow [ICRC-35 standard](https://github.com/seniorjoinu/wg-identity-authentication/tree/main/topics/icrc-35).
+But some functionalities (as the authorization flow, for example) require the user to perform actions on the Dapp frontend. In this scenario interactions between the Dapp frontend and the web-service are performed via the [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) browser API. These browser-based interactions follow [ICRC-35 standard](https://github.com/dfinity/wg-identity-authentication/blob/main/topics/icrc_35_webpage_apis.md).
 
 Additionally to that, the library provides a `MasqueradeIdentity` primitive, which greatly simplifies MSQ's integration into existing dapps built on top of `@dfinity/*` JS libraries. This primitive implements the `Identity` interface from `@dfinity/identity` and can be supplied into any other primitive that expects an argument of this type, such as `HttpAgent` from `@dfinity/agent`.
 

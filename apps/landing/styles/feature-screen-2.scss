@@ -1,0 +1,227 @@
+#feature-screen-2 {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+
+    margin-top: 200px;
+
+    .features-wrapper {
+        width: $section-max-width;
+
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        
+        & > hgroup > div:not(.wallet-back) {
+            position: relative;
+            z-index: 1;
+
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        & > hgroup {
+            h3 {
+                align-self: stretch;
+
+                color: $white;
+                text-align: center;
+                font-family: $font;
+                font-size: 40px;
+                font-style: normal;
+                font-weight: 600;
+                line-height: 90%;
+                letter-spacing: -2px;
+            }
+
+            p {
+                color: $white;
+                text-align: center;
+                font-family: $font;
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 140%;
+                letter-spacing: -0.32px;
+            }
+        }
+
+        .frequent-updates-feature {
+            @include feature-block;
+            background-color: $gray-110;
+            height: 540px;
+
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+            justify-content: flex-start;
+
+            position: relative;
+            padding: 50px;
+
+            & > .img-lg {
+                position: absolute;
+                bottom: 0;
+            }
+
+            & > .img-sm {
+                display: none;
+            }
+        }
+
+        .crypto-is-for-sharing-feature {
+            @include feature-block;
+            background-color: $gray-105;
+            height: 540px;
+
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+            justify-content: flex-end;
+
+            position: relative;
+            padding: 50px;
+
+            overflow: visible;
+
+            .wallet-back {
+                display: none;
+            }
+
+            & > img {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+            }
+        }
+    }
+}
+
+@include mobile {
+    #feature-screen-2 {
+        flex-flow: column nowrap;
+        justify-content: flex-start;
+
+        margin-top: 50px;
+        padding: 0 10px;
+
+        .features-wrapper {
+            display: flex;
+            flex-flow: column nowrap;
+            gap: 10px;
+
+            width: 100%;
+
+            hgroup {
+                background-color: $gray-110;
+                border-radius: 25px;
+            }
+
+            .frequent-updates-feature {
+                position: relative;
+                overflow: hidden;
+                height: 610px;
+
+                display: flex;
+                flex-flow: column nowrap;
+                justify-content: flex-end;
+
+                padding: 30px 25px !important;
+
+                .img-lg {
+                    display: none;
+                }
+    
+                .img-sm {
+                    display: block;
+                    position: absolute;
+
+                    top: -100px;
+                }
+
+                & > div {
+                    position: relative;
+                }
+            }
+
+            .crypto-is-for-sharing-feature {
+                padding: 0;
+                position: relative;
+                height: 610px;
+
+                .wallet-back {
+                    display: flex;
+                    flex-flow: column nowrap;
+                    background-color: $gray-115;
+                    border-radius: 25px;
+
+                    & > img {
+                        position: absolute;
+                        top: 70px;
+                        left: calc(50% - 160px);
+                    }
+                    
+                    .empty {
+                        height: 40px;
+                    }
+
+                    .wallet-front {
+                        flex-grow: 1;
+
+                        display: flex;
+                        flex-flow: column nowrap;
+                        
+                        .wallet-front-top {
+                            display: flex;
+                            flex-flow: row nowrap;
+                            justify-content: center;
+                            position: relative;
+
+                            & > div {
+                                background-color: $gray-120;
+                                flex-grow: 1;
+                                height: 50px;
+                            }
+
+                            .right {
+                                border-top-right-radius: 25px;
+                            }
+
+                            .left {
+                                border-top-left-radius: 25px;
+                            }
+
+                            img {
+                                transform: scaleX(1.02) scaleY(1.02);
+                                position: relative;
+                                top: 1px;
+                            }
+                        }
+
+                        .wallet-front-bottom {
+                            transform: scaleY(1.02);
+                            position: relative;
+                            top: -1px;
+
+                            background-color: $gray-120;
+                            border-bottom-left-radius: 25px;
+                            border-bottom-right-radius: 25px;
+
+                            display: flex;
+                            flex-flow: column nowrap;
+                            gap: 15px;
+
+                            padding: 25px;
+                        }
+                    }
+                }
+
+                & > div:not(.wallet-back), & > img {
+                    display: none !important;
+                }
+            }
+        }
+    }
+}

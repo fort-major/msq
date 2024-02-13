@@ -22,7 +22,6 @@ import {
   IStateGetAllAssetDataRequest,
   IStateGetAllOriginDataRequest,
   unreacheable,
-  ErrorCode,
 } from "@fort-major/masquerade-shared";
 import { MasqueradeClient } from "./client";
 

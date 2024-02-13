@@ -1,0 +1,127 @@
+#best-community-section {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    overflow: hidden;
+
+    margin-top: 200px;
+    height: 555px;
+
+    .img-sm {
+        display: none;
+    }
+
+    h2 {
+        position: absolute;
+        top: -3000px;
+    }
+
+    .community-wrapper {
+        position: relative;
+
+        width: $section-max-width;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+
+        & > img {
+            position: absolute;
+            left: 0;
+            top: 0;
+
+            pointer-events: none;
+        }
+
+        hgroup {
+            top: 50px;
+            position: relative;
+            z-index: 1;
+
+            display: flex;
+            flex-flow: column nowrap;
+            gap: 25px;
+
+            h6 {
+                color: $white;
+                font-family: DM Sans;
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 140%; /* 22.4px */
+                letter-spacing: -0.32px;
+
+                width: 340px;
+            }
+
+            a {
+                @include btn;
+                background-color: $chartreuse;
+
+                width: 195px;
+                padding-left: 30px;
+            }
+        }
+    }
+}
+
+@include mobile {
+    #best-community-section {
+        margin-top: 0;
+        padding: 310px 10px 0 10px;
+        position: relative;
+        width: 100%;
+        height: auto;
+
+        .img-lg {
+            display: none;
+        }
+
+        .img-sm {
+            display: block;
+            position: absolute;
+
+            top: -270px;
+            left: calc(50% - 193px);
+        }
+
+        & > div {
+            padding: 30px;
+            background-color: $gray-108;
+            border-radius: 25px;
+
+            position: relative;
+            width: 100%;
+
+            & > h2 {
+                position: relative;
+                top: auto;
+
+                color: $white;
+                font-family: $header-font;
+                font-size: 95px;
+                line-height: 80%;
+                text-transform: uppercase;
+            }
+
+            .community-wrapper {
+                width: auto;
+                display: flex;
+                flex-flow: column nowrap;
+                gap: 15px;
+
+                hgroup {
+                    top: auto;
+
+                    h6 {
+                        width: auto;
+                        letter-spacing: -1px;
+                    }
+
+                    a {
+                        width: 100%;
+                    }
+                }
+            }
+        }
+    }
+}

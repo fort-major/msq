@@ -3,6 +3,7 @@ import { InternalSnapClient } from "@fort-major/masquerade-client";
 import { createStatisticsBackendActor } from "../backend";
 import {
   ErrorCode,
+  IStatistics,
   PRE_LISTED_TOKENS,
   TAccountId,
   debugStringify,
@@ -51,10 +52,26 @@ export async function handleStatistics(agent: Agent, client: InternalSnapClient)
   const now = Date.now();
 
   if (now - stats.lastResetTimestamp < ONE_DAY_MS) return;
+  if (!checkStats(stats)) return;
+
   const statisticsBackend = createStatisticsBackendActor(agent);
 
   await client.resetStats();
   await statisticsBackend.increment_stats(stats.prod);
+}
+
+function checkStats(stats: IStatistics): boolean {
+  if (stats.prod.masks_created !== 0) return true;
+  if (stats.prod.origins_linked !== 0) return true;
+  if (stats.prod.origins_unlinked !== 0) return true;
+  if (stats.prod.signatures_produced !== 0) return true;
+  if (stats.prod.icrc1_accounts_created !== 0) return true;
+
+  for (let v of Object.values(stats.prod.icrc1_sent)) {
+    if (v !== 0n) return true;
+  }
+
+  return false;
 }
 
 export interface IChildren {

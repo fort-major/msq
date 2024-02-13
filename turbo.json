@@ -38,7 +38,8 @@
             ]
         },
         "dev": {
-            "cache": false
+            "cache": false,
+            "persistent": true
         },
         "dev:deploy": {
             "cache": false
@@ -49,7 +50,7 @@
         "dev:deployBE": {
             "cache": false
         },
-        "gen": {
+        "dev:gen": {
             "cache": false
         },
         "dev:runSnap": {},

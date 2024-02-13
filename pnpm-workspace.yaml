@@ -4,3 +4,4 @@ packages:
   - "packages/snap"
   - "apps/site"
   - "apps/demo"
+  - "apps/landing"

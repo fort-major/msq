@@ -2,7 +2,7 @@ import { css, styled } from "solid-styled-components";
 import { EIconKind } from "../../ui-kit/icon";
 import { H2, Text } from "../../ui-kit/typography";
 import { Button, EButtonKind } from "../../ui-kit/button";
-import { Show, onMount } from "solid-js";
+import { Show, onCleanup, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { ErrorSpoiler } from "../../components/error-spoiler";
 import { COLOR_GRAY_105, COLOR_GRAY_140, COLOR_GRAY_190 } from "../../ui-kit";
@@ -40,11 +40,10 @@ export function ErrorInstallMetaMaskPage() {
 
     if ("Ok" in msq) navigate("/", { replace: true });
   });
-
   return (
     <ErrorPage
       header="Install MetaMask"
-      text="We couldn't find your MetaMask browser extension. Please install it and try again. If the problem persists, reach us out via Discord!"
+      text="We couldn't find your MetaMask browser extension. Please, install it and refresh the page. If the problem persists, reach us out via Discord!"
       button={{ text: "Get Help", icon: EIconKind.Discord, action: () => window.open(DISCORD_LINK, "_blank") }}
       button2={{
         text: "Install MetaMask",
@@ -81,7 +80,7 @@ export function ErrorEnableMsqPage() {
   return (
     <ErrorPage
       header="Your MSQ Snap is disabled"
-      text="Seems like you've disabled your MSQ Snap in your MetaMask settings. Enable it and try again."
+      text="Seems like you've disabled your MSQ Snap in your MetaMask settings. Enable it and refresh the page."
       button={{ text: "Get Help", icon: EIconKind.Discord, action: () => window.open(DISCORD_LINK, "_blank") }}
     />
   );

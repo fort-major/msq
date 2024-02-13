@@ -1,0 +1,150 @@
+#feature-screen-1 {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+
+    position: relative;
+    width: 100%;
+
+    .features-wrapper {
+        width: $section-max-width;
+
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+
+        & > img {
+            width: 100%;
+        }
+        
+        & > hgroup > div {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+
+            h3 {
+                align-self: stretch;
+
+                color: $white;
+                text-align: center;
+                font-family: $font;
+                font-size: 40px;
+                font-style: normal;
+                font-weight: 600;
+                line-height: 90%;
+                letter-spacing: -2px;
+            }
+
+            p {
+                color: $white;
+                text-align: center;
+                font-family: $font;
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: 140%;
+                letter-spacing: -0.32px;
+            }
+        }
+
+        .privacy-feature {
+            @include feature-block;
+            background-color: $gray-110;
+            min-height: 460px;
+
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+            justify-content: flex-end;
+
+            position: relative;
+            padding: 50px;
+
+            align-self: flex-start;
+
+            & > img {
+                width: 676px;
+                position: absolute;
+                top: -39px;
+            }
+        }
+
+        .simple-ui-feature {
+            @include feature-block;
+            background-color: $gray-110;
+            min-height: 540px;
+
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+            justify-content: flex-start;
+
+            position: relative;
+            padding: 50px;
+
+            & > .img-sm {
+                display: none;
+            }
+
+            & > .img-lg {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+            }
+        }
+    }
+}
+
+@include mobile {
+    #feature-screen-1 {
+        margin-top: 40px;
+        flex-flow: column nowrap;
+
+        width: 100%;
+        padding: 0 10px;
+
+        & > .features-wrapper {
+            width: auto;
+            display: flex;
+            flex-flow: column nowrap;
+
+            gap: 10px;
+
+            hgroup {
+                padding: 30px 25px !important;
+                align-self: auto !important;
+            }
+
+            .privacy-feature {
+                overflow: visible !important;
+                min-height: 520px;
+
+                img {
+                    position: absolute;
+                    left: calc(50% - 409px);
+                    top: -60px;
+                    width: 818px;
+                }
+            }
+
+            .simple-ui-feature {
+                justify-content: flex-end;
+                gap: 50px;
+
+                .img-lg {
+                    display: none;
+                }
+
+                .img-sm {
+                    display: block;
+                    height: 343px;
+
+                    align-self: flex-start;
+
+                    position: relative;
+                }
+            }
+        }
+    }
+}

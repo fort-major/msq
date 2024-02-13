@@ -1,0 +1,88 @@
+// ----------- COLORS -----------
+
+$black: #0A0B15;
+$white: #fff;
+
+$chartreuse: #E0FF25;
+$blue: #15E2FF;
+$dark-blue: #5057FF;
+$green: #53FF4F;
+$orange: #FF7325;
+$pink: #FF40FF;
+$error-red: #FC2D2D;
+
+$accent: $chartreuse;
+
+$gray-105: #161721;
+$gray-108: #1D1E27;
+$gray-110: #22232C;
+$gray-115: #2F2F38;
+$gray-120: #3B3C44;
+$gray-125: #474850;
+$gray-130: #53545B;
+$gray-140: #6C6D73;
+$gray-150: #84858A;
+$gray-165: #A9AAAD;
+$gray-175: #C2C2C4;
+$gray-190: #E6E6E7;
+
+// ----------- FONTS --------------
+
+@font-face {
+    font-family: 'Unique';
+    src: url('/fonts/Unique-Bold.woff') format('woff'), /* Modern Browsers */
+         url('/fonts/Unique-Bold.woff2') format('woff2'), /* Modern Browsers */
+         url('/fonts/Unique-Bold.ttf') format('truetype'); /* Safari, Android, iOS */
+             font-style: normal;
+    font-weight: bold;
+    text-rendering: optimizeLegibility;
+}
+
+$header-font: "Unique";
+$font: "DM Sans";
+
+// ----------- SIZES --------------
+
+$section-max-width: 1140px;
+
+// ----------- MIXINS -------------
+
+@mixin btn {
+    padding: 15px 40px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 1000px;
+
+    border: none;
+
+    cursor: pointer;
+
+    span {
+        color: $black;
+        font-family: $font;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 140%; 
+        letter-spacing: -0.32px;
+    }
+
+    img {
+        width: 15px;
+        height: 15px;
+    }
+}
+
+@mixin feature-block {
+    border-radius: 25px;
+    overflow: hidden;
+}
+
+@mixin mobile {
+    @media (min-width: 300px) and (max-width: 1279px) {
+        @content;
+    }
+}

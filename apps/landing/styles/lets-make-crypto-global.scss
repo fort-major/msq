@@ -1,0 +1,107 @@
+#lets-make-crypto-global {
+    margin-top: 250px;
+
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+
+    hgroup {
+        width: 645px;
+
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: center;
+        gap: 30px;
+
+        h4 {
+            color: $white;
+            font-family: $header-font;
+            text-align: center;
+            font-size: 150px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 80%;
+
+            text-transform: uppercase;
+        }
+
+        div {
+            width: 225px;
+            position: relative;
+
+            .go-to-wallet-btn {
+                @include btn;
+                background-color: $chartreuse;
+                width: 100%;
+            }
+
+            .github {
+                @include btn;
+                background-color: $orange;
+
+                transform: rotate(-10deg);
+
+                position: absolute;
+                right: -30px;
+                bottom: -30px;
+
+                transition: transform .3s ease-out;
+                padding: 15px;
+
+                &:hover {
+                    transform: none;
+                }
+
+                img {
+                    width: 26px;
+                    height: 26px;
+                }
+            }
+
+            .discord {
+                @include btn;
+                background-color: $blue;
+
+                transform: rotate(5deg);
+
+                position: absolute;
+                right: -75px;
+                bottom: -10px;
+
+                transition: transform .3s ease-out;
+
+                &:hover {
+                    transform: none;
+                }
+
+                padding: 15px;
+
+                img {
+                    width: 26px;
+                    height: 26px;
+                }
+            }
+        }
+    }
+}
+
+@include mobile {
+    #lets-make-crypto-global {
+        margin-top: 120px;
+
+        hgroup {
+            h4 {
+                font-size: 95px;
+                padding: 0 10px;
+            }
+
+            div {
+                .discord {
+                    right: -60px;
+                    bottom: auto;
+                    top: 0;
+                }
+            }
+        }
+    }
+}

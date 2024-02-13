@@ -2,7 +2,7 @@
 
 Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
-*[Join Our Discord](https://discord.gg/Z5WMHBReHd)*
+*[Join Our Discord](https://discord.gg/N7kUfMfvA8)*
 
 ## Documentation
 
@@ -40,7 +40,7 @@ DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automati
 * `dfx start` - (in a separate terminal window)
 * `dfx extension install nns` - install nns extension to your dfx
 * `cd apps/nns && dfx nns install && cd ../..` - install nns canisters
-* `pnpm run gen` - generates javascript declaration files
+* `pnpm run dev:gen` - generates javascript declaration files
 * `pnpm run dev:build` - builds frontends for dev network 
 * `pnpm run dev:deploy` - deploys all canisters locally (please run this command after you deploy to the mainnet to rebuild the env vars)
   * if this command fails because of locked `Cargo.toml`, run `pnpm run cargo:repair` and repeat
@@ -64,7 +64,6 @@ DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automati
 
 ### Prod deployment
 
-* `pnpm run gen`
 * `pnpm run prod:build`
 * `pnpm run prod:deploy`
 
@@ -76,3 +75,8 @@ DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automati
 ## Contribution
 
 Feel free to open an issue if you found a bug or want to suggest a feature.
+
+| Record Type | Host | Value | | --- | --- | --- | 
+| CNAME | foo.bar.com | icp1.io | 
+| TXT | _canister-id.foo.bar.com | hwvjt-wqaaa-aaaam-qadra-cai | 
+| CNAME | _acme-challenge.foo.bar.com | _acme-challenge.foo.bar.com.icp2.io |

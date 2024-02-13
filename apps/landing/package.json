@@ -1,0 +1,31 @@
+{
+  "name": "landing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prod:build": "rm -rf dist && sass ./styles/index.scss ./dist/index.css && pnpm run autoprefix && pnpm run pack",
+    "prod:deploy": "pnpm run prod:deployFE",
+    "prod:deployFE": "dfx deploy msq_landing --no-asset-upgrade --network=ic",
+    "watch": "sass --watch ./styles/index.scss ./dist/index.css",
+    "dev": "pnpm run prod:build && cd dist && static-server",
+    "pack": "pnpm run pack-index && pnpm run pack-images && pnpm run pack-fonts && pnpm run pack-other && pnpm run pack-well-known && pnpm run pack-csp",
+    "pack-images": "cp -r img dist",
+    "pack-fonts": "cp -r fonts dist",
+    "pack-index": "cp index.html ./dist/index.html",
+    "pack-other": "cp other/* dist",
+    "pack-well-known": "cp -r .well-known dist",
+    "pack-csp": "cp .ic-assets.json5 dist",
+    "autoprefix": "postcss --use autoprefixer -o dist/index.css dist/index.css"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "postcss-cli": "^11.0.0",
+    "sass": "^1.69.7",
+    "static-server": "^2.2.1"
+  }
+}

@@ -1,0 +1,35 @@
+@import "./reset.scss";
+@import "./vars.scss";
+
+body {
+    background-color: $black;
+    position: relative;
+
+    #overlay-nav {
+        display: none;
+    }
+}
+
+h1, h2, img {
+    pointer-events: none;
+}
+
+footer {
+    margin-top: 110px;
+    width: 100%;
+    border-top: 1px solid $gray-108;
+
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 10px;
+}
+
+@import "./hero-screen.scss";
+@import "./no-install-screen.scss";
+@import "./feature-screen-1.scss";
+@import "./friendly-community-screen.scss";
+@import "./feature-screen-2.scss";
+@import "./integration-screen.scss";
+@import "./lets-make-crypto-global.scss";
