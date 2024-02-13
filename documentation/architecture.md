@@ -144,7 +144,7 @@ But some functionalities (as the authorization flow, for example) require the us
 
 Additionally to that, the library provides a `MasqueradeIdentity` primitive, which greatly simplifies MSQ's integration into existing dapps built on top of `@dfinity/*` JS libraries. This primitive implements the `Identity` interface from `@dfinity/identity` and can be supplied into any other primitive that expects an argument of this type, such as `HttpAgent` from `@dfinity/agent`.
 
-> One interesting feature of MSQ is that it allows each website to interact with an unbound number of user's key pairs. The message signing method accepts not only the message that should be signed, but also a salt that is used for key pair derivation. All of these key pairs are scoped by websites origin. 
+> One interesting feature of MSQ is that it allows each website to interact with an unbound number of user's key pairs. The message signing method accepts not only the message that should be signed, but also a salt that is used for key pair derivation. All of these key pairs are scoped by websites origin.
 
 ## 4 Flow decomposition
 

@@ -54,7 +54,11 @@ First of all, you want users to authorize so they could interact with canisters 
 ```typescript
 import { Identity } from "@dfinity/identity"; 
 
-const identity: Identity = await msq.requestLogin();
+const identity: Identity | null = await msq.requestLogin();
+
+if (identity === null) {
+    // the user has rejected to log in
+}
 ```
 
 This function will return an `Identity` object, which you can then simply supply into the `HttpAgent` constructor, like this:
@@ -236,7 +240,7 @@ The only thing which won't work out-of-the-box are locally deployed ICRC-1 asset
 
 This will make `https://msq.tech` use your local replica, when making requests to the IC, which will allow you to test locally deployed tokens and ICRC-1 payments. Obviously, this will only work in your browser - other MSQ users won't be affected.
 
-**Be careful!** Don't forget to call `setIcHost()` without parameters, when you're done testing - this will reset the host to the default one.
+**Be careful!** Don't forget to call `setIcHost(null)`, when you're done testing - this will reset the host to the default one.
 
 To see what is the currenly selected ic-host use `getIcHost()`.
 
