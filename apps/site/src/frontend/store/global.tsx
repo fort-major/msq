@@ -79,6 +79,7 @@ export function GlobalStore(props: IChildren) {
     });
 
     let client = InternalSnapClient.create(undefined);
+
     if ("InstallMetaMask" in inner) {
       showLoader[1](false);
       navigate("/install-metamask");

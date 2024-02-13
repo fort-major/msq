@@ -1,5 +1,4 @@
-import detectEthereumProvider from "@metamask/detect-provider";
-import { IGetSnapsResponse, ISnapRequest, type IMetaMaskEthereumProvider } from "./types";
+import { IGetSnapsResponse, ISnapRequest } from "./types";
 import {
   type IIdentityLinkRequest,
   type IIdentityUnlinkRequest,
@@ -15,6 +14,7 @@ import { SNAP_ID, SNAP_VERSION } from ".";
 import { MasqueradeIdentity } from "./identity";
 import { ICRC35Connection, openICRC35Window } from "icrc-35";
 import { MSQICRC35Client } from "./icrc35-client";
+import { CommunicationLayerPreference, MetaMaskSDK, SDKProvider } from "@metamask/sdk";
 
 const DEFAULT_SHOULD_BE_FLASK = false;
 const DEFAULT_DEBUG = false;
@@ -234,10 +234,11 @@ export class MasqueradeClient {
       log("sending", r, "to the wallet...");
     }
 
-    const response = await this.provider.request<string>({
+    const response = (await this.provider.request<string>({
       method: "wallet_invokeSnap",
+      // @ts-expect-error
       params: req,
-    });
+    }))!;
 
     const decodedResponse: R = fromCBOR(response);
 
@@ -268,14 +269,10 @@ export class MasqueradeClient {
     let provider;
 
     try {
-      provider = await detectEthereumProvider<IMetaMaskEthereumProvider>({
-        mustBeMetaMask: true,
-      });
+      provider = await connectToMetaMask();
+    } catch (e) {
+      console.error(e);
 
-      if (!provider) {
-        return { InstallMetaMask: null };
-      }
-    } catch {
       return { InstallMetaMask: null };
     }
 
@@ -292,7 +289,7 @@ export class MasqueradeClient {
       return { InstallMetaMask: null };
     }
 
-    const getSnapsResponse: IGetSnapsResponse = await provider.request({ method: "wallet_getSnaps" });
+    const getSnapsResponse: IGetSnapsResponse = (await provider.request({ method: "wallet_getSnaps" }))!;
     const msqSnap = getSnapsResponse[snapId];
 
     if (msqSnap === undefined) {
@@ -323,8 +320,34 @@ export class MasqueradeClient {
   }
 
   private constructor(
-    private readonly provider: IMetaMaskEthereumProvider,
+    private readonly provider: SDKProvider,
     private readonly snapId: string,
     private readonly debug: boolean,
   ) {}
+}
+
+export async function connectToMetaMask(): Promise<SDKProvider> {
+  const sdk = new MetaMaskSDK({
+    dappMetadata: {
+      name: "MSQ - Safe ICP Wallet",
+      url: "https://msq.tech",
+    },
+  });
+
+  const before = Date.now();
+
+  // this one is going to attempt connecting to MM until it succeeds
+  while (true) {
+    try {
+      await sdk.connect();
+      const provider = sdk.getProvider();
+
+      return provider;
+    } catch (e) {
+      // if trying longer than for 2 minutes - rethrow the error
+      if (Date.now() - before > 120000) throw e;
+
+      await delay(500);
+    }
+  }
 }
