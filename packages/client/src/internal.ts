@@ -167,5 +167,5 @@ export class InternalSnapClient {
     return await this.inner._requestSnap(SNAP_METHODS.protected.statistics.reset);
   }
 
-  constructor(private readonly inner: MsqClient | undefined) {}
+  constructor(public readonly inner: MsqClient | undefined) {}
 }

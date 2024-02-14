@@ -57,9 +57,6 @@
         "test": {
             "cache": false
         },
-        "version:set": {
-            "cache": false
-        },
         "cargo:repair": {
             "cache": false
         },

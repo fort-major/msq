@@ -1,4 +1,4 @@
-import { divider, heading, panel, text } from "@metamask/snaps-ui";
+import { divider, heading, panel, text } from "@metamask/snaps-sdk";
 import {
   type TOrigin,
   ZIdentityAddRequest,

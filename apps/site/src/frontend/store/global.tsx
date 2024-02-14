@@ -10,7 +10,7 @@ export type ICRC35Store<T extends undefined | IICRC1TransferRequest = undefined 
 ];
 
 interface IGlobalContext {
-  snapClient: Resource<InternalSnapClient>;
+  snapClient: Resource<InternalSnapClient | undefined>;
   identity: Resource<MsqIdentity>;
   showLoader: Accessor<boolean>;
   icrc35: ICRC35Store;
@@ -72,34 +72,55 @@ export function GlobalStore(props: IChildren) {
       forceReinstall: import.meta.env.VITE_MSQ_MODE === "DEV",
     });
 
-    let client = InternalSnapClient.create(undefined);
+    if ("MSQConnectionRejected" in inner) {
+      showLoader[1](false);
+      navigate("/connection-rejected");
+
+      return undefined;
+    }
+
+    if ("MobileNotSupported" in inner) {
+      showLoader[1](false);
+      navigate("/mobile-not-supported");
+
+      return undefined;
+    }
 
     if ("InstallMetaMask" in inner) {
       showLoader[1](false);
       navigate("/install-metamask");
+
+      return undefined;
     }
 
     if ("UnblockMSQ" in inner) {
       showLoader[1](false);
       navigate("/unblock-msq");
+
+      return undefined;
     }
 
     if ("EnableMSQ" in inner) {
       showLoader[1](false);
       navigate("/enable-msq");
+
+      return undefined;
     }
 
     if ("Ok" in inner) {
-      client = InternalSnapClient.create((inner as TMsqCreateOk).Ok);
+      let client = InternalSnapClient.create((inner as TMsqCreateOk).Ok);
 
       const isAuthorized = await client.getInner().isAuthorized();
       if (!isAuthorized) await client.login(window.location.origin, 0, import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
 
       makeAnonymousAgent(import.meta.env.VITE_MSQ_DFX_NETWORK_HOST).then((agent) => handleStatistics(agent, client));
       showLoader[1](false);
+
+      return client;
     }
 
-    return client;
+    console.error("Unreacheable during client initialization");
+    return undefined;
   });
 
   const [identity] = createResource(snapClient, (client) => {

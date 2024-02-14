@@ -1,4 +1,4 @@
-import type { OnRpcRequestHandler } from "@metamask/snaps-types";
+import type { OnRpcRequestHandler } from "@metamask/snaps-sdk";
 import { ErrorCode, SNAP_METHODS, ZSnapRPCRequest, err, toCBOR, zodParse } from "@fort-major/msq-shared";
 import { guardMethods as guardProtectedMethods } from "./utils";
 import {

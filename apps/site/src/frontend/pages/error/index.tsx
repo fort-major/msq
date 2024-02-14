@@ -2,14 +2,13 @@ import { css, styled } from "solid-styled-components";
 import { EIconKind } from "../../ui-kit/icon";
 import { H2, Text } from "../../ui-kit/typography";
 import { Button, EButtonKind } from "../../ui-kit/button";
-import { Show, onMount } from "solid-js";
+import { Show, createEffect, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { ErrorSpoiler } from "../../components/error-spoiler";
 import { COLOR_GRAY_105, COLOR_GRAY_140, COLOR_GRAY_190 } from "../../ui-kit";
-import { DISCORD_LINK, METAMASK_LINK } from "@fort-major/msq-shared";
-import { MsqClient } from "@fort-major/msq-client";
-import { SHOULD_BE_FLASK } from "../../utils";
+import { DISCORD_LINK, METAMASK_LINK, delay } from "@fort-major/msq-shared";
 import isMobile from "ismobilejs";
+import { useMsqClient } from "../../store/global";
 
 export interface IErrorPageProps {
   header: string;
@@ -28,18 +27,44 @@ export interface IErrorPageProps {
   };
 }
 
+export function ErrorMobileNotSupportedPage() {
+  return (
+    <ErrorPage
+      header="Oops! MSQ is not available on mobile devices yet"
+      text="Try accessing this page via your desktop browser. Join our Discord community and be the first to know when it’s ready."
+      button={{
+        text: "Join Us",
+        icon: EIconKind.Discord,
+        action: () => window.open(DISCORD_LINK, "_blank"),
+      }}
+    />
+  );
+}
+
+export function ErrorMSQConnectionRejectedPage() {
+  return (
+    <ErrorPage
+      header="Oops!"
+      text="Seems like you've accidentally rejected the MSQ connection. Please, refresh the page and try again!"
+      button={{
+        text: "Refresh",
+        icon: EIconKind.Loader,
+        action: () => window.location.assign("/"),
+      }}
+    />
+  );
+}
+
 export function ErrorInstallMetaMaskPage() {
   const navigate = useNavigate();
+  const msq = useMsqClient();
 
-  onMount(async () => {
-    const msq = await MsqClient.create({
-      snapId: import.meta.env.VITE_MSQ_SNAP_ID,
-      snapVersion: import.meta.env.VITE_MSQ_SNAP_VERSION,
-      shouldBeFlask: SHOULD_BE_FLASK,
-    });
-
-    if ("Ok" in msq) navigate("/", { replace: true });
+  createEffect(() => {
+    if (msq()) {
+      navigate("/", { replace: true });
+    }
   });
+
   return (
     <ErrorPage
       header="Install MetaMask"
@@ -66,15 +91,12 @@ export function ErrorUnblockMsqPage() {
 
 export function ErrorEnableMsqPage() {
   const navigate = useNavigate();
+  const msq = useMsqClient();
 
-  onMount(async () => {
-    const msq = await MsqClient.create({
-      snapId: import.meta.env.VITE_MSQ_SNAP_ID,
-      snapVersion: import.meta.env.VITE_MSQ_SNAP_VERSION,
-      shouldBeFlask: SHOULD_BE_FLASK,
-    });
-
-    if ("Ok" in msq) navigate("/", { replace: true });
+  createEffect(() => {
+    if (msq()) {
+      navigate("/", { replace: true });
+    }
   });
 
   return (

@@ -6,26 +6,11 @@ import isMobile from "ismobilejs";
 import { createEffect } from "solid-js";
 
 export function IndexPage() {
-  const isMob = isMobile(window.navigator).any;
   const location = useLocation();
   const navigate = useNavigate();
 
-  if (isMob) {
-    return (
-      <ErrorPage
-        header="Oops! MSQ is not available on mobile devices yet"
-        text="Try accessing this page via your desktop browser. Join our Discord community and be the first to know when it’s ready:"
-        button={{
-          text: "Join Us",
-          icon: EIconKind.Discord,
-          action: () => window.open(DISCORD_LINK, "_blank"),
-        }}
-      />
-    );
-  }
-
   createEffect(() => {
-    if (location.pathname === "/") {
+    if (location.pathname === "/" || location.pathname === "/cabinet") {
       navigate("/cabinet/my-assets");
     }
   });

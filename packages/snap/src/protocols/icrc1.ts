@@ -12,7 +12,7 @@ import {
   originToHostname,
   zodParse,
 } from "@fort-major/msq-shared";
-import { divider, heading, panel, text } from "@metamask/snaps-ui";
+import { divider, heading, panel, text } from "@metamask/snaps-sdk";
 import { StateManager } from "../state";
 
 /**

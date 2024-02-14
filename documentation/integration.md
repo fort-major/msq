@@ -29,12 +29,16 @@ First of all, you have to connect to MetaMask and the Snap. Our client library d
 
 ```typescript
 const result = await MsqClient.create();
+
+if (!("Ok" in result)) {
+    // handle possible errors
+}
 ```
 
 This function returns the following data structure:
 
 ```typescript
-type Result = { Ok: MsqClient } | { InstallMetaMask: null } | { UnblockMSQ: null } | { EnableMSQ: null };
+type Result = { Ok: MsqClient } | { InstallMetaMask: null } | { UnblockMSQ: null } | { EnableMSQ: null } | { MobileNotSupported: null } | { MSQConnectionRejected: null };
 ```
 
 which you can use to understand, if there was an error during the connection procedure and render a nice error screen. If everything is okay, you should be able to retrieve the client:

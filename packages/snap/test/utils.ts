@@ -1,5 +1,5 @@
 import { ErrorCode, debugStringify, err } from "@fort-major/msq-shared";
-import { Json } from "@metamask/snaps-types";
+import { Json } from "@metamask/snaps-sdk";
 
 export function ok(resp: { result: Json } | { error: Json }): Json {
   const er = (resp as { error: Json }).error;

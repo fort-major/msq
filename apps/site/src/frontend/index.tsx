@@ -23,7 +23,14 @@ import { PaymentCheckoutPage } from "./pages/integration/payment/checkout";
 import { IndexPage } from "./pages/index";
 import { AssetsStore } from "./store/assets";
 import { OriginDataStore } from "./store/origins";
-import { Error404Page, ErrorEnableMsqPage, ErrorInstallMetaMaskPage, ErrorUnblockMsqPage } from "./pages/error";
+import {
+  Error404Page,
+  ErrorEnableMsqPage,
+  ErrorInstallMetaMaskPage,
+  ErrorMSQConnectionRejectedPage,
+  ErrorMobileNotSupportedPage,
+  ErrorUnblockMsqPage,
+} from "./pages/error";
 import { UrlBasedPaymentPage } from "./pages/integration/payment/url-payment";
 import { ICRC35Page } from "./pages/icrc35";
 
@@ -60,6 +67,8 @@ export function App() {
                     <Route path="/install-metamask" component={ErrorInstallMetaMaskPage} />
                     <Route path="/unblock-msq" component={ErrorUnblockMsqPage} />
                     <Route path="/enable-msq" component={ErrorEnableMsqPage} />
+                    <Route path="/mobile-not-supported" component={ErrorMobileNotSupportedPage} />
+                    <Route path="/connection-rejected" component={ErrorMSQConnectionRejectedPage} />
 
                     <Route path="/icrc-35" component={ICRC35Page} />
 

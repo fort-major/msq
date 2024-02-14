@@ -173,10 +173,10 @@ importers:
       icrc-35:
         specifier: 0.2.3
         version: 0.2.3
+      ismobilejs:
+        specifier: 1.1.1
+        version: 1.1.1
     devDependencies:
-      '@metamask/snaps-types':
-        specifier: 3.1.0
-        version: 3.1.0(@metamask/approval-controller@4.1.0)
       '@metamask/types':
         specifier: 1.1.0
         version: 1.1.0
@@ -211,9 +211,9 @@ importers:
       '@fort-major/msq-shared':
         specifier: workspace:*
         version: link:../shared
-      '@metamask/snaps-ui':
-        specifier: 3.1.0
-        version: 3.1.0
+      '@metamask/snaps-sdk':
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@metamask/snaps-cli':
         specifier: 3.0.5
@@ -221,9 +221,6 @@ importers:
       '@metamask/snaps-jest':
         specifier: 4.0.1
         version: 4.0.1(@metamask/approval-controller@4.1.0)(@types/node@20.10.3)(@types/react@18.2.24)(typescript@5.3.2)
-      '@metamask/snaps-types':
-        specifier: 3.1.0
-        version: 3.1.0(@metamask/approval-controller@4.1.0)
       '@types/jest':
         specifier: 29.5.10
         version: 29.5.10
@@ -4093,17 +4090,6 @@ packages:
       - supports-color
     dev: true
 
-  /@metamask/json-rpc-engine@7.1.1:
-    resolution: {integrity: sha512-wPB8Or74OqMwcxa87JPOEjXwtgpyHPEXiLKblKRAtCjTJNQFp1Co//1CgFm5xj4Z5JbBGfGFiQNnj09Et40sig==}
-    engines: {node: '>=16.0.0'}
-    dependencies:
-      '@metamask/rpc-errors': 6.0.0
-      '@metamask/safe-event-emitter': 3.0.0
-      '@metamask/utils': 8.1.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
   /@metamask/json-rpc-engine@7.3.0:
     resolution: {integrity: sha512-93cOdqnpt0P9uU/aC65GZulaDh6qNFEm8IFXHbI4lisK7oebU2SLarJUBZPebjko7hzwmfV1M1h7FQAlyRkVLg==}
     engines: {node: '>=16.0.0'}
@@ -4113,7 +4099,6 @@ packages:
       '@metamask/utils': 8.2.1
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
   /@metamask/key-tree@9.0.0:
     resolution: {integrity: sha512-Fma7twGR7PK0QLby0ZCI2q4VDiSlZM0iIUYvmExDtiS6TIGQBu4br0rMWgfgMBz+arFFw8FriQxRrNBv4hb8SA==}
@@ -4127,15 +4112,15 @@ packages:
       '@scure/base': 1.1.3
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
-  /@metamask/object-multiplex@1.2.0:
-    resolution: {integrity: sha512-hksV602d3NWE2Q30Mf2Np1WfVKaGqfJRy9vpHAmelbaD0OkDt06/0KQkRR6UVYdMbTbkuEu8xN5JDUU80inGwQ==}
+  /@metamask/object-multiplex@1.3.0:
+    resolution: {integrity: sha512-czcQeVYdSNtabd+NcYQnrM69MciiJyd1qvKH8WM2Id3C0ZiUUX5Xa/MK+/VUk633DBhVOwdNzAKIQ33lGyA+eQ==}
     engines: {node: '>=12.0.0'}
     dependencies:
       end-of-stream: 1.4.4
       once: 1.4.0
       readable-stream: 2.3.8
+    dev: false
 
   /@metamask/object-multiplex@2.0.0:
     resolution: {integrity: sha512-+ItrieVZie3j2LfYE0QkdW3dsEMfMEp419IGx1zyeLqjRZ14iQUPRO0H6CGgfAAoC0x6k2PfCAGRwJUA9BMrqA==}
@@ -4143,7 +4128,6 @@ packages:
     dependencies:
       once: 1.4.0
       readable-stream: 3.6.2
-    dev: true
 
   /@metamask/onboarding@1.0.1:
     resolution: {integrity: sha512-FqHhAsCI+Vacx2qa5mAFcWNSrTcVGMNjzxVgaX8ECSny/BJ9/vgXP9V7WF/8vb9DltPeQkxr+Fnfmm6GHfmdTQ==}
@@ -4208,7 +4192,7 @@ packages:
     resolution: {integrity: sha512-p2TXw2a1Nb8czntDGfeIYQnk4LLVbd5vlcb3GY//lylYlKdSqp+uUTegCvxiFblRDOT68jsY8Ib1VEEzVUOolA==}
     engines: {node: '>=14.0.0'}
     dependencies:
-      '@metamask/object-multiplex': 1.2.0
+      '@metamask/object-multiplex': 1.3.0
       '@metamask/safe-event-emitter': 2.0.0
       '@types/chrome': 0.0.136
       detect-browser: 5.3.0
@@ -4217,29 +4201,10 @@ packages:
       fast-deep-equal: 2.0.1
       is-stream: 2.0.1
       json-rpc-engine: 6.1.0
-      json-rpc-middleware-stream: 4.2.2
+      json-rpc-middleware-stream: 4.2.3
       pump: 3.0.0
       webextension-polyfill-ts: 0.25.0
     dev: false
-
-  /@metamask/providers@13.1.0:
-    resolution: {integrity: sha512-/2Ti81CwZ/9LLpAm9Law+7z1PYbR3EiNXNKCbkppOfxxR1MbC2ps8/GFTjk7UHEMhAVG4k9ziGW8mMsutNVxmA==}
-    engines: {node: '>=16.0.0'}
-    dependencies:
-      '@metamask/json-rpc-engine': 7.1.1
-      '@metamask/object-multiplex': 1.2.0
-      '@metamask/rpc-errors': 6.0.0
-      '@metamask/safe-event-emitter': 3.0.0
-      '@metamask/utils': 8.1.0
-      detect-browser: 5.3.0
-      extension-port-stream: 2.1.1
-      fast-deep-equal: 3.1.3
-      is-stream: 2.0.1
-      json-rpc-middleware-stream: 4.2.2
-      webextension-polyfill: 0.10.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
 
   /@metamask/providers@14.0.2:
     resolution: {integrity: sha512-6KuCLQVzE/8IA1r8LkTo0FbG4fgm7ryjzleda0lMsz5XMxinNGuXAoh7Y08bX5OHVpDEjkHREPhuLw4dFK9wIQ==}
@@ -4259,17 +4224,6 @@ packages:
       webextension-polyfill: 0.10.0
     transitivePeerDependencies:
       - supports-color
-    dev: true
-
-  /@metamask/rpc-errors@6.0.0:
-    resolution: {integrity: sha512-sAZwcdmidJDPbZV3XSKcWZC7CSTdjqDNRsDDdb2SstCOLEJtNqHpx32FWgwWB0arqWxUcUxYxgR39edUbsWz7A==}
-    engines: {node: '>=16.0.0'}
-    dependencies:
-      '@metamask/utils': 8.1.0
-      fast-safe-stringify: 2.1.1
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
 
   /@metamask/rpc-errors@6.1.0:
     resolution: {integrity: sha512-JQElKxai26FpDyRKO/yH732wI+BV90i1u6pOuDOpdADSbppB2g1pPh3AGST1zkZqEE9eIKIUw8UdBQ4rp3VTSg==}
@@ -4279,7 +4233,6 @@ packages:
       fast-safe-stringify: 2.1.1
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
   /@metamask/safe-event-emitter@2.0.0:
     resolution: {integrity: sha512-/kSXhY692qiV1MXu6EeOZvg5nECLclxNXcKCxJ3cXQgYuRymRHpdx/t7JXfsK+JLjwA1e1c1/SBrlQYpusC29Q==}
@@ -4294,7 +4247,6 @@ packages:
     dependencies:
       '@noble/hashes': 1.1.5
       '@scure/base': 1.1.3
-    dev: true
 
   /@metamask/sdk-communication-layer@0.14.3:
     resolution: {integrity: sha512-yjSbj8y7fFbQXv2HBzUX6D9C8BimkCYP6BDV7hdw53W8b/GlYCtXVxUFajQ9tuO1xPTRjR/xt/dkdr2aCi6WGw==}
@@ -4540,23 +4492,6 @@ packages:
       - supports-color
     dev: true
 
-  /@metamask/snaps-rpc-methods@3.3.0(@metamask/approval-controller@4.1.0):
-    resolution: {integrity: sha512-AnxmqbHpzh71ieGPD9cR/9LfyS3bxDM2V4G0hjSNs2v1U1XuyIF5VW3kHox9gCd+xs4fBVd9nj5di+m6ickkwA==}
-    engines: {node: ^18.16 || >=20}
-    dependencies:
-      '@metamask/key-tree': 9.0.0
-      '@metamask/permission-controller': 5.0.1(@metamask/approval-controller@4.1.0)
-      '@metamask/rpc-errors': 6.1.0
-      '@metamask/snaps-ui': 3.1.0
-      '@metamask/snaps-utils': 3.3.0(@metamask/approval-controller@4.1.0)
-      '@metamask/utils': 8.1.0
-      '@noble/hashes': 1.3.2
-      superstruct: 1.0.3
-    transitivePeerDependencies:
-      - '@metamask/approval-controller'
-      - supports-color
-    dev: true
-
   /@metamask/snaps-rpc-methods@4.0.1(@metamask/approval-controller@4.1.0):
     resolution: {integrity: sha512-jyPP3zp6dsWT6xWvDEHvaguc8uLAogKZhV0/mr492BATTAtvfFI2CGqXoWSGOop/4SkCRGLjWTBUtSTDXMpT+w==}
     engines: {node: ^18.16 || >=20}
@@ -4587,6 +4522,20 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /@metamask/snaps-sdk@2.0.0:
+    resolution: {integrity: sha512-NwRSlgxVpqFEVnTe4zst3/2uMqbltvw8BdCyW7dX+aIZ9jNQXAC7ZDeJQm3WDxvSTLnv65nBJv0AaDVZK21q+w==}
+    engines: {node: ^18.16 || >=20}
+    dependencies:
+      '@metamask/key-tree': 9.0.0
+      '@metamask/providers': 14.0.2
+      '@metamask/rpc-errors': 6.1.0
+      '@metamask/utils': 8.3.0
+      is-svg: 4.4.0
+      superstruct: 1.0.3
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /@metamask/snaps-simulator@2.4.1(@metamask/approval-controller@4.1.0)(@types/node@20.10.3)(@types/react@18.2.24):
     resolution: {integrity: sha512-8DaqxoU4IT+9EWn7UjQJQy7oGM1rtf7B+iBb4MSUgpa2t/EXNAMj7+ovkiGYd+N/JbUxXEZbStUlgTydEHQ8cw==}
@@ -4633,61 +4582,6 @@ packages:
       - '@types/react'
       - '@types/react-dom'
       - react-native
-      - supports-color
-    dev: true
-
-  /@metamask/snaps-types@3.1.0(@metamask/approval-controller@4.1.0):
-    resolution: {integrity: sha512-Wn3OH5Yi8mGvARFTPThB4AIYS/YTx3i3thcfvFzHFGefbQ9e7STuK1/ihGWKGYbAoIVeIhTAg0qv8/Ey4gusRw==}
-    engines: {node: ^18.16 || >=20}
-    deprecated: This package is deprecated; please use the "@metamask/snaps-sdk" package instead
-    dependencies:
-      '@metamask/providers': 13.1.0
-      '@metamask/snaps-rpc-methods': 3.3.0(@metamask/approval-controller@4.1.0)
-      '@metamask/snaps-utils': 3.3.0(@metamask/approval-controller@4.1.0)
-      '@metamask/utils': 8.1.0
-    transitivePeerDependencies:
-      - '@metamask/approval-controller'
-      - supports-color
-    dev: true
-
-  /@metamask/snaps-ui@3.1.0:
-    resolution: {integrity: sha512-31+GstgOMIuXRc8L5xhTEl4o4ZmdSmssepKmbs3NZED4tCjce9d99ZvN/iHReqSGWulkAX26SJsoonT3+EnMiQ==}
-    engines: {node: ^18.16 || >=20}
-    deprecated: This package is deprecated; please use the "@metamask/snaps-sdk" package instead
-    dependencies:
-      '@metamask/utils': 8.1.0
-      is-svg: 4.4.0
-      superstruct: 1.0.3
-    transitivePeerDependencies:
-      - supports-color
-
-  /@metamask/snaps-utils@3.3.0(@metamask/approval-controller@4.1.0):
-    resolution: {integrity: sha512-R8PrpU0bd6DwT+VmReQAm4JtjRTYqV3ZedUZAAXx3e0XmXKqWwkLUZ7d2eOpdX4aVlS1KvJeTIkPMd9TM9+2tA==}
-    engines: {node: ^18.16 || >=20}
-    dependencies:
-      '@babel/core': 7.23.5
-      '@babel/types': 7.23.0
-      '@metamask/base-controller': 3.2.1
-      '@metamask/key-tree': 9.0.0
-      '@metamask/permission-controller': 5.0.1(@metamask/approval-controller@4.1.0)
-      '@metamask/rpc-errors': 6.1.0
-      '@metamask/snaps-registry': 2.1.1
-      '@metamask/snaps-ui': 3.1.0
-      '@metamask/utils': 8.1.0
-      '@noble/hashes': 1.3.2
-      '@scure/base': 1.1.3
-      chalk: 4.1.2
-      cron-parser: 4.9.0
-      fast-deep-equal: 3.1.3
-      fast-json-stable-stringify: 2.1.0
-      is-svg: 4.4.0
-      rfdc: 1.3.0
-      semver: 7.5.4
-      ses: 0.18.8
-      superstruct: 1.0.3
-      validate-npm-package-name: 5.0.0
-    transitivePeerDependencies:
-      - '@metamask/approval-controller'
       - supports-color
     dev: true
 
@@ -4763,7 +4657,6 @@ packages:
       superstruct: 1.0.3
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
   /@metamask/utils@8.1.0:
     resolution: {integrity: sha512-sFNpzBKRicDgM2ZuU6vrPROlqNGm8/jDsjc5WrU1RzCkAMc4Xr3vUUf8p59uQ6B09etUWNb8d2GTCbISdmH/Ug==}
@@ -4777,6 +4670,7 @@ packages:
       superstruct: 1.0.3
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /@metamask/utils@8.2.1:
     resolution: {integrity: sha512-dlnpow8r0YHDDL1xKCEwUoTGOAo9icdv+gaJG0EbgDnkD/BDqW2eH1XMtm9i7rPaiHWo/aLtcrh9WBhkCq/viw==}
@@ -4792,7 +4686,22 @@ packages:
       superstruct: 1.0.3
     transitivePeerDependencies:
       - supports-color
-    dev: true
+
+  /@metamask/utils@8.3.0:
+    resolution: {integrity: sha512-WFVcMPEkKKRCJ8DDkZUTVbLlpwgRn98F4VM/WzN89HM8PmHMnCyk/oG0AmK/seOxtik7uC7Bbi2YBC5Z5XB2zw==}
+    engines: {node: '>=16.0.0'}
+    dependencies:
+      '@ethereumjs/tx': 4.2.0
+      '@noble/hashes': 1.3.2
+      '@scure/base': 1.1.3
+      '@types/debug': 4.1.9
+      debug: 4.3.4
+      pony-cause: 2.1.10
+      semver: 7.5.4
+      superstruct: 1.0.3
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /@minoru/react-dnd-treeview@3.4.4(react-dnd@16.0.1)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-S5FRjQFag3cShU7rATx6UhaegYw+Uz3L/IXwBiD5snI+dW2Qm5Ey+8dKC+vpsVoHDYkgE/YKKWz+odGe1rNggA==}
@@ -4872,11 +4781,9 @@ packages:
 
   /@noble/ed25519@1.7.3:
     resolution: {integrity: sha512-iR8GBkDt0Q3GyaVcIu7mSsVIqnFbkbRzGLWlvhwunacoLwt4J3swfKhfaM6rN6WY+TBGoYT1GtT1mIh2/jGbRQ==}
-    dev: true
 
   /@noble/hashes@1.1.5:
     resolution: {integrity: sha512-LTMZiiLc+V4v1Yi16TD6aX2gmtKszNye0pQgbaLqkvhIqP7nVsSaJsWloGQjJfJ8offaoP5GtX3yY5swbcJxxQ==}
-    dev: true
 
   /@noble/hashes@1.3.1:
     resolution: {integrity: sha512-EbqwksQwz9xDRGfDST86whPBgM65E0OH/pCgqW0GBVzO22bNE+NuIbeTb714+IfSjU3aRk47EUvXIb5bTsenKA==}
@@ -4888,7 +4795,6 @@ packages:
 
   /@noble/secp256k1@1.7.1:
     resolution: {integrity: sha512-hOUk6AyBFmqVrv7k5WAw/LpszxVbj9gGN4JRkIX52fdFAj1UA61KXmZDvqVEm+pOyec3+fIeZB02LYa/pWOArw==}
-    dev: true
 
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -9068,6 +8974,7 @@ packages:
     engines: {node: '>=12.0.0'}
     dependencies:
       webextension-polyfill: 0.10.0
+    dev: false
 
   /extension-port-stream@3.0.0:
     resolution: {integrity: sha512-an2S5quJMiy5bnZKEf6AkfH/7r8CzHvhchU40gxN+OM6HPhe7Z9T1FUychcf2M9PpPOO0Hf7BAEfJkw2TDIBDw==}
@@ -9075,7 +8982,6 @@ packages:
     dependencies:
       readable-stream: 3.6.2
       webextension-polyfill: 0.10.0
-    dev: true
 
   /extract-zip@2.0.1:
     resolution: {integrity: sha512-GDhU9ntwuKyGXdZBUgTIe+vXnWj0fppUEtMDL0+idd5Sta8TGpHssn/eusA9mrPr9qNDym6SxAYZjNvCn/9RBg==}
@@ -9096,7 +9002,6 @@ packages:
 
   /fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
-    dev: true
 
   /fast-fifo@1.3.2:
     resolution: {integrity: sha512-/d9sfos4yxzpwkDkuN7k2SqFKtYNmCTzgfEpz82x34IM9/zc8KGxQoXg1liNC/izpRM/MBdt44Nmx41ZWqk+FQ==}
@@ -10935,12 +10840,14 @@ packages:
       eth-rpc-errors: 4.0.3
     dev: false
 
-  /json-rpc-middleware-stream@4.2.2:
-    resolution: {integrity: sha512-tmTQCI/R8wKMTWB50xlzkyh90JR5VuKiDVlWlmG7DjeKfdDtbLL/4vYCRlG5HnSSKkhrkVPI0TrHQz1Dethl7A==}
+  /json-rpc-middleware-stream@4.2.3:
+    resolution: {integrity: sha512-4iFb0yffm5vo3eFKDbQgke9o17XBcLQ2c3sONrXSbcOLzP8LTojqo8hRGVgtJShhm5q4ZDSNq039fAx9o65E1w==}
     engines: {node: '>=14.0.0'}
     dependencies:
       '@metamask/safe-event-emitter': 3.0.0
+      json-rpc-engine: 6.1.0
       readable-stream: 2.3.8
+    dev: false
 
   /json-rpc-middleware-stream@5.0.1:
     resolution: {integrity: sha512-PMrzifccjdilqU0xftUkusJq0J9O73q66YdVduEmu6vkiTh3V1akliYJGWBAbhg+vhFPC8btUSANa5FNo7a6bg==}
@@ -10952,7 +10859,6 @@ packages:
       readable-stream: 3.6.2
     transitivePeerDependencies:
       - supports-color
-    dev: true
 
   /json-rpc-random-id@1.0.1:
     resolution: {integrity: sha512-RJ9YYNCkhVDBuP4zN5BBtYAzEl03yq/jIIsyif0JY9qyJuQQZNeDK7anAPKKlyEtLSj2s8h6hNh2F8zO5q7ScA==}
@@ -11450,7 +11356,7 @@ packages:
     resolution: {integrity: sha512-L0syTWJUdWzfUmKgkScr6fSBVTh6QDr8eKEkRtn40OBd8LPagrJGySBboWSgbyn9eIb4ayW3Y347HxgXBSAjmg==}
     engines: {node: '>=18'}
     dependencies:
-      '@babel/runtime': 7.23.9
+      '@babel/runtime': 7.23.1
     dev: false
 
   /metro-source-map@0.80.5:
@@ -12290,7 +12196,6 @@ packages:
   /pony-cause@2.1.10:
     resolution: {integrity: sha512-3IKLNXclQgkU++2fSi93sQ6BznFuxSLB11HdvZQ6JW/spahf/P1pAHBQEahr20rs0htZW0UDkM1HmA+nZkXKsw==}
     engines: {node: '>=12.0.0'}
-    dev: true
 
   /popmotion@11.0.3:
     resolution: {integrity: sha512-Y55FLdj3UxkR7Vl3s7Qr4e9m0onSnP8W7d/xQLsoJM40vs6UKHFdygs6SWryasTZYqugMjm3BepCF4CWXDiHgA==}

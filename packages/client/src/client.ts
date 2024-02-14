@@ -1,4 +1,4 @@
-import { IGetSnapsResponse, ISnapRequest } from "./types";
+import { IGetSnapsResponse, IMetaMaskEthereumProvider, ISnapRequest } from "./types";
 import {
   type IIdentityLinkRequest,
   type IIdentityUnlinkRequest,
@@ -14,6 +14,7 @@ import { SNAP_ID, SNAP_VERSION } from ".";
 import { MsqIdentity } from "./identity";
 import { ICRC35Connection, openICRC35Window } from "icrc-35";
 import { MSQICRC35Client } from "./icrc35-client";
+import isMobile from "ismobilejs";
 import { MetaMaskSDK, SDKProvider } from "@metamask/sdk";
 
 const DEFAULT_SHOULD_BE_FLASK = false;
@@ -37,11 +38,15 @@ export type TMsqCreateResult =
   | TMsqCreateOk
   | TMsqCreateErrInstallMetaMask
   | TMsqCreateErrUnblockMetaMask
-  | TMsqCreateErrEnableMetaMask;
+  | TMsqCreateErrEnableMetaMask
+  | TMsqMobileNotSupported
+  | TMsqConnectionRejected;
 export type TMsqCreateOk = { Ok: MsqClient };
 export type TMsqCreateErrInstallMetaMask = { InstallMetaMask: null };
 export type TMsqCreateErrUnblockMetaMask = { UnblockMSQ: null };
 export type TMsqCreateErrEnableMetaMask = { EnableMSQ: null };
+export type TMsqMobileNotSupported = { MobileNotSupported: null };
+export type TMsqConnectionRejected = { MSQConnectionRejected: null };
 
 /**
  * ## A client to interact with the MSQ Snap
@@ -266,40 +271,38 @@ export class MsqClient {
    * @returns - an initialized {@link MsqClient} object that can be used right away
    */
   static async create(params?: IMsqClientParams): Promise<TMsqCreateResult> {
-    let provider;
+    if (isMobile(window.navigator).any) {
+      return { MobileNotSupported: null };
+    }
 
-    try {
-      provider = await connectToMetaMask();
-    } catch (e) {
-      console.error(e);
+    let provider = await connectToMetaMask(params?.shouldBeFlask);
 
+    if (!provider) {
       return { InstallMetaMask: null };
     }
 
-    const version = await provider!.request<string>({
-      method: "web3_clientVersion",
-    });
-    const isFlask = version?.includes("flask");
     const snapId = params?.snapId ?? SNAP_ID;
     const snapVersion = params?.snapVersion ?? SNAP_VERSION;
     const debug = params?.debug ?? DEFAULT_DEBUG;
     const forceReinstall = params?.forceReinstall ?? DEFAULT_FORCE_REINSTALL;
 
-    if ((params?.shouldBeFlask ?? DEFAULT_SHOULD_BE_FLASK) && !isFlask) {
-      return { InstallMetaMask: null };
-    }
-
-    const getSnapsResponse: IGetSnapsResponse = (await provider.request({ method: "wallet_getSnaps" }))!;
-    const msqSnap = getSnapsResponse[snapId];
+    let getSnapsResponse: IGetSnapsResponse = (await provider.request({ method: "wallet_getSnaps" }))!;
+    let msqSnap = getSnapsResponse[snapId];
 
     if (msqSnap === undefined) {
-      await provider.request({
-        method: "wallet_requestSnaps",
-        params: { [snapId]: { version: snapVersion } },
-      });
-
-      return { Ok: new MsqClient(provider, snapId, debug) };
+      try {
+        await provider.request({
+          method: "wallet_requestSnaps",
+          params: { [snapId]: { version: snapVersion } },
+        });
+      } catch (e) {
+        console.error(e);
+        return { MSQConnectionRejected: null };
+      }
     }
+
+    getSnapsResponse = (await provider.request({ method: "wallet_getSnaps" }))!;
+    msqSnap = getSnapsResponse[snapId]!;
 
     if (msqSnap.blocked) {
       return { UnblockMSQ: null };
@@ -326,7 +329,7 @@ export class MsqClient {
   ) {}
 }
 
-export async function connectToMetaMask(): Promise<SDKProvider> {
+export async function connectToMetaMask(shouldBeFlask?: boolean): Promise<SDKProvider | null> {
   const sdk = new MetaMaskSDK({
     dappMetadata: {
       name: "MSQ - Safe ICP Wallet",
@@ -334,20 +337,23 @@ export async function connectToMetaMask(): Promise<SDKProvider> {
     },
   });
 
-  const before = Date.now();
+  try {
+    await sdk.connect();
+    const provider = sdk.getProvider();
 
-  // this one is going to attempt connecting to MM until it succeeds
-  while (true) {
-    try {
-      await sdk.connect();
-      const provider = sdk.getProvider();
+    const version = await provider.request<string>({
+      method: "web3_clientVersion",
+    });
+    const isFlask = version?.includes("flask");
 
-      return provider;
-    } catch (e) {
-      // if trying longer than for 2 minutes - rethrow the error
-      if (Date.now() - before > 120000) throw e;
-
-      await delay(500);
+    if ((shouldBeFlask ?? DEFAULT_SHOULD_BE_FLASK) && !isFlask) {
+      return null;
     }
+
+    return provider;
+  } catch (e) {
+    console.error(e);
+
+    return null;
   }
 }
