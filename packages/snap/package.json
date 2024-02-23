@@ -39,8 +39,8 @@
     "doc": "typedoc ./src/**/*.{ts,tsx}"
   },
   "devDependencies": {
-    "@metamask/snaps-cli": "3.0.5",
-    "@metamask/snaps-jest": "4.0.1",
+    "@metamask/snaps-cli": "3.0",
+    "@metamask/snaps-jest": "4.0",
     "@types/jest": "29.5.10",
     "@types/node": "20.10.3",
     "cbor-x": "1.5.6",
@@ -48,8 +48,8 @@
     "ts-jest": "29.1.1"
   },
   "dependencies": {
-    "@dfinity/identity-secp256k1": "0.20.2",
+    "@dfinity/identity-secp256k1": "1.0",
     "@fort-major/msq-shared": "workspace:*",
-    "@metamask/snaps-sdk": "^2.0.0"
+    "@metamask/snaps-sdk": "2.0"
   }
 }
