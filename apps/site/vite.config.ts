@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [solid(), viteCompression()],
   server: {
     port: 8000,
+    cors: true,
   },
   resolve: {
     alias: {

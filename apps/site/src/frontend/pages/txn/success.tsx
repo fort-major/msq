@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { H3, Size16, Size20, Text, Weight600 } from "../../ui-kit/typography";
+import { H3, Size16, Size20, Text, WeightSemiBold } from "../../ui-kit/typography";
 import { tokensToStr } from "../../utils";
 import { AccountCard } from "../../components/account-card";
 import { Button, EButtonKind } from "../../ui-kit/button";

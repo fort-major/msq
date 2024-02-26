@@ -12,6 +12,7 @@ import {
   AccountCardHeader,
   AccountCardHeaderNameWrapper,
   AccountCardHeaderPrincipal,
+  AccountCardHeaderWrapper,
   AccountCardInput,
   AccountCardWrapper,
 } from "./style";
@@ -41,6 +42,7 @@ export interface IAccountCardProps {
   onSend?: (accountId: TAccountId, assetId: string) => void;
   onReceive?: (assetId: string, symbol: string, principal: string) => void;
   onEdit?: (newName: string) => void;
+  onDetailsClick?: () => void;
 }
 
 export function AccountCard(props: IAccountCardProps) {
@@ -73,47 +75,57 @@ export function AccountCard(props: IAccountCardProps) {
     props.onReceive!(props.assetId, props.symbol, props.principal!);
   };
 
+  const handleDetailsClick = () => {
+    props.onDetailsClick!();
+  };
+
   return (
     <AccountCardWrapper classList={props.classList} onClick={handleClick} fullWidth={props.fullWidth}>
-      <AccountCardHeader>
-        <Switch>
-          <Match when={edited()}>
-            <Input
-              label="Account Name"
-              required
-              autofocus
-              classList={{ [AccountCardInput]: true }}
-              KindString={{
-                defaultValue: props.name,
-                onChange: handleChange,
-                validate: (name) => (name.length === 0 ? "Please type something..." : null),
-              }}
-            />
-          </Match>
-          <Match when={!edited()}>
-            <AccountCardHeaderNameWrapper classList={{ editable: !!props.onEdit }} onClick={handleEditStart}>
-              <Text size={16} weight={600}>
-                {props.name}
+      <AccountCardHeaderWrapper>
+        <AccountCardHeader>
+          <Switch>
+            <Match when={edited()}>
+              <Input
+                label="Account Name"
+                required
+                autofocus
+                classList={{ [AccountCardInput]: true }}
+                KindString={{
+                  defaultValue: props.name,
+                  onChange: handleChange,
+                  validate: (name) => (name.length === 0 ? "Please type something..." : null),
+                }}
+              />
+            </Match>
+            <Match when={!edited()}>
+              <AccountCardHeaderNameWrapper classList={{ editable: !!props.onEdit }} onClick={handleEditStart}>
+                <Text size={16} weight={600}>
+                  {props.name}
+                </Text>
+                <Show when={props.onEdit}>
+                  <Icon kind={EIconKind.Edit} size={12} />
+                </Show>
+              </AccountCardHeaderNameWrapper>
+            </Match>
+          </Switch>
+          <Show
+            when={props.principal}
+            fallback={
+              <Text size={12} class={AccountCardHeaderPrincipal}>
+                {DEFAULT_PRINCIPAL}
               </Text>
-              <Show when={props.onEdit}>
-                <Icon kind={EIconKind.Edit} size={12} />
-              </Show>
-            </AccountCardHeaderNameWrapper>
-          </Match>
-        </Switch>
-        <Show
-          when={props.principal}
-          fallback={
-            <Text size={12} class={AccountCardHeaderPrincipal}>
-              {DEFAULT_PRINCIPAL}
+            }
+          >
+            <Text size={12} color={COLOR_GRAY_140} class={AccountCardHeaderPrincipal}>
+              {props.principal}
             </Text>
-          }
-        >
-          <Text size={12} color={COLOR_GRAY_140} class={AccountCardHeaderPrincipal}>
-            {props.principal}
-          </Text>
+          </Show>
+        </AccountCardHeader>
+
+        <Show when={props.onDetailsClick && props.principal}>
+          <Icon kind={EIconKind.Dots} onClick={handleDetailsClick} />
         </Show>
-      </AccountCardHeader>
+      </AccountCardHeaderWrapper>
       <AccountCardFooter>
         <AccountCardDivider />
         <AccountCardFooterContent>

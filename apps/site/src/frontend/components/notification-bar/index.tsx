@@ -1,4 +1,4 @@
-import { Size16, Text, Weight500 } from "../../ui-kit/typography";
+import { Size16, Text, WeightMedium } from "../../ui-kit/typography";
 import { NotificationBarWrapper } from "./style";
 
 export function NotificationBar() {

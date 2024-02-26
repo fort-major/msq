@@ -65,7 +65,14 @@ export const H5 = styled.h5`
   line-height: 100%; /* 36px */
 `;
 
-export const Text = styled.p<{ size: number; color?: string; weight?: number; lineHeight?: number; striked?: boolean }>`
+export const Text = styled.p<{
+  size: number;
+  color?: string;
+  weight?: number;
+  letterSpacing?: number;
+  lineHeight?: number;
+  striked?: boolean;
+}>`
   ${DefaultFont}
 
   font-size: ${(props) => props.size}px;
@@ -73,6 +80,7 @@ export const Text = styled.p<{ size: number; color?: string; weight?: number; li
   font-weight: ${(props) => props.weight || 400};
   line-height: ${(props) => props.lineHeight || 100}%;
   color: ${(props) => props.color || COLOR_WHITE};
+  letter-spacing: ${(props) => props.letterSpacing || 0}px;
   ${(props) => (props.striked ? "text-decoration: line-through;" : "")}
 `;
 
@@ -136,15 +144,15 @@ export const ColorGray165 = css`
   color: ${COLOR_GRAY_165};
 `;
 
-export const Weight600 = css`
+export const WeightSemiBold = css`
   font-weight: 600;
 `;
 
-export const Weight500 = css`
+export const WeightMedium = css`
   font-weight: 500;
 `;
 
-export const Weight400 = css`
+export const WeightRegular = css`
   font-weight: 400;
 `;
 

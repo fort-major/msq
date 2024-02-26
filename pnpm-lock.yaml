@@ -189,9 +189,15 @@ importers:
 
   packages/shared:
     dependencies:
+      '@aws-crypto/crc32':
+        specifier: 5.2.0
+        version: 5.2.0
       cbor-x:
         specifier: 1.5.6
         version: 1.5.6
+      jssha:
+        specifier: ^3.3.1
+        version: 3.3.1
     devDependencies:
       '@types/jest':
         specifier: 29.5.10
@@ -250,6 +256,31 @@ packages:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.3
       '@jridgewell/trace-mapping': 0.3.22
+
+  /@aws-crypto/crc32@5.2.0:
+    resolution: {integrity: sha512-nLbCWqQNgUiwwtFsen1AdzAtvuLRsQS8rYgMuxCrdKf9kOssamGLuPwyTY9wyYblNr9+1XM8v6zoDTPPSIeANg==}
+    engines: {node: '>=16.0.0'}
+    dependencies:
+      '@aws-crypto/util': 5.2.0
+      '@aws-sdk/types': 3.521.0
+      tslib: 2.6.2
+    dev: false
+
+  /@aws-crypto/util@5.2.0:
+    resolution: {integrity: sha512-4RkU9EsI6ZpBve5fseQlGNUWKMa1RLPQ1dnjnQoe07ldfIzcsGb5hC5W0Dm7u423KWzawlrpbjXBrXCEv9zazQ==}
+    dependencies:
+      '@aws-sdk/types': 3.521.0
+      '@smithy/util-utf8': 2.1.1
+      tslib: 2.6.2
+    dev: false
+
+  /@aws-sdk/types@3.521.0:
+    resolution: {integrity: sha512-H9I3Lut0F9d+kTibrhnTRqDRzhxf/vrDu12FUdTXVZEvVAQ7w9yrVHAZx8j2e8GWegetsQsNitO3KMrj4dA4pw==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      '@smithy/types': 2.10.0
+      tslib: 2.6.2
+    dev: false
 
   /@babel/code-frame@7.23.5:
     resolution: {integrity: sha512-CgH3s1a96LipHCmSUmYFPwY7MNx8C3avkq7i4Wl3cfa662ldtUe4VM1TPXX70pfmrlWTb6jLqTYrZyT2ZTJBgA==}
@@ -5168,6 +5199,36 @@ packages:
     resolution: {integrity: sha512-V4BG07kuYSUkTCSBHG8G8TNhM+F19jXFWnQtzj+we8DrkpSBCee9Z3Ms8yiGer/dlmhe35/Xdgyo3/0rQKg7YA==}
     dependencies:
       '@sinonjs/commons': 3.0.1
+
+  /@smithy/is-array-buffer@2.1.1:
+    resolution: {integrity: sha512-xozSQrcUinPpNPNPds4S7z/FakDTh1MZWtRP/2vQtYB/u3HYrX2UXuZs+VhaKBd6Vc7g2XPr2ZtwGBNDN6fNKQ==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      tslib: 2.6.2
+    dev: false
+
+  /@smithy/types@2.10.0:
+    resolution: {integrity: sha512-QYXQmpIebS8/jYXgyJjCanKZbI4Rr8tBVGBAIdDhA35f025TVjJNW69FJ0TGiDqt+lIGo037YIswq2t2Y1AYZQ==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      tslib: 2.6.2
+    dev: false
+
+  /@smithy/util-buffer-from@2.1.1:
+    resolution: {integrity: sha512-clhNjbyfqIv9Md2Mg6FffGVrJxw7bgK7s3Iax36xnfVj6cg0fUG7I4RH0XgXJF8bxi+saY5HR21g2UPKSxVCXg==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      '@smithy/is-array-buffer': 2.1.1
+      tslib: 2.6.2
+    dev: false
+
+  /@smithy/util-utf8@2.1.1:
+    resolution: {integrity: sha512-BqTpzYEcUMDwAKr7/mVRUtHDhs6ZoXDi9NypMvMfOr/+u1NW7JgqodPDECiiLboEm6bobcPcECxzjtQh865e9A==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      '@smithy/util-buffer-from': 2.1.1
+      tslib: 2.6.2
+    dev: false
 
   /@socket.io/component-emitter@3.1.0:
     resolution: {integrity: sha512-+9jVqKhRSpsc591z5vX+X5Yyw+he/HCB4iQ/RYxw35CEPaY1gnsNE43nf9n9AaYjAQrTiI/mOwKUKdUs9vf7Xg==}
@@ -10546,6 +10607,10 @@ packages:
     resolution: {integrity: sha512-POQXvpdL69+CluYsillJ7SUhKvytYjW9vG/GKpnf+xP8UWgYEM/RaMzHHofbALDiKbbP1W8UEYmgGl39WkPZsg==}
     engines: {'0': node >= 0.2.0}
     dev: true
+
+  /jssha@3.3.1:
+    resolution: {integrity: sha512-VCMZj12FCFMQYcFLPRm/0lOBbLi8uM2BhXPTqw3U4YAfs4AZfiApOoBLoN8cQE60Z50m1MYMTQVCfgF/KaCVhQ==}
+    dev: false
 
   /jsx-ast-utils@3.3.5:
     resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}

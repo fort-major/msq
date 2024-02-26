@@ -26,7 +26,7 @@
       // - frame-ancestors: none mitigates clickjacking attacks. See https://owasp.org/www-community/attacks/Clickjacking.
       //
       // [MSQ] We added more entries to script-src: cdnjs in order to fetch some libraries from it; also we've added unsafe-inline, so Metamask works in FireFox
-      "Content-Security-Policy": "default-src 'self' https://fwd.metamask.io; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com;connect-src 'self' https://icp0.io https://ic0.app https://*.ic0.app https://*.icp0.io wss://metamask-sdk-socket.metafi.codefi.network https://metamask-sdk-socket.metafi.codefi.network data:;img-src 'self' data: https://nns.ic0.app https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io;style-src * 'unsafe-inline';style-src-elem * 'unsafe-inline';font-src *;object-src 'none';base-uri 'self';frame-ancestors 'none';form-action 'self';upgrade-insecure-requests;",
+      "Content-Security-Policy": "default-src 'self' https://fwd.metamask.io; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com;connect-src 'self' https://icp0.io https://ic0.app https://*.ic0.app https://*.icp0.io wss://metamask-sdk-socket.metafi.codefi.network https://metamask-sdk-socket.metafi.codefi.network https://api.msq.tech data:;img-src 'self' data: https://nns.ic0.app https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io;style-src * 'unsafe-inline';style-src-elem * 'unsafe-inline';font-src *;object-src 'none';base-uri 'self';frame-ancestors 'none';form-action 'self';upgrade-insecure-requests;",
 
       // Security: The permissions policy disables all features for security reasons. If your site needs such permissions, activate them.
       // To configure permissions go here https://www.permissionspolicy.com/

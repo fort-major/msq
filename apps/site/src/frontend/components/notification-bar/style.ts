@@ -1,7 +1,7 @@
 import { styled } from "solid-styled-components";
 import { BAR_HEIGHT, COLOR_DARK_BLUE, COLOR_WHITE } from "../../ui-kit";
 
-export const NotificationBarWrapper = styled.div`
+export const NotificationBarWrapper = styled.noindex`
   position: fixed;
   top: 0;
   left: 0;

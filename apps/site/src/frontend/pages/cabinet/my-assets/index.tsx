@@ -28,6 +28,7 @@ import { useAssetData, useSendPageProps } from "../../../store/assets";
 import { COLOR_ERROR_RED, CabinetContent, CabinetPage } from "../../../ui-kit";
 import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
+import { ITxnHistoryModalProps, TxnHistoryModal } from "../../../components/txn-history-modal";
 
 export function MyAssetsPage() {
   const msq = useMsqClient();
@@ -42,6 +43,7 @@ export function MyAssetsPage() {
 
   const [sendPopupProps, setSendPopupProps] = useSendPageProps();
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
+  const [txnHistoryPopupProps, setTxnHistoryPopupProps] = createSignal<ITxnHistoryModalProps | null>(null);
 
   const navigate = useNavigate();
 
@@ -163,6 +165,10 @@ export function MyAssetsPage() {
     setReceivePopupProps(null);
   };
 
+  const handleTxnHistoryClose = () => {
+    setTxnHistoryPopupProps(null);
+  };
+
   return (
     <CabinetPage>
       <CabinetNav />
@@ -243,6 +249,18 @@ export function MyAssetsPage() {
                             onSend={handleSend}
                             onReceive={handleReceive}
                             onEdit={(newName) => handleEdit(assetId, idx(), newName)}
+                            onDetailsClick={
+                              account.principal
+                                ? () =>
+                                    setTxnHistoryPopupProps({
+                                      tokenId: assetId,
+                                      accountPrincipalId: account.principal!,
+                                      symbol: assets[assetId]!.metadata!.symbol,
+                                      decimals: assets[assetId]!.metadata!.decimals,
+                                      onClose: handleTxnHistoryClose,
+                                    })
+                                : undefined
+                            }
                           />
                         )}
                       </For>
@@ -291,6 +309,9 @@ export function MyAssetsPage() {
         </MyAssetsPageContent>
         <Show when={receivePopupProps()}>
           <ReceivePopup {...receivePopupProps()!} />
+        </Show>
+        <Show when={txnHistoryPopupProps()}>
+          <TxnHistoryModal {...txnHistoryPopupProps()!} />
         </Show>
       </CabinetContent>
 

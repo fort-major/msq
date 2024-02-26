@@ -2,7 +2,7 @@ import { styled } from "solid-styled-components";
 import { ANIM_DURATION, COLOR_GRAY_105, COLOR_GRAY_115, COLOR_GRAY_130, COLOR_WHITE } from "../../ui-kit";
 import { eventHandler, getClassName } from "../../utils";
 import { EIconKind, Icon } from "../../ui-kit/icon";
-import { Size16, Text, Weight600 } from "../../ui-kit/typography";
+import { Size16, Text, WeightSemiBold } from "../../ui-kit/typography";
 
 interface IAddAccountBtnProps {
   disabled?: boolean | undefined;
