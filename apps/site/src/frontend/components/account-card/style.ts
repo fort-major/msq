@@ -244,3 +244,7 @@ export const AccountCardReceiveBtn = styled.button`
     transition: stroke ${ANIM_DURATION} ease-out;
   }
 `;
+
+export const DotsIcon = css`
+  padding: 7px 0;
+`;

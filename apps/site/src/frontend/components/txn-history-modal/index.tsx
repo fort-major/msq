@@ -1,7 +1,7 @@
 import { Principal } from "@dfinity/principal";
 import { Txn, getTransactionHistory } from "../../backend";
 import {
-  TxnHistoryClose,
+  CloseIcon,
   TxnHistoryEmpty,
   TxnHistoryModalContent,
   TxnHistoryModalHeader,
@@ -15,12 +15,14 @@ import { Button, EButtonKind } from "../../ui-kit/button";
 import { eventHandler } from "../../utils";
 import { Modal } from "../modal";
 import { EIconKind, Icon } from "../../ui-kit/icon";
+import { useNavigate } from "@solidjs/router";
 
 export interface ITxnHistoryModalProps {
   tokenId: string;
   accountPrincipalId: string | Principal;
   decimals: number;
   symbol: string;
+  onShowMore: () => void;
   onClose: () => void;
 }
 
@@ -36,7 +38,7 @@ export function TxnHistoryModal(props: ITxnHistoryModalProps) {
   return (
     <Modal>
       <TxnHistoryModalWrapper onClick={eventHandler((e) => e.stopPropagation())}>
-        <Icon kind={EIconKind.Close} onClick={props.onClose} classList={{ [TxnHistoryClose]: true }} />
+        <Icon kind={EIconKind.Close} onClick={props.onClose} classList={{ [CloseIcon]: true }} />
         <TxnHistoryModalHeader>
           <Text size={36} weight={FONT_WEIGHT_MEDIUM} color={COLOR_WHITE} letterSpacing={-1}>
             Transaction History
@@ -69,7 +71,7 @@ export function TxnHistoryModal(props: ITxnHistoryModalProps) {
                 )}
               </For>
             </TxnHistoryModalContent>
-            <Button kind={EButtonKind.Primary} label="Show All" text="Show All" />
+            <Button kind={EButtonKind.Primary} label="Show All" text="Show All" onClick={props.onShowMore} />
           </Match>
         </Switch>
       </TxnHistoryModalWrapper>

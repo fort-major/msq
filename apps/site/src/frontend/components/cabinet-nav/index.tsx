@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "@solidjs/router";
 import { CabinetNavItem, CabinetNavItemDot, CabinetNavWrapper } from "./styles";
-import { Match, Switch } from "solid-js";
+import { For, Match, Switch } from "solid-js";
 import { eventHandler } from "../../utils";
 import { Size16, Text, WeightSemiBold } from "../../ui-kit/typography";
 
@@ -28,15 +28,23 @@ const Item = (props: IItemProps) => {
   );
 };
 
-export function CabinetNav() {
+export function CabinetNav(props: { activeUrl?: string }) {
   const location = useLocation();
+
+  const links = [
+    { title: "My Masks", url: "/cabinet/my-masks", active: false },
+    { title: "My Assets", url: "/cabinet/my-assets", active: false },
+    { title: "Active Sessions", url: "/cabinet/my-sessions", active: false },
+    { title: "Mask Links", url: "/cabinet/my-links", active: false },
+  ];
+
+  links.forEach((link) => {
+    link.active = link.url === props.activeUrl || link.url === location.pathname;
+  });
 
   return (
     <CabinetNavWrapper>
-      <Item title="My Masks" url="/cabinet/my-masks" active={location.pathname === "/cabinet/my-masks"} />
-      <Item title="My Assets" url="/cabinet/my-assets" active={location.pathname === "/cabinet/my-assets"} />
-      <Item title="Active Sessions" url="/cabinet/my-sessions" active={location.pathname === "/cabinet/my-sessions"} />
-      <Item title="Mask Links" url="/cabinet/my-links" active={location.pathname === "/cabinet/my-links"} />
+      <For each={links}>{(link) => <Item {...link} />}</For>
     </CabinetNavWrapper>
   );
 }

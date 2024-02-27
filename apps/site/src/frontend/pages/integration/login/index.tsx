@@ -65,7 +65,7 @@ export function LoginPage() {
     <Show when={icrc35Request()}>
       <LoginHeadingSection>
         <DismissBtn onClick={onDismiss}>
-          <Icon kind={EIconKind.ChevronUp} size={12} rotation={-90} />
+          <Icon kind={EIconKind.ArrowLeftLong} size={12} />
           <span>Dismiss</span>
         </DismissBtn>
         <LoginPageHeader>

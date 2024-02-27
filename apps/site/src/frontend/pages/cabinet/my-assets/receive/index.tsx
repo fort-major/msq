@@ -138,11 +138,10 @@ export function ReceivePopup(props: IReceivePopupProps) {
 }
 
 const ReceivePopupContainer = styled.div`
-  position: absolute;
-  left: 0;
-  right: 0;
+  position: relative;
+  align-self: center;
+  margin: 0 auto;
   width: 430px;
-  margin: ${(BAR_HEIGHT + HEADER_HEIGHT + 20).toString()}px auto;
 `;
 
 const ReceivePopupWrapper = styled.div`

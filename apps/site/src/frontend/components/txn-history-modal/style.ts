@@ -1,5 +1,5 @@
 import { css, styled } from "solid-styled-components";
-import { COLOR_GRAY_105 } from "../../ui-kit";
+import { ANIM_DURATION, COLOR_GRAY_105, COLOR_GRAY_150, COLOR_WHITE } from "../../ui-kit";
 
 export const TxnHistoryModalWrapper = styled.div`
   position: relative;
@@ -41,8 +41,20 @@ export const TxnHistoryEmpty = styled.div`
   height: 100px;
 `;
 
-export const TxnHistoryClose = css`
+export const CloseIcon = css`
   position: absolute;
-  top: 25px;
   right: 25px;
+  top: 25px;
+
+  & > path {
+    transition: stroke ${ANIM_DURATION} ease-out;
+
+    stroke: ${COLOR_GRAY_150};
+  }
+
+  &:hover {
+    & > path {
+      stroke: ${COLOR_WHITE};
+    }
+  }
 `;

@@ -15,6 +15,7 @@ import {
   AccountCardHeaderWrapper,
   AccountCardInput,
   AccountCardWrapper,
+  DotsIcon,
 } from "./style";
 import { Match, Show, Switch, createSignal } from "solid-js";
 import { Input } from "../../ui-kit/input";
@@ -123,7 +124,7 @@ export function AccountCard(props: IAccountCardProps) {
         </AccountCardHeader>
 
         <Show when={props.onDetailsClick && props.principal}>
-          <Icon kind={EIconKind.Dots} onClick={handleDetailsClick} />
+          <Icon kind={EIconKind.Dots} classList={{ [DotsIcon]: true }} onClick={handleDetailsClick} />
         </Show>
       </AccountCardHeaderWrapper>
       <AccountCardFooter>
@@ -141,7 +142,7 @@ export function AccountCard(props: IAccountCardProps) {
                       {tokensToStr(props.balance || 0n, props.decimals, undefined, true)}
                     </span>
 
-                    <Icon kind={EIconKind.ArrowRight} color={COLOR_ACCENT} />
+                    <Icon kind={EIconKind.ArrowRightWide} color={COLOR_ACCENT} />
 
                     <span>{tokensToStr(props.balance! - props.transferSuccess!, props.decimals, undefined, true)}</span>
                   </span>

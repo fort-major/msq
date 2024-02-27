@@ -17,7 +17,8 @@ export enum EIconKind {
   Close,
   Loader,
   Login,
-  ArrowRight,
+  ArrowRightWide,
+  ArrowLeftLong,
   Check,
   Discord,
   Dots,
@@ -186,7 +187,7 @@ export function Icon(props: IIconProps) {
           />
         </Svg>
       </Match>
-      <Match when={props.kind === EIconKind.ArrowRight}>
+      <Match when={props.kind === EIconKind.ArrowRightWide}>
         <Svg {...props} pointer={!!props.onClick} handleClick={handleClick} viewBox="0 0 17 14">
           <path
             id="Rectangle 25"
@@ -225,6 +226,16 @@ export function Icon(props: IIconProps) {
           <path
             d="M2.04087 2C1.48859 2 1.04087 1.55228 1.04087 0.999999C1.04087 0.447715 1.48859 -5.88724e-07 2.04087 -5.64583e-07C2.59316 -5.40442e-07 3.04087 0.447715 3.04087 0.999999C3.04087 1.55228 2.59316 2 2.04087 2Z"
             fill={props.color ?? "white"}
+          />
+        </Svg>
+      </Match>
+      <Match when={props.kind === EIconKind.ArrowLeftLong}>
+        <Svg {...props} pointer={!!props.onClick} handleClick={handleClick} viewBox="0 0 18 16">
+          <path
+            d="M4.45003 11.9354L0.514718 8.00007M0.514718 8.00007L4.44601 4.06878M0.514718 8.00007L17.4853 8.00007"
+            stroke={props.color ?? "white"}
+            stroke-linecap="round"
+            stroke-linejoin="round"
           />
         </Svg>
       </Match>

@@ -24,11 +24,12 @@ import { ColorGray115, ColorGray130, H2, H4, H5, Text } from "../../../ui-kit/ty
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { IReceivePopupProps, ReceivePopup } from "./receive";
 import { AddAccountBtn } from "../../../components/add-account-btn";
-import { useAssetData, useSendPageProps } from "../../../store/assets";
+import { useAssetData, useSendPageProps, useTxnHistoryPageProps } from "../../../store/assets";
 import { COLOR_ERROR_RED, CabinetContent, CabinetPage } from "../../../ui-kit";
 import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
 import { ITxnHistoryModalProps, TxnHistoryModal } from "../../../components/txn-history-modal";
+import { produce } from "solid-js/store";
 
 export function MyAssetsPage() {
   const msq = useMsqClient();
@@ -43,7 +44,9 @@ export function MyAssetsPage() {
 
   const [sendPopupProps, setSendPopupProps] = useSendPageProps();
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
+
   const [txnHistoryPopupProps, setTxnHistoryPopupProps] = createSignal<ITxnHistoryModalProps | null>(null);
+  const [_, setTxnHistoryPageProps] = useTxnHistoryPageProps();
 
   const navigate = useNavigate();
 
@@ -165,8 +168,12 @@ export function MyAssetsPage() {
     setReceivePopupProps(null);
   };
 
-  const handleTxnHistoryClose = () => {
+  const handleTxnHistoryPopupClose = () => {
     setTxnHistoryPopupProps(null);
+  };
+
+  const handleTxnHistoryPageClose = () => {
+    setTxnHistoryPageProps(undefined);
   };
 
   return (
@@ -257,7 +264,20 @@ export function MyAssetsPage() {
                                       accountPrincipalId: account.principal!,
                                       symbol: assets[assetId]!.metadata!.symbol,
                                       decimals: assets[assetId]!.metadata!.decimals,
-                                      onClose: handleTxnHistoryClose,
+                                      onClose: handleTxnHistoryPopupClose,
+                                      onShowMore: () => {
+                                        setTxnHistoryPageProps({
+                                          tokenId: assetId,
+                                          accountName: account.name,
+                                          accountPrincipalId: account.principal!,
+                                          accountBalance: account.balance ?? 0n,
+                                          decimals: assets[assetId]!.metadata!.decimals,
+                                          symbol: assets[assetId]!.metadata!.symbol,
+                                          onClose: handleTxnHistoryPageClose,
+                                        });
+
+                                        navigate("/cabinet/my-assets/history");
+                                      },
                                     })
                                 : undefined
                             }

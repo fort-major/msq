@@ -126,6 +126,7 @@ export async function getTransactionHistory(args: {
   skip?: bigint;
   take?: number;
 }): Promise<Txn[]> {
+  await delay(1000);
   return mockTxns.filter((_, idx) => (args.take ? idx < args.take : true));
 
   /*   if (typeof args.accountPrincipalId === "string")
