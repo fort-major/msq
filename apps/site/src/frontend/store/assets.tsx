@@ -1,6 +1,6 @@
 import { createStore, produce } from "solid-js/store";
 import { useMsqClient } from "./global";
-import { Accessor, Setter, createContext, createSignal, onCleanup, onMount, useContext } from "solid-js";
+import { Accessor, Setter, createContext, createEffect, createSignal, onCleanup, onMount, useContext } from "solid-js";
 import {
   DEFAULT_PRINCIPAL,
   IAssetMetadata,
@@ -18,6 +18,7 @@ import { PRE_LISTED_TOKENS, TAccountId, delay, unreacheable } from "@fort-major/
 import { AnonymousIdentity } from "@dfinity/agent";
 import { ISendPageProps } from "../pages/cabinet/my-assets/send";
 import { IPaymentCheckoutPageProps } from "../pages/integration/payment/checkout";
+import { ITxnHistoryPageProps } from "../pages/cabinet/my-assets/txn-history";
 
 export type IAssetDataExt = {
   accounts: {
@@ -31,6 +32,10 @@ export type IAssetDataExt = {
 // undefined == not loaded yet, null == erroed
 export type AllAssetData = Record<string, IAssetDataExt | undefined | null>;
 export type SendPagePropsStore = [Accessor<ISendPageProps | undefined>, Setter<ISendPageProps | undefined>];
+export type TxnHistoryPropsStore = [
+  Accessor<ITxnHistoryPageProps | undefined>,
+  Setter<ITxnHistoryPageProps | undefined>,
+];
 type PaymentCheckoutPageStore = [
   Accessor<IPaymentCheckoutPageProps | undefined>,
   Setter<IPaymentCheckoutPageProps | undefined>,
@@ -47,6 +52,7 @@ export interface IAssetDataStore {
   removeAssetLogo: (assetId: string) => void;
   sendPageProps: SendPagePropsStore;
   paymentCheckoutPageProps: PaymentCheckoutPageStore;
+  txnHistoryPageProps: TxnHistoryPropsStore;
 }
 
 const AssetDataContext = createContext<IAssetDataStore>();
@@ -81,12 +87,23 @@ export function usePaymentCheckoutPageProps() {
   return ctx.paymentCheckoutPageProps;
 }
 
+export function useTxnHistoryPageProps() {
+  const ctx = useContext(AssetDataContext);
+
+  if (!ctx) {
+    unreacheable("Integration context is uninitialized");
+  }
+
+  return ctx.txnHistoryPageProps;
+}
+
 const PRE_DEFINED_ASSETS = Object.values(PRE_LISTED_TOKENS).map((it) => it.assetId);
 
 export function AssetsStore(props: IChildren) {
   const [allAssetData, setAllAssetData] = createStore<AllAssetData>();
   const [sendPageProps, setSendPageProps] = createSignal<ISendPageProps | undefined>(undefined);
   const [paymentCheckoutPageProps, setPaymentCheckoutPageProps] = createSignal<IPaymentCheckoutPageProps | undefined>();
+  const [txnHistoryPageProps, setTxnHistoryPageProps] = createSignal<ITxnHistoryPageProps | undefined>();
   const [refreshPeriodically, setRefreshPeriodically] = createSignal(true);
   const [initialized, setInitialized] = createSignal(false);
   const _msq = useMsqClient();
@@ -157,7 +174,6 @@ export function AssetsStore(props: IChildren) {
     if (!assetIds) assetIds = Object.keys(allAssetData);
 
     for (let assetId of assetIds) {
-      // @ts-expect-error - types are fine here
       const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
 
       getAssetMetadata(ledger, false)
@@ -201,7 +217,6 @@ export function AssetsStore(props: IChildren) {
     setAllAssetData(assetId, "accounts", accountId, "principal", principal.toText());
 
     const agent = await makeAnonymousAgent();
-    // @ts-expect-error - types are fine here
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
 
     try {
@@ -216,7 +231,6 @@ export function AssetsStore(props: IChildren) {
 
     const anonIdentity = new AnonymousIdentity();
     const agent = await makeAgent(anonIdentity);
-    // @ts-expect-error - types are fine here
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
 
     // first we query to be fast
@@ -273,7 +287,6 @@ export function AssetsStore(props: IChildren) {
     // first we query to be fast
     let balance = await ledger.balance({
       certified: false,
-      // @ts-expect-error - types are fine here
       owner: Principal.fromText(allAssetData[assetId]!.accounts[accountId].principal!),
     });
 
@@ -292,7 +305,6 @@ export function AssetsStore(props: IChildren) {
     // then we update to be sure
     balance = await ledger.balance({
       certified: true,
-      // @ts-expect-error - types are fine here
       owner: Principal.fromText(allAssetData[assetId]!.accounts[accountId].principal!),
     });
 
@@ -323,6 +335,7 @@ export function AssetsStore(props: IChildren) {
         removeAssetLogo,
         sendPageProps: [sendPageProps, setSendPageProps],
         paymentCheckoutPageProps: [paymentCheckoutPageProps, setPaymentCheckoutPageProps],
+        txnHistoryPageProps: [txnHistoryPageProps, setTxnHistoryPageProps],
       }}
     >
       {props.children}

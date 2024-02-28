@@ -1,6 +1,6 @@
 {
   "name": "@fort-major/msq",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Privacy-focused MetaMask snap for the Internet Computer (ICP)",
   "keywords": [
     "MetaMask",
@@ -27,20 +27,23 @@
   },
   "homepage": "https://icp.msq.tech",
   "scripts": {
-    "prod:build": "tsc && pnpm run prod:build-snap",
-    "prod:build-snap": "mm-snap build -s ./src/index.ts",
-    "prod:pub": "mm-snap manifest --fix && npm publish",
+    "prod:build": "tsc && pnpm run prod:build:snap",
+    "prod:build:snap": "mm-snap build -s ./src/index.ts",
+    "prod:build:apps": "pnpm run prod:build",
+    "pub": "mm-snap manifest --fix && npm publish",
     "dev:build": "tsc && mm-snap build -s ./src/index.ts",
+    "dev:build:snap": "pnpm run dev:build",
+    "dev:build:apps": "pnpm run dev:build",
     "dev": "mm-snap watch -s ./src/index.ts -d dist",
-    "dev:runSnap": "pnpm run dev",
+    "dev:run:snap": "pnpm run dev",
     "test": "jest",
     "lint": "eslint --fix src --ext .ts --ext .tsx",
     "format": "pnpm exec prettier ./src/**/*.{ts,tsx} --write",
     "doc": "typedoc ./src/**/*.{ts,tsx}"
   },
   "devDependencies": {
-    "@metamask/snaps-cli": "3.0.5",
-    "@metamask/snaps-jest": "4.0.1",
+    "@metamask/snaps-cli": "3.0",
+    "@metamask/snaps-jest": "4.0",
     "@types/jest": "29.5.10",
     "@types/node": "20.10.3",
     "cbor-x": "1.5.6",
@@ -48,8 +51,8 @@
     "ts-jest": "29.1.1"
   },
   "dependencies": {
-    "@dfinity/identity-secp256k1": "0.20.2",
+    "@dfinity/identity-secp256k1": "1.0",
     "@fort-major/msq-shared": "workspace:*",
-    "@metamask/snaps-sdk": "^2.0.0"
+    "@metamask/snaps-sdk": "2.0"
   }
 }

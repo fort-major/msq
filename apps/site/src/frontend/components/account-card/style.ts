@@ -28,6 +28,14 @@ export const AccountCardWrapper = styled.div<{ fullWidth?: boolean | undefined }
   ${(props) => (props.fullWidth ? "" : "max-width: 430px;")}
 `;
 
+export const AccountCardHeaderWrapper = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 20px;
+
+  align-items: center;
+`;
+
 export const AccountCardHeader = styled.div`
   display: flex;
   flex-direction: column;
@@ -35,6 +43,7 @@ export const AccountCardHeader = styled.div`
   align-items: flex-start;
   gap: 5px;
   align-self: stretch;
+  flex-grow: 1;
 `;
 
 export const AccountCardFooter = styled.div`
@@ -234,4 +243,8 @@ export const AccountCardReceiveBtn = styled.button`
   & > svg > path {
     transition: stroke ${ANIM_DURATION} ease-out;
   }
+`;
+
+export const DotsIcon = css`
+  padding: 7px 0;
 `;

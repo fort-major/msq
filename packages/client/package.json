@@ -1,6 +1,6 @@
 {
   "name": "@fort-major/msq-client",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "main": "./dist/cjs/index",
   "module": "./dist/esm/index",
   "unpkg": "./dist/esm/index",
@@ -8,8 +8,10 @@
   "license": "MIT",
   "scripts": {
     "prod:build": "rm -rf ./dist && tsc && tsc -p tsconfig.cjs.json && node inline-env-vars.js",
-    "prod:pub": "npm publish",
+    "prod:build:libs": "pnpm run prod:build",
     "dev:build": "rm -rf ./dist && tsc && tsc -p tsconfig.cjs.json && node inline-env-vars.js",
+    "dev:build:libs": "pnpm run dev:build",
+    "pub": "npm publish",
     "lint": "eslint --fix src --ext .ts --ext .tsx",
     "format": "pnpm exec prettier src/**/*.{ts,tsx} --write",
     "doc": "typedoc src/**/*.{ts,tsx}"
@@ -22,7 +24,7 @@
   "dependencies": {
     "@fort-major/msq-shared": "workspace:*",
     "@metamask/sdk": "^0.14.3",
-    "icrc-35": "0.2.3",
+    "icrc-35": "^0.2",
     "ismobilejs": "1.1.1"
   }
 }

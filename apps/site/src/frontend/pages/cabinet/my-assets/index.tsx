@@ -24,10 +24,12 @@ import { ColorGray115, ColorGray130, H2, H4, H5, Text } from "../../../ui-kit/ty
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { IReceivePopupProps, ReceivePopup } from "./receive";
 import { AddAccountBtn } from "../../../components/add-account-btn";
-import { useAssetData, useSendPageProps } from "../../../store/assets";
+import { useAssetData, useSendPageProps, useTxnHistoryPageProps } from "../../../store/assets";
 import { COLOR_ERROR_RED, CabinetContent, CabinetPage } from "../../../ui-kit";
 import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
+import { ITxnHistoryModalProps, TxnHistoryModal } from "../../../components/txn-history-modal";
+import { produce } from "solid-js/store";
 
 export function MyAssetsPage() {
   const msq = useMsqClient();
@@ -42,6 +44,9 @@ export function MyAssetsPage() {
 
   const [sendPopupProps, setSendPopupProps] = useSendPageProps();
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
+
+  const [txnHistoryPopupProps, setTxnHistoryPopupProps] = createSignal<ITxnHistoryModalProps | null>(null);
+  const [_, setTxnHistoryPageProps] = useTxnHistoryPageProps();
 
   const navigate = useNavigate();
 
@@ -63,7 +68,6 @@ export function MyAssetsPage() {
       }
 
       const agent = await makeAnonymousAgent();
-      // @ts-expect-error - types are okay here
       const ledger = IcrcLedgerCanister.create({ agent, canisterId: principal });
 
       const metadata = await getAssetMetadata(ledger, false);
@@ -163,6 +167,14 @@ export function MyAssetsPage() {
     setReceivePopupProps(null);
   };
 
+  const handleTxnHistoryPopupClose = () => {
+    setTxnHistoryPopupProps(null);
+  };
+
+  const handleTxnHistoryPageClose = () => {
+    setTxnHistoryPageProps(undefined);
+  };
+
   return (
     <CabinetPage>
       <CabinetNav />
@@ -243,6 +255,31 @@ export function MyAssetsPage() {
                             onSend={handleSend}
                             onReceive={handleReceive}
                             onEdit={(newName) => handleEdit(assetId, idx(), newName)}
+                            onDetailsClick={
+                              account.principal
+                                ? () =>
+                                    setTxnHistoryPopupProps({
+                                      tokenId: assetId,
+                                      accountPrincipalId: account.principal!,
+                                      symbol: assets[assetId]!.metadata!.symbol,
+                                      decimals: assets[assetId]!.metadata!.decimals,
+                                      onClose: handleTxnHistoryPopupClose,
+                                      onShowMore: () => {
+                                        setTxnHistoryPageProps({
+                                          tokenId: assetId,
+                                          accountName: account.name,
+                                          accountPrincipalId: account.principal!,
+                                          accountBalance: account.balance ?? 0n,
+                                          decimals: assets[assetId]!.metadata!.decimals,
+                                          symbol: assets[assetId]!.metadata!.symbol,
+                                          onClose: handleTxnHistoryPageClose,
+                                        });
+
+                                        navigate("/cabinet/my-assets/history");
+                                      },
+                                    })
+                                : undefined
+                            }
                           />
                         )}
                       </For>
@@ -291,6 +328,9 @@ export function MyAssetsPage() {
         </MyAssetsPageContent>
         <Show when={receivePopupProps()}>
           <ReceivePopup {...receivePopupProps()!} />
+        </Show>
+        <Show when={txnHistoryPopupProps()}>
+          <TxnHistoryModal {...txnHistoryPopupProps()!} />
         </Show>
       </CabinetContent>
 

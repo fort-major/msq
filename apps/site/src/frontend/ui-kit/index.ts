@@ -28,6 +28,24 @@ export const COLOR_ERROR_RED = "#FC2D2D";
 export const HEADER_HEIGHT = 80;
 export const BAR_HEIGHT = 40;
 
+export const FONT_WEIGHT_THIN = 100;
+export const FONT_WEIGHT_HAIRLINE = FONT_WEIGHT_THIN;
+export const FONT_WEIGHT_EXTRA_LIGHT = 200;
+export const FONT_WEIGHT_ULTRA_LIGHT = FONT_WEIGHT_EXTRA_LIGHT;
+export const FONT_WEIGHT_LIGHT = 300;
+export const FONT_WEIGHT_REGULAR = 400;
+export const FONT_WEIGHT_NORMAL = FONT_WEIGHT_REGULAR;
+export const FONT_WEIGHT_MEDIUM = 500;
+export const FONT_WEIGHT_SEMI_BOLD = 600;
+export const FONT_WEIGHT_DEMI_BOLD = FONT_WEIGHT_SEMI_BOLD;
+export const FONT_WEIGHT_BOLD = 700;
+export const FONT_WEIGHT_EXTRA_BOLD = 800;
+export const FONT_WEIGHT_ULTRA_BOLD = FONT_WEIGHT_EXTRA_BOLD;
+export const FONT_WEIGHT_BLACK = 900;
+export const FONT_WEIGHT_HEAVY = FONT_WEIGHT_BLACK;
+export const FONT_WEIGHT_EXTRA_BLACK = 950;
+export const FONT_WEIGHT_ULTRA_BLACK = FONT_WEIGHT_EXTRA_BLACK;
+
 export const ANIM_DURATION = "0.3s";
 
 export const Root = styled.div`

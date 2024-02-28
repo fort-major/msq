@@ -233,6 +233,8 @@ export const ICRC_1_INDEX_TOKENS: ListedTokenSymbol[] = [
 export const ICP_INDEX_TOKENS: ListedTokenSymbol[] = ["ICP", "OGY"];
 export const ICRC_2_TOKENS: ListedTokenSymbol[] = ["ICP", "ckBTC", "ckETH"];
 
+export const ICP_INDEX_TOKEN_IDX = ["ryjl3-tyaaa-aaaaa-aaaba-cai", "jwcfb-hyaaa-aaaaj-aac4q-cai"];
+
 export const DISCORD_LINK = "https://discord.gg/RMxyF5Huhs";
 export const DISCORD_ERROR_LINK = "https://discord.gg/RMxyF5Huhs";
 // export const METAMASK_LINK = "https://metamask.io/download/";

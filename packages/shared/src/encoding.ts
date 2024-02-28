@@ -1,4 +1,7 @@
+import { Principal } from "@dfinity/principal";
 import { Encoder } from "cbor-x";
+import { Crc32 } from "@aws-crypto/crc32";
+import jsSHA from "jssha";
 
 export { Principal } from "@dfinity/principal";
 
@@ -83,6 +86,56 @@ export function fromCBOR<T>(hex: string): T {
 }
 
 /**
+ * ## Encodes bigint as bytes (le)
+ *
+ * @param n
+ * @returns
+ */
+export const bigIntToBytes = (n: bigint): Uint8Array => {
+  let result = new Uint8Array(32);
+  let i = 0;
+  while (n > 0n) {
+    result[i] = Number(n % 256n);
+    n = n / 256n;
+    i += 1;
+  }
+  return result;
+};
+
+/**
+ * ## Decodes a bigint from bytes (le)
+ *
+ * @param bytes
+ * @returns
+ */
+export const bytesToBigInt = (bytes: Uint8Array): bigint => {
+  let result = 0n;
+  let base = 1n;
+  for (let byte of bytes) {
+    result = result + base * BigInt(byte);
+    base = base * 256n;
+  }
+  return result;
+};
+
+/**
+ * Encodes 4-byte number into bytes (le)
+ *
+ * @param n
+ * @returns
+ */
+const crcToBytes = (n: number): Uint8Array => {
+  let result = new Uint8Array(4);
+  let i = 0;
+  while (n > 0) {
+    result[i] = n % 256;
+    n = n / 256;
+    i += 1;
+  }
+  return result;
+};
+
+/**
  * Pretty-prints a JSON representation of the object, handling the bigint case
  *
  * @param obj
@@ -91,7 +144,7 @@ export function fromCBOR<T>(hex: string): T {
 export function debugStringify(obj: unknown): string {
   return JSON.stringify(
     obj,
-    (key, value) => {
+    (_, value) => {
       if (typeof value === "bigint") {
         return value.toString();
       } else if (value instanceof Error) {

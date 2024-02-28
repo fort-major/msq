@@ -42,6 +42,15 @@ export function ErrorMobileNotSupportedPage() {
 }
 
 export function ErrorMSQConnectionRejectedPage() {
+  const navigate = useNavigate();
+  const msq = useMsqClient();
+
+  createEffect(() => {
+    if (msq()) {
+      navigate("/", { replace: true });
+    }
+  });
+
   return (
     <ErrorPage
       header="Oops!"
@@ -80,6 +89,15 @@ export function ErrorInstallMetaMaskPage() {
 }
 
 export function ErrorUnblockMsqPage() {
+  const navigate = useNavigate();
+  const msq = useMsqClient();
+
+  createEffect(() => {
+    if (msq()) {
+      navigate("/", { replace: true });
+    }
+  });
+
   return (
     <ErrorPage
       header="MSQ Snap is blocked by MetaMask"

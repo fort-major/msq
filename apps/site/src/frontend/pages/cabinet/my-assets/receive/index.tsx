@@ -4,19 +4,18 @@ import {
   BAR_HEIGHT,
   COLOR_ACCENT,
   COLOR_BLACK,
-  COLOR_BLUE,
   COLOR_GRAY_108,
   COLOR_GRAY_140,
   COLOR_GRAY_150,
   COLOR_WHITE,
   HEADER_HEIGHT,
 } from "../../../../ui-kit";
-import { Portal } from "solid-js/web";
 import { EIconKind, Icon } from "../../../../ui-kit/icon";
 import { H5, Text } from "../../../../ui-kit/typography";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { Show, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import { createPaymentLink } from "../../../../utils";
+import { Modal } from "../../../../components/modal";
 
 export interface IReceivePopupProps {
   assetId: string;
@@ -54,111 +53,95 @@ export function ReceivePopup(props: IReceivePopupProps) {
   onCleanup(() => (document.body.style.overflow = "auto"));
 
   return (
-    <Portal mount={document.getElementById("portal")!}>
-      <ReceivePopupBg>
-        <ReceivePopupContainer>
-          <ReceivePopupWrapper>
-            <Icon kind={EIconKind.Close} onClick={props.onClose} classList={{ [CloseIcon]: true }} />
-            <H5>Receive {props.symbol}</H5>
-            <QR ref={handleRenderQR} />
-            <DataWrapper>
-              <DataItem>
-                <Text size={12} weight={500} color={COLOR_GRAY_140}>
-                  MSQ payment link
+    <Modal>
+      <ReceivePopupContainer>
+        <ReceivePopupWrapper>
+          <Icon kind={EIconKind.Close} onClick={props.onClose} classList={{ [CloseIcon]: true }} />
+          <H5>Receive {props.symbol}</H5>
+          <QR ref={handleRenderQR} />
+          <DataWrapper>
+            <DataItem>
+              <Text size={12} weight={500} color={COLOR_GRAY_140}>
+                MSQ payment link
+              </Text>
+              <DataItemContent>
+                <Text size={12} weight={600} class={DataItemContentText}>
+                  {paymentLink().toString()}
                 </Text>
-                <DataItemContent>
-                  <Text size={12} weight={600} class={DataItemContentText}>
-                    {paymentLink().toString()}
-                  </Text>
-                  <Show
-                    when={linkCopied()}
-                    fallback={
-                      <Icon kind={EIconKind.Copy} size={14} onClick={handleCopyLink} classList={{ [CopyIcon]: true }} />
-                    }
-                  >
-                    <Icon
-                      kind={EIconKind.Check}
-                      size={14}
-                      onClick={handleCopyLink}
-                      classList={{ [CopyIcon]: true }}
-                      color={COLOR_ACCENT}
-                    />
-                  </Show>
-                </DataItemContent>
-              </DataItem>
-              <DataItem>
-                <Text size={12} weight={500} color={COLOR_GRAY_140}>
-                  Principal ID
+                <Show
+                  when={linkCopied()}
+                  fallback={
+                    <Icon kind={EIconKind.Copy} size={14} onClick={handleCopyLink} classList={{ [CopyIcon]: true }} />
+                  }
+                >
+                  <Icon
+                    kind={EIconKind.Check}
+                    size={14}
+                    onClick={handleCopyLink}
+                    classList={{ [CopyIcon]: true }}
+                    color={COLOR_ACCENT}
+                  />
+                </Show>
+              </DataItemContent>
+            </DataItem>
+            <DataItem>
+              <Text size={12} weight={500} color={COLOR_GRAY_140}>
+                Principal ID
+              </Text>
+              <DataItemContent>
+                <Text size={12} weight={600} class={DataItemContentText}>
+                  {props.principal}
                 </Text>
-                <DataItemContent>
-                  <Text size={12} weight={600} class={DataItemContentText}>
-                    {props.principal}
-                  </Text>
-                  <Show
-                    when={principalCopied()}
-                    fallback={
-                      <Icon
-                        kind={EIconKind.Copy}
-                        size={14}
-                        onClick={handleCopyPrincipal}
-                        classList={{ [CopyIcon]: true }}
-                      />
-                    }
-                  >
+                <Show
+                  when={principalCopied()}
+                  fallback={
                     <Icon
-                      kind={EIconKind.Check}
+                      kind={EIconKind.Copy}
                       size={14}
                       onClick={handleCopyPrincipal}
                       classList={{ [CopyIcon]: true }}
-                      color={COLOR_ACCENT}
                     />
-                  </Show>
-                </DataItemContent>
-              </DataItem>
-              <DataItem>
-                <Text size={12} weight={500} color={COLOR_GRAY_140}>
-                  Subaccount
+                  }
+                >
+                  <Icon
+                    kind={EIconKind.Check}
+                    size={14}
+                    onClick={handleCopyPrincipal}
+                    classList={{ [CopyIcon]: true }}
+                    color={COLOR_ACCENT}
+                  />
+                </Show>
+              </DataItemContent>
+            </DataItem>
+            <DataItem>
+              <Text size={12} weight={500} color={COLOR_GRAY_140}>
+                Subaccount
+              </Text>
+              <DataItemContent>
+                <Text size={16} weight={600} class={DataItemContentText}>
+                  Default Subaccount
                 </Text>
-                <DataItemContent>
-                  <Text size={16} weight={600} class={DataItemContentText}>
-                    Default Subaccount
-                  </Text>
-                </DataItemContent>
-              </DataItem>
-            </DataWrapper>
-            <Button
-              label="done"
-              kind={EButtonKind.Primary}
-              text="Done"
-              classList={{ [DoneBtn]: true }}
-              onClick={props.onClose}
-            />
-          </ReceivePopupWrapper>
-        </ReceivePopupContainer>
-      </ReceivePopupBg>
-    </Portal>
+              </DataItemContent>
+            </DataItem>
+          </DataWrapper>
+          <Button
+            label="done"
+            kind={EButtonKind.Primary}
+            text="Done"
+            classList={{ [DoneBtn]: true }}
+            onClick={props.onClose}
+          />
+        </ReceivePopupWrapper>
+      </ReceivePopupContainer>
+    </Modal>
   );
 }
 
-const ReceivePopupBg = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 9;
-
-  overflow: auto;
-
-  background-color: rgba(10, 10, 20, 0.8);
-`;
-
 const ReceivePopupContainer = styled.div`
-  position: absolute;
-  left: 0;
-  right: 0;
+  position: relative;
+  align-self: center;
+  margin: 0 auto;
   width: 430px;
-  margin: ${(BAR_HEIGHT + HEADER_HEIGHT + 20).toString()}px auto;
 `;
 
 const ReceivePopupWrapper = styled.div`

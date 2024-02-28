@@ -33,6 +33,7 @@ import {
 } from "./pages/error";
 import { UrlBasedPaymentPage } from "./pages/integration/payment/url-payment";
 import { ICRC35Page } from "./pages/icrc35";
+import { TxnHistoryPage } from "./pages/cabinet/my-assets/txn-history";
 
 const root = document.getElementById("root");
 
@@ -90,6 +91,7 @@ export function App() {
                       <Route path="/my-assets">
                         <Route path="/" component={MyAssetsPage} />
                         <Route path="/send" component={SendPage} />
+                        <Route path="/history" component={TxnHistoryPage} />
                       </Route>
                     </Route>
                     <Route path="/statistics" component={StatisticsPage} />

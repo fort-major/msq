@@ -1,7 +1,7 @@
 import { AddNewMaskBtnIconWrapper, AddNewMaskBtnText, AddNewMaskBtnWrapper } from "./style";
 import { eventHandler } from "../../utils";
 import { EIconKind, Icon } from "../../ui-kit/icon";
-import { Text, Weight600 } from "../../ui-kit/typography";
+import { Text, WeightSemiBold } from "../../ui-kit/typography";
 
 export interface IAddNewMaskBtnProps {
   onClick: () => void;

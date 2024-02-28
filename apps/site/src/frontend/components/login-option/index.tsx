@@ -5,7 +5,7 @@ import { Show, createSignal } from "solid-js";
 import { eventHandler } from "../../utils";
 import { Input } from "../../ui-kit/input";
 import { EIconKind, Icon } from "../../ui-kit/icon";
-import { ColorGray140, Size12, Size16, Text, Weight600 } from "../../ui-kit/typography";
+import { ColorGray140, Size12, Size16, Text, WeightSemiBold } from "../../ui-kit/typography";
 import { COLOR_GRAY_140 } from "../../ui-kit";
 
 export interface ILoginOptionProps {

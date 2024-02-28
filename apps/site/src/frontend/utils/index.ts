@@ -5,6 +5,7 @@ import {
   ErrorCode,
   IStatistics,
   PRE_LISTED_TOKENS,
+  Principal,
   TAccountId,
   debugStringify,
   err,
@@ -77,16 +78,18 @@ export interface IChildren {
   children: JSXElement;
 }
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 export function timestampToStr(timestampMs: number) {
   const date = new Date(timestampMs);
   const day = date.getDate().toString().padStart(2, "0");
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const month = MONTHS[date.getMonth()];
   const year = date.getFullYear().toString();
 
   const hours = date.getHours().toString().padStart(2, "0");
   const minutes = date.getMinutes().toString().padStart(2, "0");
 
-  return `${day}.${month}.${year} ${hours}:${minutes}`;
+  return `${day} ${month} ${year}, ${hours}:${minutes}`;
 }
 
 export async function makeAgent(identity?: Identity | undefined, host?: string): Promise<Agent> {
@@ -281,6 +284,55 @@ export function createPaymentLink(
   }
 
   return baseUrl;
+}
+
+// left: 37, up: 38, right: 39, down: 40,
+// spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
+const keys = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " ", "PageUp", "PageDown", "End", "Home"]);
+
+function preventDefault(e: Event) {
+  e.preventDefault();
+}
+
+function preventDefaultForScrollKeys(e: KeyboardEvent) {
+  if (keys.has(e.key)) {
+    preventDefault(e);
+    return false;
+  }
+}
+
+// modern Chrome requires { passive: false } when adding event
+var supportsPassive = false;
+try {
+  // @ts-expect-error
+  window.addEventListener(
+    "test",
+    null,
+    Object.defineProperty({}, "passive", {
+      get: function () {
+        supportsPassive = true;
+      },
+    }),
+  );
+} catch (e) {}
+
+const wheelOpt = supportsPassive ? { passive: false } : false;
+const wheelEvent = "onwheel" in document.createElement("div") ? "wheel" : "mousewheel";
+
+export function disableScroll() {
+  window.addEventListener("DOMMouseScroll", preventDefault, false); // older FF
+  window.addEventListener(wheelEvent, preventDefault, wheelOpt); // modern desktop
+  window.addEventListener("touchmove", preventDefault, wheelOpt); // mobile
+  window.addEventListener("keydown", preventDefaultForScrollKeys, false);
+}
+
+export function enableScroll() {
+  window.removeEventListener("DOMMouseScroll", preventDefault, false);
+  // @ts-expect-error
+  window.removeEventListener(wheelEvent, preventDefault, wheelOpt);
+  // @ts-expect-error
+  window.removeEventListener("touchmove", preventDefault, wheelOpt);
+  window.removeEventListener("keydown", preventDefaultForScrollKeys, false);
 }
 
 // ---------- SECURITY RELATED STUFF ------------
