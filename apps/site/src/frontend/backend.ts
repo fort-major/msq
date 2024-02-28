@@ -145,14 +145,3 @@ export async function getTransactionHistory(args: {
 
   return convertTxns(accountId, txns);
 }
-
-// TODO: make build and deploy tasks more specialized
-
-// TODO; ICRC-35 examples - use same example flow, then point out that the icrc-35 code for it is the same, so it can be encapsulated as a substandard
-// 1. partial sharing of valuable data
-// 2. Web3 -> Web2
-// 3. onchain deployed -> locally deployed
-// 4. web -> mobile
-// 5. nfid -> login/password
-// 6. any -> private API
-// 7. any -> any -> any (sequence)
