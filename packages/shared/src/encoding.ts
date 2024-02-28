@@ -135,26 +135,6 @@ const crcToBytes = (n: number): Uint8Array => {
   return result;
 };
 
-const ACCOUNT_DOMAIN_SEPERATOR = strToBytes("\x0Aaccount-id");
-
-export const principalSubaccountToAccountId = async (
-  p: Principal,
-  s: Uint8Array | number[] = new Uint8Array(32),
-): Promise<Uint8Array> => {
-  const subaccount = s.length > 0 ? new Uint8Array(s[0]!) : bigIntToBytes(0n);
-
-  const hasher = new jsSHA("SHA-224", "UINT8ARRAY");
-  const hash = hasher
-    .update(ACCOUNT_DOMAIN_SEPERATOR)
-    .update(p.toUint8Array())
-    .update(subaccount)
-    .getHash("UINT8ARRAY");
-
-  const crc = crcToBytes(new Crc32().update(hash).digest());
-
-  return new Uint8Array([...crc, ...hash]);
-};
-
 /**
  * Pretty-prints a JSON representation of the object, handling the bigint case
  *

@@ -17,7 +17,7 @@ export function Modal(props: { children: JSXElement }) {
 }
 
 const ModalBg = styled.div`
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;

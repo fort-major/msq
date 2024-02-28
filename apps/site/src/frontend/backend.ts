@@ -5,8 +5,8 @@ import { Actor, ActorSubclass, Agent } from "@dfinity/agent";
 export type { _SERVICE as StatisticsBackend } from "../declarations/msq_statistics/msq_statistics.did";
 import type { _SERVICE as StatisticsBackend } from "../declarations/msq_statistics/msq_statistics.did";
 import { Principal } from "@dfinity/principal";
-import { bytesToHex, delay, principalSubaccountToAccountId } from "@fort-major/msq-shared";
-import { timestampToStr } from "./utils";
+import { ICP_INDEX_TOKENS, ICP_INDEX_TOKEN_IDX, bytesToHex } from "@fort-major/msq-shared";
+import { AccountIdentifier } from "@dfinity/ledger-icp";
 
 export const canisterId = import.meta.env.VITE_CANISTER_ID_MSQ_STATISTICS;
 
@@ -126,10 +126,7 @@ export async function getTransactionHistory(args: {
   skip?: bigint;
   take?: number;
 }): Promise<Txn[]> {
-  await delay(1000);
-  return mockTxns.filter((_, idx) => (args.take ? idx < args.take : true));
-
-  /*   if (typeof args.accountPrincipalId === "string")
+  if (typeof args.accountPrincipalId === "string")
     args.accountPrincipalId = Principal.fromText(args.accountPrincipalId);
   if (typeof args.tokenId !== "string") args.tokenId = args.tokenId.toText();
   if (args.skip === undefined) args.skip = 0n;
@@ -142,7 +139,20 @@ export async function getTransactionHistory(args: {
 
   const txns: TxnExternal[] = await response.json();
 
-  const accountId = bytesToHex(await principalSubaccountToAccountId(args.accountPrincipalId));
+  const accountId = ICP_INDEX_TOKEN_IDX.includes(args.tokenId)
+    ? AccountIdentifier.fromPrincipal({ principal: args.accountPrincipalId }).toHex()
+    : `${args.accountPrincipalId.toText()}:${bytesToHex(new Uint8Array(32))}`;
 
-  return convertTxns(accountId, txns); */
+  return convertTxns(accountId, txns);
 }
+
+// TODO: make build and deploy tasks more specialized
+
+// TODO; ICRC-35 examples - use same example flow, then point out that the icrc-35 code for it is the same, so it can be encapsulated as a substandard
+// 1. partial sharing of valuable data
+// 2. Web3 -> Web2
+// 3. onchain deployed -> locally deployed
+// 4. web -> mobile
+// 5. nfid -> login/password
+// 6. any -> private API
+// 7. any -> any -> any (sequence)

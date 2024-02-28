@@ -14,22 +14,43 @@
                 "dist/**"
             ]
         },
-        "prod:pub": {
+        "prod:build:libs": {
+            "cache": false,
             "dependsOn": [
-                "^prod:pub"
+                "^prod:build:libs"
+            ],
+            "outputs": [
+                "dist/**"
+            ]
+        },
+        "prod:build:apps": {
+            "cache": false,
+            "dependsOn": [
+                "^prod:build:apps"
+            ],
+            "outputs": [
+                "dist/**"
             ]
         },
         "prod:deploy": {
             "cache": false
         },
-        "prod:deployFE": {
+        "prod:deploy:frontend": {
             "cache": false
         },
-        "prod:deployBE": {
+        "prod:deploy:landing": {
+            "cache": false
+        },
+        "prod:deploy:site": {
+            "cache": false
+        },
+        "prod:deploy:demo": {
+            "cache": false
+        },
+        "prod:deploy:backend": {
             "cache": false
         },
         "dev:build": {
-            "cache": false,
             "dependsOn": [
                 "^dev:build"
             ],
@@ -37,23 +58,47 @@
                 "dist/**"
             ]
         },
+        "dev:build:libs": {
+            "dependsOn": [
+                "^dev:build:libs"
+            ],
+            "outputs": [
+                "dist/**"
+            ]
+        },
+        "dev:build:apps": {
+            "dependsOn": [
+                "^dev:build:apps"
+            ],
+            "outputs": [
+                "dist/**"
+            ]
+        },
         "dev": {
-            "cache": false,
             "persistent": true
         },
         "dev:deploy": {
             "cache": false
         },
-        "dev:deployFE": {
+        "dev:deploy:frontend": {
             "cache": false
         },
-        "dev:deployBE": {
+        "dev:deploy:landing": {
+            "cache": false
+        },
+        "dev:deploy:site": {
+            "cache": false
+        },
+        "dev:deploy:demo": {
+            "cache": false
+        },
+        "dev:deploy:backend": {
             "cache": false
         },
         "dev:gen": {
             "cache": false
         },
-        "dev:runSnap": {},
+        "dev:run:snap": {},
         "test": {
             "cache": false
         },

@@ -60,8 +60,8 @@ export function TxnHistoryPage() {
     setLoading(true);
 
     getTransactionHistory({
-      tokenId: "",
-      accountPrincipalId: "",
+      tokenId: props()!.tokenId,
+      accountPrincipalId: props()!.accountPrincipalId,
       skip: BigInt(history()?.length ?? 0),
       take: PAGE_SIZE,
     }).then((txns) => {

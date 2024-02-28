@@ -1,6 +1,6 @@
 {
   "name": "@fort-major/msq-shared",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "main": "./dist/cjs/index",
   "module": "./dist/esm/index",
   "unpkg": "./dist/esm/index",
@@ -8,8 +8,10 @@
   "license": "MIT",
   "scripts": {
     "prod:build": "tsc && tsc -p tsconfig.cjs.json",
-    "prod:pub": "npm publish",
+    "prod:build:libs": "pnpm run prod:build",
     "dev:build": "tsc && tsc -p tsconfig.cjs.json",
+    "dev:build:libs": "pnpm run dev:build",
+    "pub": "npm publish",
     "lint": "eslint --fix src --ext .ts --ext .tsx",
     "format": "pnpm exec prettier src/**/*.{ts,tsx} --write",
     "doc": "typedoc src/**/*.{ts,tsx}"

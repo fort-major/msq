@@ -68,7 +68,6 @@ export function MyAssetsPage() {
       }
 
       const agent = await makeAnonymousAgent();
-      // @ts-expect-error - types are okay here
       const ledger = IcrcLedgerCanister.create({ agent, canisterId: principal });
 
       const metadata = await getAssetMetadata(ledger, false);
