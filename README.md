@@ -2,7 +2,7 @@
 
 Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
-*[Join Our Discord](https://discord.gg/N7kUfMfvA8)*
+*[Join Our Discord](https://discord.gg/RMxyF5Huhs)*
 
 ## Documentation
 
