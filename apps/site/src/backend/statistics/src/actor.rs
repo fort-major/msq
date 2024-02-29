@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use candid::{CandidType, Deserialize, Nat};
+use candid::{CandidType, Deserialize};
 use ic_cdk::{
     api::time,
     init, post_upgrade, pre_upgrade, query,
@@ -9,63 +9,26 @@ use ic_cdk::{
 };
 
 #[derive(Clone, CandidType, Deserialize)]
-struct ICRC1Statistics {
-    pub ICP: Nat,
-    pub ckBTC: Nat,
-    pub ckETH: Nat,
-    pub CHAT: Nat,
-    pub SONIC: Nat,
-    pub SNS1: Nat,
-    pub OGY: Nat,
-    pub MOD: Nat,
-    pub GHOST: Nat,
-    pub KINIC: Nat,
-    pub HOT: Nat,
-    pub CAT: Nat,
+struct Data {
+    pub login: u32,
+    pub transfer: u32,
+    pub origin_link: u32,
+    pub origin_unlink: u32,
 }
 
-impl ICRC1Statistics {
-    fn merge(&mut self, other: ICRC1Statistics) {
-        self.ICP += other.ICP;
-        self.ckBTC += other.ckBTC;
-        self.ckETH += other.ckETH;
-        self.CHAT += other.CHAT;
-        self.SONIC += other.SONIC;
-        self.SNS1 += other.SNS1;
-        self.OGY += other.OGY;
-        self.MOD += other.MOD;
-        self.GHOST += other.GHOST;
-        self.KINIC += other.KINIC;
-        self.HOT += other.HOT;
-        self.CAT += other.CAT;
-    }
-}
-
-#[derive(Clone, CandidType, Deserialize)]
-struct ProdStatistics {
-    pub masks_created: u32,
-    pub signatures_produced: u32,
-    pub icrc1_accounts_created: u32,
-    pub icrc1_sent: ICRC1Statistics,
-    pub origins_linked: u32,
-    pub origins_unlinked: u32,
-}
-
-impl ProdStatistics {
-    fn merge(&mut self, other: ProdStatistics) {
-        self.masks_created += other.masks_created;
-        self.signatures_produced += other.signatures_produced;
-        self.origins_linked += other.origins_linked;
-        self.origins_unlinked += other.origins_unlinked;
-        self.icrc1_accounts_created += other.icrc1_accounts_created;
-        self.icrc1_sent.merge(other.icrc1_sent);
+impl Data {
+    fn merge(&mut self, other: Data) {
+        self.login += other.login;
+        self.transfer += other.transfer;
+        self.origin_link += other.origin_link;
+        self.origin_unlink += other.origin_unlink;
     }
 }
 
 #[derive(Clone, CandidType, Deserialize)]
 struct Statistics {
     pub timestamp: u64,
-    pub prod: ProdStatistics,
+    pub data: Data,
 }
 
 #[derive(Default, CandidType, Deserialize)]
@@ -80,14 +43,14 @@ thread_local! {
 const ONE_DAY: u64 = 1_000_000_000 * 60 * 60 * 24;
 
 #[update]
-fn increment_stats(prod: ProdStatistics) {
+fn increment_stats(data: Data) {
     STATE.with(|s| {
         let current_timestamp = time();
         let mut state = s.borrow_mut();
 
         if state.statistics.is_empty() {
             let stats = Statistics {
-                prod,
+                data,
                 timestamp: current_timestamp,
             };
 
@@ -100,13 +63,13 @@ fn increment_stats(prod: ProdStatistics) {
 
         if current_timestamp - last_entry.timestamp >= ONE_DAY {
             let stats = Statistics {
-                prod,
+                data,
                 timestamp: current_timestamp,
             };
 
             state.statistics.push(stats);
         } else {
-            last_entry.prod.merge(prod);
+            last_entry.data.merge(data);
         }
     });
 }

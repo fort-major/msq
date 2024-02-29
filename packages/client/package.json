@@ -1,6 +1,11 @@
 {
   "name": "@fort-major/msq-client",
-  "version": "0.2.9",
+  "//": [
+    "When bumping the version of this package, don't forget to update the current latest version of the snap used",
+    "It is done in src/index.ts:1",
+    "Just set SNAP_VERSION to the actual one"
+  ],
+  "version": "0.2.11",
   "main": "./dist/cjs/index",
   "module": "./dist/esm/index",
   "unpkg": "./dist/esm/index",

@@ -1,4 +1,11 @@
-import { type IStatistics } from "@fort-major/msq-shared";
+import {
+  IStatisticsData,
+  type IStatistics,
+  ZStatisticsData,
+  zodParse,
+  fromCBOR,
+  ZStatisticsIncrementRequest,
+} from "@fort-major/msq-shared";
 import { StateManager } from "../state";
 
 /**
@@ -13,6 +20,25 @@ export async function protected_handleStatisticsGet(): Promise<IStatistics> {
   const manager = await StateManager.make();
 
   return manager.getStats();
+}
+
+/**
+ * ## Increment one of the statistics topics
+ *
+ * @param
+ * @returns - {@link IStatistics}
+ *
+ * @category Protected
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export async function protected_handleStatisticsIncrement(bodyCBOR: string): Promise<true> {
+  const { data } = zodParse(ZStatisticsIncrementRequest, fromCBOR(bodyCBOR));
+
+  const manager = await StateManager.make();
+
+  manager.incrementStats(data);
+
+  return true;
 }
 
 /**

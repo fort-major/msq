@@ -69,6 +69,14 @@ export const ZOriginDataExternal = z.object({
   currentSession: z.optional(ZSession),
 });
 
+export const ZStatisticsData = z.object({
+  login: z.number().nonnegative(),
+  transfer: z.number().nonnegative(),
+  origin_link: z.number().nonnegative(),
+  origin_unlink: z.number().nonnegative(),
+});
+export type IStatisticsData = z.infer<typeof ZStatisticsData>;
+
 /**
  * Anonimized and squashed activities the user does with MSQ
  */
@@ -77,37 +85,8 @@ export const ZStatistics = z.object({
   /** when was the last time the user sent the stats to the server */
   lastResetTimestamp: z.number().nonnegative(),
   /** how many activities were performed in any production environment by each activity type */
-  prod: z.object({
-    masks_created: z.number().nonnegative(),
-    signatures_produced: z.number().nonnegative(),
-    icrc1_accounts_created: z.number().nonnegative(),
-    icrc1_sent: z.object({
-      ICP: z.bigint().nonnegative(),
-      ckBTC: z.bigint().nonnegative(),
-      ckETH: z.bigint().nonnegative(),
-      CHAT: z.bigint().nonnegative(),
-      SONIC: z.bigint().nonnegative(),
-      SNS1: z.bigint().nonnegative(),
-      OGY: z.bigint().nonnegative(),
-      MOD: z.bigint().nonnegative(),
-      GHOST: z.bigint().nonnegative(),
-      KINIC: z.bigint().nonnegative(),
-      HOT: z.bigint().nonnegative(),
-      CAT: z.bigint().nonnegative(),
-    }),
-    origins_linked: z.number().nonnegative(),
-    origins_unlinked: z.number().nonnegative(),
-  }),
+  data: ZStatisticsData,
 });
-
-export enum EStatisticsKind {
-  MasksCreated,
-  SignaturesProduced,
-  OriginsLinked,
-  OriginsUnlinked,
-  Icrc1AccountsCreated,
-  Icrc1Sent,
-}
 
 export type IAssetData = z.infer<typeof ZAssetData>;
 export const ZAssetData = z.object({
@@ -216,6 +195,11 @@ export const ZIdentityUnlinkAllRequest = z.object({
   origin: ZOrigin,
 });
 export type IIdentityUnlinkAllRequest = z.infer<typeof ZIdentityUnlinkAllRequest>;
+
+// ----------- STATISTICS PROTOCOL RELATED TYPES --------
+
+export const ZStatisticsIncrementRequest = z.object({ data: ZStatisticsData.partial() });
+export type IStatisticsIncrementRequest = z.infer<typeof ZStatisticsIncrementRequest>;
 
 // ----------- STATE PROTOCOL RELATED TYPES -------------
 

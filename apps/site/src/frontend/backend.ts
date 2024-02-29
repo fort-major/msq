@@ -5,7 +5,7 @@ import { Actor, ActorSubclass, Agent } from "@dfinity/agent";
 export type { _SERVICE as StatisticsBackend } from "../declarations/msq_statistics/msq_statistics.did";
 import type { _SERVICE as StatisticsBackend } from "../declarations/msq_statistics/msq_statistics.did";
 import { Principal } from "@dfinity/principal";
-import { ICP_INDEX_TOKENS, ICP_INDEX_TOKEN_IDX, bytesToHex } from "@fort-major/msq-shared";
+import { ICP_INDEX_TOKEN_IDX, bytesToHex } from "@fort-major/msq-shared";
 import { AccountIdentifier } from "@dfinity/ledger-icp";
 
 export const canisterId = import.meta.env.VITE_CANISTER_ID_MSQ_STATISTICS;
@@ -13,8 +13,6 @@ export const canisterId = import.meta.env.VITE_CANISTER_ID_MSQ_STATISTICS;
 export function createStatisticsBackendActor(agent: Agent): ActorSubclass<StatisticsBackend> {
   return Actor.createActor(idlFactory, { agent, canisterId });
 }
-
-// TXN HISTORY API BACKEND
 
 export type Hex = string;
 // text encoded bigint

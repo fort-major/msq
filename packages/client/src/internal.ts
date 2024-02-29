@@ -22,6 +22,8 @@ import {
   IStateGetAllAssetDataRequest,
   IStateGetAllOriginDataRequest,
   unreacheable,
+  IStatisticsData,
+  IStatisticsIncrementRequest,
 } from "@fort-major/msq-shared";
 import { MsqClient } from "./client";
 
@@ -30,14 +32,18 @@ export class InternalSnapClient {
     return new InternalSnapClient(client);
   }
 
-  getInner(): MsqClient {
+  private checkInnerSet(): asserts this is { inner: MsqClient } {
     if (!this.inner) unreacheable("Don't use uninitialized client");
+  }
+
+  getInner(): MsqClient {
+    this.checkInnerSet();
 
     return this.inner;
   }
 
   async register(toOrigin: TOrigin): Promise<IMask | null> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     const body: IIdentityAddRequest = { toOrigin };
 
@@ -49,7 +55,7 @@ export class InternalSnapClient {
     withIdentityId: TIdentityId,
     withDeriviationOrigin: TOrigin = toOrigin,
   ): Promise<true> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     const body: IIdentityLoginRequest = {
       toOrigin,
@@ -61,7 +67,7 @@ export class InternalSnapClient {
   }
 
   async getLoginOptions(forOrigin: TOrigin): Promise<IIdentityGetLoginOptionsResponse> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     const body: IIdentityGetLoginOptionsRequest = { forOrigin };
 
@@ -69,7 +75,7 @@ export class InternalSnapClient {
   }
 
   async getAllOriginData(origins?: string[]): Promise<IStateGetAllOriginDataResponse> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     const body: IStateGetAllOriginDataRequest = { origins };
 
@@ -77,7 +83,7 @@ export class InternalSnapClient {
   }
 
   async getAllAssetData(assetIds?: string[]): Promise<IStateGetAllAssetDataResponse> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     const body: IStateGetAllAssetDataRequest = { assetIds };
 
@@ -85,13 +91,13 @@ export class InternalSnapClient {
   }
 
   async addAsset(req: IICRC1AddAssetRequest): Promise<IAssetDataExternal[] | null> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAsset, req);
   }
 
   async addAssetAccount(assetId: string, assetName: string, assetSymbol: string): Promise<string | null> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     const body: IICRC1AddAssetAccountRequest = { assetId, name: assetName, symbol: assetSymbol };
 
@@ -99,7 +105,7 @@ export class InternalSnapClient {
   }
 
   async editAssetAccount(assetId: string, accountId: number, newName: string): Promise<void> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     const body: IICRC1EditAssetAccountRequest = { assetId, accountId, newName };
 
@@ -107,7 +113,7 @@ export class InternalSnapClient {
   }
 
   async editPseudonym(origin: TOrigin, identityId: TIdentityId, newPseudonym: string): Promise<void> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     const body: IIdentityEditPseudonymRequest = {
       origin,
@@ -119,7 +125,7 @@ export class InternalSnapClient {
   }
 
   async stopSession(origin: TOrigin): Promise<boolean> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     const body: IIdentityStopSessionRequest = {
       origin,
@@ -129,7 +135,7 @@ export class InternalSnapClient {
   }
 
   async unlinkOne(origin: TOrigin, withOrigin: TOrigin): Promise<boolean> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     const body: IIdentityUnlinkOneRequest = {
       origin,
@@ -140,7 +146,7 @@ export class InternalSnapClient {
   }
 
   async unlinkAll(origin: TOrigin): Promise<boolean> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     const body: IIdentityUnlinkAllRequest = {
       origin,
@@ -150,19 +156,29 @@ export class InternalSnapClient {
   }
 
   async showICRC1TransferConfirm(body: IShowICRC1TransferConfirmRequest): Promise<boolean> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.showTransferConfirm, body);
   }
 
   async getStats(): Promise<IStatistics> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.statistics.get);
   }
 
+  async incrementStats(stats: Partial<IStatisticsData>): Promise<true> {
+    this.checkInnerSet();
+
+    const body: IStatisticsIncrementRequest = {
+      data: stats,
+    };
+
+    return await this.inner._requestSnap(SNAP_METHODS.protected.statistics.get, body);
+  }
+
   async resetStats(): Promise<true> {
-    if (!this.inner) unreacheable("Don't use uninitialized client");
+    this.checkInnerSet();
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.statistics.reset);
   }

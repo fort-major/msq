@@ -32,6 +32,7 @@ export const SNAP_METHODS = {
     },
     statistics: {
       get: "protected_statistics_get",
+      increment: "protected_statistics_increment",
       reset: "protected_statistics_reset",
     },
     state: {
@@ -189,9 +190,49 @@ export const PRE_LISTED_TOKENS: Record<
     assetId: "uf2wh-taaaa-aaaaq-aabna-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
   },
+  "vtrom-gqaaa-aaaaq-aabia-cai": {
+    name: "BOOM DAO",
+    assetId: "vtrom-gqaaa-aaaaq-aabia-cai",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/xjngq-yaaaa-aaaaq-aabha-cai/logo.png",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+  },
+  "tyyy3-4aaaa-aaaaq-aab7a-cai": {
+    name: "GOLD DAO",
+    assetId: "tyyy3-4aaaa-aaaaq-aab7a-cai",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/tw2vt-hqaaa-aaaaq-aab6a-cai/logo.png",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+  },
+  "rffwt-piaaa-aaaaq-aabqq-cai": {
+    name: "ICX",
+    assetId: "rffwt-piaaa-aaaaq-aabqq-cai",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/u67kc-jyaaa-aaaaq-aabpq-cai/logo.png",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+  },
+  "f54if-eqaaa-aaaaq-aacea-cai": {
+    name: "Neutrinite",
+    assetId: "f54if-eqaaa-aaaaq-aacea-cai",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/extk7-gaaaa-aaaaq-aacda-cai/logo.png",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+  },
+  "rxdbk-dyaaa-aaaaq-aabtq-cai": {
+    name: "Nuance",
+    assetId: "rxdbk-dyaaa-aaaaq-aabtq-cai",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/rzbmc-yiaaa-aaaaq-aabsq-cai/logo.png",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+  },
+  "hvgxa-wqaaa-aaaaq-aacia-cai": {
+    name: "Sneed",
+    assetId: "hvgxa-wqaaa-aaaaq-aacia-cai",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/fp274-iaaaa-aaaaq-aacha-cai/logo.png",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+  },
+  "emww2-4yaaa-aaaaq-aacbq-cai": {
+    name: "TRAX",
+    assetId: "emww2-4yaaa-aaaaq-aacbq-cai",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/ecu3s-hiaaa-aaaaq-aacaq-cai/logo.png",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+  },
 };
-
-type ListedTokenSymbol = keyof typeof PRE_LISTED_TOKENS;
 
 export function calculateMSQFee(assetId: string, amount: bigint): [bigint, string | undefined] {
   const entry = Object.values(PRE_LISTED_TOKENS).find(({ assetId: id }) => id === assetId);
@@ -205,37 +246,8 @@ export function calculateMSQFee(assetId: string, amount: bigint): [bigint, strin
   return [msqFee, chargingAccountId];
 }
 
-export const ICRC_1_TOKENS: ListedTokenSymbol[] = [
-  "ICP",
-  "ckBTC",
-  "ckETH",
-  "CHAT",
-  "SONIC",
-  "SNS1",
-  "MOD",
-  "GHOST",
-  "KINIC",
-  "HOT",
-  "CAT",
-];
-export const ICRC_1_INDEX_TOKENS: ListedTokenSymbol[] = [
-  "ckBTC",
-  "ckETH",
-  "CHAT",
-  "SONIC",
-  "SNS1",
-  "MOD",
-  "GHOST",
-  "KINIC",
-  "HOT",
-  "CAT",
-];
-export const ICP_INDEX_TOKENS: ListedTokenSymbol[] = ["ICP", "OGY"];
-export const ICRC_2_TOKENS: ListedTokenSymbol[] = ["ICP", "ckBTC", "ckETH"];
-
 export const ICP_INDEX_TOKEN_IDX = ["ryjl3-tyaaa-aaaaa-aaaba-cai", "jwcfb-hyaaa-aaaaj-aac4q-cai"];
 
 export const DISCORD_LINK = "https://discord.gg/RMxyF5Huhs";
-export const DISCORD_ERROR_LINK = "https://discord.gg/RMxyF5Huhs";
 // export const METAMASK_LINK = "https://metamask.io/download/";
 export const METAMASK_LINK = "https://metamask.io/flask/";

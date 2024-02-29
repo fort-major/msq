@@ -57,19 +57,14 @@ export async function handleStatistics(agent: Agent, client: InternalSnapClient)
   const statisticsBackend = createStatisticsBackendActor(agent);
 
   await client.resetStats();
-  await statisticsBackend.increment_stats(stats.prod);
+  await statisticsBackend.increment_stats(stats.data);
 }
 
 function checkStats(stats: IStatistics): boolean {
-  if (stats.prod.masks_created !== 0) return true;
-  if (stats.prod.origins_linked !== 0) return true;
-  if (stats.prod.origins_unlinked !== 0) return true;
-  if (stats.prod.signatures_produced !== 0) return true;
-  if (stats.prod.icrc1_accounts_created !== 0) return true;
-
-  for (let v of Object.values(stats.prod.icrc1_sent)) {
-    if (v !== 0n) return true;
-  }
+  if (stats.data.login !== 0) return true;
+  if (stats.data.transfer !== 0) return true;
+  if (stats.data.origin_link !== 0) return true;
+  if (stats.data.origin_unlink !== 0) return true;
 
   return false;
 }

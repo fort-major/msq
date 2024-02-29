@@ -1,6 +1,6 @@
 {
   "name": "@fort-major/msq",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "description": "Privacy-focused MetaMask snap for the Internet Computer (ICP)",
   "keywords": [
     "MetaMask",
@@ -8,7 +8,9 @@
     "Internet Computer",
     "ICP",
     "wallet",
+    "payments",
     "authorization",
+    "auth",
     "login",
     "crypto",
     "icrc1",

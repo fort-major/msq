@@ -1,3 +1,5 @@
+export const SNAP_VERSION: string = "^0.2.10";
+
 export {
   MsqClient,
   type IMsqClientParams,
@@ -11,8 +13,6 @@ export { InternalSnapClient } from "./internal";
 export { MsqIdentity } from "./identity";
 export { MSQICRC35Client, LOGIN_ROUTE, PAY_ROUTE } from "./icrc35-client";
 export { ICRC35Connection, openICRC35Window, ICRC35AsyncRequest } from "icrc-35";
-
-export const SNAP_VERSION: string = "^0.2.9";
 
 // these env variables are inlined during build process
 // see ../inline-env-vars.js

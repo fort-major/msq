@@ -24,7 +24,11 @@ import {
   protected_handleIdentityUnlinkAll,
   protected_handleIdentityUnlinkOne,
 } from "./protocols/identity";
-import { protected_handleStatisticsGet, protected_handleStatisticsReset } from "./protocols/statistics";
+import {
+  protected_handleStatisticsGet,
+  protected_handleStatisticsIncrement,
+  protected_handleStatisticsReset,
+} from "./protocols/statistics";
 import { protected_handleStateGetAllAssetData, protected_handleStateGetAllOriginData } from "./protocols/state";
 import { StateManager } from "./state";
 
@@ -103,6 +107,11 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
     case SNAP_METHODS.protected.statistics.get: {
       result = protected_handleStatisticsGet();
+      break;
+    }
+
+    case SNAP_METHODS.protected.statistics.increment: {
+      result = protected_handleStatisticsIncrement(req.params.body);
       break;
     }
 

@@ -1,33 +1,16 @@
-type ICRC1Statistics = record {
-    ICP : nat;
-    ckBTC : nat;
-    ckETH : nat;
-    CHAT : nat;
-    SONIC : nat;
-    SNS1 : nat;
-    OGY : nat;
-    MOD : nat;
-    GHOST : nat;
-    KINIC : nat;
-    HOT : nat;
-    CAT : nat;
-};
-
-type ProdStatistics = record {
-    masks_created : nat32;
-    signatures_produced : nat32;
-    origins_linked : nat32;
-    origins_unlinked : nat32;
-    icrc1_accounts_created : nat32;
-    icrc1_sent : ICRC1Statistics;
+type Data = record {
+    login: nat32;
+    transfer: nat32;
+    origin_link: nat32;
+    origin_unlink: nat32;
 };
 
 type Statistics = record {
     timestamp : nat64;
-    prod : ProdStatistics;
+    data : Data;
 };
 
 service : {
-    "increment_stats" : (ProdStatistics) -> ();
+    "increment_stats" : (Data) -> ();
     "get_stats" : () -> (vec Statistics) query;
 };

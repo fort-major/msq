@@ -26,7 +26,6 @@ import {
   toCBOR,
   ZIdentityUnlinkAllRequest,
   ZIdentityGetPublicKeyRequest,
-  EStatisticsKind,
 } from "@fort-major/msq-shared";
 import { StateManager } from "../state";
 import { getSignIdentity } from "../utils";
@@ -61,7 +60,6 @@ export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<IMa
   if (!agreed) return null;
 
   const newMask = await manager.addIdentity(body.toOrigin);
-  manager.incrementStats(EStatisticsKind.MasksCreated);
 
   return newMask;
 }
@@ -97,6 +95,7 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
   };
 
   manager.setOriginData(body.toOrigin, originData);
+  manager.incrementStats({ login: 1 });
 
   return true;
 }
@@ -192,8 +191,9 @@ export async function protected_handleIdentityUnlinkAll(bodyCBOR: string): Promi
     }
 
     manager.setOriginData(withOrigin, targetOriginData);
-    manager.incrementStats(EStatisticsKind.OriginsUnlinked);
   }
+
+  manager.incrementStats({ origin_unlink: oldLinks.length });
 
   return true;
 }
@@ -275,8 +275,6 @@ export async function handleIdentitySign(bodyCBOR: string, origin: TOrigin): Pro
   }
 
   const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
-
-  manager.incrementStats(EStatisticsKind.SignaturesProduced);
 
   return await identity.sign(body.challenge);
 }
@@ -390,7 +388,7 @@ export async function handleIdentityLinkRequest(bodyCBOR: string, origin: TOrigi
 
   // otherwise update the links list and return true
   await manager.link(origin, body.withOrigin);
-  manager.incrementStats(EStatisticsKind.OriginsLinked);
+  manager.incrementStats({ origin_link: 1 });
 
   return true;
 }
@@ -462,7 +460,7 @@ export async function handleIdentityUnlinkRequest(bodyCBOR: string, origin: TOri
     }
   }
   manager.setOriginData(body.withOrigin, targetOriginData);
-  manager.incrementStats(EStatisticsKind.OriginsUnlinked);
+  manager.incrementStats({ origin_unlink: 1 });
 
   return true;
 }
