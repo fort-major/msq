@@ -127,6 +127,9 @@ importers:
       '@fort-major/msq-shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@solid-primitives/local-store':
+        specifier: ^1.1.4
+        version: 1.1.4(solid-js@1.8.7)
       '@solidjs/router':
         specifier: 0.9.1
         version: 0.9.1(solid-js@1.8.7)
@@ -5229,6 +5232,14 @@ packages:
 
   /@socket.io/component-emitter@3.1.0:
     resolution: {integrity: sha512-+9jVqKhRSpsc591z5vX+X5Yyw+he/HCB4iQ/RYxw35CEPaY1gnsNE43nf9n9AaYjAQrTiI/mOwKUKdUs9vf7Xg==}
+    dev: false
+
+  /@solid-primitives/local-store@1.1.4(solid-js@1.8.7):
+    resolution: {integrity: sha512-sjje0IdTNZ4bKN9c16Rw03QOAbgkk2UVYcqyvyP52xyORvN9VSWXQxUY9nxnxlJR7GCn5VfDZWfXMrqexnix1Q==}
+    peerDependencies:
+      solid-js: ^1.0.7
+    dependencies:
+      solid-js: 1.8.7
     dev: false
 
   /@solid-primitives/refs@1.0.6(solid-js@1.8.7):

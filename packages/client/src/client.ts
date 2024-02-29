@@ -9,6 +9,7 @@ import {
   fromCBOR,
   toCBOR,
   log,
+  logError,
 } from "@fort-major/msq-shared";
 import { SNAP_ID, SNAP_VERSION } from ".";
 import { MsqIdentity } from "./identity";
@@ -277,7 +278,7 @@ export class MsqClient {
 
     let provider = await connectToMetaMask(params?.shouldBeFlask);
 
-    if (!provider) {
+    if (provider === null) {
       return { InstallMetaMask: null };
     }
 
@@ -296,7 +297,7 @@ export class MsqClient {
           params: { [snapId]: { version: snapVersion } },
         });
       } catch (e) {
-        console.error(e);
+        logError("(Client connection)", e);
         return { MSQConnectionRejected: null };
       }
     }
@@ -335,7 +336,10 @@ export async function connectToMetaMask(shouldBeFlask?: boolean): Promise<SDKPro
       name: "MSQ - Safe ICP Wallet",
       url: "https://msq.tech",
     },
+    extensionOnly: true,
   });
+
+  (window as any).sdk = sdk;
 
   try {
     await sdk.connect();
@@ -352,7 +356,7 @@ export async function connectToMetaMask(shouldBeFlask?: boolean): Promise<SDKPro
 
     return provider;
   } catch (e) {
-    console.error(e);
+    logError("(Client Connection)", e);
 
     return null;
   }

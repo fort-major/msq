@@ -10,11 +10,20 @@ import {
   AssetSpoilerHeader,
   ErrorText,
   MyAssetsPageContent,
+  MyAssetsPageHeader,
+  MyAssetsShowEmptyToggle,
   NameAndLogo,
 } from "./style";
 import { Spoiler } from "../../../components/spoiler";
 import { AccountCard } from "../../../components/account-card";
-import { IAssetMetadata, eventHandler, getAssetMetadata, makeAnonymousAgent, tokensToStr } from "../../../utils";
+import {
+  createLocalStorageSignal,
+  IAssetMetadata,
+  eventHandler,
+  getAssetMetadata,
+  makeAnonymousAgent,
+  tokensToStr,
+} from "../../../utils";
 import { Principal, TAccountId, debugStringify, logError } from "@fort-major/msq-shared";
 import { useMsqClient } from "../../../store/global";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
@@ -25,11 +34,11 @@ import { Button, EButtonKind } from "../../../ui-kit/button";
 import { IReceivePopupProps, ReceivePopup } from "./receive";
 import { AddAccountBtn } from "../../../components/add-account-btn";
 import { useAssetData, useSendPageProps, useTxnHistoryPageProps } from "../../../store/assets";
-import { COLOR_ERROR_RED, CabinetContent, CabinetPage } from "../../../ui-kit";
+import { COLOR_ERROR_RED, COLOR_WHITE, CabinetContent, CabinetPage, FONT_WEIGHT_SEMI_BOLD } from "../../../ui-kit";
 import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
 import { ITxnHistoryModalProps, TxnHistoryModal } from "../../../components/txn-history-modal";
-import { produce } from "solid-js/store";
+import { Toggle } from "../../../components/toggle";
 
 export function MyAssetsPage() {
   const msq = useMsqClient();
@@ -175,14 +184,27 @@ export function MyAssetsPage() {
     setTxnHistoryPageProps(undefined);
   };
 
+  const [hideEmpty, setHideEmpty] = createLocalStorageSignal<boolean>("msq-assets-hide-empty");
+
+  const getAssetKeys = () =>
+    Object.keys(assets).filter((key) => (hideEmpty() ? (assets[key]?.totalBalance ?? 0) > 0 : true));
+
   return (
     <CabinetPage>
       <CabinetNav />
       <CabinetContent>
-        <H2>My Assets</H2>
+        <MyAssetsPageHeader>
+          <H2>My Assets</H2>
+          <MyAssetsShowEmptyToggle>
+            <Toggle defaultValue={hideEmpty()} onToggle={setHideEmpty} />
+            <Text size={16} weight={FONT_WEIGHT_SEMI_BOLD} letterSpacing={-1} color={COLOR_WHITE}>
+              Hide Empty
+            </Text>
+          </MyAssetsShowEmptyToggle>
+        </MyAssetsPageHeader>
         <MyAssetsPageContent>
           <For
-            each={Object.keys(assets)}
+            each={getAssetKeys()}
             fallback={
               <H5>
                 <span class={ColorGray115}>No assets yet</span>

@@ -11,6 +11,20 @@ import {
 } from "../../../ui-kit";
 import { DefaultColor, DefaultFont } from "../../../ui-kit/typography";
 
+export const MyAssetsPageHeader = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: last baseline;
+  justify-content: space-between;
+`;
+
+export const MyAssetsShowEmptyToggle = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 13px;
+  align-items: center;
+`;
+
 export const MyAssetsPageContent = styled.section`
   display: flex;
   width: 100%;

@@ -11,7 +11,7 @@ import {
   err,
   strToBytes,
 } from "@fort-major/msq-shared";
-import { JSX, JSXElement } from "solid-js";
+import { Accessor, JSX, JSXElement, Setter, createSignal } from "solid-js";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
 import D from "dompurify";
 
@@ -333,6 +333,28 @@ export function enableScroll() {
   // @ts-expect-error
   window.removeEventListener("touchmove", preventDefault, wheelOpt);
   window.removeEventListener("keydown", preventDefaultForScrollKeys, false);
+}
+
+export function createLocalStorageSignal<T extends unknown>(key: string): [Accessor<T>, Setter<T>] {
+  const storage = window.localStorage;
+  const initialValue: T = JSON.parse(storage.getItem(key) ?? "{}").value;
+
+  const [value, setValue] = createSignal<T>(initialValue);
+
+  const newSetValue = (newValue: T | ((v: T) => T)): T => {
+    const _val: T =
+      typeof newValue === "function"
+        ? // @ts-expect-error
+          newValue(value())
+        : newValue;
+
+    setValue(_val as any);
+    storage.setItem(key, JSON.stringify({ value: _val }));
+
+    return _val;
+  };
+
+  return [value, newSetValue as Setter<T>];
 }
 
 // ---------- SECURITY RELATED STUFF ------------
