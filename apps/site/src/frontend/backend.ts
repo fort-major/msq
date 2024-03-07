@@ -7,6 +7,7 @@ import type { _SERVICE as StatisticsBackend } from "../declarations/msq_statisti
 import { Principal } from "@dfinity/principal";
 import { ICP_INDEX_TOKEN_IDX, bytesToHex } from "@fort-major/msq-shared";
 import { AccountIdentifier } from "@dfinity/ledger-icp";
+import { DEFAULT_SUBACCOUNT } from "./utils";
 
 export const canisterId = import.meta.env.VITE_CANISTER_ID_MSQ_STATISTICS;
 
@@ -54,11 +55,30 @@ function convertTxns(accountId: string, txns: TxnExternal[]): Txn[] {
     .filter((txn) => txn.kind === "Transfer")
     .map((txn) => {
       const [sign, account] = accountId === txn.from ? ["-", txn.to] : ["+", txn.from];
+      let accOrPair:
+        | {
+            principalId: string;
+            subaccount?: string;
+          }
+        | string;
+
+      if (account!.includes(":")) {
+        let [prin, sub]: [string, string | undefined] = account!.split(":") as [string, string];
+
+        // TODO: calculate default subaccount once
+        if (sub === bytesToHex(new Uint8Array(32))) {
+          sub = undefined;
+        }
+
+        accOrPair = { principalId: prin, subaccount: sub };
+      } else {
+        accOrPair = account!;
+      }
 
       return {
         id: BigInt(txn.id),
         sign: sign as "-" | "+",
-        account: account as string,
+        account: accOrPair,
         amount: BigInt(txn.amount!),
         memo: txn.memo,
         timestampMs: Number(BigInt(txn.timestampNano) / 1000000n),

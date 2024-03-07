@@ -67,6 +67,8 @@ export function TxnHistoryPage() {
     }).then((txns) => {
       if (txns.length < PAGE_SIZE) {
         setShowMoreBtn(false);
+      } else {
+        setShowMoreBtn(true);
       }
 
       setHistory((prev) => (prev ? prev.concat(txns) : txns));
@@ -139,7 +141,7 @@ export function TxnHistoryPage() {
                 </Match>
                 <Match when={history() && history()!.length > 0}>
                   <For each={history()}>{(txn) => <TxnHistoryEntry txn={txn} symbol="TOK" decimals={8} />}</For>
-                  <Show when={true || showMoreBtn()}>
+                  <Show when={showMoreBtn()}>
                     <Button
                       kind={EButtonKind.Additional}
                       text="Show More"

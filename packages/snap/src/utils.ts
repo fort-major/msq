@@ -87,6 +87,21 @@ export async function getSignIdentity(
   return Secp256k1KeyIdentity.fromSecretKey(entropy);
 }
 
+/**
+ * Retrieves base entropy for a given origin and identity, incorporating an internal salt.
+ * This function generates a unique entropy value by calling the `snap.request` method with
+ * the "snap_getEntropy" method. The entropy is requested with a salt that combines a static
+ * prefix, the origin, the identity ID, and an internal salt, separated by newline characters.
+ * The response is expected to be a hexadecimal string, from which the leading "0x" is removed.
+ * This hexadecimal string is then converted into a Uint8Array representing the entropy bytes.
+ * The process ensures that the entropy is unique to the combination of origin, identity, and
+ * internal salt, which is essential for MSQ's security.
+ *
+ * @param {TOrigin} origin - The origin associated with the entropy request.
+ * @param {TIdentityId} identityId - The identity ID associated with the entropy request.
+ * @param {string} internalSalt - An internal salt to further personalize the entropy.
+ * @returns {Promise<Uint8Array>} A promise that resolves to the entropy value as a Uint8Array.
+ */
 async function getBaseEntropy(origin: TOrigin, identityId: TIdentityId, internalSalt: string): Promise<Uint8Array> {
   const generated: string = await snap.request({
     method: "snap_getEntropy",
@@ -99,6 +114,22 @@ async function getBaseEntropy(origin: TOrigin, identityId: TIdentityId, internal
   return hexToBytes(generated.slice(2));
 }
 
+/**
+ * Generates a final entropy value by combining base entropy with an external salt and hashing the result.
+ * This function first retrieves the base entropy for a given origin, identity ID, and internal salt by calling
+ * `getBaseEntropy`. It then merges this base entropy with an external salt provided as a `Uint8Array` to form
+ * a combined entropy byte array. This combined array is then hashed using the SHA-256 algorithm via the Web
+ * Cryptography API (`crypto.subtle.digest`). The result is a promise that resolves to an `ArrayBuffer` representing
+ * the final hashed entropy. This method provides a secure way to generate a unique and reproducible entropy value
+ * for cryptographic operations or secure random generation, ensuring the entropy is specific to the given origin,
+ * identity, and salts. Double hashing is used to prevent injection attacks.
+ *
+ * @param {TOrigin} origin - The origin associated with the entropy request.
+ * @param {TIdentityId} identityId - The identity ID associated with the entropy request.
+ * @param {string} internalSalt - An internal salt to further personalize the base entropy.
+ * @param {Uint8Array} externalSalt - An external salt to combine with the base entropy before hashing.
+ * @returns {Promise<ArrayBuffer>} A promise that resolves to the hashed entropy as an ArrayBuffer.
+ */
 async function getEntropy(
   origin: TOrigin,
   identityId: TIdentityId,
@@ -111,6 +142,18 @@ async function getEntropy(
   return await crypto.subtle.digest("SHA-256", entropyPreBytes);
 }
 
+/**
+ * Generates a random pseudonym based on two seed values.
+ * This function constructs a pseudonym by selecting an adjective and a noun from predefined lists,
+ * using the provided seed values. The selection process involves taking the modulo of each seed value
+ * with the length of the respective list (ADJECTIVES or NOUNS) to ensure the index falls within the
+ * range of the list. This approach allows for predictable, reproducible pseudonyms from specific seed
+ * values, which can be useful in scenarios where unique, yet deterministic, identifiers are needed.
+ *
+ * @param {number} seed1 - The seed value used to select an adjective.
+ * @param {number} seed2 - The seed value used to select a noun.
+ * @returns {string} The generated pseudonym, composed of an adjective and a noun.
+ */
 export function generateRandomPseudonym(seed1: number, seed2: number): string {
   return `${ADJECTIVES[seed1 % ADJECTIVES.length]} ${NOUNS[seed2 % NOUNS.length]}`;
 }

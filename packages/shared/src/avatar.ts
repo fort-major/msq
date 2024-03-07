@@ -1,5 +1,16 @@
 import { Principal } from "@dfinity/principal";
 
+/**
+ * Creates an SVG string for an avatar based on a given Principal object, with an optional background color.
+ * This function utilizes the Principal object to determine the avatar's body color, body angle, and face expression
+ * by converting the Principal to a byte array and applying specific functions to select these attributes.
+ * The resulting avatar is then generated using the `makeAvatarSvgCustom` function, ensuring a unique and
+ * consistent visual representation based on the Principal's information.
+ *
+ * @param {Principal} principal - The Principal object from which to generate the avatar.
+ * @param {string} [bgColor="#1E1F28"] - Optional background color of the SVG. Defaults to a dark gray if not specified.
+ * @returns {string} A string representation of the SVG for the avatar, customized based on the Principal object.
+ */
 export function makeAvatarSvg(principal: Principal, bgColor: string = "#1E1F28"): string {
   const principalBytes = principalToBytes(principal);
   const bodyColor = getBodyColor(principalBytes);
@@ -9,6 +20,21 @@ export function makeAvatarSvg(principal: Principal, bgColor: string = "#1E1F28")
   return makeAvatarSvgCustom(principal.toText(), bodyColor, bodyAngle, faceExpression, bgColor);
 }
 
+/**
+ * Generates a custom avatar SVG string based on provided parameters including body color, body angle,
+ * face expression, and optional background and eye colors. This function allows for the creation of a
+ * personalized avatar with specific characteristics defined by the input parameters. The SVG is constructed
+ * with various elements such as circles for the body and eyes, and a custom path for the face expression.
+ * Additional details like eye pupils and mouth are also included, with positions adjusted based on the body angle.
+ *
+ * @param {string} id - A unique identifier used to generate clip paths for the eyes, ensuring they are unique within the SVG.
+ * @param {string} bodyColor - The fill color for the avatar's body.
+ * @param {IAngle} bodyAngle - An object containing the center coordinates for the body and face, used to position elements.
+ * @param {string} faceExpression - A string representing the SVG path for the face expression.
+ * @param {string} [bgColor="#1E1F28"] - Optional background color of the SVG. Defaults to a dark gray if not specified.
+ * @param {string} [eyeWhiteColor="white"] - Optional color for the whites of the eyes. Defaults to white if not specified.
+ * @returns {string} A string representation of the SVG for the custom avatar.
+ */
 export function makeAvatarSvgCustom(
   id: string,
   bodyColor: string,
@@ -102,6 +128,15 @@ export const FACE_EXPRESSIONS = [
   '<path d="M4.91198 3.99866C4.20534 4.36515 4.45556 2.44633 3.18384 1.70473C1.98614 1.05171 0.175067 2.22433 0.12761 1.39181C0.0823068 0.59708 2.97178 -0.113834 4.07479 0.536281C5.17781 1.1864 5.65224 3.61473 4.91198 3.99866Z" fill="#0A0B15"/>',
 ];
 
+/**
+ * Converts a Principal object into a fixed-size byte array.
+ * The function first converts the Principal object into a Uint8Array, then pads
+ * the array with zeros to ensure it has a length of 29 bytes. This is useful
+ * for cases where a fixed-length byte representation is required.
+ *
+ * @param {Principal} principal - The Principal object to be converted.
+ * @returns {number[]} A byte array representation of the Principal object, padded to 29 bytes.
+ */
 function principalToBytes(principal: Principal): number[] {
   const arr1 = principal.toUint8Array();
   const arr2 = Array(29 - arr1.length).fill(0);
@@ -109,14 +144,46 @@ function principalToBytes(principal: Principal): number[] {
   return [...arr1, ...arr2];
 }
 
+/**
+ * Determines the body color based on the first byte of a given byte array.
+ * The function calculates the index by taking the modulo of the first byte value
+ * with the length of the COLORS array, and then returns the color at that index
+ * from the COLORS array. This can be used to assign a consistent, deterministic
+ * color based on the Principal's byte representation.
+ *
+ * @param {number[]} principalBytes - An array of bytes, typically representing a Principal object.
+ * @returns {string} The color string corresponding to the calculated index in the COLORS array.
+ */
 function getBodyColor(principalBytes: number[]): string {
   return COLORS[principalBytes[0] % COLORS.length];
 }
 
+/**
+ * Calculates the body angle based on the second byte of a given byte array.
+ * This function determines the index by taking the modulo of the second byte value
+ * with the length of the ANGLES array. It then returns the angle object at that index
+ * from the ANGLES array. This method provides a way to assign a consistent, deterministic
+ * angle based on the Principal's byte representation, which can be useful for graphical
+ * representations or orientations.
+ *
+ * @param {number[]} principalBytes - An array of bytes, usually representing a Principal object.
+ * @returns {IAngle} The angle object corresponding to the calculated index in the ANGLES array.
+ */
 function getBodyAngle(principalBytes: number[]): IAngle {
   return ANGLES[principalBytes[1] % ANGLES.length];
 }
 
+/**
+ * Retrieves the path for a face expression based on the third byte of a given byte array.
+ * This function calculates the index by taking the modulo of the third byte's value
+ * with the length of the FACE_EXPRESSIONS array. It then returns the path for the face expression
+ * located at that index within the FACE_EXPRESSIONS array. This approach ensures a consistent,
+ * deterministic selection of face expressions based on the Principal's byte representation,
+ * which can be used for visual character customization.
+ *
+ * @param {number[]} principalBytes - An array of bytes, typically representing a Principal object.
+ * @returns {string} The path string for the face expression corresponding to the calculated index in the FACE_EXPRESSIONS array.
+ */
 function getFaceExpressionPath(principalBytes: number[]): string {
   return FACE_EXPRESSIONS[principalBytes[2] % FACE_EXPRESSIONS.length];
 }

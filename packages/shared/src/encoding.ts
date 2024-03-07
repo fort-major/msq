@@ -119,23 +119,6 @@ export const bytesToBigInt = (bytes: Uint8Array): bigint => {
 };
 
 /**
- * Encodes 4-byte number into bytes (le)
- *
- * @param n
- * @returns
- */
-const crcToBytes = (n: number): Uint8Array => {
-  let result = new Uint8Array(4);
-  let i = 0;
-  while (n > 0) {
-    result[i] = n % 256;
-    n = n / 256;
-    i += 1;
-  }
-  return result;
-};
-
-/**
  * Pretty-prints a JSON representation of the object, handling the bigint case
  *
  * @param obj

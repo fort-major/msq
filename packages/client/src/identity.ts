@@ -54,10 +54,27 @@ export class MsqIdentity extends SignIdentity {
     return this.publicKey;
   }
 
+  /**
+   * ## Returns user's pseudonym for current MSQ identity
+   *
+   * This pseudonym does not contain meaningful information
+   * and should be treated as an easy way to render the username for users without profiles.
+   *
+   * @returns {Promise<string>} pseudonym
+   */
   getPseudonym(): Promise<string> {
     return this.client._requestSnap(SNAP_METHODS.public.identity.getPseudonym);
   }
 
+  /**
+   * ## Returns user's avatar for current MSQ identity
+   *
+   * This avatar is an auto-generated SVG image
+   * and should be treated as an easy way to render avatars for users without profiles.
+   *
+   * @param {string | undefined} bgColor
+   * @returns {Promise<string>} avatar SVG src string as "data:image/svg+xml..."
+   */
   getAvatarSrc(bgColor?: string): Promise<string> {
     const principal = this.getPrincipal();
     const svg = btoa(makeAvatarSvg(principal, bgColor));

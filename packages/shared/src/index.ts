@@ -86,6 +86,15 @@ export async function delay(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Generates a string representing the current time in HH:MM:SS format.
+ * This function retrieves the current time using the Date object, then formats
+ * the hours, minutes, and seconds to ensure they are always displayed as two digits,
+ * padding with a leading zero if necessary. This is useful for displaying the time
+ * in a consistent format across various parts of an application.
+ *
+ * @returns {string} The current time formatted as a string in "HH:MM:SS" format.
+ */
 function makeTime(): string {
   const now = new Date();
 
@@ -104,7 +113,19 @@ export function logError(...args: any[]) {
   console.error(`[${makeTime()}]`, "<MSQ>", ...args);
 }
 
-// ZodError do not work properly inside a snap, so we rethrow them here
+/**
+ * Parses an object against a given Zod schema, handling errors specifically for the MetaMask Snaps environment.
+ * In the MetaMask Snaps environment, errors not descending from `Error` are not thrown normally. This function
+ * uses a Zod schema to parse and validate an input object. If the object does not conform to the schema, it
+ * catches the resulting Zod error and manually triggers an error specific to the MetaMask Snaps environment
+ * by using a custom error function. This is necessary because Zod errors, which do not directly extend from `Error`,
+ * may not be properly thrown or caught in MetaMask Snaps without this handling.
+ *
+ * @param {S} schema - The Zod schema to validate the input object against.
+ * @param {unknown} obj - The input object to validate.
+ * @returns {z.infer<typeof schema>} The parsed object, if it conforms to the schema.
+ * @throws Will trigger a custom error with `ErrorCode.INVALID_INPUT` if parsing fails.
+ */
 export function zodParse<S extends ZodType>(schema: S, obj: unknown): z.infer<typeof schema> {
   try {
     return schema.parse(obj);
@@ -113,6 +134,15 @@ export function zodParse<S extends ZodType>(schema: S, obj: unknown): z.infer<ty
   }
 }
 
+/**
+ * Converts a URL origin into its hostname.
+ * This function takes a URL origin as input and utilizes the URL API to parse it,
+ * extracting the hostname part of the URL. This is particularly useful for scenarios
+ * where you need to obtain the domain name from a full URL or origin string.
+ *
+ * @param {TOrigin} origin - The origin URL string from which to extract the hostname.
+ * @returns {string} The hostname extracted from the provided origin URL string.
+ */
 export function originToHostname(origin: TOrigin): string {
   return new URL(origin).hostname;
 }
@@ -234,6 +264,20 @@ export const PRE_LISTED_TOKENS: Record<
   },
 };
 
+/**
+ * Calculates the MSQ fee for a given asset and amount.
+ * This function looks up an asset by its ID in a predefined list of tokens (`PRE_LISTED_TOKENS`),
+ * and if found, calculates the MSQ fee based on the amount being transacted. The MSQ fee is defined
+ * as 1% of the transaction amount. If the asset ID does not match any entry in the pre-listed tokens
+ * or if the found entry does not have a `chargingAccountId`, it returns zero as the fee and `undefined`
+ * for the `chargingAccountId`.
+ *
+ * @param {string} assetId - The ID of the asset for which to calculate the fee.
+ * @param {bigint} amount - The amount of the asset being transacted, from which to calculate the fee.
+ * @returns {[bigint, string | undefined]} A tuple containing the calculated MSQ fee and the charging account ID
+ *                                        associated with the asset, or `undefined` if the asset is not found or
+ *                                        has no charging account ID.
+ */
 export function calculateMSQFee(assetId: string, amount: bigint): [bigint, string | undefined] {
   const entry = Object.values(PRE_LISTED_TOKENS).find(({ assetId: id }) => id === assetId);
   if (!entry) return [0n, undefined];
