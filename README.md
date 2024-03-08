@@ -48,6 +48,8 @@ DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automati
 
 ### Test
 
+Tests only work when the project is built for dev (`pnpm run dev:build`)
+
 * `pnpm run test`
 
 ### Lint with eslint
@@ -70,7 +72,7 @@ DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automati
 ### Publishing
 
 * (opt) `npm login` - don't forget to log in to your npm account
-* `pnpm run prod:pub`
+* `pnpm run pub`
 
 ## Contribution
 
