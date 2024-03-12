@@ -378,7 +378,6 @@ export class StateManager {
   }
 }
 
-
 /**
  * Creates the default state object.
  * @returns The default state object.
@@ -408,10 +407,9 @@ function makeDefaultStatistics(): IStatistics {
   };
 }
 
-
 /**
  * Creates the default origin data object.
- * 
+ *
  * @param mask - The mask object.
  * @returns The default origin data object.
  */

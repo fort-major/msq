@@ -24,8 +24,6 @@ describe("Authentication", () => {
     });
 
     expect(ok(response)).toBe(toCBOR(false));
-
-    await snap.close();
   });
 
   it("should have at least one login option by default", async () => {
@@ -44,8 +42,6 @@ describe("Authentication", () => {
     const result = zodParse(ZIdentityGetLoginOptionsResponse, fromCBOR(ok(response) as string));
 
     expect(result.length).toBeGreaterThanOrEqual(1);
-
-    await snap.close();
   });
 
   it("should create a session on login and remove it on logout", async () => {
@@ -97,8 +93,6 @@ describe("Authentication", () => {
     });
 
     expect(ok(snapResp4.response)).toBe(toCBOR(false));
-
-    await snap.close();
   });
 
   it("should have no links by default", async () => {
@@ -111,8 +105,6 @@ describe("Authentication", () => {
     });
 
     expect(ok(snapResp1.response)).toBe(toCBOR([]));
-
-    await snap.close();
   });
 
   it("shouldn't be possible to login via another website without a link", async () => {
@@ -130,9 +122,7 @@ describe("Authentication", () => {
       params: { body: toCBOR(req) },
     });
 
-    expect(() => ok(snapResp1.response)).toThrowError();
-
-    await snap.close();
+    expect(() => ok(snapResp1.response)).toThrow();
   });
 
   it("should be possible to create a link, login via another website, logout, remove link and not being able to login anymore", async () => {
@@ -213,8 +203,6 @@ describe("Authentication", () => {
     });
 
     expect(() => ok(snapResp5.response)).toThrowError();
-
-    await snap.close();
   });
 
   it("many links should work fine", async () => {
@@ -275,7 +263,5 @@ describe("Authentication", () => {
 
       expect(ok(resp2.response)).toBe(toCBOR(true));
     }
-
-    await snap.close();
   });
 });

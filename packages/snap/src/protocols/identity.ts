@@ -316,7 +316,7 @@ export async function handleIdentityGetPseudonym(origin: TOrigin): Promise<strin
 
   const originData = await manager.getOriginData(session.deriviationOrigin);
 
-  return originData.masks[session.identityId]?.pseudonym ?? "Unknown Mister";
+  return originData.masks[session.identityId]?.pseudonym ?? "Unknown Boop";
 }
 
 /**

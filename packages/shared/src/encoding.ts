@@ -1,7 +1,4 @@
-import { Principal } from "@dfinity/principal";
 import { Encoder } from "cbor-x";
-import { Crc32 } from "@aws-crypto/crc32";
-import jsSHA from "jssha";
 
 export { Principal } from "@dfinity/principal";
 

@@ -1,4 +1,5 @@
 import { Principal } from "@dfinity/principal";
+import { ErrorCode, err, escapeHtml } from ".";
 
 /**
  * Creates an SVG string for an avatar based on a given Principal object, with an optional background color.
@@ -43,7 +44,22 @@ export function makeAvatarSvgCustom(
   bgColor: string = "#1E1F28",
   eyeWhiteColor: string = "white",
 ): string {
-  const { bodyCx, bodyCy, faceX, faceY } = bodyAngle;
+  id = escapeHtml(id);
+  bodyColor = escapeHtml(bodyColor);
+  faceExpression = escapeHtml(faceExpression);
+  bgColor = escapeHtml(bgColor);
+  eyeWhiteColor = escapeHtml(eyeWhiteColor);
+
+  let { bodyCx, bodyCy, faceX, faceY } = bodyAngle;
+
+  if (
+    typeof bodyCx !== "number" ||
+    typeof bodyCy !== "number" ||
+    typeof faceX !== "number" ||
+    typeof faceY !== "number"
+  ) {
+    err(ErrorCode.INVALID_INPUT, "Avatar body angle has invalid structure");
+  }
 
   const eyeWhite1Cx = faceX + EYE_WHITE_1_CX;
   const eyeWhite1Cy = faceY + EYE_WHITE_1_CY;

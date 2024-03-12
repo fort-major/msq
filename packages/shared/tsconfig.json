@@ -1,17 +1,7 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "./tsconfig.build.esm.json",
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist/esm",
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "declaration": true,
-    "composite": true,
-    "emitDeclarationOnly": false,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "rootDir": "./",
   },
   "exclude": ["./dist"]
 }

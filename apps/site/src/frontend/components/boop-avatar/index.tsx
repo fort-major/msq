@@ -1,6 +1,7 @@
 import { Principal } from "@dfinity/principal";
 import { BoopAvatarWrapper } from "./style";
 import { FACE_EXPRESSIONS, IAngle, makeAvatarSvg, makeAvatarSvgCustom } from "@fort-major/msq-shared";
+import d from "dompurify";
 
 export interface IBoopAvatarProps {
   /**
@@ -17,7 +18,7 @@ export function BoopAvatar(props: IBoopAvatarProps) {
     <BoopAvatarWrapper
       size={props.size}
       ref={(r) => {
-        r.innerHTML = makeAvatarSvg(props.principal);
+        r.innerHTML = d.sanitize(makeAvatarSvg(props.principal));
       }}
     />
   );
@@ -40,13 +41,15 @@ export function CustomBoopAvatar(props: ICustomBoopAvatarProps) {
       classList={props.classList}
       size={props.size}
       ref={(r) => {
-        r.innerHTML = makeAvatarSvgCustom(
-          props.id,
-          props.bodyColor,
-          props.angle,
-          FACE_EXPRESSIONS[props.faceExpression - 1],
-          props.bgColor,
-          props.eyeWhiteColor,
+        r.innerHTML = d.sanitize(
+          makeAvatarSvgCustom(
+            props.id,
+            props.bodyColor,
+            props.angle,
+            FACE_EXPRESSIONS[props.faceExpression - 1],
+            props.bgColor,
+            props.eyeWhiteColor,
+          ),
         );
       }}
     />

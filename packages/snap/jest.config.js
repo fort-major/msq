@@ -1,6 +1,7 @@
+const tsPreset = require("ts-jest/jest-preset");
+const snapPreset = require("@metamask/snaps-jest/jest-preset");
+
 module.exports = {
-  preset: "ts-jest",
-  testEnvironment: "@metamask/snaps-jest",
-  setupFilesAfterEnv: ["@metamask/snaps-jest/dist/cjs/setup.js"],
-  testTimeout: 20000,
+  ...tsPreset,
+  ...snapPreset,
 };

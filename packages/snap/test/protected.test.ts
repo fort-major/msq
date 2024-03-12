@@ -33,7 +33,7 @@ describe("Protected methods", () => {
       params: { body: toCBOR(req1) },
     });
 
-    expect(() => ok(resp1.response)).toThrowError();
+    expect(() => ok(resp1.response)).toThrow();
 
     // login
     const req2: IIdentityLoginRequest = {
@@ -47,7 +47,7 @@ describe("Protected methods", () => {
       params: { body: toCBOR(req2) },
     });
 
-    expect(() => ok(resp2.response)).toThrowError();
+    expect(() => ok(resp2.response)).toThrow();
 
     // get login options
     const req3: IIdentityGetLoginOptionsRequest = {
@@ -60,7 +60,7 @@ describe("Protected methods", () => {
       params: { body: toCBOR(req3) },
     });
 
-    expect(() => ok(resp3.response)).toThrowError();
+    expect(() => ok(resp3.response)).toThrow();
 
     // add new mask
     const req4: IIdentityAddRequest = {
@@ -73,8 +73,6 @@ describe("Protected methods", () => {
       params: { body: toCBOR(req4) },
     });
 
-    expect(() => ok(resp4.response)).toThrowError();
-
-    await snap.close();
+    expect(() => ok(resp4.response)).toThrow();
   });
 });

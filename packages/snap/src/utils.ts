@@ -42,7 +42,7 @@ export function guardMethods(method: string, origin: TOrigin): void {
 
   // validate origin to be MSQ website
   if (!isMsq(origin)) {
-    return err(
+    err(
       ErrorCode.PROTECTED_METHOD,
       `Method ${method} can only be executed from the MSQ website ("${origin}" != ${process.env.MSQ_SNAP_SITE_ORIGIN})`,
     );

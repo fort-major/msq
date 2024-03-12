@@ -35,8 +35,6 @@ describe("Signatures", () => {
     });
 
     expect(() => ok(resp2.response)).toThrow();
-
-    await snap.close();
   });
 
   it("should be possible to sign with a session created", async () => {
@@ -72,8 +70,6 @@ describe("Signatures", () => {
     const signature: Uint8Array = fromCBOR(ok(resp2.response) as string);
     expect(signature).toBeInstanceOf(Uint8Array);
     expect(signature.length).toBe(64);
-
-    await snap.close();
   });
 
   it("same input should produce the same signature", async () => {
@@ -118,8 +114,6 @@ describe("Signatures", () => {
     const signature2: Uint8Array = fromCBOR(ok(resp3.response) as string);
 
     expect(toCBOR(signature1)).toBe(toCBOR(signature2));
-
-    await snap.close();
   });
 
   it("different salt produces different signatures and pubkeys", async () => {
@@ -181,8 +175,6 @@ describe("Signatures", () => {
 
     expect(signatures.size).toBe(10);
     expect(pubkeys.size).toBe(10);
-
-    await snap.close();
   });
 
   it("different origins and identityIds produce different entropy", async () => {
@@ -254,8 +246,6 @@ describe("Signatures", () => {
 
     expect(pubkey3).not.toBe(pubkey1);
     expect(pubkey3).not.toBe(pubkey2);
-
-    await snap.close();
   });
 
   it("logging in via another linked website should produce entropy as on this website", async () => {
@@ -357,7 +347,5 @@ describe("Signatures", () => {
     const signature2 = bytesToHex(fromCBOR(ok(resp7.response) as string));
 
     expect(signature1).toBe(signature2);
-
-    await snap.close();
   });
 });

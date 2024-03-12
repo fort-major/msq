@@ -5,7 +5,6 @@ import {
   ErrorCode,
   IStatistics,
   PRE_LISTED_TOKENS,
-  Principal,
   TAccountId,
   debugStringify,
   err,
@@ -13,7 +12,7 @@ import {
 } from "@fort-major/msq-shared";
 import { Accessor, JSX, JSXElement, Setter, createSignal } from "solid-js";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
-import D from "dompurify";
+import d from "dompurify";
 
 // null = default
 // <string> = custom host
@@ -216,11 +215,11 @@ export async function getAssetMetadata(
     if (logo.includes("image/svg")) {
       if (logo.includes("base64")) {
         let [prefix, body] = logo.split(";base64,");
-        body = btoa(D.sanitize(atob(body)));
+        body = btoa(d.sanitize(atob(body)));
         logo = `${prefix};base64,${body}`;
       } else {
         let [prefix, body] = logo.split(",");
-        body = D.sanitize(body);
+        body = d.sanitize(body);
         logo = `${prefix},${body}`;
       }
     }
@@ -231,11 +230,11 @@ export async function getAssetMetadata(
   }
 
   return {
-    name: D.sanitize(name),
-    symbol: D.sanitize(symbol),
+    name: d.sanitize(name),
+    symbol: d.sanitize(symbol),
     fee,
     decimals: Number(decimals),
-    logoSrc: logo ? D.sanitize(logo) : defaultLogo(ledger.canisterId.toText()),
+    logoSrc: logo ? d.sanitize(logo) : defaultLogo(ledger.canisterId.toText()),
   };
 }
 

@@ -33,7 +33,7 @@
     "prod:build:snap": "mm-snap build -s ./src/index.ts",
     "prod:build:apps": "pnpm run prod:build",
     "pub": "mm-snap manifest --fix && npm publish",
-    "dev:build": "tsc && mm-snap build -s ./src/index.ts",
+    "dev:build": "tsc && mm-snap build --writeManifest false --manifest false -s ./src/index.ts",
     "dev:build:snap": "pnpm run dev:build",
     "dev:build:apps": "pnpm run dev:build",
     "dev": "mm-snap watch -s ./src/index.ts -d dist",
@@ -44,8 +44,8 @@
     "doc": "typedoc ./src/**/*.{ts,tsx}"
   },
   "devDependencies": {
-    "@metamask/snaps-cli": "3.0",
-    "@metamask/snaps-jest": "4.0",
+    "@metamask/snaps-cli": "6.0",
+    "@metamask/snaps-jest": "6.0",
     "@types/jest": "29.5.10",
     "@types/node": "20.10.3",
     "cbor-x": "1.5.6",
@@ -55,6 +55,6 @@
   "dependencies": {
     "@dfinity/identity-secp256k1": "1.0",
     "@fort-major/msq-shared": "workspace:*",
-    "@metamask/snaps-sdk": "2.0"
+    "@metamask/snaps-sdk": "3.1"
   }
 }
