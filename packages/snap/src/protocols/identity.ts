@@ -1,4 +1,4 @@
-import { divider, heading, panel, text } from "@metamask/snaps-sdk";
+import { divider, panel } from "@metamask/snaps-sdk";
 import {
   type TOrigin,
   ZIdentityAddRequest,
@@ -28,7 +28,7 @@ import {
   ZIdentityGetPublicKeyRequest,
 } from "@fort-major/msq-shared";
 import { StateManager } from "../state";
-import { getSignIdentity } from "../utils";
+import { getSignIdentity, text, heading } from "../utils";
 
 /**
  * ## Creates a new identity (mask) for the user to authorize with on some website

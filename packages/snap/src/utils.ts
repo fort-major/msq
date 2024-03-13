@@ -8,6 +8,7 @@ import {
   hexToBytes,
 } from "@fort-major/msq-shared";
 import { Secp256k1KeyIdentity } from "@dfinity/identity-secp256k1";
+import { Heading, Text, text as snapText, heading as snapHeading } from "@metamask/snaps-sdk";
 
 // this is executed during the 'verify' build step process
 // when the snap is evaluated in SES
@@ -140,6 +141,43 @@ async function getEntropy(
 
   let entropyPreBytes = new Uint8Array([...baseEntropy, ...externalSalt]);
   return await crypto.subtle.digest("SHA-256", entropyPreBytes);
+}
+
+/**
+ * Escapes Markdown control characters, newline characters, and backticks in a string.
+ * This function takes a string and returns a new string with all Markdown control characters, newline characters, and backticks escaped.
+ * Escaping is done by prefixing each control character and backtick with a backslash (`\`), and newline characters are replaced with `\\n`.
+ *
+ * Control characters include: `{`, `}`, `[`, `]`, `(`, `)`, `#`, `!`, `|`, `\`, and `` ` ``.
+ * Newline characters are replaced with a visible escape sequence (`\\n`) for demonstration or specific formatting needs.
+ * Since all newlines are escaped, list creating characters `-`, `+` and `.` are allowed.
+ * Text styling characters `*`, `_` are also allowed
+ *
+ * @param {string} text The string to be escaped.
+ * @return {string} The escaped string, safe to be used in Markdown without triggering formatting, with newline characters visually represented and backticks escaped.
+ */
+export function escapeMarkdown(text: string) {
+  return text.replace(/([{}\[\]()#!|\\`])|\n/g, (match) => (match === "\n" ? "\\n" : "\\" + match));
+}
+
+/**
+ * An escaped version of a text element from @metamask/snaps-sdk
+ *
+ * @param {string} str The string to render
+ * @returns {Text} The Text node
+ */
+export function text(str: string): Text {
+  return snapText(escapeMarkdown(str));
+}
+
+/**
+ * An escaped version of a heading element from @metamask/snaps-sdk
+ *
+ * @param {string} str The string to render
+ * @returns {Heading} The Heading node
+ */
+export function heading(str: string): Heading {
+  return snapHeading(escapeMarkdown(str));
 }
 
 /**

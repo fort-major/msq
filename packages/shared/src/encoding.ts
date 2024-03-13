@@ -45,13 +45,13 @@ export const bytesToHex = (bytes: Uint8Array): string =>
  * @returns
  */
 export const hexToBytes = (hexString: string): Uint8Array => {
-  const matches = hexString.match(/.{1,2}/g);
+  const matches = hexString.match(/[a-f0-9]{2}/g) ?? [];
+  const result = Uint8Array.from(matches.map((byte) => parseInt(byte, 16)));
 
-  if (matches == null) {
+  if (matches === null || hexString.length % 2 !== 0 || result.length !== hexString.length / 2)
     throw new Error("Invalid hexstring");
-  }
 
-  return Uint8Array.from(matches.map((byte) => parseInt(byte, 16)));
+  return result;
 };
 
 const cborEncoder = new Encoder();
