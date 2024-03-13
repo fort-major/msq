@@ -28,7 +28,7 @@ import { ContactUsBtn } from "../../../components/contact-us-btn";
 export function PaymentPage() {
   const msq = useMsqClient();
   const { assets, fetch, refresh, addAsset, addAccount } = useAssetData();
-  const [selectedAccountId, setSelectedAccountId] = createSignal<TAccountId>(0);
+  const [selectedAccountId, setSelectedAccountId] = createSignal<TAccountId>("0");
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
   const [_, setCheckoutPageProps] = usePaymentCheckoutPageProps();
   const [icrc35Request] = useICRC35<IICRC1TransferRequest>();
@@ -81,7 +81,7 @@ export function PaymentPage() {
 
     setReceivePopupProps({
       assetId,
-      principal: assets[assetId]!.accounts[accountId].principal!,
+      principal: assets[assetId]!.accounts[parseInt(accountId)].principal!,
       symbol: assets[assetId]!.metadata!.symbol,
       onClose: handleReceiveClose,
     });
@@ -100,9 +100,9 @@ export function PaymentPage() {
 
     const p: IPaymentCheckoutPageProps = {
       accountId,
-      accountName: assets[assetId]!.accounts[accountId].name,
-      accountBalance: assets[assetId]!.accounts[accountId].balance!,
-      accountPrincipal: assets[assetId]!.accounts[accountId].principal,
+      accountName: assets[assetId]!.accounts[parseInt(accountId)].name,
+      accountBalance: assets[assetId]!.accounts[parseInt(accountId)].balance!,
+      accountPrincipal: assets[assetId]!.accounts[parseInt(accountId)].principal,
 
       assetId: icrc35Request()!.payload.canisterId,
       symbol: assets[assetId]!.metadata!.symbol,
@@ -172,9 +172,12 @@ export function PaymentPage() {
                   <For each={assets[getAssetId()!]?.accounts}>
                     {(account, idx) => (
                       <AccountCard
-                        classList={{ [AccountCardBase]: true, [AccountCardSelected]: idx() === selectedAccountId() }}
+                        classList={{
+                          [AccountCardBase]: true,
+                          [AccountCardSelected]: idx().toString() === selectedAccountId(),
+                        }}
                         onClick={(accountId) => setSelectedAccountId(accountId)}
-                        accountId={idx()}
+                        accountId={idx().toString()}
                         assetId={icrc35Request()!.payload.canisterId}
                         name={account.name}
                         balance={account.balance}
@@ -209,7 +212,7 @@ export function PaymentPage() {
                 />
                 <Show
                   when={
-                    (assets[getAssetId()!]!.accounts[selectedAccountId()].balance || 0n) >=
+                    (assets[getAssetId()!]!.accounts[parseInt(selectedAccountId())].balance || 0n) >=
                     icrc35Request()!.payload.amount + assets[getAssetId()!]!.metadata!.fee
                   }
                   fallback={
@@ -219,7 +222,7 @@ export function PaymentPage() {
                       text="Top up the Balance"
                       icon={EIconKind.ArrowLeftDown}
                       onClick={() => handleReceive(selectedAccountId())}
-                      disabled={assets[getAssetId()!]!.accounts[selectedAccountId()].principal === undefined}
+                      disabled={assets[getAssetId()!]!.accounts[parseInt(selectedAccountId())].principal === undefined}
                       fullWidth
                     />
                   }

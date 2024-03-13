@@ -24,6 +24,7 @@ import {
   unreacheable,
   IStatisticsData,
   IStatisticsIncrementRequest,
+  TAccountId,
 } from "@fort-major/msq-shared";
 import { MsqClient } from "./client";
 
@@ -104,7 +105,7 @@ export class InternalSnapClient {
     return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAssetAccount, body);
   }
 
-  async editAssetAccount(assetId: string, accountId: number, newName: string): Promise<void> {
+  async editAssetAccount(assetId: string, accountId: TAccountId, newName: string): Promise<void> {
     this.checkInnerSet();
 
     const body: IICRC1EditAssetAccountRequest = { assetId, accountId, newName };

@@ -20,6 +20,7 @@ export function escapeHtml(dirty: string): string {
  * A non-negative integer, e.g. 1337
  */
 export const ZNonNegativeInt = z.number().int().nonnegative();
+export const ZNonNegativeIntStr = z.string().regex(/^(0|[1-9][0-9]*)$/);
 
 /**
  * A principal string, e.g. aaaaa-aa
@@ -49,10 +50,10 @@ export const ZBlob = z.instanceof(ArrayBuffer).or(z.instanceof(Uint8Array));
  * Identity ID
  */
 export type TIdentityId = z.infer<typeof ZIdentityId>;
-export const ZIdentityId = ZNonNegativeInt;
+export const ZIdentityId = ZNonNegativeIntStr;
 
 export type TAccountId = z.infer<typeof ZAccountId>;
-export const ZAccountId = ZNonNegativeInt;
+export const ZAccountId = ZNonNegativeIntStr;
 
 /**
  * Session object

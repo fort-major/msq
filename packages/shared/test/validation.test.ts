@@ -1,7 +1,19 @@
 import { ZodError, z } from "zod";
-import { ZAmountStrSanitized, ZPrincipalStrSanitized, escapeHtml } from "../src";
+import { ZAmountStrSanitized, ZNonNegativeIntStr, ZPrincipalStrSanitized, escapeHtml } from "../src";
 
 describe("zod validation", () => {
+  it("can validate string numbers", () => {
+    expect(ZNonNegativeIntStr.parse("1")).toBe("1");
+    expect(ZNonNegativeIntStr.parse("0")).toBe("0");
+    expect(ZNonNegativeIntStr.parse("123")).toBe("123");
+
+    expect(() => ZNonNegativeIntStr.parse("-1")).toThrow(ZodError);
+    expect(() => ZNonNegativeIntStr.parse("")).toThrow(ZodError);
+    expect(() => ZNonNegativeIntStr.parse(" ")).toThrow(ZodError);
+    expect(() => ZNonNegativeIntStr.parse("0001")).toThrow(ZodError);
+    expect(() => ZNonNegativeIntStr.parse("hello")).toThrow(ZodError);
+  });
+
   it("can validate principals", () => {
     expect(ZPrincipalStrSanitized.parse("aaaaa-aa")).toBe("aaaaa-aa");
     expect(ZPrincipalStrSanitized.parse("ryjl3-tyaaa-aaaaa-aaaba-cai")).toBe("ryjl3-tyaaa-aaaaa-aaaba-cai");

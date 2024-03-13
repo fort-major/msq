@@ -126,7 +126,7 @@ export function MyAssetsPage() {
 
   const handleSend = (accountId: TAccountId, assetId: string) => {
     const assetData = assets[assetId]!;
-    const account = assetData.accounts[accountId];
+    const account = assetData.accounts[parseInt(accountId)];
 
     const sendProps: ISendPageProps = {
       accountId,
@@ -267,7 +267,7 @@ export function MyAssetsPage() {
                       <For each={assets[assetId]!.accounts}>
                         {(account, idx) => (
                           <AccountCard
-                            accountId={idx()}
+                            accountId={idx().toString()}
                             assetId={assetId}
                             name={account.name}
                             principal={account.principal}
@@ -276,7 +276,7 @@ export function MyAssetsPage() {
                             decimals={assets[assetId]!.metadata!.decimals}
                             onSend={handleSend}
                             onReceive={handleReceive}
-                            onEdit={(newName) => handleEdit(assetId, idx(), newName)}
+                            onEdit={(newName) => handleEdit(assetId, idx().toString(), newName)}
                             onDetailsClick={
                               account.principal
                                 ? () =>

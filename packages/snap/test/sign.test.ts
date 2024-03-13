@@ -44,7 +44,7 @@ describe("Signatures", () => {
     // login
     const req1: IIdentityLoginRequest = {
       toOrigin: site,
-      withIdentityId: 0,
+      withIdentityId: "0",
     };
 
     const resp1 = await snap.request({
@@ -79,7 +79,7 @@ describe("Signatures", () => {
     // login
     const req1: IIdentityLoginRequest = {
       toOrigin: site,
-      withIdentityId: 0,
+      withIdentityId: "0",
     };
 
     const resp1 = await snap.request({
@@ -123,7 +123,7 @@ describe("Signatures", () => {
     // login
     const req1: IIdentityLoginRequest = {
       toOrigin: site,
-      withIdentityId: 0,
+      withIdentityId: "0",
     };
 
     const resp1 = await snap.request({
@@ -183,12 +183,12 @@ describe("Signatures", () => {
     // login to two different origins
     const req1: IIdentityLoginRequest = {
       toOrigin: "http://google.com",
-      withIdentityId: 0,
+      withIdentityId: "0",
     };
 
     const req2: IIdentityLoginRequest = {
       toOrigin: "https://google.com",
-      withIdentityId: 0,
+      withIdentityId: "0",
     };
 
     await snap.request({
@@ -228,7 +228,7 @@ describe("Signatures", () => {
 
     const req3: IIdentityLoginRequest = {
       toOrigin: "http://google.com",
-      withIdentityId: 1,
+      withIdentityId: "1",
     };
 
     await snap.request({
@@ -274,7 +274,7 @@ describe("Signatures", () => {
     // login to site
     const req2: IIdentityLoginRequest = {
       toOrigin: site,
-      withIdentityId: 0,
+      withIdentityId: "0",
     };
 
     const resp2 = await snap.request({
@@ -289,7 +289,7 @@ describe("Signatures", () => {
     const req3: IIdentityLoginRequest = {
       toOrigin: anotherSite,
       withLinkedOrigin: site,
-      withIdentityId: 0,
+      withIdentityId: "0",
     };
 
     const resp3 = await snap.request({

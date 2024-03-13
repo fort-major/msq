@@ -76,7 +76,7 @@ export function MyMasksPage() {
                       <LoginOption
                         pseudonym={mask.pseudonym}
                         principal={mask.principal}
-                        onEdit={(newValue) => handleEditPseudonym(origin, idx(), newValue)}
+                        onEdit={(newValue) => handleEditPseudonym(origin, idx().toString(), newValue)}
                       />
                     </>
                   )}

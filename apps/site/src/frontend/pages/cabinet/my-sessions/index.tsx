@@ -41,7 +41,7 @@ export function MySessionsPage() {
 
     if (!originData) return { pseudonym: "Error", principal: Principal.anonymous() };
 
-    const mask = originData.masks[session.identityId];
+    const mask = originData.masks[parseInt(session.identityId)];
 
     return { pseudonym: mask.pseudonym, principal: Principal.fromText(mask.principal) };
   };

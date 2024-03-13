@@ -111,7 +111,7 @@ export function GlobalStore(props: IChildren) {
       let client = InternalSnapClient.create((inner as TMsqCreateOk).Ok);
 
       const isAuthorized = await client.getInner().isAuthorized();
-      if (!isAuthorized) await client.login(window.location.origin, 0, import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
+      if (!isAuthorized) await client.login(window.location.origin, "0", import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
 
       makeAnonymousAgent(import.meta.env.VITE_MSQ_DFX_NETWORK_HOST).then((agent) => handleStatistics(agent, client));
       showLoader[1](false);

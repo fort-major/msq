@@ -47,7 +47,7 @@ interface UrlBasedICRC1TransferRequest {
 export function UrlBasedPaymentPage() {
   const msq = useMsqClient();
   const { assets, fetch, refresh, addAsset, addAccount } = useAssetData();
-  const [selectedAccountId, setSelectedAccountId] = createSignal<TAccountId>(0);
+  const [selectedAccountId, setSelectedAccountId] = createSignal<TAccountId>("0");
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
   const [sendPageProps, setSendPageProps] = useSendPageProps();
   const navigate = useNavigate();
@@ -115,7 +115,7 @@ export function UrlBasedPaymentPage() {
 
     setReceivePopupProps({
       assetId,
-      principal: assets[assetId]!.accounts[accountId].principal!,
+      principal: assets[assetId]!.accounts[parseInt(accountId)].principal!,
       symbol: assets[assetId]!.metadata!.symbol,
       onClose: handleReceiveClose,
     });
@@ -140,9 +140,9 @@ export function UrlBasedPaymentPage() {
 
     const p: ISendPageProps = {
       accountId,
-      name: assets[assetId]!.accounts[accountId].name,
-      balance: assets[assetId]!.accounts[accountId].balance!,
-      principal: assets[assetId]!.accounts[accountId].principal!,
+      name: assets[assetId]!.accounts[parseInt(accountId)].name,
+      balance: assets[assetId]!.accounts[parseInt(accountId)].balance!,
+      principal: assets[assetId]!.accounts[parseInt(accountId)].principal!,
 
       assetId,
       symbol: assets[assetId]!.metadata!.symbol,
@@ -194,9 +194,12 @@ export function UrlBasedPaymentPage() {
                   <For each={assets[getAssetId()!]?.accounts}>
                     {(account, idx) => (
                       <AccountCard
-                        classList={{ [AccountCardBase]: true, [AccountCardSelected]: idx() === selectedAccountId() }}
+                        classList={{
+                          [AccountCardBase]: true,
+                          [AccountCardSelected]: idx().toString() === selectedAccountId(),
+                        }}
                         onClick={(accountId) => setSelectedAccountId(accountId)}
-                        accountId={idx()}
+                        accountId={idx().toString()}
                         assetId={transferRequest()!.canisterId}
                         name={account.name}
                         balance={account.balance}
@@ -231,7 +234,7 @@ export function UrlBasedPaymentPage() {
                 />
                 <Show
                   when={
-                    (assets[getAssetId()!]!.accounts[selectedAccountId()].balance || 0n) >=
+                    (assets[getAssetId()!]!.accounts[parseInt(selectedAccountId())].balance || 0n) >=
                     (transferRequest()!.amount || 0n) + assets[getAssetId()!]!.metadata!.fee
                   }
                   fallback={
@@ -241,7 +244,7 @@ export function UrlBasedPaymentPage() {
                       text="Top up the Balance"
                       icon={EIconKind.ArrowLeftDown}
                       onClick={() => handleReceive(selectedAccountId())}
-                      disabled={assets[getAssetId()!]!.accounts[selectedAccountId()].principal === undefined}
+                      disabled={assets[getAssetId()!]!.accounts[parseInt(selectedAccountId())].principal === undefined}
                       fullWidth
                     />
                   }

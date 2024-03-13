@@ -7,7 +7,7 @@ import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { EIconKind } from "../../../../ui-kit/icon";
 import { createStore } from "solid-js/store";
 import { useMsqClient } from "../../../../store/global";
-import { debugStringify, hexToBytes } from "@fort-major/msq-shared";
+import { TAccountId, debugStringify, hexToBytes } from "@fort-major/msq-shared";
 import { MsqIdentity } from "@fort-major/msq-client";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import {
@@ -32,7 +32,7 @@ import { TxnFailPage } from "../../../txn/fail";
 import { TxnSuccessPage } from "../../../txn/success";
 
 export interface ISendPageProps {
-  accountId: number;
+  accountId: TAccountId;
   assetId: string;
   name: string;
   principal: string;

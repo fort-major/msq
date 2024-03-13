@@ -51,7 +51,7 @@ describe("Authentication", () => {
     const req: IIdentityLoginRequest = {
       toOrigin: "http://localhost:8081",
       withLinkedOrigin: "http://localhost:8081",
-      withIdentityId: 0,
+      withIdentityId: "0",
     };
 
     const snapResp1 = await snap.request({
@@ -113,7 +113,7 @@ describe("Authentication", () => {
     const req: IIdentityLoginRequest = {
       toOrigin: "http://localhost:8081",
       withLinkedOrigin: "http://localhost:8082",
-      withIdentityId: 0,
+      withIdentityId: "0",
     };
 
     const snapResp1 = await snap.request({
@@ -152,7 +152,7 @@ describe("Authentication", () => {
     const req2: IIdentityLoginRequest = {
       toOrigin: anotherSite,
       withLinkedOrigin: site,
-      withIdentityId: 0,
+      withIdentityId: "0",
     };
 
     const snapResp2 = await snap.request({
@@ -252,7 +252,7 @@ describe("Authentication", () => {
       const req2: IIdentityLoginRequest = {
         toOrigin: s,
         withLinkedOrigin: site,
-        withIdentityId: 0,
+        withIdentityId: "0",
       };
 
       const resp2 = await snap.request({

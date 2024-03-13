@@ -5,10 +5,11 @@ import { AccountCard } from "../../components/account-card";
 import { Button, EButtonKind } from "../../ui-kit/button";
 import { onMount } from "solid-js";
 import { useMsqClient } from "../../store/global";
+import { TAccountId } from "@fort-major/msq-shared";
 
 export interface ITxnSuccessPageProps {
   assetId: string;
-  accountId: number;
+  accountId: TAccountId;
   accountName: string;
   accountBalance: bigint;
   accountPrincipal: string;

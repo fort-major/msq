@@ -1,5 +1,5 @@
 import { For, Match, Show, Switch, createEffect, createSignal } from "solid-js";
-import { IMask, TOrigin, originToHostname } from "@fort-major/msq-shared";
+import { IMask, TIdentityId, TOrigin, originToHostname } from "@fort-major/msq-shared";
 import { DismissBtn, LoginHeadingSection, LoginOptionsSection, LoginOptionsWrapper, LoginPageHeader } from "./style";
 import { useICRC35, useMsqClient } from "../../../store/global";
 import { useNavigate } from "@solidjs/router";
@@ -33,7 +33,7 @@ export function LoginPage() {
     setLoginOptions(loginOptions);
   });
 
-  const onLogin = async (loginOrigin: string, identityId: number) => {
+  const onLogin = async (loginOrigin: string, identityId: TIdentityId) => {
     await _msq()!.login(icrc35Request()!.peerOrigin, identityId, loginOrigin);
 
     icrc35Request()!.respond(true);
@@ -94,7 +94,7 @@ export function LoginPage() {
                       <LoginOption
                         pseudonym={mask.pseudonym}
                         principal={mask.principal}
-                        onClick={() => onLogin(origin, idx())}
+                        onClick={() => onLogin(origin, idx().toString())}
                       />
                     </>
                   )}

@@ -185,7 +185,7 @@ export function AssetsStore(props: IChildren) {
           }
 
           for (let idx = 0; idx < allAssetData[assetId]!.accounts.length; idx++) {
-            MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, idx)).then((identity) => {
+            MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, idx.toString())).then((identity) => {
               const principal = identity.getPrincipal();
 
               setAllAssetData(assetId, "accounts", idx, "principal", principal.toText());
@@ -211,7 +211,7 @@ export function AssetsStore(props: IChildren) {
 
     setAllAssetData(assetId, "accounts", accountId, { name, balance: BigInt(0), principal: DEFAULT_PRINCIPAL });
 
-    const identity = await MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, accountId));
+    const identity = await MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, accountId.toString()));
     const principal = identity.getPrincipal();
 
     setAllAssetData(assetId, "accounts", accountId, "principal", principal.toText());
@@ -268,7 +268,7 @@ export function AssetsStore(props: IChildren) {
       }),
     );
 
-    const identity = await MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, 0));
+    const identity = await MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, "0"));
     const principal = identity.getPrincipal();
 
     setAllAssetData(assetId, "accounts", 0, "principal", principal.toText());
@@ -279,7 +279,7 @@ export function AssetsStore(props: IChildren) {
   const editAccount = async (assetId: string, accountId: TAccountId, newName: string) => {
     const msq = _msq()!;
 
-    setAllAssetData(assetId, "accounts", accountId, "name", newName);
+    setAllAssetData(assetId, "accounts", parseInt(accountId), "name", newName);
     await msq.editAssetAccount(assetId, accountId, newName);
   };
 

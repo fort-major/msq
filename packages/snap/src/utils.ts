@@ -56,7 +56,15 @@ export function guardMethods(method: string, origin: TOrigin): void {
  * @returns
  */
 export function isMsq(origin: TOrigin): boolean {
-  return origin === (process.env.MSQ_SNAP_SITE_ORIGIN as string);
+  if (typeof process.env.MSQ_SNAP_SITE_ORIGIN !== "string") {
+    err(ErrorCode.UNKOWN, "Invalid type of MSQ_SNAP_SITE_ORIGIN");
+  }
+
+  if (typeof origin !== "string") {
+    err(ErrorCode.UNKOWN, "Invalid type of origin");
+  }
+
+  return origin.trim() === (process.env.MSQ_SNAP_SITE_ORIGIN as string).trim();
 }
 
 /**

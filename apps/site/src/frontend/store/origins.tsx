@@ -73,7 +73,7 @@ export function OriginDataStore(props: IChildren) {
   const editPseudonym = async (origin: TOrigin, identityId: TIdentityId, newPseudonym: string) => {
     const msq = _msq()!;
 
-    setAllOriginData(origin, "masks", identityId, "pseudonym", newPseudonym);
+    setAllOriginData(origin, "masks", parseInt(identityId), "pseudonym", newPseudonym);
     await msq.editPseudonym(origin, identityId, newPseudonym);
   };
 

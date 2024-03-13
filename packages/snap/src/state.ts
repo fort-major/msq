@@ -39,7 +39,7 @@ export class StateManager {
     let originData = this.state.originData[origin];
 
     if (originData === undefined) {
-      const mask = await this.makeMask(origin, 0);
+      const mask = await this.makeMask(origin, "0");
       originData = makeDefaultOriginData(mask);
     }
 
@@ -102,7 +102,7 @@ export class StateManager {
       err(ErrorCode.INVALID_INPUT, `No origin data exists ${origin}`);
     }
 
-    if (Object.keys(originData.masks).length <= identityId) {
+    if (Object.keys(originData.masks).length <= parseInt(identityId)) {
       err(ErrorCode.INVALID_INPUT, `No mask exists ${identityId}`);
     }
 
@@ -251,11 +251,11 @@ export class StateManager {
     let originData = this.state.originData[origin];
 
     if (originData === undefined) {
-      const mask = await this.makeMask(origin, 0);
+      const mask = await this.makeMask(origin, "0");
       originData = makeDefaultOriginData(mask);
     }
 
-    const identityId = Object.keys(originData.masks).length;
+    const identityId = Object.keys(originData.masks).length.toString();
     const mask = await this.makeMask(origin, identityId);
     originData.masks[identityId] = mask;
 
@@ -308,7 +308,7 @@ export class StateManager {
 
     if (assetData === undefined) unreacheable(`No asset exists ${assetId}`);
 
-    const accountId = Object.keys(assetData.accounts).length;
+    const accountId = Object.keys(assetData.accounts).length.toString();
     const name = `Account #${accountId}`;
     assetData.accounts[accountId] = name;
 
@@ -335,7 +335,8 @@ export class StateManager {
     const assetData = this.state.assetData[assetId];
 
     if (assetData === undefined) unreacheable(`No asset exists ${assetId}`);
-    if (Object.keys(assetData.accounts).length <= accountId) unreacheable(`No account exists ${assetId} ${accountId}`);
+    if (Object.keys(assetData.accounts).length <= parseInt(accountId))
+      unreacheable(`No account exists ${assetId} ${accountId}`);
 
     assetData.accounts[accountId] = newName;
   }
@@ -415,7 +416,7 @@ function makeDefaultStatistics(): IStatistics {
  */
 function makeDefaultOriginData(mask: IMask): IOriginData {
   return {
-    masks: { 0: mask },
+    masks: { "0": mask },
     currentSession: undefined,
     linksFrom: {},
     linksTo: {},
@@ -428,7 +429,7 @@ function makeDefaultOriginData(mask: IMask): IOriginData {
  */
 function makeDefaultAssetData(): IAssetData {
   return {
-    accounts: { 0: "Main" },
+    accounts: { "0": "Main" },
   };
 }
 

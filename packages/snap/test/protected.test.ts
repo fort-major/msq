@@ -38,7 +38,7 @@ describe("Protected methods", () => {
     // login
     const req2: IIdentityLoginRequest = {
       toOrigin: badSite,
-      withIdentityId: 0,
+      withIdentityId: "0",
     };
 
     const resp2 = await snap.request({
