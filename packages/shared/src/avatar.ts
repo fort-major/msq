@@ -1,4 +1,5 @@
 import { Principal } from "@dfinity/principal";
+import { escapeHtml } from "./types";
 
 /**
  * Creates an SVG string for an avatar based on a given Principal object, with an optional background color.
@@ -12,6 +13,8 @@ import { Principal } from "@dfinity/principal";
  * @returns {string} A string representation of the SVG for the avatar, customized based on the Principal object.
  */
 export function makeAvatarSvg(principal: Principal, bgColor: string = "#1E1F28"): string {
+  bgColor = escapeHtml(bgColor);
+
   const principalBytes = principalToBytes(principal);
   const bodyColor = getBodyColor(principalBytes);
   const bodyAngle = getBodyAngle(principalBytes);
@@ -35,7 +38,7 @@ export function makeAvatarSvg(principal: Principal, bgColor: string = "#1E1F28")
  * @param {string} [eyeWhiteColor="white"] - Optional color for the whites of the eyes. Defaults to white if not specified.
  * @returns {string} A string representation of the SVG for the custom avatar.
  */
-export function makeAvatarSvgCustom(
+function makeAvatarSvgCustom(
   id: string,
   bodyColor: string,
   bodyAngle: IAngle,

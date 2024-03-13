@@ -17,12 +17,12 @@
     "doc": "typedoc src/**/*.{ts,tsx}"
   },
   "dependencies": {
-    "@aws-crypto/crc32": "5.2.0",
     "cbor-x": "1.5.6",
-    "jssha": "3.3.1"
+    "sanitize-html": "2.12.1"
   },
   "devDependencies": {
     "@types/jest": "29.5.10",
+    "@types/sanitize-html": "2.11.0",
     "jest": "29.7.0",
     "ts-jest": "29.1.1"
   }
