@@ -1,5 +1,5 @@
 import { Principal } from "@dfinity/principal";
-import { escapeHtml } from "./types";
+import { ZHexColorSanitized } from "./types";
 
 /**
  * Creates an SVG string for an avatar based on a given Principal object, with an optional background color.
@@ -13,7 +13,7 @@ import { escapeHtml } from "./types";
  * @returns {string} A string representation of the SVG for the avatar, customized based on the Principal object.
  */
 export function makeAvatarSvg(principal: Principal, bgColor: string = "#1E1F28"): string {
-  bgColor = escapeHtml(bgColor);
+  bgColor = ZHexColorSanitized.parse(bgColor);
 
   const principalBytes = principalToBytes(principal);
   const bodyColor = getBodyColor(principalBytes);

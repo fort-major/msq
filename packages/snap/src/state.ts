@@ -274,14 +274,16 @@ export class StateManager {
    * retrieval and management of asset data.
    *
    * @param {string} assetId - The ID of the asset to add or retrieve.
+   * @param {string} name - The name of the asset, e.g. "Internet Computer".
+   * @param {string} symbol - The symbol (ticker) of the asset, e.g. "ICP".
    * @returns {IAssetData} The asset data associated with the given asset ID.
    */
-  public addAsset(assetId: string): IAssetData {
+  public addAsset(assetId: string, name: string, symbol: string): IAssetData {
     let assetData = this.state.assetData[assetId];
 
     if (assetData !== undefined) return assetData;
 
-    assetData = makeDefaultAssetData();
+    assetData = makeDefaultAssetData(name, symbol);
 
     this.state.assetData[assetId] = assetData;
 
@@ -378,7 +380,6 @@ export class StateManager {
   }
 }
 
-
 /**
  * Creates the default state object.
  * @returns The default state object.
@@ -408,10 +409,9 @@ function makeDefaultStatistics(): IStatistics {
   };
 }
 
-
 /**
  * Creates the default origin data object.
- * 
+ *
  * @param mask - The mask object.
  * @returns The default origin data object.
  */
@@ -428,8 +428,10 @@ function makeDefaultOriginData(mask: IMask): IOriginData {
  * Creates the default asset data.
  * @returns The default asset data.
  */
-function makeDefaultAssetData(): IAssetData {
+function makeDefaultAssetData(name: string, symbol: string): IAssetData {
   return {
+    name,
+    symbol,
     accounts: { 0: "Main" },
   };
 }

@@ -82,6 +82,12 @@ export async function getSignIdentity(
   // this will allow us to change the domain name without users losing their funds and accounts
   const orig = isMsq(origin) ? "https://msq.tech" : origin;
 
+  // forbid other dapps from using external salt
+  // TODO: better trap here, if the provided salt is not the default one
+  if (!isMsq(origin)) {
+    salt = new Uint8Array();
+  }
+
   // shared prefix may be used in following updates
   const entropy = await getEntropy(orig, identityId, "identity-sign\nshared", salt);
 

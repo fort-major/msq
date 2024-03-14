@@ -97,7 +97,9 @@ export function useTxnHistoryPageProps() {
   return ctx.txnHistoryPageProps;
 }
 
-const PRE_DEFINED_ASSETS = Object.values(PRE_LISTED_TOKENS).map((it) => it.assetId);
+const PRE_DEFINED_ASSETS: { assetId: string; name: string; symbol: string }[] = Object.values(PRE_LISTED_TOKENS).map(
+  (it) => ({ assetId: it.assetId, name: it.name, symbol: it.symbol }),
+);
 
 export function AssetsStore(props: IChildren) {
   const [allAssetData, setAllAssetData] = createStore<AllAssetData>();
@@ -135,9 +137,9 @@ export function AssetsStore(props: IChildren) {
 
     // CREATE PRE-DEFINED ASSETS
     const assetsToCreate = [];
-    for (let assetId of PRE_DEFINED_ASSETS) {
-      if (fetchedAllAssetData[assetId]) continue;
-      assetsToCreate.push({ assetId });
+    for (let asset of PRE_DEFINED_ASSETS) {
+      if (fetchedAllAssetData[asset.assetId]) continue;
+      assetsToCreate.push(asset);
     }
     if (assetsToCreate.length > 0) {
       await msq.addAsset({ assets: assetsToCreate });
@@ -201,9 +203,9 @@ export function AssetsStore(props: IChildren) {
     }
   };
 
-  const addAccount = async (assetId: string, assetName: string, symbol: string) => {
+  const addAccount = async (assetId: string) => {
     const msq = _msq()!;
-    const name = await msq.addAssetAccount(assetId, assetName, symbol);
+    const name = await msq.addAssetAccount(assetId);
 
     if (name === null) return;
 

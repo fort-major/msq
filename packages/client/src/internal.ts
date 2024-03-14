@@ -96,10 +96,10 @@ export class InternalSnapClient {
     return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAsset, req);
   }
 
-  async addAssetAccount(assetId: string, assetName: string, assetSymbol: string): Promise<string | null> {
+  async addAssetAccount(assetId: string): Promise<string | null> {
     this.checkInnerSet();
 
-    const body: IICRC1AddAssetAccountRequest = { assetId, name: assetName, symbol: assetSymbol };
+    const body: IICRC1AddAssetAccountRequest = { assetId };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAssetAccount, body);
   }

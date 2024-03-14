@@ -83,8 +83,14 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
   }
 
   const originData = await manager.getOriginData(body.toOrigin);
-  if (Object.keys(originData.masks).length === 0) {
-    unreacheable("login - no origin data found");
+
+  // check if the provided identityId points to an existing identity
+  if (body.withLinkedOrigin === undefined) {
+    if (!originData.masks[body.withIdentityId]) unreacheable("attempt to log in with an unknown identity");
+  } else {
+    const linkedOriginData = await manager.getOriginData(body.withLinkedOrigin);
+
+    if (!linkedOriginData.masks[body.withIdentityId]) unreacheable("attempt to log in with an unknown identity");
   }
 
   const timestamp = new Date().getTime();

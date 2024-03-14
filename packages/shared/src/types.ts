@@ -33,6 +33,11 @@ export const ZPrincipalStrSanitized = z.string().regex(/^[0-9a-zA-Z]{1,5}(\-[0-9
 export const ZICRC1Subaccount = z.instanceof(Uint8Array);
 
 /**
+ * A 6-digit hex color code, e.g. #12beef
+ */
+export const ZHexColorSanitized = z.string().regex(/^#[a-fA-F0-9]{6}$/);
+
+/**
  * Website origin, for example `https://google.com`
  */
 export type TOrigin = z.infer<typeof ZOrigin>;
@@ -117,8 +122,14 @@ export const ZStatistics = z.object({
   data: ZStatisticsData,
 });
 
+export const ZAmountStrSanitized = z.string().regex(/^[0-9',\.]+$/);
+const ZAssetNameSanitized = z.string().min(1).transform(escapeHtml);
+export const ZTickerStrSanitized = z.string().regex(/^[A-Za-z0-9]+$/);
+
 export type IAssetData = z.infer<typeof ZAssetData>;
 export const ZAssetData = z.object({
+  name: ZAssetNameSanitized,
+  symbol: ZTickerStrSanitized,
   accounts: z.record(ZNonEmptyStrSanitized, ZNonEmptyStrSanitized),
 });
 
@@ -261,9 +272,6 @@ export const ZICRC1TransferRequest = z.object({
 });
 export type IICRC1TransferRequest = z.infer<typeof ZICRC1TransferRequest>;
 
-export const ZAmountStrSanitized = z.string().regex(/^[0-9',\.]+$/);
-export const ZTickerStrSanitized = z.string().regex(/^[A-Za-z0-9]+$/);
-
 export const ZShowICRC1TransferConfirmRequest = z.object({
   requestOrigin: ZOrigin,
   from: ZPrincipalStrSanitized,
@@ -274,14 +282,12 @@ export const ZShowICRC1TransferConfirmRequest = z.object({
 });
 export type IShowICRC1TransferConfirmRequest = z.infer<typeof ZShowICRC1TransferConfirmRequest>;
 
-const ZAssetNameSanitized = z.string().min(1).transform(escapeHtml);
-
 export const ZICRC1AddAssetRequest = z.object({
   assets: z.array(
     z.object({
       assetId: ZPrincipalStrSanitized,
-      name: z.optional(ZAssetNameSanitized),
-      symbol: z.optional(ZTickerStrSanitized),
+      name: ZAssetNameSanitized,
+      symbol: ZTickerStrSanitized,
     }),
   ),
 });
@@ -289,8 +295,6 @@ export type IICRC1AddAssetRequest = z.infer<typeof ZICRC1AddAssetRequest>;
 
 export const ZICRC1AddAssetAccountRequest = z.object({
   assetId: ZPrincipalStrSanitized,
-  name: ZAssetNameSanitized,
-  symbol: ZTickerStrSanitized,
 });
 export type IICRC1AddAssetAccountRequest = z.infer<typeof ZICRC1AddAssetAccountRequest>;
 
