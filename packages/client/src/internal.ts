@@ -54,7 +54,7 @@ export class InternalSnapClient {
     toOrigin: TOrigin,
     withIdentityId: TIdentityId,
     withDeriviationOrigin: TOrigin = toOrigin,
-  ): Promise<true> {
+  ): Promise<boolean> {
     this.checkInnerSet();
 
     const body: IIdentityLoginRequest = {
@@ -153,12 +153,6 @@ export class InternalSnapClient {
     };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.identity.unlinkAll, body);
-  }
-
-  async showICRC1TransferConfirm(body: IShowICRC1TransferConfirmRequest): Promise<boolean> {
-    this.checkInnerSet();
-
-    return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.showTransferConfirm, body);
   }
 
   async getStats(): Promise<IStatistics> {

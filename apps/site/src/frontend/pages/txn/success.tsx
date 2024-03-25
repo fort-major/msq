@@ -1,10 +1,10 @@
 import { styled } from "solid-styled-components";
 import { H3, Size16, Size20, Text, WeightSemiBold } from "../../ui-kit/typography";
-import { tokensToStr } from "../../utils";
 import { AccountCard } from "../../components/account-card";
 import { Button, EButtonKind } from "../../ui-kit/button";
 import { onMount } from "solid-js";
 import { useMsqClient } from "../../store/global";
+import { tokensToStr } from "@fort-major/msq-shared";
 
 export interface ITxnSuccessPageProps {
   assetId: string;

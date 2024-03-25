@@ -130,6 +130,8 @@ export type IAssetData = z.infer<typeof ZAssetData>;
 export const ZAssetData = z.object({
   name: ZAssetNameSanitized,
   symbol: ZTickerStrSanitized,
+  fee: z.bigint().nonnegative(),
+  decimals: ZNonNegativeInt,
   accounts: z.record(ZNonEmptyStrSanitized, ZNonEmptyStrSanitized),
 });
 
@@ -192,8 +194,48 @@ export const ZIdentityLoginRequest = z.object({
 });
 export type IIdentityLoginRequest = z.infer<typeof ZIdentityLoginRequest>;
 
+export const ZCallRequest = z
+  .object({
+    request_type: z.literal("call"),
+    canister_id: ZPrincipalStrSanitized,
+    method_name: ZNonEmptyStrSanitized,
+    arg: ZBlob,
+    sender: ZPrincipalStrSanitized.or(ZBlob),
+    ingress_expiry: z.bigint().nonnegative(),
+  })
+  .passthrough();
+export type ICallRequest = z.infer<typeof ZCallRequest>;
+
+export const ZQueryRequest = z
+  .object({
+    request_type: z.literal("query"),
+    canister_id: ZPrincipalStrSanitized,
+    method_name: ZNonEmptyStrSanitized,
+    arg: ZBlob,
+    sender: ZPrincipalStrSanitized.or(ZBlob),
+    ingress_expiry: z.bigint().nonnegative(),
+  })
+  .passthrough();
+export type IQueryRequest = z.infer<typeof ZQueryRequest>;
+
+export const ZCanisterRequest = ZCallRequest.or(ZQueryRequest);
+export type ICanisterRequest = z.infer<typeof ZCanisterRequest>;
+
+export const ZReadStateRequest = z
+  .object({
+    request_type: z.literal("read_state"),
+    paths: z.array(z.array(ZBlob)),
+    sender: ZPrincipalStrSanitized.or(ZBlob),
+    ingress_expiry: z.bigint().nonnegative(),
+  })
+  .passthrough();
+export type IReadStateRequest = z.infer<typeof ZReadStateRequest>;
+
+export const ZHttpAgentRequest = z.discriminatedUnion("request_type", [ZCallRequest, ZQueryRequest, ZReadStateRequest]);
+export type IHttpAgentRequest = z.infer<typeof ZHttpAgentRequest>;
+
 export const ZIdentitySignRequest = z.object({
-  challenge: ZBlob,
+  request: ZHttpAgentRequest,
   salt: z.instanceof(Uint8Array),
 });
 export type IIdentitySignRequest = z.infer<typeof ZIdentitySignRequest>;
@@ -288,6 +330,8 @@ export const ZICRC1AddAssetRequest = z.object({
       assetId: ZPrincipalStrSanitized,
       name: ZAssetNameSanitized,
       symbol: ZTickerStrSanitized,
+      fee: z.bigint().nonnegative(),
+      decimals: ZNonNegativeInt,
     }),
   ),
 });

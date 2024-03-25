@@ -26,9 +26,26 @@ import {
   toCBOR,
   ZIdentityUnlinkAllRequest,
   ZIdentityGetPublicKeyRequest,
+  bytesToHex,
+  calculateMSQFee,
+  IHttpAgentRequest,
+  IOriginData,
+  tokensToStr,
 } from "@fort-major/msq-shared";
 import { StateManager } from "../state";
-import { getSignIdentity, text, heading } from "../utils";
+import {
+  getSignIdentity,
+  text,
+  heading,
+  ONE_HOUR_MS,
+  isMsq,
+  ICRC1TransferArgs,
+  ICRC1_TRANSFER_ARGS_SCHEMA,
+  prepareRequest,
+  IC_DOMAIN_SEPARATOR,
+} from "../utils";
+import { concat, requestIdOf } from "@dfinity/agent";
+import { IDL } from "@dfinity/candid";
 
 /**
  * ## Creates a new identity (mask) for the user to authorize with on some website
@@ -73,7 +90,7 @@ export async function protected_handleIdentityAdd(bodyCBOR: string): Promise<IMa
  * @category Protected
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<true> {
+export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<boolean> {
   const body: IIdentityLoginRequest = zodParse(ZIdentityLoginRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
 
@@ -93,6 +110,48 @@ export async function protected_handleIdentityLogin(bodyCBOR: string): Promise<t
     if (!linkedOriginData.masks[body.withIdentityId]) unreacheable("attempt to log in with an unknown identity");
   }
 
+  // show a consent message to the user
+  // don't show for MSQ
+  if (!isMsq(body.toOrigin)) {
+    // compose a confirmation string, that mentions the linked origin, if there is one
+    const withOriginConfirmStr = body.withLinkedOrigin
+      ? `, using a mask from **${originToHostname(body.withLinkedOrigin)}**`
+      : "";
+
+    // compose a confirmation string, that mentions the identity being used for the session
+    const identityPrincipalConfirmStr = (
+      await getSignIdentity(body.withLinkedOrigin ? body.withLinkedOrigin : body.toOrigin, body.withIdentityId)
+    )
+      .getPrincipal()
+      .toText();
+
+    // render a confirmation message
+    const agreed = await snap.request({
+      method: "snap_dialog",
+      params: {
+        type: "confirmation",
+        content: panel([
+          heading("🔒 Confirm Authorization 🔒"),
+          text(`Are you sure you want to log in to **${originToHostname(body.toOrigin)}**${withOriginConfirmStr}?`),
+          divider(),
+          text(
+            `**${originToHostname(
+              body.toOrigin,
+            )}** will be able to silently sign messages on behalf of your **${identityPrincipalConfirmStr}** mask!`,
+          ),
+          divider(),
+          text("**Confirm?** 🚀"),
+        ]),
+      },
+    });
+
+    // retreat if disapproved
+    if (!agreed) {
+      return false;
+    }
+  }
+
+  // otherwise, start the authorization session
   const timestamp = new Date().getTime();
   originData.currentSession = {
     deriviationOrigin: body.withLinkedOrigin ?? body.toOrigin,
@@ -257,9 +316,13 @@ export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<bool
 }
 
 /**
- * ## Signs an arbitrary message with the chosen user key pair
+ * ## Signs an IC http request body with the chosen user key pair
  *
- * There is a separate Secp256k1 key pair for each user, for each origin, for each user's identity (mask). In other words, key pairs are scoped.
+ * Shows a consent message, if on MSQ and an ICRC1 Transfer call is detected.
+ * Triggers auth session expiration check and shows a consent message so the user could refresh it.
+ *
+ * There is a separate Secp256k1 key pair for each user, for each origin, for each user's identity (mask).
+ * In other words, key pairs are scoped.
  * Moreover, each key pair can be used to derive more signing key pairs for arbitrary purposes.
  *
  * Only works if the user is logged in.
@@ -274,15 +337,29 @@ export async function handleIdentityLogoutRequest(origin: TOrigin): Promise<bool
 export async function handleIdentitySign(bodyCBOR: string, origin: TOrigin): Promise<ArrayBuffer> {
   const body: IIdentitySignRequest = zodParse(ZIdentitySignRequest, fromCBOR(bodyCBOR));
   const manager = await StateManager.make();
-  let session = (await manager.getOriginData(origin)).currentSession;
+  const originData = await manager.getOriginData(origin);
 
-  if (session === undefined) {
+  if (originData.currentSession === undefined) {
     err(ErrorCode.UNAUTHORIZED, "Log in first");
   }
 
-  const identity = await getSignIdentity(session.deriviationOrigin, session.identityId, body.salt);
+  const identity = await getSignIdentity(
+    originData.currentSession.deriviationOrigin,
+    originData.currentSession.identityId,
+    body.salt,
+  );
 
-  return await identity.sign(body.challenge);
+  const principalId = identity.getPrincipal().toText();
+
+  // those two will trap, if something goes wrong
+  await assertSessionFresh(manager, originData, principalId, origin);
+  await assertIcrc1TransferAcknowledged(manager, body.request, principalId, origin);
+
+  const request = prepareRequest(body.request);
+  const requestId = requestIdOf(request);
+
+  // and sign
+  return await identity.sign(concat(IC_DOMAIN_SEPARATOR, requestId));
 }
 
 /**
@@ -494,4 +571,167 @@ export async function handleIdentitySessionExists(origin: TOrigin): Promise<bool
   const manager = await StateManager.make();
 
   return (await manager.getOriginData(origin)).currentSession !== undefined;
+}
+
+/**
+ * Checks if the current auth session is expired
+ * and if so, prompts the user to explicitly refresh it
+ *
+ * If the user agrees, refreshes the session, if not - clears the session and traps
+ *
+ * @param {StateManager} manager
+ * @param {IOriginData} originData
+ * @param {string} identityPrincipalId
+ */
+async function assertSessionFresh(
+  manager: StateManager,
+  originData: IOriginData,
+  identityPrincipalId: string,
+  origin: string,
+) {
+  if (!originData.currentSession) {
+    unreacheable("Auth session not found");
+  }
+
+  const nowMs = Date.now();
+
+  // time-lock the session, so it only lasts for two hours
+  // asking for an additional confirmation before proceeding with the signature
+  // only works for non-MSQ websites
+  if (!isMsq(origin) && nowMs - originData.currentSession.timestampMs > 2 * ONE_HOUR_MS) {
+    const agreed = await snap.request({
+      method: "snap_dialog",
+      params: {
+        type: "confirmation",
+        content: panel([
+          heading("🔒 Confirm Authorization 🔒"),
+          text(`Your session at **${originToHostname(origin)}** has expired.`),
+          text(
+            `Continue allowing **${originToHostname(
+              origin,
+            )}** to silently sign messages on behalf of your **${identityPrincipalId}** mask?`,
+          ),
+          divider(),
+          text("**Confirm?** 🚀"),
+        ]),
+      },
+    });
+
+    // if disapproved, simply log out and throw an error
+    if (!agreed) {
+      originData.currentSession = undefined;
+      manager.setOriginData(origin, originData);
+
+      // unfortunately, there is no better way to trap and persist the session here
+      await StateManager.persist();
+
+      err(ErrorCode.UNAUTHORIZED, "The user has explicitly blocked the request (expired session)");
+    }
+
+    // otherwise refresh the session
+    originData.currentSession.timestampMs = nowMs;
+    manager.setOriginData(origin, originData);
+  }
+}
+
+/**
+ * Protects the MSQ website from possible hack, such as DNS attack
+ * Makes users explicitly confirm any signature, when it goes to the "icrc1_transfer" method of any canister
+ *
+ * Traps, if the token is not found or the user has denied the transfer
+ *
+ * @param {StateManager} manager
+ * @param {IHttpAgentRequest} req
+ */
+async function assertIcrc1TransferAcknowledged(
+  manager: StateManager,
+  req: IHttpAgentRequest,
+  identityPrincipalId: string,
+  origin: string,
+) {
+  // skip for other websites, skip for non-replicated calls
+  if (!isMsq(origin) || req.request_type !== "call") return;
+
+  // skip for anything other than "icrc1_transfer" or "transfer", or "send", or "burn", or "mint"
+  // this way we can still use methods like "icrc1_balance" in replicated mode
+  if (
+    !req.method_name.includes("transfer") &&
+    !req.method_name.includes("send") &&
+    !req.method_name.includes("burn") &&
+    !req.method_name.includes("mint")
+  )
+    return;
+
+  // panic, if the method name is not what we expect here
+  if (req.method_name !== "icrc1_transfer") {
+    err(ErrorCode.ICRC1_ERROR, "Only ICRC1 transfers are allowed");
+  }
+
+  // check if the token even exists in the wallet
+  const assetData = manager.getAllAssetData()[req.canister_id];
+
+  if (!assetData) {
+    err(ErrorCode.ICRC1_ERROR, "Asset data not found");
+  }
+
+  // for some reason, the candid API expects an ArrayBuffer as an argument,
+  // while not providing any way to mark the offset and the lenght of this buffer, if it is not exclusive
+  let arg;
+  if (req.arg instanceof Uint8Array) {
+    arg = new ArrayBuffer(req.arg.byteLength);
+    new Uint8Array(arg).set(req.arg);
+  } else {
+    arg = req.arg;
+  }
+
+  // decode the arguments
+  // will fail, if not icrc1_transfer args are used
+  const [icrc1Request] = IDL.decode([ICRC1_TRANSFER_ARGS_SCHEMA], arg) as unknown as [ICRC1TransferArgs];
+
+  // do not trigger, when sending MSQ fees (when the recepient is our hard-coded account)
+  const [_, chargingAccountId] = calculateMSQFee(req.canister_id, icrc1Request.amount);
+  const sendingMSQFees = icrc1Request.to.owner.toText() === chargingAccountId;
+  if (sendingMSQFees) return;
+
+  // prompt the user with a consent message
+  const totalAmountStr = tokensToStr(icrc1Request.amount + assetData.fee, assetData.decimals, false, true);
+
+  const toSubaccountStr =
+    icrc1Request.to.subaccount.length > 0
+      ? bytesToHex(icrc1Request.to.subaccount[0] as Uint8Array)
+      : "Default subaccount ID";
+
+  const agreed = await snap.request({
+    method: "snap_dialog",
+    params: {
+      type: "confirmation",
+      content: panel([
+        heading(`💳 Confirm ${assetData.symbol} Transfer 💳`),
+        text("**Protocol:**"),
+        text("ICRC-1"),
+        text("**Initiator:**"),
+        text(`🌐 ${originToHostname(origin)}`),
+        text("**From:**"),
+        text(identityPrincipalId),
+        text("**To principal ID:**"),
+        text(icrc1Request.to.owner.toText()),
+        text("**To subaccount ID:**"),
+        text(toSubaccountStr),
+        text("**Total amount:**"),
+        heading(`${totalAmountStr} ${assetData.symbol}`),
+        text("*additional fees may apply*"),
+        divider(),
+        heading("🚨 BE CAREFUL! 🚨"),
+        text("This action is irreversible. You won't be able to recover your funds!"),
+        divider(),
+        text("**Confirm?** 🚀"),
+      ]),
+    },
+  });
+
+  if (!agreed) {
+    err(ErrorCode.ICRC1_ERROR, "The user has explicitly blocked the request (transfer rejected)");
+  }
+
+  // pass if agreed
 }

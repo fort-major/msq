@@ -25,7 +25,6 @@ export const SNAP_METHODS = {
       unlinkAll: "protected_identity_unlinkAll",
     },
     icrc1: {
-      showTransferConfirm: "protected_icrc1_showTransferConfirm",
       addAsset: "protected_icrc1_addAsset",
       addAssetAccount: "protected_icrc1_addAssetAccount",
       editAssetAccount: "protected_icrc1_editAssetAccount",
@@ -147,28 +146,41 @@ export function originToHostname(origin: TOrigin): string {
   return new URL(origin).hostname;
 }
 
-export const PRE_LISTED_TOKENS: Record<
-  string,
-  { name: string; symbol: string; assetId: string; logoSrc?: string; chargingAccountId?: string }
-> = {
+type PreListedToken = {
+  name: string;
+  symbol: string;
+  assetId: string;
+  logoSrc?: string;
+  chargingAccountId?: string;
+  fee: bigint;
+  decimals: number;
+};
+
+export const PRE_LISTED_TOKENS: Record<string, PreListedToken> = {
   "ryjl3-tyaaa-aaaaa-aaaba-cai": {
     name: "Internet Computer",
     symbol: "ICP",
     assetId: "ryjl3-tyaaa-aaaaa-aaaba-cai",
     logoSrc: "https://nns.ic0.app/_app/immutable/assets/icp-rounded.0be14f6b.svg",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 10_000n,
+    decimals: 8,
   },
   "mxzaz-hqaaa-aaaar-qaada-cai": {
     name: "Bitcoin",
     symbol: "ckBTC",
     assetId: "mxzaz-hqaaa-aaaar-qaada-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 10n,
+    decimals: 8,
   },
   "ss2fx-dyaaa-aaaar-qacoq-cai": {
     name: "Ethereum",
     symbol: "ckETH",
     assetId: "ss2fx-dyaaa-aaaar-qacoq-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 2_000_000_000_000n,
+    decimals: 18,
   },
   "2ouva-viaaa-aaaaq-aaamq-cai": {
     name: "OpenChat",
@@ -176,12 +188,16 @@ export const PRE_LISTED_TOKENS: Record<
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/3e3x2-xyaaa-aaaaq-aaalq-cai/logo.png",
     assetId: "2ouva-viaaa-aaaaq-aaamq-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 100_000n,
+    decimals: 8,
   },
   "qbizb-wiaaa-aaaaq-aabwq-cai": {
     name: "Sonic",
     symbol: "SONIC",
     assetId: "qbizb-wiaaa-aaaaq-aabwq-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 100_000n,
+    decimals: 8,
   },
   "zfcdd-tqaaa-aaaaq-aaaga-cai": {
     name: "Dragginz",
@@ -189,6 +205,8 @@ export const PRE_LISTED_TOKENS: Record<
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/zxeu2-7aaaa-aaaaq-aaafa-cai/logo.png",
     assetId: "zfcdd-tqaaa-aaaaq-aaaga-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 100_000n,
+    decimals: 8,
   },
   "jwcfb-hyaaa-aaaaj-aac4q-cai": {
     name: "Origyn",
@@ -196,6 +214,8 @@ export const PRE_LISTED_TOKENS: Record<
     assetId: "jwcfb-hyaaa-aaaaj-aac4q-cai",
     logoSrc: "https://msq.tech/ogy.svg",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 200_000n,
+    decimals: 8,
   },
   "xsi2v-cyaaa-aaaaq-aabfq-cai": {
     name: "Modclub",
@@ -203,6 +223,8 @@ export const PRE_LISTED_TOKENS: Record<
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/x4kx5-ziaaa-aaaaq-aabeq-cai/logo.png",
     assetId: "xsi2v-cyaaa-aaaaq-aabfq-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 10_000n,
+    decimals: 8,
   },
   "4c4fd-caaaa-aaaaq-aaa3a-cai": {
     name: "ICGhost",
@@ -210,6 +232,8 @@ export const PRE_LISTED_TOKENS: Record<
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/4m6il-zqaaa-aaaaq-aaa2a-cai/logo.png",
     assetId: "4c4fd-caaaa-aaaaq-aaa3a-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 100_000_000n,
+    decimals: 8,
   },
   "73mez-iiaaa-aaaaq-aaasq-cai": {
     name: "Kinic",
@@ -217,6 +241,8 @@ export const PRE_LISTED_TOKENS: Record<
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/7jkta-eyaaa-aaaaq-aaarq-cai/logo.png",
     assetId: "73mez-iiaaa-aaaaq-aaasq-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 100_000n,
+    decimals: 8,
   },
   "6rdgd-kyaaa-aaaaq-aaavq-cai": {
     name: "Hot or Not",
@@ -224,6 +250,8 @@ export const PRE_LISTED_TOKENS: Record<
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/67bll-riaaa-aaaaq-aaauq-cai/logo.png",
     assetId: "6rdgd-kyaaa-aaaaq-aaavq-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 100_000n,
+    decimals: 8,
   },
   "uf2wh-taaaa-aaaaq-aabna-cai": {
     name: "Catalyze",
@@ -231,6 +259,8 @@ export const PRE_LISTED_TOKENS: Record<
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/uly3p-iqaaa-aaaaq-aabma-cai/logo.png",
     assetId: "uf2wh-taaaa-aaaaq-aabna-cai",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 100_000n,
+    decimals: 8,
   },
   "vtrom-gqaaa-aaaaq-aabia-cai": {
     name: "BOOM DAO",
@@ -238,6 +268,8 @@ export const PRE_LISTED_TOKENS: Record<
     assetId: "vtrom-gqaaa-aaaaq-aabia-cai",
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/xjngq-yaaaa-aaaaq-aabha-cai/logo.png",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 100_000n,
+    decimals: 8,
   },
   "tyyy3-4aaaa-aaaaq-aab7a-cai": {
     name: "Gold DAO",
@@ -245,6 +277,8 @@ export const PRE_LISTED_TOKENS: Record<
     assetId: "tyyy3-4aaaa-aaaaq-aab7a-cai",
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/tw2vt-hqaaa-aaaaq-aab6a-cai/logo.png",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 100_000n,
+    decimals: 8,
   },
   "rffwt-piaaa-aaaaq-aabqq-cai": {
     name: "ICX",
@@ -252,6 +286,8 @@ export const PRE_LISTED_TOKENS: Record<
     assetId: "rffwt-piaaa-aaaaq-aabqq-cai",
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/u67kc-jyaaa-aaaaq-aabpq-cai/logo.png",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 100_000n,
+    decimals: 8,
   },
   "f54if-eqaaa-aaaaq-aacea-cai": {
     name: "Neutrinite",
@@ -259,6 +295,8 @@ export const PRE_LISTED_TOKENS: Record<
     assetId: "f54if-eqaaa-aaaaq-aacea-cai",
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/extk7-gaaaa-aaaaq-aacda-cai/logo.png",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 10_000n,
+    decimals: 8,
   },
   "rxdbk-dyaaa-aaaaq-aabtq-cai": {
     name: "Nuance",
@@ -266,6 +304,8 @@ export const PRE_LISTED_TOKENS: Record<
     assetId: "rxdbk-dyaaa-aaaaq-aabtq-cai",
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/rzbmc-yiaaa-aaaaq-aabsq-cai/logo.png",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 100_000n,
+    decimals: 8,
   },
   "hvgxa-wqaaa-aaaaq-aacia-cai": {
     name: "Sneed",
@@ -273,6 +313,8 @@ export const PRE_LISTED_TOKENS: Record<
     assetId: "hvgxa-wqaaa-aaaaq-aacia-cai",
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/fp274-iaaaa-aaaaq-aacha-cai/logo.png",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 1_000n,
+    decimals: 8,
   },
   "emww2-4yaaa-aaaaq-aacbq-cai": {
     name: "TRAX",
@@ -280,6 +322,8 @@ export const PRE_LISTED_TOKENS: Record<
     assetId: "emww2-4yaaa-aaaaq-aacbq-cai",
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/ecu3s-hiaaa-aaaaq-aacaq-cai/logo.png",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 100_000n,
+    decimals: 8,
   },
   "hhaaz-2aaaa-aaaaq-aacla-cai": {
     name: "ICLighthouse DAO",
@@ -287,6 +331,17 @@ export const PRE_LISTED_TOKENS: Record<
     assetId: "hhaaz-2aaaa-aaaaq-aacla-cai",
     logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/hjcnr-bqaaa-aaaaq-aacka-cai/logo.png",
     chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 1_000_000n,
+    decimals: 8,
+  },
+  "gemj7-oyaaa-aaaaq-aacnq-cai": {
+    name: "ELNA AI",
+    symbol: "ELNA",
+    assetId: "gemj7-oyaaa-aaaaq-aacnq-cai",
+    logoSrc: "https://3r4gx-wqaaa-aaaaq-aaaia-cai.icp0.io/v1/sns/root/gkoex-viaaa-aaaaq-aacmq-cai/logo.png",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 100_000n,
+    decimals: 8,
   },
 };
 

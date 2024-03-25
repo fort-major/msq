@@ -1,4 +1,4 @@
-import { ErrorCode, Principal, TAccountId, err } from "@fort-major/msq-shared";
+import { ErrorCode, Principal, TAccountId, err, tokensToStr } from "@fort-major/msq-shared";
 import { useNavigate, useSearchParams } from "@solidjs/router";
 import { For, Show, createEffect, createMemo, createSignal } from "solid-js";
 import { useMsqClient } from "../../../store/global";
@@ -16,7 +16,6 @@ import {
   PaymentPageWrapper,
 } from "./style";
 import { H3, Text } from "../../../ui-kit/typography";
-import { tokensToStr } from "../../../utils";
 import { AccountCard } from "../../../components/account-card";
 import { AddAccountBtn } from "../../../components/add-account-btn";
 import { Button, EButtonKind } from "../../../ui-kit/button";

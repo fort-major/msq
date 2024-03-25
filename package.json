@@ -30,10 +30,10 @@
     "cargo:repair": "turbo cargo:repair"
   },
   "dependencies": {
-    "@dfinity/agent": "1.0",
-    "@dfinity/candid": "1.0",
-    "@dfinity/identity": "1.0",
-    "@dfinity/principal": "1.0",
+    "@dfinity/agent": "^1.1",
+    "@dfinity/candid": "^1.1",
+    "@dfinity/identity": "^1.1",
+    "@dfinity/principal": "^1.1",
     "zod": "3.22.4"
   },
   "devDependencies": {

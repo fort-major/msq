@@ -14,22 +14,15 @@ describe("Protected methods", () => {
     const snap = await installSnap();
     const badSite = "https://bad-site.com";
 
-    // show icrc1 confirm window
-    const req1: IShowICRC1TransferConfirmRequest = {
-      from: "aaaaa-aa",
-      requestOrigin: "http://site.com",
-      ticker: "ICP",
-      to: {
-        owner: "aaaaa-aa",
-        subaccount: new Uint8Array([1, 3, 3, 7]),
-      },
-      totalAmountStr: "123.1234412",
-      totalAmount: BigInt(1231234412),
+    // attempt to log in
+    const req1: IIdentityLoginRequest = {
+      toOrigin: "http:site.com",
+      withIdentityId: 0,
     };
 
     const resp1 = await snap.request({
       origin: badSite,
-      method: SNAP_METHODS.protected.icrc1.showTransferConfirm,
+      method: SNAP_METHODS.protected.identity.login,
       params: { body: toCBOR(req1) },
     });
 
@@ -74,7 +67,5 @@ describe("Protected methods", () => {
     });
 
     expect(() => ok(resp4.response)).toThrowError();
-
-    await snap.close();
   });
 });

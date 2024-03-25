@@ -276,14 +276,16 @@ export class StateManager {
    * @param {string} assetId - The ID of the asset to add or retrieve.
    * @param {string} name - The name of the asset, e.g. "Internet Computer".
    * @param {string} symbol - The symbol (ticker) of the asset, e.g. "ICP".
+   * @param {bigint} fee - The system fee of this token
+   * @param {number} decimals - The position of decimal point
    * @returns {IAssetData} The asset data associated with the given asset ID.
    */
-  public addAsset(assetId: string, name: string, symbol: string): IAssetData {
+  public addAsset(assetId: string, name: string, symbol: string, fee: bigint, decimals: number): IAssetData {
     let assetData = this.state.assetData[assetId];
 
     if (assetData !== undefined) return assetData;
 
-    assetData = makeDefaultAssetData(name, symbol);
+    assetData = makeDefaultAssetData(name, symbol, fee, decimals);
 
     this.state.assetData[assetId] = assetData;
 
@@ -428,10 +430,12 @@ function makeDefaultOriginData(mask: IMask): IOriginData {
  * Creates the default asset data.
  * @returns The default asset data.
  */
-function makeDefaultAssetData(name: string, symbol: string): IAssetData {
+function makeDefaultAssetData(name: string, symbol: string, fee: bigint, decimals: number): IAssetData {
   return {
     name,
     symbol,
+    fee,
+    decimals,
     accounts: { 0: "Main" },
   };
 }

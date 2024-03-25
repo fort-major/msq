@@ -97,9 +97,14 @@ export function useTxnHistoryPageProps() {
   return ctx.txnHistoryPageProps;
 }
 
-const PRE_DEFINED_ASSETS: { assetId: string; name: string; symbol: string }[] = Object.values(PRE_LISTED_TOKENS).map(
-  (it) => ({ assetId: it.assetId, name: it.name, symbol: it.symbol }),
-);
+const PRE_DEFINED_ASSETS: { assetId: string; name: string; symbol: string; decimals: number; fee: bigint }[] =
+  Object.values(PRE_LISTED_TOKENS).map((it) => ({
+    assetId: it.assetId,
+    name: it.name,
+    symbol: it.symbol,
+    decimals: it.decimals,
+    fee: it.fee,
+  }));
 
 export function AssetsStore(props: IChildren) {
   const [allAssetData, setAllAssetData] = createStore<AllAssetData>();
@@ -256,7 +261,17 @@ export function AssetsStore(props: IChildren) {
 
     // then we update to be sure
     metadata = await getAssetMetadata(ledger, true);
-    const assetData = await msq.addAsset({ assets: [{ assetId, name: metadata.name, symbol: metadata.symbol }] });
+    const assetData = await msq.addAsset({
+      assets: [
+        {
+          assetId,
+          name: metadata.name,
+          symbol: metadata.symbol,
+          decimals: metadata.decimals,
+          fee: metadata.fee,
+        },
+      ],
+    });
 
     if (assetData === null) {
       setAllAssetData(assetId, undefined);
