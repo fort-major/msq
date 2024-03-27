@@ -652,16 +652,6 @@ async function assertIcrc1TransferAcknowledged(
   // skip for other websites, skip for non-replicated calls
   if (!isMsq(origin) || req.request_type !== "call") return;
 
-  // skip for anything other than "icrc1_transfer" or "transfer", or "send", or "burn", or "mint"
-  // this way we can still use methods like "icrc1_balance" in replicated mode
-  if (
-    !req.method_name.includes("transfer") &&
-    !req.method_name.includes("send") &&
-    !req.method_name.includes("burn") &&
-    !req.method_name.includes("mint")
-  )
-    return;
-
   // panic, if the method name is not what we expect here
   if (req.method_name !== "icrc1_transfer") {
     err(ErrorCode.ICRC1_ERROR, "Only ICRC1 transfers are allowed");
