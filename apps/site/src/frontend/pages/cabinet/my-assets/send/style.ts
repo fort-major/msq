@@ -1,12 +1,5 @@
 import { css, styled } from "solid-styled-components";
-import {
-  BAR_HEIGHT,
-  COLOR_BLACK,
-  COLOR_GRAY_140,
-  COLOR_GRAY_190,
-  COLOR_WHITE,
-  HEADER_HEIGHT,
-} from "../../../../ui-kit";
+import { COLOR_BLACK, COLOR_GRAY_140, COLOR_GRAY_190, COLOR_WHITE } from "../../../../ui-kit";
 
 export const SendPageMixin = css`
   display: flex !important;

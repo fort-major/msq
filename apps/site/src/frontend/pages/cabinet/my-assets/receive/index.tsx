@@ -1,14 +1,12 @@
 import { css, styled } from "solid-styled-components";
 import {
   ANIM_DURATION,
-  BAR_HEIGHT,
   COLOR_ACCENT,
   COLOR_BLACK,
   COLOR_GRAY_108,
   COLOR_GRAY_140,
   COLOR_GRAY_150,
   COLOR_WHITE,
-  HEADER_HEIGHT,
 } from "../../../../ui-kit";
 import { EIconKind, Icon } from "../../../../ui-kit/icon";
 import { H5, Text } from "../../../../ui-kit/typography";

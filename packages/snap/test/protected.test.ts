@@ -4,7 +4,6 @@ import {
   IIdentityAddRequest,
   IIdentityGetLoginOptionsRequest,
   IIdentityLoginRequest,
-  IShowICRC1TransferConfirmRequest,
   SNAP_METHODS,
   toCBOR,
 } from "@fort-major/msq-shared";

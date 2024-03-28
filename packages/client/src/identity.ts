@@ -18,7 +18,6 @@ import {
   makeAvatarSvg,
   Principal,
   IHttpAgentRequest,
-  debugStringify,
 } from "@fort-major/msq-shared";
 import { SECP256K1_OID, wrapDER } from "./der";
 

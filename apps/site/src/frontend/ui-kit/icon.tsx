@@ -1,5 +1,5 @@
 import { Match, Switch } from "solid-js";
-import { COLOR_BLACK, COLOR_WHITE } from ".";
+import { COLOR_WHITE } from ".";
 import { IChildren, eventHandler } from "../utils";
 import { keyframes, styled } from "solid-styled-components";
 

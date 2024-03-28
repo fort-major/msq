@@ -8,7 +8,6 @@ import {
   IIdentitySignRequest,
   SNAP_METHODS,
   bytesToHex,
-  delay,
   fromCBOR,
   toCBOR,
 } from "@fort-major/msq-shared";

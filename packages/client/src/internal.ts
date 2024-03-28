@@ -3,7 +3,6 @@ import {
   type IIdentityGetLoginOptionsRequest,
   type IIdentityGetLoginOptionsResponse,
   type IIdentityLoginRequest,
-  type IShowICRC1TransferConfirmRequest,
   type IStatistics,
   SNAP_METHODS,
   type TIdentityId,

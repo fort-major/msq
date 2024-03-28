@@ -25,6 +25,7 @@ import { AssetsStore } from "./store/assets";
 import { OriginDataStore } from "./store/origins";
 import {
   Error404Page,
+  ErrorAssetNotFoundPage,
   ErrorEnableMsqPage,
   ErrorInstallMetaMaskPage,
   ErrorMSQConnectionRejectedPage,
@@ -70,6 +71,7 @@ export function App() {
                     <Route path="/enable-msq" component={ErrorEnableMsqPage} />
                     <Route path="/mobile-not-supported" component={ErrorMobileNotSupportedPage} />
                     <Route path="/connection-rejected" component={ErrorMSQConnectionRejectedPage} />
+                    <Route path="/token-not-found" component={ErrorAssetNotFoundPage} />
 
                     <Route path="/icrc-35" component={ICRC35Page} />
 

@@ -1,6 +1,7 @@
 import { JSXElement, Match, Switch, children, createEffect, createSignal } from "solid-js";
 import { SpoilerChildren, SpoilerHeader, SpoilerWrapper } from "./style";
 import { EIconKind, Icon } from "../../ui-kit/icon";
+
 export interface ISpoilerProps {
   defaultOpen?: boolean | undefined;
   header: JSXElement;

@@ -5,7 +5,6 @@ import {
   ErrorCode,
   IStatistics,
   PRE_LISTED_TOKENS,
-  Principal,
   TAccountId,
   debugStringify,
   err,
@@ -97,7 +96,7 @@ export async function makeAgent(identity?: Identity | undefined, host?: string):
     icHost = storedHost === null ? import.meta.env.VITE_MSQ_DFX_NETWORK_HOST : storedHost;
   }
 
-  const agent = new HttpAgent({ host: icHost, identity });
+  const agent = new HttpAgent({ host: icHost, identity, retryTimes: 10 });
 
   if (icHost) {
     await agent.fetchRootKey();

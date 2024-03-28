@@ -1,4 +1,4 @@
-export const SNAP_VERSION: string = "^0.2.10";
+export const SNAP_VERSION: string = "^0.3.3";
 
 export {
   MsqClient,

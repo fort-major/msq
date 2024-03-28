@@ -467,14 +467,10 @@ async function retrieveStateWrapped(): Promise<IState> {
       },
     });
 
-    if (state == null) {
-      const s = makeDefaultState();
-      STATE = s;
+    STATE = state == null ? makeDefaultState() : zodParse(ZState, fromCBOR(state.data as string));
 
-      STATE_UPDATE_TIMESTAMP = Date.now();
-    } else {
-      STATE = zodParse(ZState, fromCBOR(state.data as string));
-    }
+    LAST_STATE_PERSIST_TIMESTAMP = Date.now();
+    STATE_UPDATE_TIMESTAMP = LAST_STATE_PERSIST_TIMESTAMP;
   }
 
   return createDeepOnChangeProxy(STATE, () => {
@@ -535,8 +531,6 @@ async function persistStateLocal(): Promise<void> {
 
   zodParse(ZState, STATE);
 
-  LAST_STATE_PERSIST_TIMESTAMP = Date.now();
-
   await snap.request({
     method: "snap_manageState",
     params: {
@@ -544,4 +538,6 @@ async function persistStateLocal(): Promise<void> {
       newState: { data: toCBOR(STATE) },
     },
   });
+
+  LAST_STATE_PERSIST_TIMESTAMP = Date.now();
 }
