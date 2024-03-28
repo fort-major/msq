@@ -2,7 +2,6 @@ import { For, Show, createEffect, createSignal } from "solid-js";
 import { useICRC35, useMsqClient } from "../../../store/global";
 import { useNavigate } from "@solidjs/router";
 import { Principal } from "@dfinity/principal";
-import { tokensToStr } from "../../../utils";
 import {
   AccountCardBase,
   AccountCardSelected,
@@ -15,7 +14,14 @@ import {
   PaymentPageWrapper,
 } from "./style";
 import { ColorAccent, H3, Text } from "../../../ui-kit/typography";
-import { ErrorCode, IICRC1TransferRequest, TAccountId, err, originToHostname } from "@fort-major/msq-shared";
+import {
+  ErrorCode,
+  IICRC1TransferRequest,
+  TAccountId,
+  err,
+  originToHostname,
+  tokensToStr,
+} from "@fort-major/msq-shared";
 import { AccountCard } from "../../../components/account-card";
 import { AddAccountBtn } from "../../../components/add-account-btn";
 import { Button, EButtonKind } from "../../../ui-kit/button";

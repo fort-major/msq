@@ -1,7 +1,7 @@
 import { JSXElement, children, onCleanup, onMount } from "solid-js";
 import { Portal } from "solid-js/web";
 import { styled } from "solid-styled-components";
-import { disableScroll, enableScroll, eventHandler } from "../../utils";
+import { disableScroll, enableScroll } from "../../utils";
 
 export function Modal(props: { children: JSXElement }) {
   const c = children(() => props.children);

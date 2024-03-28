@@ -9,13 +9,12 @@ import {
 } from "./style";
 import { Text } from "../../ui-kit/typography";
 import { COLOR_GRAY_140, COLOR_GRAY_190, COLOR_WHITE, FONT_WEIGHT_MEDIUM, FONT_WEIGHT_REGULAR } from "../../ui-kit";
-import { For, Match, Show, Switch, createSignal, onMount } from "solid-js";
+import { For, Match, Switch, createSignal, onMount } from "solid-js";
 import { TxnHistoryEntry } from "../txn-history-entry";
 import { Button, EButtonKind } from "../../ui-kit/button";
 import { eventHandler } from "../../utils";
 import { Modal } from "../modal";
 import { EIconKind, Icon } from "../../ui-kit/icon";
-import { useNavigate } from "@solidjs/router";
 
 export interface ITxnHistoryModalProps {
   tokenId: string;

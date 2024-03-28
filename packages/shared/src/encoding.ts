@@ -1,7 +1,4 @@
-import { Principal } from "@dfinity/principal";
 import { Encoder } from "cbor-x";
-import { Crc32 } from "@aws-crypto/crc32";
-import jsSHA from "jssha";
 
 export { Principal } from "@dfinity/principal";
 
@@ -48,13 +45,13 @@ export const bytesToHex = (bytes: Uint8Array): string =>
  * @returns
  */
 export const hexToBytes = (hexString: string): Uint8Array => {
-  const matches = hexString.match(/.{1,2}/g);
+  const matches = hexString.match(/[a-f0-9]{2}/g) ?? [];
+  const result = Uint8Array.from(matches.map((byte) => parseInt(byte, 16)));
 
-  if (matches == null) {
+  if (matches === null || hexString.length % 2 !== 0 || result.length !== hexString.length / 2)
     throw new Error("Invalid hexstring");
-  }
 
-  return Uint8Array.from(matches.map((byte) => parseInt(byte, 16)));
+  return result;
 };
 
 const cborEncoder = new Encoder();
@@ -117,6 +114,100 @@ export const bytesToBigInt = (bytes: Uint8Array): bigint => {
   }
   return result;
 };
+
+/**
+ * Returns pretty-string of a token amount
+ * For example, 1001000 e8s would transform into 1.001, and 1001001000 e8s - into 1`001.001
+ *
+ * @param {bigint} qty - the amount of tokens
+ * @param {number} decimals - the position of decimal point of this token
+ * @param {boolean} padTail - if true, the result will be correctly padded with zeros at the end
+ * @param {boolean} insertQuotes - if true, the result's whole part will be separated by thousands with quotemarks
+ * @returns {string}
+ */
+export function tokensToStr(
+  qty: bigint,
+  decimals: number,
+  padTail: boolean = false,
+  insertQuotes: boolean = false,
+): string {
+  // 0.0 -> 0
+  if (qty === BigInt(0)) {
+    return "0";
+  }
+
+  // todo: Math.pow() to bitshift
+  const decimalDiv = BigInt(Math.pow(10, decimals));
+
+  const head = qty / decimalDiv;
+  const tail = qty % decimalDiv;
+
+  let headFormatted = head.toString();
+
+  // 1000000.0 -> 1'000'000.0
+  if (insertQuotes) {
+    headFormatted = headFormatted.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, "'");
+  }
+
+  // 1,000.0 -> 1,000
+  if (tail === BigInt(0)) {
+    return headFormatted;
+  }
+
+  // 1'000.10 -> 1'000.00000010
+  const tailFormatted = tail.toString().padStart(decimals, "0");
+
+  // 1'000.00012300 -> 1'000.000123
+  let tailPadded: string = tailFormatted;
+  if (!padTail) {
+    while (tailPadded.charAt(tailPadded.length - 1) === "0") {
+      tailPadded = tailPadded.slice(0, -1);
+    }
+  }
+
+  return `${headFormatted}.${tailPadded}`;
+}
+
+/**
+ * The reverse of [tokensToStr] function
+ *
+ * @param {string} str
+ * @param {number} decimals
+ * @returns {bigint}
+ */
+export function strToTokens(str: string, decimals: number): bigint {
+  // 1'000.123 -> 1'000 & 123
+  let [head, tail] = str.split(".") as [string, string | undefined];
+  // 1'000 -> 1000
+  head = head.replaceAll("'", "");
+
+  // todo: Math.pow() to bitshift
+  const decimalMul = BigInt(Math.pow(10, decimals));
+
+  if (!tail) {
+    return BigInt(head) * decimalMul;
+  }
+
+  // 00001000 -> 1000
+  let i = 0;
+  while (tail.charAt(0) === "0") {
+    tail = tail.slice(1, tail.length);
+    i++;
+  }
+
+  if (tail === "") {
+    return BigInt(head) * decimalMul;
+  }
+
+  if (tail.length > decimals) {
+    throw `Too many decimal digits (max ${decimals})`;
+  }
+
+  // 123 -> 12300000
+  tail = tail.padEnd(decimals - i, "0");
+
+  return BigInt(head) * decimalMul + BigInt(tail);
+}
 
 /**
  * Pretty-prints a JSON representation of the object, handling the bigint case

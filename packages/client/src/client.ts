@@ -1,4 +1,4 @@
-import { IGetSnapsResponse, IMetaMaskEthereumProvider, ISnapRequest } from "./types";
+import { IGetSnapsResponse, ISnapRequest } from "./types";
 import {
   type IIdentityLinkRequest,
   type IIdentityUnlinkRequest,

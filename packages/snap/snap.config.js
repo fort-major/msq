@@ -11,14 +11,5 @@ module.exports = {
     clean: true,
     minimize: true,
   },
-  polyfills: {
-    assert: true,
-    crypto: true,
-    buffer: true,
-    util: true,
-    events: true,
-    string_decoder: true,
-    stream: true,
-  },
   environment: whitelistedEnv,
 };

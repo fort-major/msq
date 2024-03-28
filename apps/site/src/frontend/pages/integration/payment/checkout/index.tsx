@@ -1,4 +1,12 @@
-import { Principal, TAccountId, bytesToHex, calculateMSQFee, debugStringify, log } from "@fort-major/msq-shared";
+import {
+  Principal,
+  TAccountId,
+  bytesToHex,
+  calculateMSQFee,
+  debugStringify,
+  log,
+  tokensToStr,
+} from "@fort-major/msq-shared";
 import { AccountCard } from "../../../../components/account-card";
 import { H3, H5, Text } from "../../../../ui-kit/typography";
 import {
@@ -19,7 +27,7 @@ import {
 } from "./style";
 import { EIconKind, Icon } from "../../../../ui-kit/icon";
 import { Match, Show, Switch, createSignal, onMount } from "solid-js";
-import { makeAgent, makeIcrc1Salt, tokensToStr } from "../../../../utils";
+import { makeAgent, makeIcrc1Salt } from "../../../../utils";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { useNavigate } from "@solidjs/router";
 import { useMsqClient } from "../../../../store/global";
@@ -98,24 +106,6 @@ export function PaymentCheckoutPage() {
     const totalAmount = calcTotalAmount();
     const totalAmountStr = tokensToStr(totalAmount, props()!.decimals, undefined, true);
 
-    const agreed = await msq()!.showICRC1TransferConfirm({
-      requestOrigin: props()!.peerOrigin || "unknown",
-      from: props()!.accountPrincipal!,
-      to: {
-        owner: props()!.recepientPrincipal,
-        subaccount: props()!.recepientSubaccount,
-      },
-      totalAmountStr,
-      totalAmount,
-      ticker: props()!.symbol,
-    });
-
-    if (!agreed) {
-      document.body.style.cursor = "unset";
-      setLoading(false);
-      return;
-    }
-
     const identity = await MsqIdentity.create(msq()!.getInner(), makeIcrc1Salt(props()!.assetId, props()!.accountId));
     const agent = await makeAgent(identity);
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(props()!.assetId) });
@@ -129,6 +119,7 @@ export function PaymentCheckoutPage() {
         },
         amount: props()!.amount,
         memo: props()!.memo,
+        fee: props()!.fee,
       });
 
       props()!.onSuccess(blockIdx);
@@ -150,6 +141,7 @@ export function PaymentCheckoutPage() {
           },
           amount: msqFee,
           memo: undefined,
+          fee: props()!.fee,
         });
       } catch (e) {
         log("Have a happy day 😊 (unable to pay MSQ fee)", e);

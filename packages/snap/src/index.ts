@@ -5,7 +5,6 @@ import {
   protected_handleAddAsset,
   protected_handleAddAssetAccount,
   protected_handleEditAssetAccount,
-  protected_handleShowICRC1TransferConfirm,
 } from "./protocols/icrc1";
 import {
   handleIdentityGetLinks,
@@ -82,11 +81,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
     case SNAP_METHODS.protected.identity.unlinkAll: {
       result = protected_handleIdentityUnlinkAll(req.params.body);
-      break;
-    }
-
-    case SNAP_METHODS.protected.icrc1.showTransferConfirm: {
-      result = protected_handleShowICRC1TransferConfirm(req.params.body);
       break;
     }
 

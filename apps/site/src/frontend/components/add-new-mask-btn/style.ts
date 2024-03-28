@@ -1,5 +1,5 @@
 import { css, styled } from "solid-styled-components";
-import { ANIM_DURATION, COLOR_BLACK, COLOR_GRAY_105, COLOR_GRAY_115, COLOR_WHITE } from "../../ui-kit";
+import { ANIM_DURATION, COLOR_GRAY_105, COLOR_GRAY_115, COLOR_WHITE } from "../../ui-kit";
 
 export const AddNewMaskBtnWrapper = styled.div`
   display: flex;

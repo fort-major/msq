@@ -2,11 +2,11 @@ import { css, styled } from "solid-styled-components";
 import { EIconKind } from "../../ui-kit/icon";
 import { H2, Text } from "../../ui-kit/typography";
 import { Button, EButtonKind } from "../../ui-kit/button";
-import { Show, createEffect, onMount } from "solid-js";
+import { Show, createEffect } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { ErrorSpoiler } from "../../components/error-spoiler";
 import { COLOR_GRAY_105, COLOR_GRAY_140, COLOR_GRAY_190 } from "../../ui-kit";
-import { DISCORD_LINK, METAMASK_LINK, delay } from "@fort-major/msq-shared";
+import { DISCORD_LINK, METAMASK_LINK } from "@fort-major/msq-shared";
 import isMobile from "ismobilejs";
 import { useMsqClient } from "../../store/global";
 
@@ -36,6 +36,22 @@ export function ErrorMobileNotSupportedPage() {
         text: "Join Us",
         icon: EIconKind.Discord,
         action: () => window.open(DISCORD_LINK, "_blank"),
+      }}
+    />
+  );
+}
+
+export function ErrorAssetNotFoundPage() {
+  const navigate = useNavigate();
+
+  return (
+    <ErrorPage
+      header="Oops! Token not found."
+      text="The asset you're trying to access is not yet added to your whitelist. If this is your first time visiting MSQ, navigate to the main page to fix this problem automatically. Otherwise, consider adding this token manually via the special form at 'My Assets' section."
+      button={{
+        text: "Main Page",
+        icon: EIconKind.ArrowRightUp,
+        action: () => navigate('/'),
       }}
     />
   );

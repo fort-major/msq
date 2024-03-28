@@ -1,6 +1,6 @@
 {
   "name": "@fort-major/msq",
-  "version": "0.2.10",
+  "version": "0.3.3",
   "description": "Privacy-focused MetaMask snap for the Internet Computer (ICP)",
   "keywords": [
     "MetaMask",
@@ -44,8 +44,8 @@
     "doc": "typedoc ./src/**/*.{ts,tsx}"
   },
   "devDependencies": {
-    "@metamask/snaps-cli": "3.0",
-    "@metamask/snaps-jest": "4.0",
+    "@metamask/snaps-cli": "^6.1",
+    "@metamask/snaps-jest": "^6.0",
     "@types/jest": "29.5.10",
     "@types/node": "20.10.3",
     "cbor-x": "1.5.6",
@@ -53,8 +53,8 @@
     "ts-jest": "29.1.1"
   },
   "dependencies": {
-    "@dfinity/identity-secp256k1": "1.0",
+    "@dfinity/identity-secp256k1": "^1.2",
     "@fort-major/msq-shared": "workspace:*",
-    "@metamask/snaps-sdk": "2.0"
+    "@metamask/snaps-sdk": "^3.2"
   }
 }

@@ -1,13 +1,13 @@
 import { AccountCard } from "../../../../components/account-card";
 import { Input } from "../../../../ui-kit/input";
-import { DEFAULT_PRINCIPAL, DEFAULT_SUBACCOUNT, makeAgent, makeIcrc1Salt, tokensToStr } from "../../../../utils";
+import { DEFAULT_PRINCIPAL, DEFAULT_SUBACCOUNT, makeAgent, makeIcrc1Salt } from "../../../../utils";
 import { Match, Show, Switch, createEffect, createSignal, onMount } from "solid-js";
 import { Principal } from "@dfinity/principal";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { EIconKind } from "../../../../ui-kit/icon";
 import { createStore } from "solid-js/store";
 import { useMsqClient } from "../../../../store/global";
-import { debugStringify, hexToBytes } from "@fort-major/msq-shared";
+import { debugStringify, hexToBytes, tokensToStr } from "@fort-major/msq-shared";
 import { MsqIdentity } from "@fort-major/msq-client";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import {
@@ -114,25 +114,6 @@ export function SendPage() {
     document.body.style.cursor = "wait";
 
     const subaccount = recipientSubaccount() ? hexToBytes(recipientSubaccount()!) : undefined;
-
-    const agreed = await msq()!.showICRC1TransferConfirm({
-      requestOrigin: window.origin,
-      ticker: props()!.symbol,
-      from: props()!.principal,
-      to: {
-        owner: recipientPrincipal()!.toText(),
-        subaccount,
-      },
-      totalAmount: amount() + props()!.fee,
-      totalAmountStr: tokensToStr(amount() + props()!.fee, props()!.decimals, true, true),
-    });
-
-    if (!agreed) {
-      document.body.style.cursor = "unset";
-      setSending(false);
-      return;
-    }
-
     const identity = await MsqIdentity.create(msq()!.getInner(), makeIcrc1Salt(props()!.assetId, props()!.accountId));
     const agent = await makeAgent(identity);
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(props()!.assetId) });

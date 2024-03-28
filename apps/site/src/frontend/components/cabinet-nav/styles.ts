@@ -1,12 +1,5 @@
 import { styled } from "solid-styled-components";
-import {
-  ANIM_DURATION,
-  BAR_HEIGHT,
-  COLOR_CHARTREUSE,
-  COLOR_GRAY_105,
-  COLOR_GRAY_115,
-  HEADER_HEIGHT,
-} from "../../ui-kit";
+import { ANIM_DURATION, COLOR_CHARTREUSE, COLOR_GRAY_105, COLOR_GRAY_115 } from "../../ui-kit";
 
 export const CabinetNavWrapper = styled.nav`
   display: flex;

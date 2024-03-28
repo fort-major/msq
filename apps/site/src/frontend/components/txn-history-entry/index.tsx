@@ -11,7 +11,7 @@ import {
   TxnWrapper,
 } from "./style";
 import { Text, WeightRegular } from "../../ui-kit/typography";
-import { timestampToStr, tokensToStr } from "../../utils";
+import { timestampToStr } from "../../utils";
 import {
   COLOR_ACCENT,
   COLOR_GRAY_120,
@@ -24,7 +24,7 @@ import {
 } from "../../ui-kit";
 import { EIconKind, Icon } from "../../ui-kit/icon";
 import { Elipsis } from "../../pages/integration/payment/checkout/style";
-import { delay } from "@fort-major/msq-shared";
+import { delay, tokensToStr } from "@fort-major/msq-shared";
 
 export interface ITxnHistoryEntryProps {
   txn: Txn;

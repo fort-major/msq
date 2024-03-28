@@ -1,6 +1,5 @@
 import { css, styled } from "solid-styled-components";
 import {
-  BlinkAnimation,
   COLOR_CHARTREUSE,
   COLOR_BLACK,
   COLOR_GRAY_115,

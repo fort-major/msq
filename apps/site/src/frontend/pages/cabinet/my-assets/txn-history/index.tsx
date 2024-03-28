@@ -30,8 +30,8 @@ import { Txn, getTransactionHistory } from "../../../../backend";
 import { useNavigate } from "@solidjs/router";
 import { TxnHistoryEntry } from "../../../../components/txn-history-entry";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
-import { tokensToStr } from "../../../../utils";
 import { useTxnHistoryPageProps } from "../../../../store/assets";
+import { tokensToStr } from "@fort-major/msq-shared";
 
 export interface ITxnHistoryPageProps {
   tokenId: string;

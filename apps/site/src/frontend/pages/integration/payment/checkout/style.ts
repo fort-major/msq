@@ -1,5 +1,5 @@
 import { css, styled } from "solid-styled-components";
-import { COLOR_ACCENT, COLOR_BLUE, COLOR_GRAY_110, COLOR_GRAY_130 } from "../../../../ui-kit";
+import { COLOR_ACCENT, COLOR_GRAY_110, COLOR_GRAY_130 } from "../../../../ui-kit";
 
 export const CheckoutPageWrapper = styled.div`
   position: relative;

@@ -1,5 +1,5 @@
-import { TAccountId } from "@fort-major/msq-shared";
-import { DEFAULT_PRINCIPAL, eventHandler, tokensToStr } from "../../utils";
+import { TAccountId, tokensToStr } from "@fort-major/msq-shared";
+import { DEFAULT_PRINCIPAL, eventHandler } from "../../utils";
 import {
   AccountCardCheckIconWrapper,
   AccountCardDivider,

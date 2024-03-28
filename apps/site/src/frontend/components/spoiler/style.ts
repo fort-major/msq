@@ -1,4 +1,4 @@
-import { css, styled } from "solid-styled-components";
+import { styled } from "solid-styled-components";
 import { COLOR_GRAY_140 } from "../../ui-kit";
 
 export const SpoilerWrapper = styled.div`

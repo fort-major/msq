@@ -1,6 +1,6 @@
 import { createStore, produce } from "solid-js/store";
 import { useMsqClient } from "./global";
-import { Accessor, Setter, createContext, createEffect, createSignal, onCleanup, onMount, useContext } from "solid-js";
+import { Accessor, Setter, createContext, createSignal, onCleanup, onMount, useContext } from "solid-js";
 import {
   DEFAULT_PRINCIPAL,
   IAssetMetadata,
@@ -19,6 +19,7 @@ import { AnonymousIdentity } from "@dfinity/agent";
 import { ISendPageProps } from "../pages/cabinet/my-assets/send";
 import { IPaymentCheckoutPageProps } from "../pages/integration/payment/checkout";
 import { ITxnHistoryPageProps } from "../pages/cabinet/my-assets/txn-history";
+import { useNavigate } from "@solidjs/router";
 
 export type IAssetDataExt = {
   accounts: {
@@ -97,7 +98,14 @@ export function useTxnHistoryPageProps() {
   return ctx.txnHistoryPageProps;
 }
 
-const PRE_DEFINED_ASSETS = Object.values(PRE_LISTED_TOKENS).map((it) => it.assetId);
+const PRE_DEFINED_ASSETS: { assetId: string; name: string; symbol: string; decimals: number; fee: bigint }[] =
+  Object.values(PRE_LISTED_TOKENS).map((it) => ({
+    assetId: it.assetId,
+    name: it.name,
+    symbol: it.symbol,
+    decimals: it.decimals,
+    fee: it.fee,
+  }));
 
 export function AssetsStore(props: IChildren) {
   const [allAssetData, setAllAssetData] = createStore<AllAssetData>();
@@ -107,6 +115,7 @@ export function AssetsStore(props: IChildren) {
   const [refreshPeriodically, setRefreshPeriodically] = createSignal(true);
   const [initialized, setInitialized] = createSignal(false);
   const _msq = useMsqClient();
+  const navigate = useNavigate();
 
   onMount(async () => {
     while (refreshPeriodically()) {
@@ -123,9 +132,28 @@ export function AssetsStore(props: IChildren) {
   const init = async () => {
     if (initialized()) return;
 
+    await addPredefinedAssets();
+
     await fetch();
     await refresh();
     setInitialized(true);
+  };
+
+  const addPredefinedAssets = async () => {
+    const msq = _msq()!;
+
+    let fetchedAllAssetData = await msq.getAllAssetData();
+
+    const assetsToCreate = [];
+
+    for (let asset of PRE_DEFINED_ASSETS) {
+      if (fetchedAllAssetData[asset.assetId]) continue;
+      assetsToCreate.push(asset);
+    }
+
+    if (assetsToCreate.length > 0) {
+      await msq.addAsset({ assets: assetsToCreate });
+    }
   };
 
   const fetch = async (assetIds?: string[]): Promise<boolean[] | undefined> => {
@@ -133,15 +161,13 @@ export function AssetsStore(props: IChildren) {
 
     let fetchedAllAssetData = await msq.getAllAssetData(assetIds);
 
-    // CREATE PRE-DEFINED ASSETS
-    const assetsToCreate = [];
-    for (let assetId of PRE_DEFINED_ASSETS) {
-      if (fetchedAllAssetData[assetId]) continue;
-      assetsToCreate.push({ assetId });
-    }
-    if (assetsToCreate.length > 0) {
-      await msq.addAsset({ assets: assetsToCreate });
-      fetchedAllAssetData = await msq.getAllAssetData(assetIds);
+    // trap, if it is proposed for payment, but not listed in user's wallet
+    if (assetIds) {
+      for (let assetId of assetIds) {
+        if (fetchedAllAssetData[assetId]) continue;
+
+        navigate("/token-not-found");
+      }
     }
 
     const allAssetDataKeys = Object.keys(fetchedAllAssetData);
@@ -201,9 +227,9 @@ export function AssetsStore(props: IChildren) {
     }
   };
 
-  const addAccount = async (assetId: string, assetName: string, symbol: string) => {
+  const addAccount = async (assetId: string) => {
     const msq = _msq()!;
-    const name = await msq.addAssetAccount(assetId, assetName, symbol);
+    const name = await msq.addAssetAccount(assetId);
 
     if (name === null) return;
 
@@ -254,7 +280,17 @@ export function AssetsStore(props: IChildren) {
 
     // then we update to be sure
     metadata = await getAssetMetadata(ledger, true);
-    const assetData = await msq.addAsset({ assets: [{ assetId, name: metadata.name, symbol: metadata.symbol }] });
+    const assetData = await msq.addAsset({
+      assets: [
+        {
+          assetId,
+          name: metadata.name,
+          symbol: metadata.symbol,
+          decimals: metadata.decimals,
+          fee: metadata.fee,
+        },
+      ],
+    });
 
     if (assetData === null) {
       setAllAssetData(assetId, undefined);

@@ -7,7 +7,6 @@ import type { _SERVICE as StatisticsBackend } from "../declarations/msq_statisti
 import { Principal } from "@dfinity/principal";
 import { ICP_INDEX_TOKEN_IDX, bytesToHex } from "@fort-major/msq-shared";
 import { AccountIdentifier } from "@dfinity/ledger-icp";
-import { DEFAULT_SUBACCOUNT } from "./utils";
 
 export const canisterId = import.meta.env.VITE_CANISTER_ID_MSQ_STATISTICS;
 

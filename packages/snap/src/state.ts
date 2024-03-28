@@ -274,14 +274,18 @@ export class StateManager {
    * retrieval and management of asset data.
    *
    * @param {string} assetId - The ID of the asset to add or retrieve.
+   * @param {string} name - The name of the asset, e.g. "Internet Computer".
+   * @param {string} symbol - The symbol (ticker) of the asset, e.g. "ICP".
+   * @param {bigint} fee - The system fee of this token
+   * @param {number} decimals - The position of decimal point
    * @returns {IAssetData} The asset data associated with the given asset ID.
    */
-  public addAsset(assetId: string): IAssetData {
+  public addAsset(assetId: string, name: string, symbol: string, fee: bigint, decimals: number): IAssetData {
     let assetData = this.state.assetData[assetId];
 
     if (assetData !== undefined) return assetData;
 
-    assetData = makeDefaultAssetData();
+    assetData = makeDefaultAssetData(name, symbol, fee, decimals);
 
     this.state.assetData[assetId] = assetData;
 
@@ -378,7 +382,6 @@ export class StateManager {
   }
 }
 
-
 /**
  * Creates the default state object.
  * @returns The default state object.
@@ -408,10 +411,9 @@ function makeDefaultStatistics(): IStatistics {
   };
 }
 
-
 /**
  * Creates the default origin data object.
- * 
+ *
  * @param mask - The mask object.
  * @returns The default origin data object.
  */
@@ -428,8 +430,12 @@ function makeDefaultOriginData(mask: IMask): IOriginData {
  * Creates the default asset data.
  * @returns The default asset data.
  */
-function makeDefaultAssetData(): IAssetData {
+function makeDefaultAssetData(name: string, symbol: string, fee: bigint, decimals: number): IAssetData {
   return {
+    name,
+    symbol,
+    fee,
+    decimals,
     accounts: { 0: "Main" },
   };
 }
@@ -461,14 +467,10 @@ async function retrieveStateWrapped(): Promise<IState> {
       },
     });
 
-    if (state == null) {
-      const s = makeDefaultState();
-      STATE = s;
+    STATE = state == null ? makeDefaultState() : zodParse(ZState, fromCBOR(state.data as string));
 
-      STATE_UPDATE_TIMESTAMP = Date.now();
-    } else {
-      STATE = zodParse(ZState, fromCBOR(state.data as string));
-    }
+    LAST_STATE_PERSIST_TIMESTAMP = Date.now();
+    STATE_UPDATE_TIMESTAMP = LAST_STATE_PERSIST_TIMESTAMP;
   }
 
   return createDeepOnChangeProxy(STATE, () => {
@@ -529,8 +531,6 @@ async function persistStateLocal(): Promise<void> {
 
   zodParse(ZState, STATE);
 
-  LAST_STATE_PERSIST_TIMESTAMP = Date.now();
-
   await snap.request({
     method: "snap_manageState",
     params: {
@@ -538,4 +538,6 @@ async function persistStateLocal(): Promise<void> {
       newState: { data: toCBOR(STATE) },
     },
   });
+
+  LAST_STATE_PERSIST_TIMESTAMP = Date.now();
 }

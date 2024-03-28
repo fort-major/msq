@@ -1,7 +1,6 @@
 import { css, styled } from "solid-styled-components";
 import {
   ANIM_DURATION,
-  COLOR_CHARTREUSE,
   COLOR_ERROR_RED,
   COLOR_GRAY_115,
   COLOR_GRAY_130,
