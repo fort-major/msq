@@ -23,11 +23,29 @@
                 "dist/**"
             ]
         },
+        "prod:build:client-lib": {
+            "cache": false,
+            "outputs": [
+                "dist/**"
+            ]
+        },
         "prod:build:apps": {
             "cache": false,
             "dependsOn": [
                 "^prod:build:apps"
             ],
+            "outputs": [
+                "dist/**"
+            ]
+        },
+        "prod:build:site": {
+            "cache": false,
+            "outputs": [
+                "dist/**"
+            ]
+        },
+        "prod:build:landing": {
+            "cache": false,
             "outputs": [
                 "dist/**"
             ]

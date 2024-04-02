@@ -1,0 +1,140 @@
+#faq-screen {
+    margin-top: 250px;
+
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+
+    position: relative;
+    width: 100%;
+
+    .faq-wrapper {
+        width: $section-max-width;
+
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+
+        color: $white;
+        font-family: $font;
+
+        a {
+            color: $chartreuse;
+        }
+
+        & > hgroup {
+            display: flex;
+            flex-flow: column nowrap;
+            gap: 20px;  
+
+            h4 {
+                color: $white;
+                font-family: $header-font;
+                font-size: 150px;
+                font-style: normal;
+                font-weight: 700;
+                line-height: 80%;
+    
+                text-transform: uppercase;
+            }
+
+            & > div {
+                font-size: 20px;
+                font-weight: 600;
+                line-height: 140%;
+                letter-spacing: -1px;
+            }
+        }
+
+        & > ul {
+            li {
+                border-top: 1px solid $gray-120;
+                padding: 25px 25px 25px 0;
+
+                font-size: 16px;
+                line-height: 140%; 
+                letter-spacing: -1px;
+
+                details {
+                    summary {
+                        position: relative;
+                        display: flex;
+                        flex-flow: row nowrap;
+                        justify-content: space-between;
+
+                        font-weight: 600;
+                        font-size: 20px;
+                        list-style: none;
+                        line-height: 140%;
+
+                        cursor: pointer;
+
+                        &::marker, &::-webkit-details-marker {
+                            display: none;
+                        }
+
+                        &::after {
+                            
+                            content: url("data:image/svg+xml,%3Csvg%20width=%2222%22%20height=%2212%22%20viewBox=%220%200%2022%2012%22%20fill=%22none%22%20xmlns=%22http://www.w3.org/2000/svg%22%3E%0A%3Cpath%20d=%22M21%201L11%2011L1%200.999998%22%20stroke=%22white%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22/%3E%0A%3C/svg%3E");
+                        }
+                    }
+
+                    &[open] summary::after {
+                        content: url("data:image/svg+xml,%3Csvg%20width=%2222%22%20height=%2212%22%20viewBox=%220%200%2022%2012%22%20fill=%22none%22%20xmlns=%22http://www.w3.org/2000/svg%22%3E%0A%3Cpath%20d=%22M21%2011L11%200.999999L1%2011%22%20stroke=%22white%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22/%3E%0A%3C/svg%3E");
+                    }
+
+                    & > div {
+                        display: flex;
+                        flex-flow: column nowrap;
+                        gap: 10px;
+
+                        margin-top: 25px;
+
+                        & > p {
+                            color: $gray-165;
+                        }
+
+                        .btn {
+                            font-weight: 600;
+                            color: $white;
+                            background-color: $gray-115;
+                            border-radius: 5px;
+                            padding: 0 5px;
+                            white-space: nowrap;
+                        }
+
+                        b {
+                            font-weight: 600;
+                            color: $white;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@include mobile {
+    #faq-screen {
+        margin-top: 120px;
+        margin-bottom: 120px;
+
+        .faq-wrapper {
+            display: flex;
+            flex-flow: column nowrap;
+            width: 100%;
+
+            & > hgroup {
+                padding: 0 20px;
+
+                h4 {
+                    font-size: 95px;
+                }
+            }
+
+            ul > li > details {
+                padding: 0 20px;
+            }
+        }
+    }
+}

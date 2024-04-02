@@ -14,6 +14,7 @@
   "scripts": {
     "prod:build": "rm -rf ./dist && tsc && tsc -p tsconfig.cjs.json && node inline-env-vars.js",
     "prod:build:libs": "pnpm run prod:build",
+    "prod:build:client-lib": "pnpm run prod:build",
     "dev:build": "rm -rf ./dist && tsc && tsc -p tsconfig.cjs.json && node inline-env-vars.js",
     "dev:build:libs": "pnpm run dev:build",
     "pub": "npm publish",

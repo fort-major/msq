@@ -140,7 +140,7 @@ export function TxnHistoryPage() {
                   </TxnHistoryEmpty>
                 </Match>
                 <Match when={history() && history()!.length > 0}>
-                  <For each={history()}>{(txn) => <TxnHistoryEntry txn={txn} symbol="TOK" decimals={8} />}</For>
+                  <For each={history()}>{(txn) => <TxnHistoryEntry txn={txn} symbol={props()!.symbol} decimals={8} />}</For>
                   <Show when={showMoreBtn()}>
                     <Button
                       kind={EButtonKind.Additional}

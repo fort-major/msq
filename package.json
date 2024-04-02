@@ -3,7 +3,10 @@
   "scripts": {
     "prod:build": "dotenv -e .env.prod -- turbo prod:build",
     "prod:build:libs": "dotenv -e .env.prod -- turbo prod:build:libs",
+    "prod:build:client-lib": "dotenv -e .env.prod -- turbo prod:build:client-lib",
     "prod:build:apps": "dotenv -e .env.prod -- turbo prod:build:apps",
+    "prod:build:site": "dotenv -e .env.prod -- turbo prod:build:site",
+    "prod:build:landing": "dotenv -e .env.prod -- turbo prod:build:landing",
     "prod:deploy": "dotenv -e .env.prod -- turbo prod:deploy",
     "prod:deploy:frontend": "dotenv -e .env.prod -- turbo prod:deploy:frontend",
     "prod:deploy:site": "dotenv -e .env.prod -- turbo prod:deploy:site",

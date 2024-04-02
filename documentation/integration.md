@@ -14,12 +14,12 @@ In order to interact with MSQ you'll need to install our client library as a dep
 
 "dependencies": {
     ...
-    "@fort-major/msq-client": "0.2",
+    "@fort-major/msq-client": "^0.3",
     ...
 }
 ```
 
-The version of the client library is always tied to the version of the Snap itself, and they both follow semantic versioning. So, for example, client library "0.2.4" would work well with snaps "0.2.3", "0.2.10" or "0.3.4", but won't work with "1.2.0".
+The version of the client library is always tied to the version of the Snap itself, and they both follow semantic versioning. So, for example, client library "0.2.4" would work well with snaps "0.2.3", "0.2.10" or "0.3.4", but won't work with "1.0.0".
 
 ## Usage
 

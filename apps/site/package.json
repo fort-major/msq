@@ -8,6 +8,7 @@
   "scripts": {
     "prod:build": "pnpm run propagateEnv && tsc && vite build",
     "prod:build:apps": "pnpm run prod:build",
+    "prod:build:site": "pnpm run prod:build",
     "prod:deploy": "dfx deploy --network=ic",
     "prod:deploy:frontend": "dfx deploy msq_frontend --network=ic",
     "prod:deploy:site": "pnpm run prod:deploy:frontend",

@@ -9,6 +9,10 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 1. [MSQ's Architecture](./documentation/architecture.md)
 2. [How to integrate MSQ into your Dapp](./documentation/integration.md)
 
+## Audits
+
+This software's code was audited by Consensys Diligence at March of 2024. All the findings were addressed immediately and with great care. You can read the report [here](https://consensys.io/diligence/audits/2024/03/msq-snap/).
+
 ## Local development
 
 This project is managed with `pnpm` and `turborepo`.
