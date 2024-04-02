@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { ANIM_DURATION, COLOR_GRAY_130, COLOR_GRAY_140, COLOR_WHITE } from "../../../ui-kit";
+import { ANIM_DURATION, COLOR_GRAY_130, COLOR_WHITE } from "../../../ui-kit";
 
 export const LoginHeadingSection = styled.section`
   position: fixed;

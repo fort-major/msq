@@ -3,7 +3,6 @@ import {
   type IIdentityGetLoginOptionsRequest,
   type IIdentityGetLoginOptionsResponse,
   type IIdentityLoginRequest,
-  type IShowICRC1TransferConfirmRequest,
   type IStatistics,
   SNAP_METHODS,
   type TIdentityId,
@@ -54,7 +53,7 @@ export class InternalSnapClient {
     toOrigin: TOrigin,
     withIdentityId: TIdentityId,
     withDeriviationOrigin: TOrigin = toOrigin,
-  ): Promise<true> {
+  ): Promise<boolean> {
     this.checkInnerSet();
 
     const body: IIdentityLoginRequest = {
@@ -96,10 +95,10 @@ export class InternalSnapClient {
     return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAsset, req);
   }
 
-  async addAssetAccount(assetId: string, assetName: string, assetSymbol: string): Promise<string | null> {
+  async addAssetAccount(assetId: string): Promise<string | null> {
     this.checkInnerSet();
 
-    const body: IICRC1AddAssetAccountRequest = { assetId, name: assetName, symbol: assetSymbol };
+    const body: IICRC1AddAssetAccountRequest = { assetId };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.addAssetAccount, body);
   }
@@ -153,12 +152,6 @@ export class InternalSnapClient {
     };
 
     return await this.inner._requestSnap(SNAP_METHODS.protected.identity.unlinkAll, body);
-  }
-
-  async showICRC1TransferConfirm(body: IShowICRC1TransferConfirmRequest): Promise<boolean> {
-    this.checkInnerSet();
-
-    return await this.inner._requestSnap(SNAP_METHODS.protected.icrc1.showTransferConfirm, body);
   }
 
   async getStats(): Promise<IStatistics> {

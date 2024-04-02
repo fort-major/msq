@@ -5,7 +5,7 @@ import { EIconKind, Icon } from "../../ui-kit/icon";
 import { Show } from "solid-js";
 import { useLocation, useNavigate } from "@solidjs/router";
 import { eventHandler } from "../../utils";
-import { Size18, Text, WeightSemiBold } from "../../ui-kit/typography";
+import { Text } from "../../ui-kit/typography";
 
 const HeaderDiv = styled.header`
   position: fixed;

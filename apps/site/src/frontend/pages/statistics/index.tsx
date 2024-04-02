@@ -5,7 +5,6 @@ import { Line } from "solid-chartjs";
 import { COLOR_ACCENT } from "../../ui-kit";
 import { Stat, StatsWrapper } from "./style";
 import { Text } from "../../ui-kit/typography";
-import { log } from "@fort-major/msq-shared";
 
 interface IStat {
   labels: string[];

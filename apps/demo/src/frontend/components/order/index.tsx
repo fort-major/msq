@@ -1,6 +1,6 @@
 import { Match, Switch } from "solid-js";
 import { Order } from "../../../declarations/demo_backend/demo_backend.did";
-import { tokensToStr } from "../../utils";
+import { tokensToStr } from "@fort-major/msq-shared";
 import { BuyBtn } from "../plushie-card/style";
 import {
   OrderFooter,

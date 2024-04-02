@@ -1,5 +1,5 @@
 import { styled } from "solid-styled-components";
-import { BAR_HEIGHT, COLOR_DARK_BLUE, COLOR_WHITE } from "../../ui-kit";
+import { BAR_HEIGHT, COLOR_DARK_BLUE } from "../../ui-kit";
 
 export const NotificationBarWrapper = styled.noindex`
   position: fixed;

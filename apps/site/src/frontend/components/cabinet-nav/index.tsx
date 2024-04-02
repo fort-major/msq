@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "@solidjs/router";
 import { CabinetNavItem, CabinetNavItemDot, CabinetNavWrapper } from "./styles";
 import { For, Match, Switch } from "solid-js";
 import { eventHandler } from "../../utils";
-import { Size16, Text, WeightSemiBold } from "../../ui-kit/typography";
+import { Text } from "../../ui-kit/typography";
 
 interface IItemProps {
   title: string;

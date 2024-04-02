@@ -1,24 +1,35 @@
-import { type PublicKey, SignIdentity, type Signature, DerEncodedPublicKey } from "@dfinity/agent";
+import {
+  type PublicKey,
+  Identity,
+  type Signature,
+  DerEncodedPublicKey,
+  HttpAgentRequest,
+  ReadRequest,
+  CallRequest,
+  SubmitRequestType,
+  ReadRequestType,
+  ReadStateRequest,
+} from "@dfinity/agent";
 import { type MsqClient } from "./client";
 import {
   type IIdentitySignRequest,
   SNAP_METHODS,
   IIdentityGetPublicKeyRequest,
   makeAvatarSvg,
+  Principal,
+  IHttpAgentRequest,
 } from "@fort-major/msq-shared";
 import { SECP256K1_OID, wrapDER } from "./der";
 
 /**
  * ## An identity that proxies all incoming `sign` requests to the MSQ Snap
  */
-export class MsqIdentity extends SignIdentity {
+export class MsqIdentity implements Identity {
   private constructor(
     private readonly client: MsqClient,
     private readonly publicKey: Secp256k1PublicKeyLite,
     public salt: Uint8Array,
-  ) {
-    super();
-  }
+  ) {}
 
   /**
    * ## Creates an instance of {@link MsqIdentity}
@@ -37,21 +48,21 @@ export class MsqIdentity extends SignIdentity {
   }
 
   /**
-   * ## Returns Secp256k1 public key of this identity
+   * ## Returns a principal of the underlying Secp256k1 public key of this identity
    *
    * __WARNING!__
    *
    * Since the user controls their authorization session and is able to log out from a website via the snap,
-   * this function may return an outdated public key. This means, that if the sign function fails, this public
-   * key is also invalid, until the user is authorized again. In order to fix this, we need this function to be
+   * this function may return an outdated principal. This means, that if the sign function fails, this
+   * principal is also invalid, until the user is authorized again. In order to fix this, we need this function to be
    * asynchronous, but this is impossible, until Dfinity decides to update the interface.
    *
-   * @see {@link sign}
+   * @see {@link snapVerifyAndSign}
    *
-   * @returns
+   * @returns {Principal}
    */
-  getPublicKey(): PublicKey {
-    return this.publicKey;
+  getPrincipal(): Principal {
+    return Principal.selfAuthenticating(new Uint8Array(this.publicKey.toDer()));
   }
 
   /**
@@ -83,18 +94,59 @@ export class MsqIdentity extends SignIdentity {
   }
 
   /**
-   * ## Signs an arbitrary blob of data with Secp256k1 by passing it to the MSQ snap
+   * ## Sends the body of the request to the Snap, which verifies it, calculates the requestId and signs it, returning the signature
    *
-   * This function will only work if the user is logged in. Otherwise it throws an error.
+   * Implements [Identity.transformRequest]
    *
-   * @see {@link getPublicKey}
-   *
-   * @param blob
+   * @param {HttpAgentRequest} request
    * @returns
    */
-  async sign(blob: ArrayBuffer): Promise<Signature> {
+  async transformRequest(request: HttpAgentRequest): Promise<unknown> {
+    const { body, ...fields } = request;
+
+    return {
+      ...fields,
+      body: {
+        content: body,
+        sender_pubkey: this.publicKey.toDer(),
+        sender_sig: await this.snapVerifyAndSign(body),
+      },
+    };
+  }
+
+  private async snapVerifyAndSign(req: ReadRequest | CallRequest): Promise<Signature> {
+    const sender = req.sender instanceof Uint8Array ? req.sender : req.sender.toText();
+
+    let request: IHttpAgentRequest;
+
+    if (req.request_type === SubmitRequestType.Call || req.request_type === ReadRequestType.Query) {
+      const r = req as CallRequest;
+
+      request = {
+        ...r,
+        request_type: req.request_type,
+        canister_id: r.canister_id.toText(),
+        method_name: r.method_name,
+        arg: r.arg,
+        sender,
+        // @ts-expect-error accessing a private property
+        ingress_expiry: r.ingress_expiry._value,
+      };
+    } else {
+      const r = req as ReadStateRequest;
+
+      request = {
+        ...r,
+        request_type: req.request_type,
+        paths: req.paths,
+        sender,
+        // @ts-expect-error accessing a private property
+        ingress_expiry: r.ingress_expiry._value,
+      };
+    }
+
     const body: IIdentitySignRequest = {
-      challenge: blob,
+      request,
       salt: this.salt,
     };
 

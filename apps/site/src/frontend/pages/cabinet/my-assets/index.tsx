@@ -22,9 +22,8 @@ import {
   eventHandler,
   getAssetMetadata,
   makeAnonymousAgent,
-  tokensToStr,
 } from "../../../utils";
-import { Principal, TAccountId, debugStringify, logError } from "@fort-major/msq-shared";
+import { Principal, TAccountId, debugStringify, logError, tokensToStr } from "@fort-major/msq-shared";
 import { useMsqClient } from "../../../store/global";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { useNavigate } from "@solidjs/router";

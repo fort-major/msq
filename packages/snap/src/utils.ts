@@ -6,8 +6,23 @@ import {
   type TProtectedSnapMethodsKind,
   err,
   hexToBytes,
+  Principal,
+  IHttpAgentRequest,
+  ICanisterRequest,
+  IReadStateRequest,
+  strToBytes,
 } from "@fort-major/msq-shared";
 import { Secp256k1KeyIdentity } from "@dfinity/identity-secp256k1";
+import { IDL, lebEncode } from "@dfinity/candid";
+import { Heading, Text, text as snapText, heading as snapHeading } from "@metamask/snaps-sdk";
+import { CallRequest, ReadRequest, ReadRequestType, SubmitRequestType } from "@dfinity/agent";
+
+export const ONE_SECOND_MS = 1000;
+export const ONE_MINUTE_MS = ONE_SECOND_MS * 60;
+export const ONE_HOUR_MS = ONE_MINUTE_MS * 60;
+export const ONE_DAY_MS = ONE_HOUR_MS * 24;
+
+export const IC_DOMAIN_SEPARATOR = strToBytes("\x0Aic-request");
 
 // this is executed during the 'verify' build step process
 // when the snap is evaluated in SES
@@ -42,7 +57,7 @@ export function guardMethods(method: string, origin: TOrigin): void {
 
   // validate origin to be MSQ website
   if (!isMsq(origin)) {
-    return err(
+    err(
       ErrorCode.PROTECTED_METHOD,
       `Method ${method} can only be executed from the MSQ website ("${origin}" != ${process.env.MSQ_SNAP_SITE_ORIGIN})`,
     );
@@ -56,7 +71,7 @@ export function guardMethods(method: string, origin: TOrigin): void {
  * @returns
  */
 export function isMsq(origin: TOrigin): boolean {
-  return origin === (process.env.MSQ_SNAP_SITE_ORIGIN as string);
+  return origin === JSON.parse(process.env.MSQ_SNAP_SITE_ORIGIN as string);
 }
 
 /**
@@ -75,11 +90,17 @@ export function isMsq(origin: TOrigin): boolean {
 export async function getSignIdentity(
   origin: TOrigin,
   identityId: TIdentityId,
-  salt: Uint8Array,
+  salt: Uint8Array = new Uint8Array(),
 ): Promise<Secp256k1KeyIdentity> {
   // the MSQ site has constant origin
   // this will allow us to change the domain name without users losing their funds and accounts
   const orig = isMsq(origin) ? "https://msq.tech" : origin;
+
+  // forbid other dapps from using external salt
+  // TODO: better trap here, if the provided salt is not the default one
+  if (!isMsq(origin)) {
+    salt = new Uint8Array();
+  }
 
   // shared prefix may be used in following updates
   const entropy = await getEntropy(orig, identityId, "identity-sign\nshared", salt);
@@ -140,6 +161,113 @@ async function getEntropy(
 
   let entropyPreBytes = new Uint8Array([...baseEntropy, ...externalSalt]);
   return await crypto.subtle.digest("SHA-256", entropyPreBytes);
+}
+
+/**
+ * Escapes Markdown control characters, newline characters, and backticks in a string.
+ * This function takes a string and returns a new string with all Markdown control characters, newline characters, and backticks escaped.
+ * Escaping is done by prefixing each control character and backtick with a backslash (`\`), and newline characters are replaced with `\\n`.
+ *
+ * Control characters include: `{`, `}`, `[`, `]`, `(`, `)`, `#`, `!`, `|`, `\`, and `` ` ``.
+ * Newline characters are replaced with a visible escape sequence (`\\n`) for demonstration or specific formatting needs.
+ * Since all newlines are escaped, list creating characters `-`, `+` and `.` are allowed.
+ * Text styling characters `*`, `_` are also allowed
+ *
+ * @param {string} text The string to be escaped.
+ * @return {string} The escaped string, safe to be used in Markdown without triggering formatting, with newline characters visually represented and backticks escaped.
+ */
+export function escapeMarkdown(text: string) {
+  return text.replace(/([{}\[\]()#!|\\`])|\n/g, (match) => (match === "\n" ? "\\n" : "\\" + match));
+}
+
+/**
+ * An escaped version of a text element from @metamask/snaps-sdk
+ *
+ * @param {string} str The string to render
+ * @returns {Text} The Text node
+ */
+export function text(str: string): Text {
+  return snapText(escapeMarkdown(str));
+}
+
+/**
+ * An escaped version of a heading element from @metamask/snaps-sdk
+ *
+ * @param {string} str The string to render
+ * @returns {Heading} The Heading node
+ */
+export function heading(str: string): Heading {
+  return snapHeading(escapeMarkdown(str));
+}
+
+const CANDID_BLOB = IDL.Vec(IDL.Nat8);
+
+export const ICRC1_TRANSFER_ARGS_SCHEMA = IDL.Record({
+  from_subaccount: IDL.Opt(CANDID_BLOB),
+  to: IDL.Record({
+    owner: IDL.Principal,
+    subaccount: IDL.Opt(CANDID_BLOB),
+  }),
+  amount: IDL.Nat,
+  fee: IDL.Opt(IDL.Nat),
+  memo: IDL.Opt(CANDID_BLOB),
+  created_at_time: IDL.Opt(IDL.Nat64),
+});
+
+export type ICRC1TransferArgs = {
+  from_subaccount: [] | [Uint8Array];
+  to: {
+    owner: Principal;
+    subaccount: [] | [Uint8Array];
+  };
+  amount: bigint;
+  fee: [] | [bigint];
+  memo: [] | [Uint8Array];
+  created_at_time: [] | [bigint];
+};
+
+export class Expiry {
+  constructor(private readonly _value: bigint) {}
+
+  public toHash(): ArrayBuffer {
+    return lebEncode(this._value);
+  }
+}
+
+export function prepareRequest(req: IHttpAgentRequest): CallRequest | ReadRequest {
+  const sender = typeof req.sender === "string" ? Principal.fromText(req.sender) : (req.sender as Uint8Array);
+
+  const ingress_expiry = new Expiry(req.ingress_expiry);
+
+  let request: CallRequest | ReadRequest;
+
+  if (req.request_type === "call" || req.request_type === "query") {
+    const r = req as ICanisterRequest;
+
+    request = {
+      ...r,
+      request_type: r.request_type as SubmitRequestType,
+      canister_id: Principal.fromText(r.canister_id),
+      method_name: r.method_name,
+      arg: r.arg,
+      sender,
+      // @ts-expect-error - we have replaced the default Expiry impl, because it does not allow reassembly from the internal value
+      ingress_expiry,
+    };
+  } else {
+    const r = req as IReadStateRequest;
+
+    request = {
+      ...r,
+      request_type: r.request_type as ReadRequestType.ReadState,
+      paths: r.paths,
+      sender,
+      // @ts-expect-error - we have replaced the default Expiry impl, because it does not allow reassembly from the internal value
+      ingress_expiry,
+    };
+  }
+
+  return request;
 }
 
 /**
