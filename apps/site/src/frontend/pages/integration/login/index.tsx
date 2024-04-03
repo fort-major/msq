@@ -78,8 +78,9 @@ export function LoginPage() {
       <LoginOptionsWrapper>
         <LoginOptionsSection>
           <For each={loginOptions()}>
-            {([origin, principals]) => (
+            {([origin, principals], idx) => (
               <Spoiler
+                last={idx() === (loginOptions() ?? []).length - 1}
                 defaultOpen
                 header={
                   <Text size={20} weight={600}>

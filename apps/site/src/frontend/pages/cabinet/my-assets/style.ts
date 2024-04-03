@@ -30,7 +30,6 @@ export const MyAssetsPageContent = styled.section`
   max-width: 880px;
   flex-direction: column;
   align-items: flex-start;
-  gap: 60px;
 
   margin-top: 40px;
   margin-bottom: 80px;
@@ -65,6 +64,8 @@ export const AddAssetWrapper = styled.div`
   align-items: flex-start;
   gap: 25px;
   align-self: stretch;
+
+  margin-top: 60px;
 `;
 
 export const AddAssetFormWrapper = styled.div`
@@ -143,8 +144,8 @@ export const ErrorText = css`
 `;
 
 export const AssetLogo = styled.img`
-  height: 30px;
-  width: 30px;
+  height: 40px;
+  width: 40px;
   border-radius: 100%;
 `;
 

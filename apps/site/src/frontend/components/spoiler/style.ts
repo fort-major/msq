@@ -12,8 +12,8 @@ export const SpoilerWrapper = styled.div`
 
 export const SpoilerHeader = styled.div`
   display: flex;
-  padding-top: 25px;
-  padding-bottom: 25px;
+  padding-top: 20px;
+  padding-bottom: 20px;
   padding-right: 20px;
   justify-content: space-between;
   align-items: center;
@@ -24,9 +24,11 @@ export const SpoilerHeader = styled.div`
 
 export const SpoilerIcon = styled.img``;
 
-export const SpoilerChildren = styled.div`
+export const SpoilerChildren = styled.div<{ last?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   align-self: stretch;
+
+  padding-bottom: ${(props) => (props.last ? "0" : "40px")};
 `;

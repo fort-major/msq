@@ -160,11 +160,6 @@ export function AccountCard(props: IAccountCardProps) {
                 </Text>
               </AccountCardFooterInsufficientBalance>
             </Show>
-            <Show when={props.transferSuccess}>
-              <AccountCardCheckIconWrapper>
-                <Icon kind={EIconKind.Check} color={COLOR_ACCENT} />
-              </AccountCardCheckIconWrapper>
-            </Show>
           </AccountCardFooterBalanceWrapper>
           <AccountCardFooterButtons>
             <Show when={props.onSend}>

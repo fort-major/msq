@@ -73,6 +73,8 @@ export const Text = styled.p<{
   lineHeight?: number;
   striked?: boolean;
 }>`
+  position: relative;
+
   ${DefaultFont}
 
   font-size: ${(props) => props.size}px;
@@ -80,7 +82,7 @@ export const Text = styled.p<{
   font-weight: ${(props) => props.weight || 400};
   line-height: ${(props) => props.lineHeight || 100}%;
   color: ${(props) => props.color || COLOR_WHITE};
-  letter-spacing: ${(props) => props.letterSpacing || 0}px;
+  letter-spacing: ${(props) => props.letterSpacing || -0.5}px;
   ${(props) => (props.striked ? "text-decoration: line-through;" : "")}
 `;
 

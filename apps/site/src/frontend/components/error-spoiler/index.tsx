@@ -1,7 +1,7 @@
 import { Show, createSignal } from "solid-js";
 import { eventHandler, truncateStr } from "../../utils";
 import { EIconKind, Icon } from "../../ui-kit/icon";
-import { COLOR_GRAY_115, COLOR_GRAY_120 } from "../../ui-kit";
+import { COLOR_GRAY_115, COLOR_GRAY_125 } from "../../ui-kit";
 import { Text } from "../../ui-kit/typography";
 import { styled } from "solid-styled-components";
 
@@ -32,7 +32,7 @@ export function ErrorSpoiler(props: { defaultText: string }) {
         </Text>
       </ErrorSpoilerHeading>
       <ErrorSpoilerContent>
-        <Text size={16} lineHeight={150} color={COLOR_GRAY_120}>
+        <Text size={16} lineHeight={150} color={COLOR_GRAY_125}>
           {text()}
         </Text>
         <Show when={props.defaultText.length > SPOILER_MAX_LENGTH}>

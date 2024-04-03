@@ -1,10 +1,12 @@
-import { styled } from "solid-styled-components";
+import { css, styled } from "solid-styled-components";
 import { H3, Text } from "../../ui-kit/typography";
 import { AccountCard } from "../../components/account-card";
 import { Button, EButtonKind } from "../../ui-kit/button";
 import { onMount } from "solid-js";
 import { useMsqClient } from "../../store/global";
 import { tokensToStr } from "@fort-major/msq-shared";
+import { EIconKind, Icon } from "../../ui-kit/icon";
+import { COLOR_CHARTREUSE } from "../../ui-kit";
 
 export interface ITxnSuccessPageProps {
   assetId: string;
@@ -32,8 +34,14 @@ export function TxnSuccessPage(props: ITxnSuccessPageProps) {
   return (
     <TxnSuccessPageContent>
       <TxnSuccessPageHeading>
-        <H3>
-          -{tokensToStr(props.amount, props.decimals, undefined, true)} {props.symbol}
+        <H3 classList={{ [Header]: true }}>
+          <span>
+            -{tokensToStr(props.amount, props.decimals, undefined, true)} {props.symbol}
+          </span>
+
+          <SuccessSpoilerIconWrapper>
+            <Icon kind={EIconKind.Check} color={COLOR_CHARTREUSE} />
+          </SuccessSpoilerIconWrapper>
         </H3>
         <Text size={20} weight={600}>
           Transaction #{props.blockId.toString()} has been successfully executed
@@ -76,4 +84,24 @@ const TxnSuccessPageHeading = styled.div`
   align-items: flex-start;
   gap: 15px;
   align-self: stretch;
+`;
+
+const SuccessSpoilerIconWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+
+  border-radius: 100%;
+  border: 1px solid ${COLOR_CHARTREUSE};
+`;
+
+const Header = css`
+  width: 100%;
+
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
 `;

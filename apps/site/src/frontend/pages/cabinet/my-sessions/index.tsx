@@ -82,7 +82,7 @@ export function MySessionsPage() {
                       <SessionWebsiteEllipse />
                     </SessionWebsiteEllipseWrapper>
                     <SessionWebsiteDataWrapper>
-                      <Text size={24} weight={600}>
+                      <Text size={24} weight={600} lineHeight={120}>
                         {originToHostname(origin)}
                       </Text>
                       <Text size={16} weight={500} color={COLOR_GRAY_140}>
@@ -94,14 +94,14 @@ export function MySessionsPage() {
                   <SessionInfoWrapper>
                     <BoopAvatar size={50} principal={mask.principal} />
                     <SessionInfoDataWrapper>
-                      <Text size={16} weight={600}>
+                      <Text size={16} weight={600} lineHeight={120}>
                         {mask.pseudonym} (from{" "}
                         <span class={ColorAccent}>
                           {originToHostname(originsData[origin]!.currentSession!.deriviationOrigin)}
                         </span>
                         )
                       </Text>
-                      <Text size={12} color={COLOR_GRAY_140} class={SessionInfoDataPrincipal}>
+                      <Text size={12} color={COLOR_GRAY_140} class={SessionInfoDataPrincipal} lineHeight={120}>
                         {mask.principal.toString()}
                       </Text>
                     </SessionInfoDataWrapper>

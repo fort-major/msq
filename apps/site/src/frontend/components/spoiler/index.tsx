@@ -6,6 +6,7 @@ export interface ISpoilerProps {
   defaultOpen?: boolean | undefined;
   header: JSXElement;
   children: JSXElement;
+  last?: boolean;
 }
 
 export function Spoiler(props: ISpoilerProps) {
@@ -30,7 +31,7 @@ export function Spoiler(props: ISpoilerProps) {
       </SpoilerHeader>
       <Switch>
         <Match when={open()}>
-          <SpoilerChildren>{c()}</SpoilerChildren>
+          <SpoilerChildren last={props.last}>{c()}</SpoilerChildren>
         </Match>
       </Switch>
     </SpoilerWrapper>

@@ -38,6 +38,7 @@ import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
 import { ITxnHistoryModalProps, TxnHistoryModal } from "../../../components/txn-history-modal";
 import { Toggle } from "../../../components/toggle";
+import { ErrorPin } from "../../../ui-kit/error-pin";
 
 export function MyAssetsPage() {
   const msq = useMsqClient();
@@ -210,8 +211,9 @@ export function MyAssetsPage() {
               </H5>
             }
           >
-            {(assetId) => (
+            {(assetId, idx) => (
               <Spoiler
+                last={idx() === getAssetKeys().length - 1}
                 defaultOpen={
                   !!assets[assetId] &&
                   (assets[assetId]!.totalBalance > 0n || assets[assetId]!.accounts[0].name === "Creating...")
@@ -223,6 +225,9 @@ export function MyAssetsPage() {
                       fallback={
                         <Text size={20} weight={600}>
                           {assetId}
+                          <Show when={assets[assetId]?.erroed}>
+                            <ErrorPin />
+                          </Show>
                         </Text>
                       }
                     >
@@ -236,6 +241,9 @@ export function MyAssetsPage() {
                         </Show>
                         <Text size={20} weight={600}>
                           {assets[assetId]!.metadata!.name}
+                          <Show when={assets[assetId]?.erroed}>
+                            <ErrorPin />
+                          </Show>
                         </Text>
                       </NameAndLogo>
                     </Show>

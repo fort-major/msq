@@ -29,6 +29,7 @@ export type IAssetDataExt = {
   }[];
   metadata?: IAssetMetadata | undefined;
   totalBalance: bigint;
+  erroed: boolean;
 };
 // undefined == not loaded yet, null == erroed
 export type AllAssetData = Record<string, IAssetDataExt | undefined | null>;
@@ -207,7 +208,13 @@ export function AssetsStore(props: IChildren) {
           // if we're queried for the first time, or the data is different - send an update to verify
           if (!metadataIsEqual(metadata, allAssetData[assetId]?.metadata)) {
             setAllAssetData(assetId, { metadata, totalBalance: 0n });
-            getAssetMetadata(ledger, true).then((metadata) => setAllAssetData(assetId, "metadata", metadata));
+            getAssetMetadata(ledger, true)
+              .then((metadata) => setAllAssetData(assetId, "metadata", metadata))
+              .catch((e) => {
+                console.error(e);
+
+                setAllAssetData(assetId, "erroed", true);
+              });
           }
 
           for (let idx = 0; idx < allAssetData[assetId]!.accounts.length; idx++) {
@@ -216,13 +223,18 @@ export function AssetsStore(props: IChildren) {
 
               setAllAssetData(assetId, "accounts", idx, "principal", principal.toText());
 
-              updateBalanceOf(ledger, assetId, idx);
+              updateBalanceOf(ledger, assetId, idx).catch((e) => {
+                console.log(e);
+
+                setAllAssetData(assetId, "erroed", true);
+              });
             });
           }
         })
         .catch((e) => {
           console.error(e);
-          setAllAssetData(assetId, null);
+
+          setAllAssetData(assetId, "erroed", true);
         });
     }
   };
@@ -248,7 +260,7 @@ export function AssetsStore(props: IChildren) {
     try {
       await updateBalanceOf(ledger, assetId, accountId);
     } catch {
-      setAllAssetData(assetId, null);
+      setAllAssetData(assetId, "erroed", true);
     }
   };
 
@@ -259,13 +271,10 @@ export function AssetsStore(props: IChildren) {
     const agent = await makeAgent(anonIdentity);
     const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
 
-    // first we query to be fast
-    let metadata = await getAssetMetadata(ledger, false);
-
     setAllAssetData(
       produce((state) => {
         state[assetId] = {
-          metadata,
+          metadata: undefined,
           totalBalance: 0n,
           accounts: [
             {
@@ -274,42 +283,62 @@ export function AssetsStore(props: IChildren) {
               principal: DEFAULT_PRINCIPAL,
             },
           ],
+          erroed: false,
         };
       }),
     );
 
-    // then we update to be sure
-    metadata = await getAssetMetadata(ledger, true);
-    const assetData = await msq.addAsset({
-      assets: [
-        {
-          assetId,
-          name: metadata.name,
-          symbol: metadata.symbol,
-          decimals: metadata.decimals,
-          fee: metadata.fee,
-        },
-      ],
-    });
+    try {
+      // first we query to be fast
+      let metadata = await getAssetMetadata(ledger, false);
 
-    if (assetData === null) {
-      setAllAssetData(assetId, undefined);
-      return;
+      setAllAssetData(assetId, "metadata", metadata);
+
+      // then we update to be sure
+      let metadataUpd = await getAssetMetadata(ledger, true);
+
+      if (!metadataIsEqual(metadata, metadataUpd)) {
+        throw new Error("Metadata is not equal on query/update comparison");
+      }
+
+      const assetData = await msq.addAsset({
+        assets: [
+          {
+            assetId,
+            name: metadata.name,
+            symbol: metadata.symbol,
+            decimals: metadata.decimals,
+            fee: metadata.fee,
+          },
+        ],
+      });
+
+      if (assetData === null) {
+        setAllAssetData(assetId, undefined);
+        return;
+      }
+
+      setAllAssetData(
+        produce((state) => {
+          state[assetId]!.metadata = metadata;
+          state[assetId]!.accounts[0].name = assetData[0].accounts[0];
+        }),
+      );
+
+      const identity = await MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, 0));
+      const principal = identity.getPrincipal();
+
+      setAllAssetData(assetId, "accounts", 0, "principal", principal.toText());
+
+      updateBalanceOf(ledger, assetId, 0).catch((e) => {
+        console.error(e);
+        setAllAssetData(assetId, "erroed", true);
+      });
+    } catch (e) {
+      console.error(e);
+
+      setAllAssetData(assetId, "erroed", true);
     }
-
-    setAllAssetData(
-      produce((state) => {
-        state[assetId]!.metadata = metadata;
-        state[assetId]!.accounts[0].name = assetData[0].accounts[0];
-      }),
-    );
-
-    const identity = await MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, 0));
-    const principal = identity.getPrincipal();
-
-    setAllAssetData(assetId, "accounts", 0, "principal", principal.toText());
-
-    updateBalanceOf(ledger, assetId, 0);
   };
 
   const editAccount = async (assetId: string, accountId: TAccountId, newName: string) => {
