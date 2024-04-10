@@ -180,6 +180,15 @@ Here is a complete list of currently whitelisted ICRC-1 tokens:
 * KINIC - `73mez-iiaaa-aaaaq-aaasq-cai`
 * HOT - `6rdgd-kyaaa-aaaaq-aaavq-cai`
 * CAT - `uf2wh-taaaa-aaaaq-aabna-cai`
+* BOOM - `vtrom-gqaaa-aaaaq-aabia-cai`
+* GLDGov - `tyyy3-4aaaa-aaaaq-aab7a-cai`
+* ICX - `rffwt-piaaa-aaaaq-aabqq-cai`
+* NTN - `f54if-eqaaa-aaaaq-aacea-cai`
+* NUA - `rxdbk-dyaaa-aaaaq-aabtq-cai`
+* SNEED - `hvgxa-wqaaa-aaaaq-aacia-cai`
+* TRAX - `emww2-4yaaa-aaaaq-aacbq-cai`
+* ICL - `hhaaz-2aaaa-aaaaq-aacla-cai`
+* ELNA - `gemj7-oyaaa-aaaaq-aacnq-cai`
 
 #### Possible issues
 
