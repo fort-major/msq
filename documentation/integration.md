@@ -189,6 +189,9 @@ Here is a complete list of currently whitelisted ICRC-1 tokens:
 * TRAX - `emww2-4yaaa-aaaaq-aacbq-cai`
 * ICL - `hhaaz-2aaaa-aaaaq-aacla-cai`
 * ELNA - `gemj7-oyaaa-aaaaq-aacnq-cai`
+* OpenFPL - `ddsp7-7iaaa-aaaaq-aacqq-cai`
+* ICPanda - `druyg-tyaaa-aaaaq-aactq-cai`
+* ICPSwap - `ca6gz-lqaaa-aaaaq-aacwa-cai`
 
 #### Possible issues
 
