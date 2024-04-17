@@ -343,6 +343,30 @@ export const PRE_LISTED_TOKENS: Record<string, PreListedToken> = {
     fee: 100_000n,
     decimals: 8,
   },
+  "ddsp7-7iaaa-aaaaq-aacqq-cai": {
+    name: "OpenFPL",
+    assetId: "ddsp7-7iaaa-aaaaq-aacqq-cai",
+    symbol: "FPL",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 100_000n,
+    decimals: 8,
+  },
+  "druyg-tyaaa-aaaaq-aactq-cai": {
+    name: "ICPanda DAO",
+    assetId: "druyg-tyaaa-aaaaq-aactq-cai",
+    symbol: "PANDA",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 10_000n,
+    decimals: 8,
+  },
+  "ca6gz-lqaaa-aaaaq-aacwa-cai": {
+    name: "ICPSwap",
+    assetId: "ca6gz-lqaaa-aaaaq-aacwa-cai",
+    symbol: "ICS",
+    chargingAccountId: "rmapb-pzxbf-4fimd-h33qy-aydfx-wxne6-64kqi-f6nwz-cfzyq-wf7tb-bqe",
+    fee: 1_000_000n,
+    decimals: 8,
+  },
 };
 
 /**
