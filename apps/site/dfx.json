@@ -13,6 +13,11 @@
       },
       "source": ["dist"],
       "type": "assets"
+    },
+    "msq_payment_hub": {
+        "candid": "src/backend/payment_hub/can.did",
+        "package": "msq_payment_hub",
+        "type": "rust"
     }
   },
   "defaults": {

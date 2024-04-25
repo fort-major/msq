@@ -1,5 +1,5 @@
 [package]
-name = "msq_statistics"
+name = "msq_payment_hub"
 version = "0.1.0"
 edition = "2021"
 
@@ -14,3 +14,4 @@ candid = "^0.10"
 ic-cdk = "^0.13"
 ic-cdk-timers = "^0.7"
 serde = "^1.0"
+chrono = { version = "^0.4", default-features = false }

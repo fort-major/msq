@@ -1,2 +1,10 @@
 [workspace]
-members = ["./src/backend/statistics"]
+members = ["./src/backend/statistics", "./src/backend/payment_hub"]
+resolver = "1"
+
+[profile.release]
+codegen-units = 1
+strip = true
+lto = true
+opt-level = 'z'
+panic = 'abort'

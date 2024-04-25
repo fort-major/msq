@@ -1,0 +1,3 @@
+service : {
+    "get_timers_log" : () -> (vec text) query;
+};
