@@ -1,3 +1,18 @@
-service : {
+type Token = record {
+    id : principal;
+    ticker : text;
+    decimals : nat8;
+    fee : nat;
+};
+
+type InitArgs = record {
+    supported_tokens : vec Token;
+};
+
+service : (InitArgs) -> {
     "get_timers_log" : () -> (vec text) query;
+    "get_exchange_rates" : () -> (vec record { text; nat; }) query;
+    "get_supported_tokens" : () -> (vec Token) query;
+    "add_supported_token" : (Token) -> ();
+    "remove_supported_token" : (text) -> () query;
 };

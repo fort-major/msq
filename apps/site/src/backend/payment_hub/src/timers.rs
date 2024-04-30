@@ -1,8 +1,10 @@
 use std::{cell::RefCell, time::Duration as StdDuration};
 
 use chrono::{Datelike, Days, Duration, TimeZone, Utc};
-use ic_cdk::{api::time, query};
+use ic_cdk::{api::time, query, spawn};
 use ic_cdk_timers::{set_timer, set_timer_interval, TimerId};
+
+use crate::exchange_rates::refresh_exchange_rates;
 
 struct Timers {
     // fires each day at 2AM UTC - timer
@@ -63,8 +65,6 @@ fn handle_exchange_rates_fetch_timer() {
     let now_utc = Utc.timestamp_nanos(time() as i64);
     let log_entry = format!("[{now_utc}] EXCHANGE_RATES_FETCH timer fired");
 
-    LOG.with(|l| l.borrow_mut().push(log_entry));
-
     let tomorrow_2am_utc = Utc
         .with_ymd_and_hms(now_utc.year(), now_utc.month(), now_utc.day(), 2, 0, 0)
         .unwrap()
@@ -78,7 +78,11 @@ fn handle_exchange_rates_fetch_timer() {
         let timers_ref = timers_opt_ref.as_mut().unwrap();
 
         timers_ref.exchange_rates_fetch = set_timer(delay, handle_exchange_rates_fetch_timer);
-    })
+    });
+
+    LOG.with(|l| l.borrow_mut().push(log_entry));
+
+    spawn(refresh_exchange_rates());
 }
 
 fn handle_archive_invoices_timer() {
