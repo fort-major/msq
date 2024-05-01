@@ -4,7 +4,10 @@ use chrono::{Datelike, Days, Duration, TimeZone, Utc};
 use ic_cdk::{api::time, query, spawn};
 use ic_cdk_timers::{set_timer, set_timer_interval, TimerId};
 
-use crate::exchange_rates::refresh_exchange_rates;
+use crate::{
+    exchange_rates::refresh_exchange_rates,
+    invoices::{eject_archive_invoice_batch, purge_expired_invoices},
+};
 
 struct Timers {
     // fires each day at 2AM UTC - timer
@@ -80,16 +83,12 @@ fn handle_exchange_rates_fetch_timer() {
         timers_ref.exchange_rates_fetch = set_timer(delay, handle_exchange_rates_fetch_timer);
     });
 
-    LOG.with(|l| l.borrow_mut().push(log_entry));
-
     spawn(refresh_exchange_rates());
 }
 
 fn handle_archive_invoices_timer() {
     let now_utc = Utc.timestamp_nanos(time() as i64);
     let log_entry = format!("[{now_utc}] ARCHIVE_INVOICES timer fired");
-
-    LOG.with(|l| l.borrow_mut().push(log_entry));
 
     let tomorrow_3am_utc = Utc
         .with_ymd_and_hms(now_utc.year(), now_utc.month(), now_utc.day(), 3, 0, 0)
@@ -104,22 +103,25 @@ fn handle_archive_invoices_timer() {
         let timers_ref = timers_opt_ref.as_mut().unwrap();
 
         timers_ref.archive_invoices = set_timer(delay, handle_archive_invoices_timer);
-    })
+    });
+
+    loop {
+        let batch = eject_archive_invoice_batch();
+        if batch.is_empty() {
+            return;
+        }
+
+        // TODO: send the batch to the archive, wrap the whole thing in spawn()
+    }
 }
 
 fn handle_discard_expired_invoices_interval() {
     let now_utc = Utc.timestamp_nanos(time() as i64);
     let log_entry = format!("[{now_utc}] DISCARD_EXPIRED_INVOICES timer fired");
 
-    LOG.with(|l| l.borrow_mut().push(log_entry));
+    purge_expired_invoices();
 }
 
 thread_local! {
     static TIMERS: RefCell<Option<Timers>> = RefCell::default();
-    static LOG: RefCell<Vec<String>> = RefCell::default();
-}
-
-#[query]
-pub fn get_timers_log() -> Vec<String> {
-    LOG.with(|l| l.borrow().clone())
 }

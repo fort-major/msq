@@ -5,14 +5,31 @@ type Token = record {
     fee : nat;
 };
 
+type InvoiceStatus = variant {
+    Created : record { ttl : nat8; };
+    Paid;
+    Notified;
+};
+
+type InvoiceId = blob;
+type USD = nat;
+
+type Invoice = record {
+    state : InvoiceStatus;
+    qty_usd : USD;
+    created_at : nat64;
+    creator : principal;
+};
+
 type InitArgs = record {
     supported_tokens : vec Token;
 };
 
 service : (InitArgs) -> {
-    "get_timers_log" : () -> (vec text) query;
     "get_exchange_rates" : () -> (vec record { text; nat; }) query;
     "get_supported_tokens" : () -> (vec Token) query;
     "add_supported_token" : (Token) -> ();
     "remove_supported_token" : (text) -> () query;
+    "get_invoice" : (InvoiceId) -> (opt Invoice) query;
+    "create_invoice" : (USD) -> (InvoiceId);
 };
