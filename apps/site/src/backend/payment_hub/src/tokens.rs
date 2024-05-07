@@ -1,57 +1,16 @@
 use std::{
     borrow::Borrow,
     cell::RefCell,
-    collections::{btree_map::Values, BTreeMap, BTreeSet},
-    str::FromStr,
+    collections::{btree_map::Values, BTreeMap},
 };
 
 use candid::{CandidType, Nat, Principal};
 use ic_cdk::{query, update};
 use serde::Deserialize;
-use tinystr::{TinyStr16, TinyStrAuto};
+
+use crate::utils::Ticker;
 
 pub type TokenId = Principal;
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
-pub struct Ticker(pub TinyStr16);
-
-impl Borrow<str> for Ticker {
-    fn borrow(&self) -> &str {
-        self.0.borrow()
-    }
-}
-
-impl<T> From<T> for Ticker
-where
-    T: AsRef<str>,
-{
-    fn from(value: T) -> Self {
-        Self(TinyStr16::from_str(value.as_ref()).unwrap())
-    }
-}
-
-impl CandidType for Ticker {
-    fn _ty() -> candid::types::Type {
-        String::_ty()
-    }
-
-    fn idl_serialize<S>(&self, serializer: S) -> Result<(), S::Error>
-    where
-        S: candid::types::Serializer,
-    {
-        self.0.idl_serialize(serializer)
-    }
-}
-
-impl<'de> Deserialize<'de> for Ticker {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        Ok(Ticker(
-            TinyStr16::from_str(String::deserialize(deserializer)?.as_str()).unwrap(),
-        ))
-    }
-}
 
 #[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct Token {
@@ -90,7 +49,13 @@ impl SupportedTokensState {
     pub fn get(&self) -> Values<TokenId, Token> {
         self.tokens.values()
     }
+
+    pub fn ticker_by_token_id(&self, token_id: &TokenId) -> Option<Ticker> {
+        self.tokens.get(token_id).map(|it| it.ticker)
+    }
 }
+
+// ---------------------------- STATE ------------------------
 
 thread_local! {
     pub static SUPPORTED_TOKENS: RefCell<SupportedTokensState> = RefCell::default();
@@ -106,17 +71,35 @@ pub fn init_supported_tokens(tokens: Vec<Token>) {
     });
 }
 
+#[derive(CandidType, Deserialize)]
+pub struct GetSupportedTokensResponse {
+    pub supported_tokens: Vec<Token>,
+}
+
 #[query]
-fn get_supported_tokens() -> Vec<Token> {
-    SUPPORTED_TOKENS.with(|it| it.borrow().get().cloned().collect::<Vec<_>>())
+fn get_supported_tokens() -> GetSupportedTokensResponse {
+    let supported_tokens =
+        SUPPORTED_TOKENS.with(|it| it.borrow().get().cloned().collect::<Vec<_>>());
+
+    GetSupportedTokensResponse { supported_tokens }
+}
+
+#[derive(CandidType, Deserialize)]
+pub struct AddSupportedTokenRequest {
+    pub token: Token,
 }
 
 #[update]
-fn add_supported_token(token: Token) {
-    SUPPORTED_TOKENS.with(|it| it.borrow_mut().add_token(token));
+fn add_supported_token(req: AddSupportedTokenRequest) {
+    SUPPORTED_TOKENS.with(|it| it.borrow_mut().add_token(req.token));
+}
+
+#[derive(CandidType, Deserialize)]
+pub struct RemoveSupportedTokenRequest {
+    ticker: Ticker,
 }
 
 #[update]
-fn remove_supported_token(ticker: Ticker) {
-    SUPPORTED_TOKENS.with(|it| it.borrow_mut().remove_token(ticker));
+fn remove_supported_token(req: RemoveSupportedTokenRequest) {
+    SUPPORTED_TOKENS.with(|it| it.borrow_mut().remove_token(req.ticker));
 }

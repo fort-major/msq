@@ -1,5 +1,9 @@
 [workspace]
-members = ["./src/backend/statistics", "./src/backend/payment_hub"]
+members = [
+    "./src/backend/statistics",
+    "./src/backend/payment_hub",
+    "./src/backend/payment_hub_history",
+]
 resolver = "1"
 
 [profile.release]

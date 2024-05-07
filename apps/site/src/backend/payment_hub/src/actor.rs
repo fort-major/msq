@@ -4,7 +4,7 @@ use ic_cdk::{
     init, post_upgrade, pre_upgrade, spawn,
     storage::{stable_restore, stable_save},
 };
-use invoices::{InvoicesState, INVOICES_STATE};
+use invoices::{init_invoice_ids_seed, InvoicesState, INVOICES_STATE};
 use serde::Deserialize;
 use timers::init_timers;
 use tokens::{init_supported_tokens, SupportedTokensState, Token, SUPPORTED_TOKENS};
@@ -21,10 +21,8 @@ mod utils;
 // TODO: validate all inputs for UB
 // TODO: protect methods with controller protection
 // TODO: move validation to inspect_message
-// TODO: init salt for invoice ids
-// TODO: add archive canister
 // TODO: add notifying backend
-// TODO: handle stable memory better (invoices state)
+// TODO: cover everything with tests
 
 // TODO: check other todos
 
@@ -38,7 +36,10 @@ fn init_hook(args: InitArgs) {
     init_timers();
     init_supported_tokens(args.supported_tokens);
 
-    set_immediate(|| spawn(refresh_exchange_rates()))
+    set_immediate(|| {
+        spawn(refresh_exchange_rates());
+        spawn(init_invoice_ids_seed());
+    });
 }
 
 #[pre_upgrade]
@@ -52,8 +53,6 @@ fn pre_upgrade_hook() {
 
 #[post_upgrade]
 fn post_upgrade_hook() {
-    init_timers();
-
     let (supported_tokens, exchange_rates, invoices): (
         SupportedTokensState,
         ExchangeRatesState,
@@ -64,5 +63,10 @@ fn post_upgrade_hook() {
     EXCHANGE_RATES.with(|it| it.replace(exchange_rates));
     INVOICES_STATE.with(|it| it.replace(invoices));
 
-    set_immediate(|| spawn(refresh_exchange_rates()));
+    init_timers();
+
+    set_immediate(|| {
+        spawn(refresh_exchange_rates());
+        spawn(init_invoice_ids_seed());
+    });
 }
