@@ -293,4 +293,4 @@ export function makeIcrc1Salt(assetId: string, accountId: TAccountId): Uint8Arra
   return strToBytes(`\xacicrc1\n${assetId}\n${accountId}`);
 }
 
-export const SHOULD_BE_FLASK = true;
+export const SHOULD_BE_FLASK = false;

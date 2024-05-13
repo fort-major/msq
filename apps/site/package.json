@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@dfinity/ledger-icp": "^2.2",
-    "@dfinity/ledger-icrc": "^2.2",
+    "@dfinity/ledger-icrc": "^2.3",
     "@fort-major/msq-client": "workspace:*",
     "@fort-major/msq-shared": "workspace:*",
     "@solidjs/router": "0.9.1",
