@@ -4,6 +4,7 @@ import {
   COLOR_ACCENT,
   COLOR_BLACK,
   COLOR_GRAY_108,
+  COLOR_GRAY_130,
   COLOR_GRAY_140,
   COLOR_GRAY_150,
   COLOR_WHITE,
@@ -39,7 +40,7 @@ export function ReceivePopup(props: IReceivePopupProps) {
   };
 
   const handleRenderQR = (ref: HTMLDivElement) => {
-    const qr = new QRCode(ref, { colorDark: COLOR_BLACK, width: 300, height: 300 });
+    const qr = new QRCode(ref, { colorDark: COLOR_BLACK, width: 250, height: 250 });
 
     qr.makeCode(paymentLink().toString());
   };
@@ -56,79 +57,88 @@ export function ReceivePopup(props: IReceivePopupProps) {
         <ReceivePopupWrapper>
           <Icon kind={EIconKind.Close} onClick={props.onClose} classList={{ [CloseIcon]: true }} />
           <H5>Receive {props.symbol}</H5>
-          <QR ref={handleRenderQR} />
-          <DataWrapper>
-            <DataItem>
-              <Text size={12} weight={500} color={COLOR_GRAY_140}>
-                MSQ payment link
-              </Text>
-              <DataItemContent>
-                <Text size={12} weight={600} class={DataItemContentText}>
-                  {paymentLink().toString()}
-                </Text>
-                <Show
-                  when={linkCopied()}
-                  fallback={
-                    <Icon kind={EIconKind.Copy} size={14} onClick={handleCopyLink} classList={{ [CopyIcon]: true }} />
-                  }
-                >
-                  <Icon
-                    kind={EIconKind.Check}
-                    size={14}
-                    onClick={handleCopyLink}
-                    classList={{ [CopyIcon]: true }}
-                    color={COLOR_ACCENT}
-                  />
-                </Show>
-              </DataItemContent>
-            </DataItem>
-            <DataItem>
-              <Text size={12} weight={500} color={COLOR_GRAY_140}>
-                Principal ID
-              </Text>
-              <DataItemContent>
-                <Text size={12} weight={600} class={DataItemContentText}>
-                  {props.principal}
-                </Text>
-                <Show
-                  when={principalCopied()}
-                  fallback={
-                    <Icon
-                      kind={EIconKind.Copy}
-                      size={14}
-                      onClick={handleCopyPrincipal}
-                      classList={{ [CopyIcon]: true }}
-                    />
-                  }
-                >
-                  <Icon
-                    kind={EIconKind.Check}
-                    size={14}
-                    onClick={handleCopyPrincipal}
-                    classList={{ [CopyIcon]: true }}
-                    color={COLOR_ACCENT}
-                  />
-                </Show>
-              </DataItemContent>
-            </DataItem>
-            <DataItem>
-              <Text size={12} weight={500} color={COLOR_GRAY_140}>
-                Subaccount
-              </Text>
-              <DataItemContent>
-                <Text size={16} weight={600} class={DataItemContentText}>
-                  Default Subaccount
-                </Text>
-              </DataItemContent>
-            </DataItem>
-          </DataWrapper>
-          <Button
-            label="done"
-            kind={EButtonKind.Primary}
-            text="Done"
-            classList={{ [DoneBtn]: true }}
-            onClick={props.onClose}
-          />
+          <DataQRWrapper>
+            <QR ref={handleRenderQR} />
+            <DataWrapper>
+              <DataItemsWrapper>
+                <DataItem>
+                  <Text size={12} weight={500} color={COLOR_GRAY_140}>
+                    MSQ payment link
+                  </Text>
+                  <DataItemContent>
+                    <Text size={12} weight={600} class={DataItemContentText}>
+                      {paymentLink().toString()}
+                    </Text>
+                    <Show
+                      when={linkCopied()}
+                      fallback={
+                        <Icon
+                          kind={EIconKind.Copy}
+                          size={14}
+                          onClick={handleCopyLink}
+                          classList={{ [CopyIcon]: true }}
+                        />
+                      }
+                    >
+                      <Icon
+                        kind={EIconKind.Check}
+                        size={14}
+                        onClick={handleCopyLink}
+                        classList={{ [CopyIcon]: true }}
+                        color={COLOR_ACCENT}
+                      />
+                    </Show>
+                  </DataItemContent>
+                </DataItem>
+                <DataItem>
+                  <Text size={12} weight={500} color={COLOR_GRAY_140}>
+                    Principal ID
+                  </Text>
+                  <DataItemContent>
+                    <Text size={12} weight={600} class={DataItemContentText}>
+                      {props.principal}
+                    </Text>
+                    <Show
+                      when={principalCopied()}
+                      fallback={
+                        <Icon
+                          kind={EIconKind.Copy}
+                          size={14}
+                          onClick={handleCopyPrincipal}
+                          classList={{ [CopyIcon]: true }}
+                        />
+                      }
+                    >
+                      <Icon
+                        kind={EIconKind.Check}
+                        size={14}
+                        onClick={handleCopyPrincipal}
+                        classList={{ [CopyIcon]: true }}
+                        color={COLOR_ACCENT}
+                      />
+                    </Show>
+                  </DataItemContent>
+                </DataItem>
+                <DataItem>
+                  <Text size={12} weight={500} color={COLOR_GRAY_140}>
+                    Subaccount
+                  </Text>
+                  <DataItemContent>
+                    <Text size={14} weight={600} class={DataItemContentText}>
+                      Default Subaccount
+                    </Text>
+                  </DataItemContent>
+                </DataItem>
+              </DataItemsWrapper>
+              <Button
+                label="done"
+                kind={EButtonKind.Primary}
+                text="Done"
+                classList={{ [DoneBtn]: true }}
+                onClick={props.onClose}
+              />
+            </DataWrapper>
+          </DataQRWrapper>
         </ReceivePopupWrapper>
       </ReceivePopupContainer>
     </Modal>
@@ -139,7 +149,7 @@ const ReceivePopupContainer = styled.div`
   position: relative;
   align-self: center;
   margin: 0 auto;
-  width: 430px;
+  width: 875px;
 `;
 
 const ReceivePopupWrapper = styled.div`
@@ -149,7 +159,7 @@ const ReceivePopupWrapper = styled.div`
   padding: 40px;
   flex-direction: column;
   align-items: flex-start;
-  gap: 40px;
+  gap: 30px;
 
   border-radius: 25px;
   background: ${COLOR_GRAY_108};
@@ -189,24 +199,35 @@ const DoneBtn = css`
 
 const QR = styled.div`
   position: relative;
-  width: 350px;
-  height: 350px;
+  width: 300px;
+  height: 300px;
 
   border-radius: 10px;
 
   background-color: ${COLOR_WHITE};
-  padding: 25px;
+  padding: 20px;
 
   display: flex;
   align-items: stretch;
   justify-content: stretch;
 `;
 
+const DataQRWrapper = styled.div`
+  display: flex;
+  flex-flow: row-reverse nowrap;
+  gap: 40px;
+`;
+
 const DataWrapper = styled.div`
   display: flex;
-  width: 350px;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: space-between;
+`;
+
+const DataItemsWrapper = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
   gap: 20px;
 `;
 
@@ -215,6 +236,8 @@ const DataItem = styled.div`
   flex-direction: column;
   align-items: flex-start;
   align-self: stretch;
+
+  border-bottom: 1px solid ${COLOR_GRAY_130};
 `;
 
 const DataItemContent = styled.div`

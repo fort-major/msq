@@ -75,6 +75,8 @@ Tests only work when the project is built for dev (`pnpm run dev:build`)
 
 ### Publishing
 
+*Note: Make sure you're publishing `packages/shared` before `packages/client`, because the second depends on the first being available at the registry before it can be published as well.*
+
 * (opt) `npm login` - don't forget to log in to your npm account
 * `pnpm run pub`
 

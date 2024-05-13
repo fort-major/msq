@@ -5,7 +5,7 @@
     "It is done in src/index.ts:1",
     "Just set SNAP_VERSION to the actual one"
   ],
-  "version": "0.3.3",
+  "version": "0.3.4",
   "main": "./dist/cjs/index",
   "module": "./dist/esm/index",
   "unpkg": "./dist/esm/index",
@@ -17,7 +17,7 @@
     "prod:build:client-lib": "pnpm run prod:build",
     "dev:build": "rm -rf ./dist && tsc && tsc -p tsconfig.cjs.json && node inline-env-vars.js",
     "dev:build:libs": "pnpm run dev:build",
-    "pub": "npm publish",
+    "pub": "node ./before-publish.js && npm publish && node ./after-publish.js",
     "lint": "eslint --fix src --ext .ts --ext .tsx",
     "format": "pnpm exec prettier src/**/*.{ts,tsx} --write",
     "doc": "typedoc src/**/*.{ts,tsx}"
