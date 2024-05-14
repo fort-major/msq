@@ -18,6 +18,7 @@ type ShopCertificate = blob;
 type PayCertificateChain = vec blob;
 type ErrorCode = nat16;
 type Ticker = text;
+type CorrelationId = blob;
 
 type Invoice = record {
     state : InvoiceStatus;
@@ -25,7 +26,7 @@ type Invoice = record {
     created_at : nat64;
     shop_id : ShopId;
     exchange_rates_timestamp : Timestamp;
-    payer : principal;
+    correlation_id : CorrelationId;
     is_notified : bool;
 };
 

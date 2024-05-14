@@ -3,7 +3,7 @@ use std::{
     collections::{hash_map::Entry, BTreeMap, BTreeSet, HashMap},
 };
 
-use candid::{CandidType, Nat, Principal};
+use candid::{CandidType, Nat};
 use ic_cdk::{
     api::{management_canister::main::raw_rand, time},
     caller, id, query, spawn, update,
@@ -21,6 +21,8 @@ use crate::{
         ID_GENERATION_DOMAIN, MEMO_GENERATION_DOMAIN, RECYCLING_TTL, USD,
     },
 };
+
+pub type CorrelationId = [u8; 32];
 
 #[derive(CandidType, Deserialize, Clone, Debug)]
 pub enum InvoiceStatus {
@@ -42,17 +44,17 @@ pub struct Invoice {
     pub created_at: u64,
     pub exchange_rates_timestamp: Timestamp,
     pub shop_id: ShopId,
-    pub payer: Principal,
+    pub correlation_id: CorrelationId,
     pub is_notified: bool,
 }
 
 #[derive(CandidType, Deserialize, Debug)]
 pub struct Refund {
-    token_id: TokenId,
-    from: Account,
-    to: Account,
-    qty: Nat,
-    error_code: ErrorCode,
+    pub token_id: TokenId,
+    pub from: Account,
+    pub to: Account,
+    pub qty: Nat,
+    pub error_code: ErrorCode,
 }
 
 #[derive(Default, CandidType, Deserialize, Clone, Debug)]
@@ -79,7 +81,7 @@ impl InvoicesState {
         qty_usd: Nat,
         shop_id: ShopId,
         timestamp: u64,
-        payer: Principal,
+        correlation_id: CorrelationId,
     ) -> InvoiceId {
         let inv = Invoice {
             state: InvoiceStatus::Created { ttl: DEFAULT_TTL },
@@ -88,7 +90,7 @@ impl InvoicesState {
             created_at: timestamp,
             shop_id,
             is_notified: false,
-            payer,
+            correlation_id,
         };
 
         let id = self.generate_id(&inv.created_at.to_le_bytes());
@@ -331,6 +333,7 @@ fn get_invoice(req: GetInvoiceRequest) -> GetInvoiceResponse {
 pub struct CreateInvoiceRequest {
     pub qty_usd: USD,
     pub shop_cert: RawShopCert,
+    pub correlation_id: CorrelationId,
 }
 
 #[derive(CandidType, Deserialize)]
@@ -344,7 +347,7 @@ fn create_invoice(req: CreateInvoiceRequest) -> CreateInvoiceResponse {
 
     let invoice_id = INVOICES_STATE.with(|it| {
         it.borrow_mut()
-            .create(req.qty_usd, shop_id, time(), caller())
+            .create(req.qty_usd, shop_id, time(), req.correlation_id)
     });
 
     CreateInvoiceResponse { invoice_id }

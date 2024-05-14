@@ -9,11 +9,12 @@ type Timestamp = nat64;
 type USD = nat;
 type TokenId = principal;
 type RawShopCertificate = blob;
+type CorrelationId = blob;
 
 type PaidInvoice = record {
     id : InvoiceId;
     shop_id : ShopId;
-    payer : principal;
+    correlation_id : CorrelationId;
 
     created_at : Timestamp;
     paid_at : Timestamp;

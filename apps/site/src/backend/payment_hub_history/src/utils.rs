@@ -12,6 +12,7 @@ pub type USD = BorshNat;
 pub type ShopId = u64;
 pub type InvoiceId = [u8; 32];
 pub type RawShopCertificate = Vec<u8>;
+pub type CorrelationId = [u8; 32];
 
 #[derive(CandidType, Deserialize, Clone, Copy, Debug)]
 pub struct BorshPrincipal(pub Principal);
@@ -66,7 +67,7 @@ impl BorshDeserialize for BorshNat {
 pub struct PaidInvoice {
     pub id: InvoiceId,
     pub shop_id: ShopId,
-    pub payer: BorshPrincipal,
+    pub correlation_id: CorrelationId,
 
     pub created_at: Timestamp,
     pub paid_at: Timestamp,
