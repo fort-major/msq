@@ -5,14 +5,18 @@ import {
   ErrorCode,
   IStatistics,
   PRE_LISTED_TOKENS,
+  Principal,
   TAccountId,
   debugStringify,
   err,
+  fromCBOR,
   strToBytes,
+  toCBOR,
 } from "@fort-major/msq-shared";
 import { Accessor, JSX, JSXElement, Setter, createSignal } from "solid-js";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
 import D from "dompurify";
+import { AccountIdentifier } from "@dfinity/ledger-icp";
 
 // null = default
 // <string> = custom host
@@ -38,7 +42,7 @@ if (getIcHost() === null) {
 (window as any).setIcHost = setIcHost;
 (window as any).getIcHost = getIcHost;
 
-export const DEFAULT_PRINCIPAL = "aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa-aaaaa";
+export const DEFAULT_PRINCIPAL = Principal.anonymous().toText();
 export const DEFAULT_SUBACCOUNT = "ba35d85f5e781927cb545aa00048fd86cfb4f444baedd00baa701405251bf109";
 export const ONE_SEC_MS = 1000;
 export const ONE_MIN_MS = ONE_SEC_MS * 60;
@@ -122,6 +126,9 @@ export async function getAssetMetadata(
   ledger: IcrcLedgerCanister,
   certified: boolean = false,
 ): Promise<IAssetMetadata> {
+  const cachedMetadata = getCachedAssetMetadata(ledger.canisterId);
+  if (cachedMetadata) return Promise.resolve(cachedMetadata);
+
   const metadata = await ledger.metadata({ certified });
 
   const name = (metadata.find((it) => it[0] === IcrcMetadataResponseEntries.NAME)![1] as { Text: string }).Text;
@@ -152,13 +159,56 @@ export async function getAssetMetadata(
     err(ErrorCode.ICRC1_ERROR, "Invalid metadata");
   }
 
-  return {
+  const formatted: IAssetMetadata = {
     name: D.sanitize(name),
     symbol: D.sanitize(symbol),
     fee,
     decimals: Number(decimals),
     logoSrc: logo ? D.sanitize(logo) : defaultLogo(ledger.canisterId.toText()),
   };
+
+  if (certified) {
+    cacheAssetMetadata(ledger.canisterId, formatted);
+  }
+
+  return formatted;
+}
+
+interface ICachedAssetMetadata {
+  cachedAt: number;
+  metadata: IAssetMetadata;
+}
+
+const TWENTY_FOUR_HOURS_MS = 1000 * 60 * 60 * 24;
+
+/**
+ * Caches ICRC-1 metadata of a particular token in localStorage with 24-hour expiry
+ *
+ * @param canisterId
+ * @returns
+ */
+function getCachedAssetMetadata(canisterId: Principal): IAssetMetadata | null {
+  const key = `msq-icrc1-asset-metadata/${canisterId.toText()}`;
+  const resultRaw = localStorage.getItem(key);
+
+  if (!resultRaw) return null;
+  const result: ICachedAssetMetadata = fromCBOR(resultRaw);
+
+  const now = Date.now();
+
+  if (now - result.cachedAt > TWENTY_FOUR_HOURS_MS) return null;
+
+  return result.metadata;
+}
+
+function cacheAssetMetadata(canisterId: Principal, metadata: IAssetMetadata) {
+  const key = `msq-icrc1-asset-metadata/${canisterId.toText()}`;
+  const cachedMetadata: ICachedAssetMetadata = {
+    cachedAt: Date.now(),
+    metadata,
+  };
+
+  localStorage.setItem(key, toCBOR(cachedMetadata));
 }
 
 export function defaultLogo(assetId: string): string | undefined {
@@ -184,7 +234,10 @@ export function createPaymentLink(
   const baseUrl = new URL("pay", import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
   const params = baseUrl.searchParams;
 
-  params.append("kind", kind);
+  if (amount) {
+    params.append("amount", amount.toString());
+  }
+
   params.append("canister-id", assetId);
   params.append("to-principal", recipientPrincipal);
 
@@ -192,13 +245,11 @@ export function createPaymentLink(
     params.append("to-subaccount", recipientSubaccount);
   }
 
-  if (amount) {
-    params.append("amount", amount.toString());
-  }
-
   if (memo) {
     params.append("memo", memo);
   }
+
+  params.append("kind", kind);
 
   return baseUrl;
 }
@@ -272,6 +323,83 @@ export function createLocalStorageSignal<T extends unknown>(key: string): [Acces
   };
 
   return [value, newSetValue as Setter<T>];
+}
+
+export function createTransactionHistoryLink(tokenId: Principal, accountId: Principal): string | null {
+  const tokenIdStr = tokenId.toText();
+
+  // icp
+  if (tokenIdStr === "ryjl3-tyaaa-aaaaa-aaaba-cai") {
+    const address = AccountIdentifier.fromPrincipal({ principal: accountId }).toHex();
+
+    return `https://dashboard.internetcomputer.org/account/${address}`;
+  }
+
+  // ogy
+  if (tokenIdStr === "jwcfb-hyaaa-aaaaj-aac4q-cai") {
+    const address = AccountIdentifier.fromPrincipal({ principal: accountId }).toHex();
+
+    return `https://governance.origyn.network/account/${address}`;
+  }
+
+  // ckbtc
+  if (tokenIdStr === "mxzaz-hqaaa-aaaar-qaada-cai") {
+    return `https://dashboard.internetcomputer.org/bitcoin/account/${accountId.toText()}`;
+  }
+
+  // cketh
+  if (tokenIdStr === "ss2fx-dyaaa-aaaar-qacoq-cai") {
+    return `https://dashboard.internetcomputer.org/ethereum/account/${accountId.toText()}`;
+  }
+
+  // sns
+  const snsId = PRE_LISTED_TOKENS[tokenIdStr]?.snsId;
+
+  if (!snsId) return null;
+
+  return `https://dashboard.internetcomputer.org/sns/${snsId}/account/${accountId.toText()}`;
+}
+
+export function canCreateTransactionHistoryLink(tokenId: string, accountId?: string): boolean {
+  if (!accountId) return false;
+
+  // icp
+  if (tokenId === "ryjl3-tyaaa-aaaaa-aaaba-cai") return true;
+
+  // ogy
+  if (tokenId === "jwcfb-hyaaa-aaaaj-aac4q-cai") return true;
+
+  // ckbtc
+  if (tokenId === "mxzaz-hqaaa-aaaar-qaada-cai") return true;
+
+  // cketh
+  if (tokenId === "ss2fx-dyaaa-aaaar-qacoq-cai") return true;
+
+  // sns
+  const snsId = PRE_LISTED_TOKENS[tokenId]?.snsId;
+  if (!snsId) return false;
+
+  return true;
+}
+
+export function createICRC1TransactionLink(tokenId: Principal, txnIndex: bigint): string | null {
+  const tokenIdStr = tokenId.toText();
+
+  // ckbtc
+  if (tokenIdStr === "mxzaz-hqaaa-aaaar-qaada-cai") {
+    return `https://dashboard.internetcomputer.org/bitcoin/transaction/${txnIndex}`;
+  }
+
+  // cketh
+  if (tokenIdStr === "ss2fx-dyaaa-aaaar-qacoq-cai") {
+    return `https://dashboard.internetcomputer.org/ethereum/transaction/${txnIndex}`;
+  }
+
+  const snsId = PRE_LISTED_TOKENS[tokenIdStr]?.snsId;
+
+  if (!snsId) return null;
+
+  return `https://dashboard.internetcomputer.org/sns/${snsId}/transaction/${txnIndex}`;
 }
 
 // ---------- SECURITY RELATED STUFF ------------

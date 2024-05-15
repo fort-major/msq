@@ -1,5 +1,10 @@
-import { TAccountId, tokensToStr } from "@fort-major/msq-shared";
-import { DEFAULT_PRINCIPAL, eventHandler } from "../../utils";
+import { Principal, TAccountId, tokensToStr } from "@fort-major/msq-shared";
+import {
+  DEFAULT_PRINCIPAL,
+  canCreateTransactionHistoryLink,
+  createTransactionHistoryLink,
+  eventHandler,
+} from "../../utils";
 import {
   AccountCardCheckIconWrapper,
   AccountCardDivider,
@@ -43,7 +48,7 @@ export interface IAccountCardProps {
   onSend?: (accountId: TAccountId, assetId: string) => void;
   onReceive?: (assetId: string, symbol: string, principal: string) => void;
   onEdit?: (newName: string) => void;
-  onDetailsClick?: () => void;
+  showAccountHistory?: boolean;
 }
 
 export function AccountCard(props: IAccountCardProps) {
@@ -74,10 +79,6 @@ export function AccountCard(props: IAccountCardProps) {
 
   const handleReceive = () => {
     props.onReceive!(props.assetId, props.symbol, props.principal!);
-  };
-
-  const handleDetailsClick = () => {
-    props.onDetailsClick!();
   };
 
   return (
@@ -123,8 +124,15 @@ export function AccountCard(props: IAccountCardProps) {
           </Show>
         </AccountCardHeader>
 
-        <Show when={props.onDetailsClick && props.principal}>
-          <Icon kind={EIconKind.Dots} classList={{ [DotsIcon]: true }} onClick={handleDetailsClick} />
+        <Show when={props.showAccountHistory && canCreateTransactionHistoryLink(props.assetId, props.principal)}>
+          <a
+            href={
+              createTransactionHistoryLink(Principal.fromText(props.assetId), Principal.fromText(props.principal!))!
+            }
+            target="_blank"
+          >
+            <Icon kind={EIconKind.Dots} classList={{ [DotsIcon]: true }} />
+          </a>
         </Show>
       </AccountCardHeaderWrapper>
       <AccountCardFooter>

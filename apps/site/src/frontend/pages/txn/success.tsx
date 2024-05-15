@@ -2,11 +2,12 @@ import { css, styled } from "solid-styled-components";
 import { H3, Text } from "../../ui-kit/typography";
 import { AccountCard } from "../../components/account-card";
 import { Button, EButtonKind } from "../../ui-kit/button";
-import { onMount } from "solid-js";
+import { Match, Show, Switch, onMount } from "solid-js";
 import { useMsqClient } from "../../store/global";
-import { tokensToStr } from "@fort-major/msq-shared";
+import { Principal, tokensToStr } from "@fort-major/msq-shared";
 import { EIconKind, Icon } from "../../ui-kit/icon";
-import { COLOR_CHARTREUSE } from "../../ui-kit";
+import { COLOR_ACCENT, COLOR_CHARTREUSE } from "../../ui-kit";
+import { createICRC1TransactionLink } from "../../utils";
 
 export interface ITxnSuccessPageProps {
   assetId: string;
@@ -31,6 +32,8 @@ export function TxnSuccessPage(props: ITxnSuccessPageProps) {
     msq()?.incrementStats({ transfer: 1 });
   });
 
+  const txnExplorerLink = createICRC1TransactionLink(Principal.fromText(props.assetId), props.blockId);
+
   return (
     <TxnSuccessPageContent>
       <TxnSuccessPageHeading>
@@ -44,7 +47,16 @@ export function TxnSuccessPage(props: ITxnSuccessPageProps) {
           </SuccessSpoilerIconWrapper>
         </H3>
         <Text size={20} weight={600}>
-          Transaction #{props.blockId.toString()} has been successfully executed
+          <Show
+            when={txnExplorerLink}
+            fallback={<>Transaction #{props.blockId.toString()} has been successfully executed</>}
+          >
+            Transaction{" "}
+            <Link href={txnExplorerLink!} target="_blank">
+              #{props.blockId.toString()}
+            </Link>{" "}
+            has been successfully executed
+          </Show>
         </Text>
       </TxnSuccessPageHeading>
       <AccountCard
@@ -104,4 +116,9 @@ const Header = css`
   flex-flow: row nowrap;
   justify-content: space-between;
   align-items: center;
+`;
+
+const Link = styled.a`
+  text-decoration: underline;
+  color: ${COLOR_ACCENT};
 `;
