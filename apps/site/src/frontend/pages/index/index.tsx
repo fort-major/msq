@@ -1,16 +1,22 @@
-import { Outlet, useLocation, useNavigate } from "@solidjs/router";
+import { Outlet, useNavigate } from "@solidjs/router";
 import { ErrorPage } from "../error";
 import { EIconKind } from "../../ui-kit/icon";
 import { DISCORD_LINK, debugStringify, logError } from "@fort-major/msq-shared";
 import { createEffect } from "solid-js";
+import { IRoute, ROOT, useMsqRoute } from "../../routes";
+import isMobile from "ismobilejs";
 
 export function IndexPage() {
-  const location = useLocation();
+  const route = useMsqRoute();
   const navigate = useNavigate();
 
   createEffect(() => {
-    if (location.pathname === "/" || location.pathname === "/cabinet") {
-      navigate("/cabinet/my-assets");
+    if (route.redirectTo) {
+      navigate(route.redirectTo);
+    }
+
+    if (!route.features?.mobile && isMobile()) {
+      navigate((ROOT["/"]["mobile-not-supported"] as IRoute).path!);
     }
   });
 

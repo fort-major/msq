@@ -79,13 +79,6 @@ export function GlobalStore(props: IChildren) {
       return undefined;
     }
 
-    if ("MobileNotSupported" in inner) {
-      showLoader[1](false);
-      navigate("/mobile-not-supported");
-
-      return undefined;
-    }
-
     if ("InstallMetaMask" in inner) {
       showLoader[1](false);
       navigate("/install-metamask");
