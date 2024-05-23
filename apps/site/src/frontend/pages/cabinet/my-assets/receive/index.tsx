@@ -15,6 +15,8 @@ import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { Show, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import { createPaymentLink } from "../../../../utils";
 import { Modal } from "../../../../components/modal";
+import { AccountIdentifier } from "@dfinity/ledger-icp";
+import { Principal } from "@dfinity/principal";
 
 export interface IReceivePopupProps {
   assetId: string;
@@ -26,6 +28,7 @@ export interface IReceivePopupProps {
 export function ReceivePopup(props: IReceivePopupProps) {
   const [principalCopied, setPrincipalCopied] = createSignal(false);
   const [linkCopied, setLinkCopied] = createSignal(false);
+  const [accountIdCopied, setAccountIdCopied] = createSignal(false);
 
   const handleCopyPrincipal = () => {
     navigator.clipboard.writeText(props.principal);
@@ -37,6 +40,13 @@ export function ReceivePopup(props: IReceivePopupProps) {
   const handleCopyLink = () => {
     navigator.clipboard.writeText(paymentLink().toString());
     setLinkCopied(true);
+  };
+
+  const accountId = AccountIdentifier.fromPrincipal({ principal: Principal.fromText(props.principal) }).toHex();
+
+  const handleCopyAccountId = () => {
+    navigator.clipboard.writeText(accountId);
+    setAccountIdCopied(true);
   };
 
   const handleRenderQR = (ref: HTMLDivElement) => {
@@ -90,6 +100,41 @@ export function ReceivePopup(props: IReceivePopupProps) {
                     </Show>
                   </DataItemContent>
                 </DataItem>
+                <Show
+                  when={
+                    props.assetId === "ryjl3-tyaaa-aaaaa-aaaba-cai" || props.assetId === "jwcfb-hyaaa-aaaaj-aac4q-cai"
+                  }
+                >
+                  <DataItem>
+                    <Text size={12} weight={500} color={COLOR_GRAY_140}>
+                      Address
+                    </Text>
+                    <DataItemContent>
+                      <Text size={12} weight={600} class={DataItemContentText}>
+                        {accountId}
+                      </Text>
+                      <Show
+                        when={accountIdCopied()}
+                        fallback={
+                          <Icon
+                            kind={EIconKind.Copy}
+                            size={14}
+                            onClick={handleCopyAccountId}
+                            classList={{ [CopyIcon]: true }}
+                          />
+                        }
+                      >
+                        <Icon
+                          kind={EIconKind.Check}
+                          size={14}
+                          onClick={handleCopyPrincipal}
+                          classList={{ [CopyIcon]: true }}
+                          color={COLOR_ACCENT}
+                        />
+                      </Show>
+                    </DataItemContent>
+                  </DataItem>
+                </Show>
                 <DataItem>
                   <Text size={12} weight={500} color={COLOR_GRAY_140}>
                     Principal ID
@@ -223,6 +268,8 @@ const DataWrapper = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
+
+  gap: 40px;
 `;
 
 const DataItemsWrapper = styled.div`

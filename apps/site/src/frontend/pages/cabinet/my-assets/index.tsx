@@ -285,29 +285,7 @@ export function MyAssetsPage() {
                             onSend={handleSend}
                             onReceive={handleReceive}
                             onEdit={(newName) => handleEdit(assetId, idx(), newName)}
-                            onDetailsClick={
-                              account.principal
-                                ? () =>
-                                    setTxnHistoryPopupProps({
-                                      tokenId: assetId,
-                                      accountPrincipalId: account.principal!,
-                                      symbol: assets[assetId]!.metadata!.symbol,
-                                      decimals: assets[assetId]!.metadata!.decimals,
-                                      onClose: handleTxnHistoryPopupClose,
-                                      onShowMore: () => {
-                                        setTxnHistoryPageProps({
-                                          tokenId: assetId,
-                                          accountName: account.name,
-                                          accountPrincipalId: account.principal!,
-                                          accountBalance: account.balance ?? 0n,
-                                          decimals: assets[assetId]!.metadata!.decimals,
-                                          symbol: assets[assetId]!.metadata!.symbol,
-                                          onClose: handleTxnHistoryPageClose,
-                                        });
-                                      },
-                                    })
-                                : undefined
-                            }
+                            showAccountHistory
                           />
                         )}
                       </For>
