@@ -4,6 +4,7 @@ import { onMount } from "solid-js";
 import { ICRC35AsyncRequest, ICRC35Connection, LOGIN_ROUTE, PAY_ROUTE } from "@fort-major/msq-client";
 import { IICRC1TransferRequest, ZICRC1TransferRequest } from "@fort-major/msq-shared";
 import { z } from "zod";
+import { ROOT } from "../../routes";
 
 export function ICRC35Page() {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ export function ICRC35Page() {
       setIcrc35Request(request);
       connection.onBeforeConnectionClosed(() => request.respond(false));
 
-      navigate("/integration/login");
+      navigate(ROOT["/"].integration["/"].login.path);
     };
 
     const payHandler = (request: ICRC35AsyncRequest<IICRC1TransferRequest>) => {
@@ -42,7 +43,7 @@ export function ICRC35Page() {
       setIcrc35Request(request);
       connection.onBeforeConnectionClosed(() => request.respond(null));
 
-      navigate("/integration/pay");
+      navigate(ROOT["/"].integration["/"].pay.path);
     };
 
     connection.onRequest(LOGIN_ROUTE, loginHandler);

@@ -20,6 +20,7 @@ import { ISendPageProps } from "../pages/cabinet/my-assets/send";
 import { IPaymentCheckoutPageProps } from "../pages/integration/payment/checkout";
 import { ITxnHistoryPageProps } from "../pages/cabinet/my-assets/txn-history";
 import { useNavigate } from "@solidjs/router";
+import { ROOT } from "../routes";
 
 export type IAssetDataExt = {
   accounts: {
@@ -167,7 +168,7 @@ export function AssetsStore(props: IChildren) {
       for (let assetId of assetIds) {
         if (fetchedAllAssetData[assetId]) continue;
 
-        navigate("/token-not-found");
+        navigate(ROOT["/"].error["/"]["token-not-found"].path);
       }
     }
 

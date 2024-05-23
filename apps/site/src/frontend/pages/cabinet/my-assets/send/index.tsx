@@ -61,6 +61,7 @@ export interface ITxnResult {
   totalAmount?: string | undefined;
 }
 
+// TODO: check this validation
 const VALID_HEX_SYMBOLS = "0123456789abcdefABCDEF".split("");
 const validateHex = (hex: string) =>
   hex.split("").every((c) => VALID_HEX_SYMBOLS.includes(c)) && hex.length % 2 == 0 ? null : "Invalid hex string";
@@ -78,7 +79,7 @@ export function SendPage() {
   const navigate = useNavigate();
 
   onMount(() => {
-    if (!props()) navigate("/unknown", { replace: true });
+    if (!props()) navigate("/404", { replace: true });
   });
 
   createEffect(() => {

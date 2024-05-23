@@ -38,6 +38,7 @@ import { TxnFailPage } from "../../../txn/fail";
 import { TxnSuccessPage } from "../../../txn/success";
 import { COLOR_ACCENT, COLOR_GRAY_140, COLOR_GRAY_165 } from "../../../../ui-kit";
 import { usePaymentCheckoutPageProps } from "../../../../store/assets";
+import { ROOT } from "../../../../routes";
 
 export interface IPaymentCheckoutPageProps {
   accountId: TAccountId;
@@ -75,7 +76,7 @@ export function PaymentCheckoutPage() {
   const [memoCopied, setMemoCopied] = createSignal(false);
 
   onMount(() => {
-    if (!props()) navigate("/", { replace: true });
+    if (!props()) navigate(ROOT.path, { replace: true });
   });
 
   const handleCopyRecipientPrincipal = () => {

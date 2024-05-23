@@ -9,6 +9,7 @@ import { COLOR_GRAY_105, COLOR_GRAY_140, COLOR_GRAY_190 } from "../../ui-kit";
 import { DISCORD_LINK, METAMASK_LINK } from "@fort-major/msq-shared";
 import isMobile from "ismobilejs";
 import { useMsqClient } from "../../store/global";
+import { ROOT } from "../../routes";
 
 export interface IErrorPageProps {
   header: string;
@@ -30,7 +31,7 @@ export interface IErrorPageProps {
 export function ErrorMobileNotSupportedPage() {
   return (
     <ErrorPage
-      header="Oops! MSQ is not available on mobile devices yet"
+      header="Oops! This page is not available on mobile devices yet"
       text="Try accessing this page via your desktop browser. Join our Discord community and be the first to know when it’s ready."
       button={{
         text: "Join Us",
@@ -51,7 +52,7 @@ export function ErrorAssetNotFoundPage() {
       button={{
         text: "Main Page",
         icon: EIconKind.ArrowRightUp,
-        action: () => navigate('/'),
+        action: () => navigate(ROOT.path),
       }}
     />
   );
@@ -63,7 +64,7 @@ export function ErrorMSQConnectionRejectedPage() {
 
   createEffect(() => {
     if (msq()) {
-      navigate("/", { replace: true });
+      navigate(ROOT.path, { replace: true });
     }
   });
 
@@ -86,7 +87,7 @@ export function ErrorInstallMetaMaskPage() {
 
   createEffect(() => {
     if (msq()) {
-      navigate("/", { replace: true });
+      navigate(ROOT.path, { replace: true });
     }
   });
 
@@ -110,14 +111,14 @@ export function ErrorUnblockMsqPage() {
 
   createEffect(() => {
     if (msq()) {
-      navigate("/", { replace: true });
+      navigate(ROOT.path, { replace: true });
     }
   });
 
   return (
     <ErrorPage
       header="MSQ Snap is blocked by MetaMask"
-      text="Seems like MSQ Snap is in the Snap block list. Don't worry, this must me some kind of misunderstanding. We're going to fix this really soon."
+      text="Seems like MSQ Snap is in the Snaps block list. Don't worry, this must me some kind of misunderstanding. We're going to fix this really soon."
       button={{ text: "Get Help", icon: EIconKind.Discord, action: () => window.open(DISCORD_LINK, "_blank") }}
     />
   );
@@ -129,7 +130,7 @@ export function ErrorEnableMsqPage() {
 
   createEffect(() => {
     if (msq()) {
-      navigate("/", { replace: true });
+      navigate(ROOT.path, { replace: true });
     }
   });
 
@@ -150,7 +151,7 @@ export function Error404Page() {
       header="404"
       headerLine2="Page Not Found"
       text="Seems like there is no page you're looking for. Try other ones or go back!"
-      button={{ text: "To My Wallet", icon: EIconKind.Login, action: () => navigate("/", { replace: true }) }}
+      button={{ text: "To My Wallet", icon: EIconKind.Login, action: () => navigate(ROOT.path, { replace: true }) }}
     />
   );
 }

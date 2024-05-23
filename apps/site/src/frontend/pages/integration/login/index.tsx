@@ -9,6 +9,7 @@ import { AddNewMaskBtn } from "../../../components/add-new-mask-btn";
 import { Spoiler } from "../../../components/spoiler";
 import { ColorAccent, H1, Text } from "../../../ui-kit/typography";
 import { EIconKind, Icon } from "../../../ui-kit/icon";
+import { ROOT } from "../../../routes";
 
 export function LoginPage() {
   const [loginOptions, setLoginOptions] = createSignal<[TOrigin, IMask[]][] | null>(null);
@@ -20,7 +21,7 @@ export function LoginPage() {
 
   createEffect(async () => {
     if (icrc35Request() === undefined) {
-      navigate("/");
+      navigate(ROOT.path);
       return;
     }
 

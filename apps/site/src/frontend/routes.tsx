@@ -28,112 +28,120 @@ export interface IRoute {
   parent?: IRoute;
   component?: Component;
   ["/"]?: Record<string, IRoute>;
-  path?: string;
+  path: string;
   features?: IRouteFeatures;
-  render?: () => JSX.Element;
   redirectTo?: string;
 }
 
-export const ROOT = {
+function route<T>(r: T): T & IRoute {
+  return r as T & IRoute;
+}
+
+export const ROOT = route({
   component: IndexPage,
   redirectTo: "/cabinet/my-assets",
 
   "/": {
-    // ERRORS
-    "install-metamask": {
-      component: ErrorInstallMetaMaskPage,
-    },
-    "unblock-msq": {
-      component: ErrorUnblockMsqPage,
-    },
-    "enable-msq": {
-      component: ErrorEnableMsqPage,
-    },
-    "mobile-not-supported": {
-      component: ErrorMobileNotSupportedPage,
-      ...enableFeatures("mobile"),
-    },
-    "connection-rejected": {
-      component: ErrorMSQConnectionRejectedPage,
-    },
-    "token-not-found": {
-      component: ErrorAssetNotFoundPage,
-    },
-
-    // ICRC-35
-    "icrc-35": {
-      component: ICRC35Page,
-      ...enableFeatures("mobile"),
-    },
-
     // INTEGRATION
-    integration: {
+    integration: route({
       "/": {
-        login: {
+        login: route({
+          ...enableFeatures("hideFeedbackButton"),
           component: LoginPage,
-        },
-        pay: {
+        }),
+        pay: route({
           component: PaymentPage,
-          ...enableFeatures("mobile"),
+          ...enableFeatures("mobile", "thirdPartyWallets"),
           "/": {
-            checkout: {
+            checkout: route({
               component: PaymentCheckoutPage,
-            },
+            }),
           },
-        },
+        }),
       },
-    },
+    }),
 
     // URL-BASED PAYMENT
-    pay: {
+    pay: route({
       component: UrlBasedPaymentPage,
-      ...enableFeatures("mobile"),
+      ...enableFeatures("mobile", "thirdPartyWallets"),
 
       "/": {
-        send: {
+        send: route({
           component: SendPage,
-        },
+        }),
       },
-    },
-  },
+    }),
 
-  // MSQ USER PERSONAL CABINET
-  cabinet: {
-    redirectTo: "/cabinet/my-assets",
+    // MSQ USER PERSONAL CABINET
+    cabinet: route({
+      redirectTo: "/cabinet/my-assets",
 
-    "/": {
-      "my-masks": {
-        component: MyMasksPage,
-      },
-      "my-sessions": {
-        component: MySessionsPage,
-      },
-      "my-links": {
-        component: MyLinksPage,
-      },
-      "my-assets": {
-        component: MyAssetsPage,
+      "/": {
+        "my-masks": route({
+          component: MyMasksPage,
+        }),
+        "my-sessions": route({
+          component: MySessionsPage,
+        }),
+        "my-links": route({
+          component: MyLinksPage,
+        }),
+        "my-assets": route({
+          component: MyAssetsPage,
 
-        "/": {
-          send: {
-            component: SendPage,
+          "/": {
+            send: route({
+              component: SendPage,
+            }),
           },
-        },
+        }),
       },
-    },
-  },
+    }),
 
-  // ANONYMOUS STATISTICS
-  statistics: {
-    component: StatisticsPage,
-  },
+    // ANONYMOUS STATISTICS
+    statistics: route({
+      component: StatisticsPage,
+    }),
 
-  // 404
-  "*": {
-    component: Error404Page,
-    ...enableFeatures("mobile"),
+    // ERRORS
+    error: route({
+      ...enableFeatures("mobile", "thirdPartyWallets"),
+      "/": {
+        "install-metamask": route({
+          component: ErrorInstallMetaMaskPage,
+        }),
+        "unblock-msq": route({
+          component: ErrorUnblockMsqPage,
+        }),
+        "enable-msq": route({
+          component: ErrorEnableMsqPage,
+        }),
+        "mobile-not-supported": route({
+          component: ErrorMobileNotSupportedPage,
+        }),
+        "connection-rejected": route({
+          component: ErrorMSQConnectionRejectedPage,
+        }),
+        "token-not-found": route({
+          component: ErrorAssetNotFoundPage,
+        }),
+      },
+    }),
+
+    // ICRC-35
+    "icrc-35": route({
+      component: ICRC35Page,
+      ...enableFeatures("mobile", "thirdPartyWallets"),
+    }),
+
+    // 404
+    "*": route({
+      component: Error404Page,
+      ...enableFeatures("mobile"),
+    }),
   },
-};
+});
 
 // DO NOT REMOVE, THIS CHECKS IF THE ROUTES OF CORRECT TYPE, WHILE ALLOWING BETTER CODE COMPLETION
 const _ROUTES_StaticTypeCheck: IRoute = ROOT;
@@ -141,6 +149,8 @@ const _ROUTES_StaticTypeCheck: IRoute = ROOT;
 // special features available at some route and __propagating downstream__
 export interface IRouteFeatures<T extends boolean = boolean> {
   mobile?: T;
+  hideFeedbackButton?: T;
+  thirdPartyWallets?: T;
 }
 
 function enableFeatures(...k: (keyof IRouteFeatures)[]): { features: IRouteFeatures } {
@@ -150,6 +160,8 @@ function enableFeatures(...k: (keyof IRouteFeatures)[]): { features: IRouteFeatu
 function mergeFeatures(f1: IRouteFeatures | undefined, f2: IRouteFeatures | undefined): IRouteFeatures {
   return {
     mobile: f1?.mobile || f2?.mobile,
+    hideFeedbackButton: f1?.hideFeedbackButton || f2?.hideFeedbackButton,
+    thirdPartyWallets: f1?.thirdPartyWallets || f2?.thirdPartyWallets,
   };
 }
 
@@ -167,14 +179,6 @@ function setRouteInfo(routeKey: string, route: IRoute, parent: IRoute | undefine
       setRouteInfo(subrouteKey, route["/"][subrouteKey], route);
     }
   }
-
-  route.render = () => (
-    <Route path={route.path!}>
-      <Show when={route["/"]}>
-        <For each={Object.keys(route["/"]!)}>{(subrouteKey) => route["/"]![subrouteKey]!.render!()}</For>
-      </Show>
-    </Route>
-  );
 }
 
 setRouteInfo("", ROOT, undefined);

@@ -32,6 +32,7 @@ import { TxnHistoryEntry } from "../../../../components/txn-history-entry";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { useTxnHistoryPageProps } from "../../../../store/assets";
 import { tokensToStr } from "@fort-major/msq-shared";
+import { ROOT } from "../../../../routes";
 
 export interface ITxnHistoryPageProps {
   tokenId: string;
@@ -53,7 +54,7 @@ export function TxnHistoryPage() {
   const navigate = useNavigate();
 
   const handleBackClick = () => {
-    navigate("/cabinet/my-assets");
+    navigate(ROOT["/"].cabinet["/"]["my-assets"].path);
   };
 
   const handleShowMoreClick = () => {
@@ -78,7 +79,7 @@ export function TxnHistoryPage() {
 
   onMount(() => {
     if (!props()) {
-      navigate("/cabinet/my-assets");
+      navigate(ROOT["/"].cabinet["/"]["my-assets"].path);
       return;
     }
 
@@ -140,7 +141,9 @@ export function TxnHistoryPage() {
                   </TxnHistoryEmpty>
                 </Match>
                 <Match when={history() && history()!.length > 0}>
-                  <For each={history()}>{(txn) => <TxnHistoryEntry txn={txn} symbol={props()!.symbol} decimals={8} />}</For>
+                  <For each={history()}>
+                    {(txn) => <TxnHistoryEntry txn={txn} symbol={props()!.symbol} decimals={8} />}
+                  </For>
                   <Show when={showMoreBtn()}>
                     <Button
                       kind={EButtonKind.Additional}

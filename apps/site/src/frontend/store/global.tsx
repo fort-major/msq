@@ -3,6 +3,7 @@ import { ICRC35AsyncRequest, InternalSnapClient, MsqClient, MsqIdentity, TMsqCre
 import { IChildren, SHOULD_BE_FLASK, handleStatistics, makeAnonymousAgent } from "../utils";
 import { IICRC1TransferRequest, unreacheable } from "@fort-major/msq-shared";
 import { useNavigate } from "@solidjs/router";
+import { ROOT, useMsqRoute } from "../routes";
 
 export type ICRC35Store<T extends undefined | IICRC1TransferRequest = undefined | IICRC1TransferRequest> = [
   Accessor<ICRC35AsyncRequest<T> | undefined>,
@@ -10,7 +11,7 @@ export type ICRC35Store<T extends undefined | IICRC1TransferRequest = undefined 
 ];
 
 interface IGlobalContext {
-  snapClient: Resource<InternalSnapClient | undefined>;
+  msqClient: Resource<InternalSnapClient | undefined | null>;
   identity: Resource<MsqIdentity>;
   showLoader: Accessor<boolean>;
   icrc35: ICRC35Store;
@@ -18,14 +19,20 @@ interface IGlobalContext {
 
 const GlobalContext = createContext<IGlobalContext>();
 
-export function useMsqClient(): Accessor<InternalSnapClient | undefined> {
+/**
+ * Returns MSQ client after the initialization. Returns `undefined` if not yet initialized.
+ * Returns `null` if `thirdPartyWallets` feature set true for this route
+ *
+ * @returns {InternalSnapClient | undefined | null}
+ */
+export function useMsqClient(): Accessor<InternalSnapClient | undefined | null> {
   const ctx = useContext(GlobalContext);
 
   if (!ctx) {
     unreacheable("Global context is uninitialized");
   }
 
-  return ctx.snapClient;
+  return ctx.msqClient;
 }
 
 export function useIdentity(): Accessor<MsqIdentity | undefined> {
@@ -62,9 +69,12 @@ export function GlobalStore(props: IChildren) {
   const icrc35: ICRC35Store = createSignal();
   const showLoader = createSignal(true);
   const navigate = useNavigate();
+  const msqRoute = useMsqRoute();
 
-  const [snapClient] = createResource(async () => {
-    const inner = await MsqClient.create({
+  const [msqClient] = createResource(async () => {
+    if (msqRoute.features?.thirdPartyWallets) return null;
+
+    const innerMsqClient = await MsqClient.create({
       snapId: import.meta.env.VITE_MSQ_SNAP_ID,
       snapVersion: import.meta.env.VITE_MSQ_SNAP_VERSION,
       shouldBeFlask: SHOULD_BE_FLASK,
@@ -72,36 +82,36 @@ export function GlobalStore(props: IChildren) {
       forceReinstall: import.meta.env.VITE_MSQ_MODE === "DEV",
     });
 
-    if ("MSQConnectionRejected" in inner) {
+    if ("MSQConnectionRejected" in innerMsqClient) {
       showLoader[1](false);
-      navigate("/connection-rejected");
+      navigate(ROOT["/"].error["/"]["connection-rejected"].path);
 
       return undefined;
     }
 
-    if ("InstallMetaMask" in inner) {
+    if ("InstallMetaMask" in innerMsqClient) {
       showLoader[1](false);
-      navigate("/install-metamask");
+      navigate(ROOT["/"].error["/"]["install-metamask"].path);
 
       return undefined;
     }
 
-    if ("UnblockMSQ" in inner) {
+    if ("UnblockMSQ" in innerMsqClient) {
       showLoader[1](false);
-      navigate("/unblock-msq");
+      navigate(ROOT["/"].error["/"]["unblock-msq"].path);
 
       return undefined;
     }
 
-    if ("EnableMSQ" in inner) {
+    if ("EnableMSQ" in innerMsqClient) {
       showLoader[1](false);
-      navigate("/enable-msq");
+      navigate(ROOT["/"].error["/"]["enable-msq"].path);
 
       return undefined;
     }
 
-    if ("Ok" in inner) {
-      let client = InternalSnapClient.create((inner as TMsqCreateOk).Ok);
+    if ("Ok" in innerMsqClient) {
+      let client = InternalSnapClient.create((innerMsqClient as TMsqCreateOk).Ok);
 
       const isAuthorized = await client.getInner().isAuthorized();
       if (!isAuthorized) await client.login(window.location.origin, 0, import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
@@ -116,12 +126,12 @@ export function GlobalStore(props: IChildren) {
     return undefined;
   });
 
-  const [identity] = createResource(snapClient, (client) => {
+  const [identity] = createResource(msqClient, (client) => {
     return MsqIdentity.create(client.getInner());
   });
 
   return (
-    <GlobalContext.Provider value={{ snapClient, identity, showLoader: showLoader[0], icrc35 }}>
+    <GlobalContext.Provider value={{ msqClient, identity, showLoader: showLoader[0], icrc35 }}>
       {props.children}
     </GlobalContext.Provider>
   );

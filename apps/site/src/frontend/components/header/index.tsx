@@ -6,6 +6,7 @@ import { Show } from "solid-js";
 import { useLocation, useNavigate } from "@solidjs/router";
 import { eventHandler } from "../../utils";
 import { Text } from "../../ui-kit/typography";
+import { ROOT } from "../../routes";
 
 const HeaderDiv = styled.header`
   position: fixed;
@@ -65,12 +66,14 @@ export function Header() {
 
   const navigate = useNavigate();
   const handleClick = eventHandler(() => {
-    navigate("/cabinet/my-assets", { replace: true });
+    navigate(ROOT["/"].cabinet["/"]["my-assets"].path, { replace: true });
   });
 
   return (
     <HeaderDiv classList={{ [WithMyWalletBtn]: showLink() }}>
-      <img src={LogoSvg} alt="MSQ Logo" />
+      <a href="https://icp.msq.tech/" target="_blank">
+        <img src={LogoSvg} alt="MSQ Logo" />
+      </a>
       <Show when={showLink()}>
         <MyWalletLink onClick={handleClick}>
           <Text size={18} weight={600}>

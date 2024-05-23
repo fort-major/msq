@@ -3,7 +3,7 @@ import { ErrorPage } from "../error";
 import { EIconKind } from "../../ui-kit/icon";
 import { DISCORD_LINK, debugStringify, logError } from "@fort-major/msq-shared";
 import { createEffect } from "solid-js";
-import { IRoute, ROOT, useMsqRoute } from "../../routes";
+import { ROOT, useMsqRoute } from "../../routes";
 import isMobile from "ismobilejs";
 
 export function IndexPage() {
@@ -16,7 +16,7 @@ export function IndexPage() {
     }
 
     if (!route.features?.mobile && isMobile()) {
-      navigate((ROOT["/"]["mobile-not-supported"] as IRoute).path!);
+      navigate(ROOT["/"]["mobile-not-supported"].path);
     }
   });
 

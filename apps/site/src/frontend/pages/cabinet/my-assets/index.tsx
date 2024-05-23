@@ -39,6 +39,7 @@ import { ContactUsBtn } from "../../../components/contact-us-btn";
 import { ITxnHistoryModalProps, TxnHistoryModal } from "../../../components/txn-history-modal";
 import { Toggle } from "../../../components/toggle";
 import { ErrorPin } from "../../../ui-kit/error-pin";
+import { ROOT } from "../../../routes";
 
 export function MyAssetsPage() {
   const msq = useMsqClient();
@@ -143,11 +144,11 @@ export function MyAssetsPage() {
     };
 
     setSendPopupProps(sendProps);
-    navigate("/cabinet/my-assets/send");
+    navigate(ROOT["/"].cabinet["/"]["my-assets"]["/"].send.path);
   };
 
   const handleCancelSend = async (result: boolean) => {
-    navigate("/cabinet/my-assets");
+    navigate(ROOT["/"].cabinet["/"]["my-assets"].path);
 
     const assetId = sendPopupProps()!.assetId;
     setSendPopupProps(undefined);
@@ -303,8 +304,6 @@ export function MyAssetsPage() {
                                           symbol: assets[assetId]!.metadata!.symbol,
                                           onClose: handleTxnHistoryPageClose,
                                         });
-
-                                        navigate("/cabinet/my-assets/history");
                                       },
                                     })
                                 : undefined

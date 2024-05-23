@@ -30,6 +30,7 @@ import { IReceivePopupProps, ReceivePopup } from "../../cabinet/my-assets/receiv
 import { IPaymentCheckoutPageProps } from "./checkout";
 import { useAssetData, usePaymentCheckoutPageProps } from "../../../store/assets";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
+import { ROOT } from "../../../routes";
 
 export function PaymentPage() {
   const msq = useMsqClient();
@@ -46,7 +47,7 @@ export function PaymentPage() {
 
   createEffect(async () => {
     if (!icrc35Request()) {
-      navigate("/");
+      navigate(ROOT.path);
       return;
     }
 
@@ -130,7 +131,7 @@ export function PaymentPage() {
     };
 
     setCheckoutPageProps(p);
-    navigate("/integration/pay/checkout");
+    navigate(ROOT["/"].integration["/"].pay["/"].checkout.path);
   };
 
   const handleCheckoutSuccess = (blockId: bigint) => {
@@ -144,7 +145,7 @@ export function PaymentPage() {
   };
 
   const handleCheckoutCancel = () => {
-    navigate("/integration/pay", { replace: true });
+    navigate(ROOT["/"].integration["/"].pay.path, { replace: true });
     setCheckoutPageProps(undefined);
   };
 

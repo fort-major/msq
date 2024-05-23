@@ -22,6 +22,7 @@ import { Button, EButtonKind } from "../../../ui-kit/button";
 import { EIconKind } from "../../../ui-kit/icon";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
 import { ISendPageProps } from "../../cabinet/my-assets/send";
+import { ROOT } from "../../../routes";
 
 interface ITransferRequestSearchParams {
   kind?: "t" | "d";
@@ -125,7 +126,7 @@ export function UrlBasedPaymentPage() {
   };
 
   const handleCompleteSend = () => {
-    navigate("/cabinet/my-assets", { replace: true });
+    navigate(ROOT["/"].cabinet["/"]["my-assets"].path, { replace: true });
     setSendPageProps(undefined);
   };
 
@@ -160,7 +161,7 @@ export function UrlBasedPaymentPage() {
     };
 
     setSendPageProps(p);
-    navigate("/pay/send");
+    navigate(ROOT["/"].pay["/"].send.path);
   };
 
   return (
