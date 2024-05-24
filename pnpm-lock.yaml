@@ -131,8 +131,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/shared
       '@solidjs/router':
-        specifier: 0.9.1
-        version: 0.9.1(solid-js@1.8.7)
+        specifier: 0.13.3
+        version: 0.13.3(solid-js@1.8.7)
       chart.js:
         specifier: 4.4.1
         version: 4.4.1
@@ -3847,6 +3847,14 @@ packages:
     resolution: {integrity: sha512-CqAwKb2T5Vi72+rhebSsqNZ9o67buYRdEJrIFzRXz3U59QqezuuxPsyzTSVCacwS5Pf109VRsgCJQoxKRoECZQ==}
     peerDependencies:
       solid-js: ^1.6.12
+    dependencies:
+      solid-js: 1.8.7
+    dev: false
+
+  /@solidjs/router@0.13.3(solid-js@1.8.7):
+    resolution: {integrity: sha512-p8zznlvnN3KySMXqT8irhubgDNTETNa/guaGHU/cZl7kuiPO3PmkWNYfoNCygtEpoxLmLpf62/ZKeyhFdZexsw==}
+    peerDependencies:
+      solid-js: ^1.8.6
     dependencies:
       solid-js: 1.8.7
     dev: false

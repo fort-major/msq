@@ -11,14 +11,17 @@ import { useMsqClient } from "../../../store/global";
 import { COLOR_ACCENT, COLOR_GRAY_140, CabinetContent, CabinetPage } from "../../../ui-kit";
 import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
+import { ONE_SEC_MS } from "../../../utils";
 
 export function MyMasksPage() {
   const msq = useMsqClient();
-  const { originsData, init, addNewMask, editPseudonym } = useOriginData();
+  const { originsData, init, fetch, addNewMask, editPseudonym } = useOriginData();
   const [loading, setLoading] = createSignal(false);
 
   createEffect(() => {
-    if (msq()) init();
+    if (msq()) {
+      init();
+    }
   });
 
   const handleEditPseudonym = async (origin: TOrigin, identityId: TIdentityId, newPseudonym: string) => {
@@ -88,8 +91,6 @@ export function MyMasksPage() {
           </For>
         </MyMasksContent>
       </CabinetContent>
-
-      <ContactUsBtn />
     </CabinetPage>
   );
 }

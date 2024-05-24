@@ -1,4 +1,4 @@
-import { Component, For, Show } from "solid-js";
+import { Component } from "solid-js";
 import { IndexPage } from "./pages/index/index";
 import {
   Error404Page,
@@ -20,15 +20,14 @@ import { MySessionsPage } from "./pages/cabinet/my-sessions";
 import { MyLinksPage } from "./pages/cabinet/my-links";
 import { MyAssetsPage } from "./pages/cabinet/my-assets";
 import { StatisticsPage } from "./pages/statistics";
-import { Route, useLocation } from "@solidjs/router";
-import { JSX } from "solid-js/web/types/jsx";
-import { unreacheable } from "@fort-major/msq-shared";
+import { useLocation } from "@solidjs/router";
 
 export interface IRoute {
   parent?: IRoute;
   component?: Component;
-  ["/"]?: Record<string, IRoute>;
+  ["/"]?: Record<string, IRoute | undefined>;
   path: string;
+  pathSegment: string;
   features?: IRouteFeatures;
   redirectTo?: string;
 }
@@ -46,12 +45,13 @@ export const ROOT = route({
     integration: route({
       "/": {
         login: route({
-          ...enableFeatures("hideFeedbackButton"),
+          ...enableFeatures("onlyWithMsqWallet", "hideFeedbackButton"),
           component: LoginPage,
         }),
         pay: route({
           component: PaymentPage,
-          ...enableFeatures("mobile", "thirdPartyWallets"),
+          ...enableFeatures("mobile", "showBetaDisclaimer"),
+
           "/": {
             checkout: route({
               component: PaymentCheckoutPage,
@@ -64,7 +64,7 @@ export const ROOT = route({
     // URL-BASED PAYMENT
     pay: route({
       component: UrlBasedPaymentPage,
-      ...enableFeatures("mobile", "thirdPartyWallets"),
+      ...enableFeatures("mobile", "showBetaDisclaimer"),
 
       "/": {
         send: route({
@@ -76,6 +76,7 @@ export const ROOT = route({
     // MSQ USER PERSONAL CABINET
     cabinet: route({
       redirectTo: "/cabinet/my-assets",
+      ...enableFeatures("onlyWithMsqWallet"),
 
       "/": {
         "my-masks": route({
@@ -89,6 +90,7 @@ export const ROOT = route({
         }),
         "my-assets": route({
           component: MyAssetsPage,
+          ...enableFeatures("showBetaDisclaimer"),
 
           "/": {
             send: route({
@@ -102,11 +104,13 @@ export const ROOT = route({
     // ANONYMOUS STATISTICS
     statistics: route({
       component: StatisticsPage,
+      ...enableFeatures("mobile"),
     }),
 
     // ERRORS
     error: route({
-      ...enableFeatures("mobile", "thirdPartyWallets"),
+      ...enableFeatures("mobile"),
+
       "/": {
         "install-metamask": route({
           component: ErrorInstallMetaMaskPage,
@@ -126,18 +130,15 @@ export const ROOT = route({
         "token-not-found": route({
           component: ErrorAssetNotFoundPage,
         }),
+        "404": route({
+          component: Error404Page,
+        }),
       },
     }),
 
     // ICRC-35
     "icrc-35": route({
       component: ICRC35Page,
-      ...enableFeatures("mobile", "thirdPartyWallets"),
-    }),
-
-    // 404
-    "*": route({
-      component: Error404Page,
       ...enableFeatures("mobile"),
     }),
   },
@@ -149,19 +150,25 @@ const _ROUTES_StaticTypeCheck: IRoute = ROOT;
 // special features available at some route and __propagating downstream__
 export interface IRouteFeatures<T extends boolean = boolean> {
   mobile?: T;
+  onlyWithMsqWallet?: T;
   hideFeedbackButton?: T;
-  thirdPartyWallets?: T;
+  showBetaDisclaimer?: T;
+}
+
+function defaultFeatures(): IRouteFeatures<boolean> {
+  return { onlyWithMsqWallet: false, hideFeedbackButton: false, mobile: false };
 }
 
 function enableFeatures(...k: (keyof IRouteFeatures)[]): { features: IRouteFeatures } {
-  return { features: k.reduce((prev, cur) => Object.assign(prev, { [cur]: true }), {}) };
+  return { features: k.reduce((prev, cur) => Object.assign(prev, { [cur]: true }), defaultFeatures()) };
 }
 
 function mergeFeatures(f1: IRouteFeatures | undefined, f2: IRouteFeatures | undefined): IRouteFeatures {
   return {
-    mobile: f1?.mobile || f2?.mobile,
+    onlyWithMsqWallet: f1?.onlyWithMsqWallet || f2?.onlyWithMsqWallet,
     hideFeedbackButton: f1?.hideFeedbackButton || f2?.hideFeedbackButton,
-    thirdPartyWallets: f1?.thirdPartyWallets || f2?.thirdPartyWallets,
+    mobile: f1?.mobile || f2?.mobile,
+    showBetaDisclaimer: f1?.showBetaDisclaimer || f2?.showBetaDisclaimer,
   };
 }
 
@@ -172,20 +179,19 @@ function setRouteInfo(routeKey: string, route: IRoute, parent: IRoute | undefine
     route.features = mergeFeatures(route.features, parent.features);
   } else {
     route.path = "/";
+    route.features = mergeFeatures(route.features, {});
   }
+
+  route.pathSegment = "/" + routeKey;
 
   if (route["/"]) {
     for (let subrouteKey in route["/"]) {
-      setRouteInfo(subrouteKey, route["/"][subrouteKey], route);
+      setRouteInfo(subrouteKey, route["/"][subrouteKey]!, route);
     }
   }
 }
 
 setRouteInfo("", ROOT, undefined);
-
-export function renderRoutes(): JSX.Element {
-  return (ROOT as IRoute).render!();
-}
 
 export function findRoute(path: string): IRoute | undefined {
   if (path === "/") return ROOT;
@@ -205,13 +211,36 @@ export function findRoute(path: string): IRoute | undefined {
   return cur;
 }
 
-export function useMsqRoute(): IRoute {
-  const location = useLocation();
-  const route = findRoute(location.pathname);
+export interface ISolidRoute {
+  path: string;
+  component?: Component;
+  children?: ISolidRoute[];
+}
 
-  if (!route) {
-    unreacheable(`Route ${location.pathname} not found!`);
+export function getSolidRoutes(): ISolidRoute {
+  return toSolidRoute(ROOT);
+}
+
+function toSolidRoute(route: IRoute): ISolidRoute {
+  let children: ISolidRoute[] | undefined;
+
+  if (route["/"]) {
+    children = [];
+
+    if (route.component) {
+      children.push({
+        path: "/",
+      });
+    }
+
+    for (let subroute of Object.values(route["/"] as Record<string, IRoute>)) {
+      children.push(toSolidRoute(subroute));
+    }
   }
 
-  return route;
+  return {
+    path: route.pathSegment,
+    component: route.component,
+    children,
+  };
 }

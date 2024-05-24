@@ -31,20 +31,21 @@ export function useOriginData() {
 
 export function OriginDataStore(props: IChildren) {
   const [allOriginData, setAllOriginData] = createStore<AllOriginData>({});
-  const [fetchedAt, setFetchedAt] = createSignal(0);
+  const [isFetching, setFetching] = createSignal(false);
   const [initialized, setInitialized] = createSignal(false);
   const _msq = useMsqClient();
 
   const init = async (origins?: TOrigin[]) => {
     if (initialized()) return;
 
-    await fetch(origins, true);
+    await fetch(origins);
 
     setInitialized(true);
   };
 
-  const fetch = async (origins?: TOrigin[], ignoreDiminishing?: boolean) => {
-    if (Date.now() - fetchedAt() < ONE_SEC_MS * 5 && !ignoreDiminishing) return;
+  const fetch = async (origins?: TOrigin[]) => {
+    if (isFetching()) return;
+    setFetching(true);
 
     const msq = _msq()!;
 
@@ -54,7 +55,7 @@ export function OriginDataStore(props: IChildren) {
     delete fetchedAllOriginData[import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN];
 
     setAllOriginData(fetchedAllOriginData);
-    setFetchedAt(Date.now());
+    setFetching(false);
   };
 
   const addNewMask = async (origin: TOrigin) => {

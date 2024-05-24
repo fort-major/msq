@@ -2,19 +2,19 @@ import LogoSvg from "#assets/msq-logo.svg";
 import { css, styled } from "solid-styled-components";
 import { BAR_HEIGHT, COLOR_BLACK, COLOR_GRAY_115, HEADER_HEIGHT } from "../../ui-kit";
 import { EIconKind, Icon } from "../../ui-kit/icon";
-import { Show } from "solid-js";
+import { Show, createEffect } from "solid-js";
 import { useLocation, useNavigate } from "@solidjs/router";
 import { eventHandler } from "../../utils";
 import { Text } from "../../ui-kit/typography";
-import { ROOT } from "../../routes";
+import { ROOT, findRoute } from "../../routes";
 
-const HeaderDiv = styled.header`
+const HeaderDiv = styled.header<{ barVisible?: boolean }>`
   position: fixed;
   z-index: 10;
   left: 0;
   right: 0;
 
-  top: ${BAR_HEIGHT.toString()}px;
+  top: ${(props) => (props.barVisible ? `${BAR_HEIGHT.toString()}px` : "0")};
 
   width: 100%;
   height: ${HEADER_HEIGHT.toString()}px;
@@ -69,8 +69,10 @@ export function Header() {
     navigate(ROOT["/"].cabinet["/"]["my-assets"].path, { replace: true });
   });
 
+  const barVisible = () => findRoute(location.pathname)?.features?.showBetaDisclaimer;
+
   return (
-    <HeaderDiv classList={{ [WithMyWalletBtn]: showLink() }}>
+    <HeaderDiv barVisible={barVisible()} classList={{ [WithMyWalletBtn]: showLink() }}>
       <a href="https://icp.msq.tech/" target="_blank">
         <img src={LogoSvg} alt="MSQ Logo" />
       </a>

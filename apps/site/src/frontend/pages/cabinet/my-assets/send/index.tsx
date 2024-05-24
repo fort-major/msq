@@ -268,7 +268,6 @@ export function SendPage() {
             </Switch>
           </SendPopupWrapper>
         </SendPopupBg>
-        <ContactUsBtn />
       </Show>
     </CabinetPage>
   );

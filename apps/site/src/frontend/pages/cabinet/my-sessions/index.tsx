@@ -10,7 +10,7 @@ import {
   SessionWebsiteWrapper,
   SessionWrapper,
 } from "./style";
-import { timestampToStr } from "../../../utils";
+import { ONE_SEC_MS, timestampToStr } from "../../../utils";
 import { VerticalDivider } from "../../../components/divider/style";
 import { BoopAvatar } from "../../../components/boop-avatar";
 import { ISession, TOrigin, originToHostname } from "@fort-major/msq-shared";
@@ -26,14 +26,16 @@ import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function MySessionsPage() {
   const msq = useMsqClient();
-  const { originsData, init, stopSession } = useOriginData();
+  const { originsData, init, fetch, stopSession } = useOriginData();
   const originsWithSession = () =>
     Object.keys(originsData).filter((origin) => originsData[origin]!.currentSession !== undefined);
 
   const [loading, setLoading] = createSignal(false);
 
   createEffect(() => {
-    if (msq()) init();
+    if (msq()) {
+      init();
+    }
   });
 
   const getMaskBySession = (session: ISession): { pseudonym: string; principal: Principal } => {
@@ -120,8 +122,6 @@ export function MySessionsPage() {
           </For>
         </MySessionsContent>
       </CabinetContent>
-
-      <ContactUsBtn />
     </CabinetPage>
   );
 }

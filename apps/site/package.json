@@ -37,7 +37,7 @@
     "@dfinity/ledger-icrc": "^2.3",
     "@fort-major/msq-client": "workspace:*",
     "@fort-major/msq-shared": "workspace:*",
-    "@solidjs/router": "0.9.1",
+    "@solidjs/router": "0.13.3",
     "chart.js": "4.4.1",
     "dompurify": "3.0.6",
     "ismobilejs": "1.1.1",

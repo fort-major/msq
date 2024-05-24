@@ -55,10 +55,10 @@ export const Root = styled.div`
   min-height: 100vh;
 `;
 
-export const Page = styled.main`
+export const Page = styled.main<{ barVisible?: boolean }>`
   position: relative;
   background-color: ${COLOR_BLACK};
-  margin-top: ${(HEADER_HEIGHT + BAR_HEIGHT).toString()}px;
+  margin-top: ${(props) => `${(HEADER_HEIGHT + (props.barVisible ? BAR_HEIGHT : 0)).toString()}px`};
   display: flex;
   flex-flow: column nowrap;
   flex: 1;

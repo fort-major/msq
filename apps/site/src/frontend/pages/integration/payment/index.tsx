@@ -247,7 +247,6 @@ export function PaymentPage() {
         <Show when={receivePopupProps()}>
           <ReceivePopup {...receivePopupProps()!} />
         </Show>
-        <ContactUsBtn />
       </PaymentPageContainer>
     </Show>
   );

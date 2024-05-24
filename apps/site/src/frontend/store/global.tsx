@@ -1,9 +1,9 @@
-import { Accessor, Resource, Setter, createContext, createResource, createSignal, useContext } from "solid-js";
+import { Accessor, Setter, createContext, createSignal, useContext } from "solid-js";
 import { ICRC35AsyncRequest, InternalSnapClient, MsqClient, MsqIdentity, TMsqCreateOk } from "@fort-major/msq-client";
 import { IChildren, SHOULD_BE_FLASK, handleStatistics, makeAnonymousAgent } from "../utils";
 import { IICRC1TransferRequest, unreacheable } from "@fort-major/msq-shared";
 import { useNavigate } from "@solidjs/router";
-import { ROOT, useMsqRoute } from "../routes";
+import { ROOT } from "../routes";
 
 export type ICRC35Store<T extends undefined | IICRC1TransferRequest = undefined | IICRC1TransferRequest> = [
   Accessor<ICRC35AsyncRequest<T> | undefined>,
@@ -11,9 +11,10 @@ export type ICRC35Store<T extends undefined | IICRC1TransferRequest = undefined 
 ];
 
 interface IGlobalContext {
-  msqClient: Resource<InternalSnapClient | undefined | null>;
-  identity: Resource<MsqIdentity>;
-  showLoader: Accessor<boolean>;
+  msqClient: Accessor<InternalSnapClient | undefined>;
+  msqIdentity: Accessor<MsqIdentity | undefined>;
+  connectMsq: () => Promise<void>;
+  loaderShown: Accessor<boolean>;
   icrc35: ICRC35Store;
 }
 
@@ -35,14 +36,24 @@ export function useMsqClient(): Accessor<InternalSnapClient | undefined | null> 
   return ctx.msqClient;
 }
 
-export function useIdentity(): Accessor<MsqIdentity | undefined> {
+export function useMsqIdentity(): Accessor<MsqIdentity | undefined> {
   const ctx = useContext(GlobalContext);
 
   if (!ctx) {
     unreacheable("Global context is uninitialized");
   }
 
-  return ctx.identity;
+  return ctx.msqIdentity;
+}
+
+export function connectMsq(): Promise<void> {
+  const ctx = useContext(GlobalContext);
+
+  if (!ctx) {
+    unreacheable("Global context is uninitialized");
+  }
+
+  return ctx.connectMsq();
 }
 
 export function useLoader(): Accessor<boolean> {
@@ -52,7 +63,7 @@ export function useLoader(): Accessor<boolean> {
     unreacheable("Global context is uninitialized");
   }
 
-  return ctx.showLoader;
+  return ctx.loaderShown;
 }
 
 export function useICRC35<T extends undefined | IICRC1TransferRequest>(): ICRC35Store<T> {
@@ -67,12 +78,13 @@ export function useICRC35<T extends undefined | IICRC1TransferRequest>(): ICRC35
 
 export function GlobalStore(props: IChildren) {
   const icrc35: ICRC35Store = createSignal();
-  const showLoader = createSignal(true);
+  const [loaderShown, showLoader] = createSignal(false);
+  const [msqClient, setMsqClient] = createSignal<InternalSnapClient>();
+  const [msqIdentity, setMsqIdentity] = createSignal<MsqIdentity>();
   const navigate = useNavigate();
-  const msqRoute = useMsqRoute();
 
-  const [msqClient] = createResource(async () => {
-    if (msqRoute.features?.thirdPartyWallets) return null;
+  const connectMsq = async () => {
+    showLoader(true);
 
     const innerMsqClient = await MsqClient.create({
       snapId: import.meta.env.VITE_MSQ_SNAP_ID,
@@ -83,31 +95,35 @@ export function GlobalStore(props: IChildren) {
     });
 
     if ("MSQConnectionRejected" in innerMsqClient) {
-      showLoader[1](false);
       navigate(ROOT["/"].error["/"]["connection-rejected"].path);
 
-      return undefined;
+      showLoader(false);
+
+      return;
     }
 
     if ("InstallMetaMask" in innerMsqClient) {
-      showLoader[1](false);
       navigate(ROOT["/"].error["/"]["install-metamask"].path);
 
-      return undefined;
+      showLoader(false);
+
+      return;
     }
 
     if ("UnblockMSQ" in innerMsqClient) {
-      showLoader[1](false);
       navigate(ROOT["/"].error["/"]["unblock-msq"].path);
 
-      return undefined;
+      showLoader(false);
+
+      return;
     }
 
     if ("EnableMSQ" in innerMsqClient) {
-      showLoader[1](false);
       navigate(ROOT["/"].error["/"]["enable-msq"].path);
 
-      return undefined;
+      showLoader(false);
+
+      return;
     }
 
     if ("Ok" in innerMsqClient) {
@@ -116,22 +132,21 @@ export function GlobalStore(props: IChildren) {
       const isAuthorized = await client.getInner().isAuthorized();
       if (!isAuthorized) await client.login(window.location.origin, 0, import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
 
-      makeAnonymousAgent(import.meta.env.VITE_MSQ_DFX_NETWORK_HOST).then((agent) => handleStatistics(agent, client));
-      showLoader[1](false);
+      showLoader(false);
 
-      return client;
+      makeAnonymousAgent(import.meta.env.VITE_MSQ_DFX_NETWORK_HOST).then((agent) => handleStatistics(agent, client));
+
+      setMsqClient(client);
+      setMsqIdentity(await MsqIdentity.create(client.getInner()));
+
+      return;
     }
 
     console.error("Unreacheable during client initialization");
-    return undefined;
-  });
-
-  const [identity] = createResource(msqClient, (client) => {
-    return MsqIdentity.create(client.getInner());
-  });
+  };
 
   return (
-    <GlobalContext.Provider value={{ msqClient, identity, showLoader: showLoader[0], icrc35 }}>
+    <GlobalContext.Provider value={{ connectMsq, msqClient, msqIdentity, loaderShown, icrc35 }}>
       {props.children}
     </GlobalContext.Provider>
   );

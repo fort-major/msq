@@ -234,7 +234,7 @@ export function Loader() {
 
   return (
     <LoaderWrapper>
-      <LoaderText>Loading...</LoaderText>
+      <LoaderText>Connecting your wallet...</LoaderText>
       <LoaderAir>
         <BoopWrapper>
           <LoaderBoop />

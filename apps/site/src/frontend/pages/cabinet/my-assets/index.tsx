@@ -32,11 +32,10 @@ import { ColorGray115, ColorGray130, H2, H4, H5, Text } from "../../../ui-kit/ty
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { IReceivePopupProps, ReceivePopup } from "./receive";
 import { AddAccountBtn } from "../../../components/add-account-btn";
-import { useAssetData, useSendPageProps, useTxnHistoryPageProps } from "../../../store/assets";
+import { useAssetData, useSendPageProps } from "../../../store/assets";
 import { COLOR_ERROR_RED, COLOR_WHITE, CabinetContent, CabinetPage, FONT_WEIGHT_SEMI_BOLD } from "../../../ui-kit";
 import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
-import { ITxnHistoryModalProps, TxnHistoryModal } from "../../../components/txn-history-modal";
 import { Toggle } from "../../../components/toggle";
 import { ErrorPin } from "../../../ui-kit/error-pin";
 import { ROOT } from "../../../routes";
@@ -54,9 +53,6 @@ export function MyAssetsPage() {
 
   const [sendPopupProps, setSendPopupProps] = useSendPageProps();
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
-
-  const [txnHistoryPopupProps, setTxnHistoryPopupProps] = createSignal<ITxnHistoryModalProps | null>(null);
-  const [_, setTxnHistoryPageProps] = useTxnHistoryPageProps();
 
   const navigate = useNavigate();
 
@@ -175,14 +171,6 @@ export function MyAssetsPage() {
 
   const handleReceiveClose = () => {
     setReceivePopupProps(null);
-  };
-
-  const handleTxnHistoryPopupClose = () => {
-    setTxnHistoryPopupProps(null);
-  };
-
-  const handleTxnHistoryPageClose = () => {
-    setTxnHistoryPageProps(undefined);
   };
 
   const [hideEmpty, setHideEmpty] = createLocalStorageSignal<boolean>("msq-assets-hide-empty");
@@ -335,12 +323,7 @@ export function MyAssetsPage() {
         <Show when={receivePopupProps()}>
           <ReceivePopup {...receivePopupProps()!} />
         </Show>
-        <Show when={txnHistoryPopupProps()}>
-          <TxnHistoryModal {...txnHistoryPopupProps()!} />
-        </Show>
       </CabinetContent>
-
-      <ContactUsBtn />
     </CabinetPage>
   );
 }

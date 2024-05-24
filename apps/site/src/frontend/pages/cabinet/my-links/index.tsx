@@ -24,14 +24,16 @@ import { ContactUsBtn } from "../../../components/contact-us-btn";
 
 export function MyLinksPage() {
   const msq = useMsqClient();
-  const { originsData, init, unlinkOne, unlinkAll } = useOriginData();
+  const { originsData, init, fetch, unlinkOne, unlinkAll } = useOriginData();
   const allOriginDataKeysWithLinks = () =>
     Object.keys(originsData).filter((origin) => originsData[origin]!.linksTo.length !== 0);
 
   const [loading, setLoading] = createSignal(false);
 
   createEffect(() => {
-    if (msq()) init();
+    if (msq()) {
+      init();
+    }
   });
 
   const handleUnlinkOne = async (origin: TOrigin, withOrigin: TOrigin) => {
@@ -119,8 +121,6 @@ export function MyLinksPage() {
           </For>
         </MyLinksContent>
       </CabinetContent>
-
-      <ContactUsBtn />
     </CabinetPage>
   );
 }

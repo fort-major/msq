@@ -262,7 +262,6 @@ export function UrlBasedPaymentPage() {
         <Show when={receivePopupProps()}>
           <ReceivePopup {...receivePopupProps()!} />
         </Show>
-        <ContactUsBtn />
       </PaymentPageContainer>
     </Show>
   );

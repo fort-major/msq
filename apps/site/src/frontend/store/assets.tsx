@@ -18,7 +18,6 @@ import { PRE_LISTED_TOKENS, TAccountId, delay, unreacheable } from "@fort-major/
 import { AnonymousIdentity } from "@dfinity/agent";
 import { ISendPageProps } from "../pages/cabinet/my-assets/send";
 import { IPaymentCheckoutPageProps } from "../pages/integration/payment/checkout";
-import { ITxnHistoryPageProps } from "../pages/cabinet/my-assets/txn-history";
 import { useNavigate } from "@solidjs/router";
 import { ROOT } from "../routes";
 
@@ -35,10 +34,6 @@ export type IAssetDataExt = {
 // undefined == not loaded yet, null == erroed
 export type AllAssetData = Record<string, IAssetDataExt | undefined | null>;
 export type SendPagePropsStore = [Accessor<ISendPageProps | undefined>, Setter<ISendPageProps | undefined>];
-export type TxnHistoryPropsStore = [
-  Accessor<ITxnHistoryPageProps | undefined>,
-  Setter<ITxnHistoryPageProps | undefined>,
-];
 type PaymentCheckoutPageStore = [
   Accessor<IPaymentCheckoutPageProps | undefined>,
   Setter<IPaymentCheckoutPageProps | undefined>,
@@ -55,7 +50,6 @@ export interface IAssetDataStore {
   removeAssetLogo: (assetId: string) => void;
   sendPageProps: SendPagePropsStore;
   paymentCheckoutPageProps: PaymentCheckoutPageStore;
-  txnHistoryPageProps: TxnHistoryPropsStore;
 }
 
 const AssetDataContext = createContext<IAssetDataStore>();
@@ -90,16 +84,6 @@ export function usePaymentCheckoutPageProps() {
   return ctx.paymentCheckoutPageProps;
 }
 
-export function useTxnHistoryPageProps() {
-  const ctx = useContext(AssetDataContext);
-
-  if (!ctx) {
-    unreacheable("Integration context is uninitialized");
-  }
-
-  return ctx.txnHistoryPageProps;
-}
-
 const PRE_DEFINED_ASSETS: { assetId: string; name: string; symbol: string; decimals: number; fee: bigint }[] =
   Object.values(PRE_LISTED_TOKENS).map((it) => ({
     assetId: it.assetId,
@@ -113,7 +97,6 @@ export function AssetsStore(props: IChildren) {
   const [allAssetData, setAllAssetData] = createStore<AllAssetData>();
   const [sendPageProps, setSendPageProps] = createSignal<ISendPageProps | undefined>(undefined);
   const [paymentCheckoutPageProps, setPaymentCheckoutPageProps] = createSignal<IPaymentCheckoutPageProps | undefined>();
-  const [txnHistoryPageProps, setTxnHistoryPageProps] = createSignal<ITxnHistoryPageProps | undefined>();
   const [refreshPeriodically, setRefreshPeriodically] = createSignal(true);
   const [initialized, setInitialized] = createSignal(false);
   const _msq = useMsqClient();
@@ -401,7 +384,6 @@ export function AssetsStore(props: IChildren) {
         removeAssetLogo,
         sendPageProps: [sendPageProps, setSendPageProps],
         paymentCheckoutPageProps: [paymentCheckoutPageProps, setPaymentCheckoutPageProps],
-        txnHistoryPageProps: [txnHistoryPageProps, setTxnHistoryPageProps],
       }}
     >
       {props.children}
