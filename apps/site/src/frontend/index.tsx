@@ -18,9 +18,9 @@ import { IChildren } from "./utils";
 import { DISCORD_LINK, debugStringify, logError } from "@fort-major/msq-shared";
 import { ErrorPage } from "./pages/error";
 import { EIconKind } from "./ui-kit/icon";
-import { IndexPage } from "./pages/index";
-import { ICRC35Page } from "./pages/icrc35";
 import { ContactUsBtn } from "./components/contact-us-btn";
+import { ThirdPartyWalletStore } from "./store/wallets";
+import { ICRC35Store } from "./store/icrc-35";
 
 const root = document.getElementById("root");
 
@@ -64,19 +64,23 @@ export function App(props: IChildren) {
   try {
     return (
       <GlobalStore>
-        <AssetsStore>
-          <OriginDataStore>
-            <Root>
-              <Page barVisible={barVisible()}>
-                <NotificationBar barVisible={barVisible()} />
-                <Header />
-                {props.children}
-              </Page>
-              <LoaderWrapper />
-              <ContactUsBtn />
-            </Root>
-          </OriginDataStore>
-        </AssetsStore>
+        <ThirdPartyWalletStore>
+          <AssetsStore>
+            <OriginDataStore>
+              <ICRC35Store>
+                <Root>
+                  <Page barVisible={barVisible()}>
+                    <NotificationBar barVisible={barVisible()} />
+                    <Header />
+                    {props.children}
+                  </Page>
+                  <LoaderWrapper />
+                  <ContactUsBtn />
+                </Root>
+              </ICRC35Store>
+            </OriginDataStore>
+          </AssetsStore>
+        </ThirdPartyWalletStore>
       </GlobalStore>
     );
   } catch (e) {

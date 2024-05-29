@@ -2,7 +2,7 @@ import { ErrorCode, Principal, TAccountId, err, tokensToStr } from "@fort-major/
 import { useNavigate, useSearchParams } from "@solidjs/router";
 import { For, Show, createEffect, createMemo, createSignal } from "solid-js";
 import { useMsqClient } from "../../../store/global";
-import { useAssetData, useSendPageProps } from "../../../store/assets";
+import { useAssetData } from "../../../store/assets";
 import { IReceivePopupProps, ReceivePopup } from "../../cabinet/my-assets/receive";
 import {
   AccountCardBase,
@@ -20,7 +20,6 @@ import { AccountCard } from "../../../components/account-card";
 import { AddAccountBtn } from "../../../components/add-account-btn";
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { EIconKind } from "../../../ui-kit/icon";
-import { ContactUsBtn } from "../../../components/contact-us-btn";
 import { ISendPageProps } from "../../cabinet/my-assets/send";
 import { ROOT } from "../../../routes";
 
@@ -46,10 +45,10 @@ interface UrlBasedICRC1TransferRequest {
 
 export function UrlBasedPaymentPage() {
   const msq = useMsqClient();
-  const { assets, fetch, refresh, addAsset, addAccount } = useAssetData();
+  const { assets, assetMetadata, fetchAccountInfo, fetchMetadata, refreshBalances, addAsset, addAccount } =
+    useAssetData();
   const [selectedAccountId, setSelectedAccountId] = createSignal<TAccountId>(0);
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
-  const [sendPageProps, setSendPageProps] = useSendPageProps();
   const navigate = useNavigate();
 
   const transferRequest = createMemo(() => {
@@ -84,7 +83,7 @@ export function UrlBasedPaymentPage() {
     if (transferRequest() && msq()) {
       const assetId = getAssetId()!;
 
-      const result = await fetch([assetId]);
+      const result = await fetchAccountInfo([assetId]);
 
       // propose the user to add the asset canister ID will be validated here
       if (!result || !result[0]) {
@@ -96,7 +95,7 @@ export function UrlBasedPaymentPage() {
         err(ErrorCode.INVALID_INPUT, `Amount is less than zero: ${transferRequest()!.amount}`);
       }
 
-      await refresh!([assetId]);
+      await refreshBalances!([assetId]);
     }
   });
 
@@ -127,12 +126,10 @@ export function UrlBasedPaymentPage() {
 
   const handleCompleteSend = () => {
     navigate(ROOT["/"].cabinet["/"]["my-assets"].path, { replace: true });
-    setSendPageProps(undefined);
   };
 
   const handleCancelSend = () => {
     window.history.back();
-    setSendPageProps(undefined);
   };
 
   const handleCheckoutStart = (accountId: TAccountId) => {
@@ -160,8 +157,7 @@ export function UrlBasedPaymentPage() {
       },
     };
 
-    setSendPageProps(p);
-    navigate(ROOT["/"].pay["/"].send.path);
+    navigate(ROOT["/"].pay["/"].send.path, { state: p });
   };
 
   return (

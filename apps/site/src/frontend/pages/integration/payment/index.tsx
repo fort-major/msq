@@ -1,6 +1,6 @@
 import { For, Show, createEffect, createSignal } from "solid-js";
-import { useICRC35, useMsqClient } from "../../../store/global";
-import { useNavigate } from "@solidjs/router";
+import { useMsqClient } from "../../../store/global";
+import { useLocation, useNavigate } from "@solidjs/router";
 import { Principal } from "@dfinity/principal";
 import {
   AccountCardBase,
@@ -28,49 +28,56 @@ import { Button, EButtonKind } from "../../../ui-kit/button";
 import { EIconKind } from "../../../ui-kit/icon";
 import { IReceivePopupProps, ReceivePopup } from "../../cabinet/my-assets/receive";
 import { IPaymentCheckoutPageProps } from "./checkout";
-import { useAssetData, usePaymentCheckoutPageProps } from "../../../store/assets";
-import { ContactUsBtn } from "../../../components/contact-us-btn";
-import { ROOT } from "../../../routes";
+import { useAssetData } from "../../../store/assets";
+import { ROOT, useCurrentRouteProps } from "../../../routes";
+import { ICRC35AsyncRequest } from "@fort-major/msq-client";
+import { useThirdPartyWallet } from "../../../store/wallets";
+import { useICRC35Store } from "../../../store/icrc-35";
 
 export function PaymentPage() {
-  const msq = useMsqClient();
-  const { assets, fetch, refresh, addAsset, addAccount } = useAssetData();
   const [selectedAccountId, setSelectedAccountId] = createSignal<TAccountId>(0);
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
-  const [_, setCheckoutPageProps] = usePaymentCheckoutPageProps();
-  const [icrc35Request] = useICRC35<IICRC1TransferRequest>();
-  const navigate = useNavigate();
-
   const [loading, setLoading] = createSignal(false);
 
-  const getAssetId = () => icrc35Request()!.payload.canisterId;
+  const { assets, assetMetadata, fetchMetadata, fetchAccountInfo, refreshBalances, addAsset, addAccount } =
+    useAssetData();
+  const msq = useMsqClient();
+  const { getIcrc35Request } = useICRC35Store();
+  const navigate = useNavigate();
+  const { connectWallet, connectedWallets } = useThirdPartyWallet();
+
+  const getAssetId = () => getIcrc35Request<IICRC1TransferRequest>()!.payload.canisterId;
 
   createEffect(async () => {
-    if (!icrc35Request()) {
+    if (!getIcrc35Request()) {
       navigate(ROOT.path);
       return;
     }
+
+    const req = getIcrc35Request<IICRC1TransferRequest>()!;
+
+    // validate other inputs
+    Principal.fromText(req.payload.to.owner);
+    if (req.payload.amount < 0n) {
+      err(ErrorCode.INVALID_INPUT, `Amount is less than zero: ${req.payload.amount}`);
+    }
+
+    const assetId = getAssetId()!;
+
+    await fetchMetadata([assetId]);
 
     if (!msq()) {
       return;
     }
 
-    const assetId = getAssetId()!;
-
-    const result = await fetch([assetId]);
+    const result = await fetchAccountInfo([assetId]);
 
     // canister ID will be validated here
     if (!result || !result[0]) {
       await addAsset!(assetId);
     }
 
-    // validate other inputs
-    Principal.fromText(icrc35Request()!.payload.to.owner);
-    if (icrc35Request()!.payload.amount < 0n) {
-      err(ErrorCode.INVALID_INPUT, `Amount is less than zero: ${icrc35Request()!.payload.amount}`);
-    }
-
-    await refresh!([assetId]);
+    await refreshBalances!([assetId]);
   });
 
   const handleAddAccount = async (assetId: string, assetName: string, symbol: string) => {
@@ -89,7 +96,7 @@ export function PaymentPage() {
     setReceivePopupProps({
       assetId,
       principal: assets[assetId]!.accounts[accountId].principal!,
-      symbol: assets[assetId]!.metadata!.symbol,
+      symbol: assetMetadata[assetId]!.metadata!.symbol,
       onClose: handleReceiveClose,
     });
   };
@@ -104,25 +111,28 @@ export function PaymentPage() {
 
   const handleCheckoutStart = (accountId: TAccountId) => {
     const assetId = getAssetId()!;
+    const asset = assets[assetId]!;
+    const { metadata } = assetMetadata[assetId]!;
+    const req = getIcrc35Request<IICRC1TransferRequest>()!;
 
     const p: IPaymentCheckoutPageProps = {
       accountId,
-      accountName: assets[assetId]!.accounts[accountId].name,
-      accountBalance: assets[assetId]!.accounts[accountId].balance!,
-      accountPrincipal: assets[assetId]!.accounts[accountId].principal,
+      accountName: asset.accounts[accountId].name,
+      accountBalance: asset.accounts[accountId].balance!,
+      accountPrincipal: asset.accounts[accountId].principal,
 
-      assetId: icrc35Request()!.payload.canisterId,
-      symbol: assets[assetId]!.metadata!.symbol,
-      decimals: assets[assetId]!.metadata!.decimals,
-      fee: assets[assetId]!.metadata!.fee,
+      assetId: req.payload.canisterId,
+      symbol: metadata.symbol,
+      decimals: metadata.decimals,
+      fee: metadata.fee,
 
-      peerOrigin: icrc35Request()!.peerOrigin,
+      peerOrigin: req.peerOrigin,
 
-      amount: icrc35Request()!.payload.amount,
-      recepientPrincipal: icrc35Request()!.payload.to.owner,
-      recepientSubaccount: icrc35Request()!.payload.to.subaccount,
-      memo: icrc35Request()!.payload.memo,
-      createdAt: icrc35Request()!.payload.createdAt,
+      amount: req.payload.amount,
+      recepientPrincipal: req.payload.to.owner,
+      recepientSubaccount: req.payload.to.subaccount,
+      memo: req.payload.memo,
+      createdAt: req.payload.createdAt,
 
       onSuccess: handleCheckoutSuccess,
       onFail: handleCheckoutFail,
@@ -130,46 +140,65 @@ export function PaymentPage() {
       onBack: handleCheckoutBack,
     };
 
-    setCheckoutPageProps(p);
-    navigate(ROOT["/"].integration["/"].pay["/"].checkout.path);
+    navigate(ROOT["/"].integration["/"].pay["/"].checkout.path, { state: p });
   };
 
   const handleCheckoutSuccess = (blockId: bigint) => {
-    icrc35Request()!.respond(blockId);
-    icrc35Request()!.closeConnection();
+    getIcrc35Request()!.respond(blockId);
+    getIcrc35Request()!.closeConnection();
   };
 
   const handleCheckoutFail = () => {
-    icrc35Request()!.respond(undefined);
-    icrc35Request()!.closeConnection();
+    getIcrc35Request()!.respond(undefined);
+    getIcrc35Request()!.closeConnection();
   };
 
   const handleCheckoutCancel = () => {
     navigate(ROOT["/"].integration["/"].pay.path, { replace: true });
-    setCheckoutPageProps(undefined);
+  };
+
+  const handleConnectPlug = async () => {
+    await connectWallet("plug");
+
+    console.log("Plug connected", await connectedWallets()["plug"]?.getPrincipal());
+  };
+
+  const handleConnectBitfinity = async () => {
+    await connectWallet("bitfinity");
+
+    console.log("Bitfinity connected", await connectedWallets()["bitfinity"]?.getPrincipal());
+  };
+
+  const handleConnectNNS = async () => {
+    await connectWallet("nns");
+
+    console.log("NNS connected", await connectedWallets()["nns"]?.getPrincipal());
   };
 
   return (
-    <Show when={icrc35Request()}>
+    <Show when={getIcrc35Request()}>
       <PaymentPageContainer>
         <PaymentPageWrapper>
           <PaymentPageHeading>
             <Text size={20} weight={600}>
-              Pending payment on <span class={ColorAccent}>{originToHostname(icrc35Request()!.peerOrigin)}</span>
+              Pending payment on <span class={ColorAccent}>{originToHostname(getIcrc35Request()!.peerOrigin)}</span>
             </Text>
-            <Show when={getAssetId() && assets[getAssetId()!]?.metadata}>
+            <Show when={getAssetId() && assetMetadata[getAssetId()!]?.metadata}>
               <H3>
                 {tokensToStr(
-                  icrc35Request()!.payload.amount,
-                  assets[getAssetId()!]!.metadata!.decimals,
+                  getIcrc35Request<IICRC1TransferRequest>()!.payload.amount,
+                  assetMetadata[getAssetId()!]!.metadata!.decimals,
                   undefined,
                   true,
                 )}{" "}
-                {assets[getAssetId()!]!.metadata!.symbol}
+                {assetMetadata[getAssetId()!]!.metadata!.symbol}
               </H3>
+              <button onClick={handleConnectPlug}>Connect Plug</button>
+              <button onClick={handleConnectBitfinity}>Connect Bitfinity</button>
+              <button onClick={handleConnectNNS}>Connect NNS</button>
             </Show>
           </PaymentPageHeading>
-          <Show when={assets[getAssetId()!]?.accounts && assets[getAssetId()!]?.metadata}>
+          <Show when={assets[getAssetId()!]?.accounts && assetMetadata[getAssetId()!]?.metadata}>
             <PaymentPageContent>
               <Text size={20} weight={600}>
                 Select an account to continue:
@@ -182,13 +211,16 @@ export function PaymentPage() {
                         classList={{ [AccountCardBase]: true, [AccountCardSelected]: idx() === selectedAccountId() }}
                         onClick={(accountId) => setSelectedAccountId(accountId)}
                         accountId={idx()}
-                        assetId={icrc35Request()!.payload.canisterId}
+                        assetId={getIcrc35Request<IICRC1TransferRequest>()!.payload.canisterId}
                         name={account.name}
                         balance={account.balance}
                         principal={account.principal}
-                        decimals={assets[getAssetId()!]!.metadata!.decimals}
-                        symbol={assets[getAssetId()!]!.metadata!.symbol}
-                        targetBalance={icrc35Request()!.payload.amount + assets[getAssetId()!]!.metadata!.fee}
+                        decimals={assetMetadata[getAssetId()!]!.metadata!.decimals}
+                        symbol={assetMetadata[getAssetId()!]!.metadata!.symbol}
+                        targetBalance={
+                          getIcrc35Request<IICRC1TransferRequest>()!.payload.amount +
+                          assetMetadata[getAssetId()!]!.metadata!.fee
+                        }
                       />
                     )}
                   </For>
@@ -196,12 +228,12 @@ export function PaymentPage() {
                 <AddAccountBtn
                   disabled={loading()}
                   loading={loading()}
-                  symbol={assets[getAssetId()!]!.metadata!.symbol}
+                  symbol={assetMetadata[getAssetId()!]!.metadata!.symbol}
                   onClick={() =>
                     handleAddAccount(
-                      icrc35Request()!.payload.canisterId,
-                      assets[getAssetId()!]!.metadata!.name,
-                      assets[getAssetId()!]!.metadata!.symbol,
+                      getIcrc35Request<IICRC1TransferRequest>()!.payload.canisterId,
+                      assetMetadata[getAssetId()!]!.metadata!.name,
+                      assetMetadata[getAssetId()!]!.metadata!.symbol,
                     )
                   }
                 />
@@ -217,7 +249,8 @@ export function PaymentPage() {
                 <Show
                   when={
                     (assets[getAssetId()!]!.accounts[selectedAccountId()].balance || 0n) >=
-                    icrc35Request()!.payload.amount + assets[getAssetId()!]!.metadata!.fee
+                    getIcrc35Request<IICRC1TransferRequest>()!.payload.amount +
+                      assetMetadata[getAssetId()!]!.metadata!.fee
                   }
                   fallback={
                     <Button

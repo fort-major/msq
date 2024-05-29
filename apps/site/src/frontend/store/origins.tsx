@@ -23,7 +23,7 @@ export function useOriginData() {
   const c = useContext(OriginDataContext);
 
   if (!c) {
-    unreacheable("Asset context is uninitialized");
+    unreacheable("Origin context is uninitialized");
   }
 
   return c;

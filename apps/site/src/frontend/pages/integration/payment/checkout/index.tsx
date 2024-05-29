@@ -37,8 +37,7 @@ import { ITxnResult } from "../../../cabinet/my-assets/send";
 import { TxnFailPage } from "../../../txn/fail";
 import { TxnSuccessPage } from "../../../txn/success";
 import { COLOR_ACCENT, COLOR_GRAY_140, COLOR_GRAY_165 } from "../../../../ui-kit";
-import { usePaymentCheckoutPageProps } from "../../../../store/assets";
-import { ROOT } from "../../../../routes";
+import { ROOT, useCurrentRouteProps } from "../../../../routes";
 
 export interface IPaymentCheckoutPageProps {
   accountId: TAccountId;
@@ -66,7 +65,7 @@ export interface IPaymentCheckoutPageProps {
 }
 
 export function PaymentCheckoutPage() {
-  const [props] = usePaymentCheckoutPageProps();
+  const props = useCurrentRouteProps<IPaymentCheckoutPageProps>();
   const [loading, setLoading] = createSignal(false);
   const msq = useMsqClient();
   const navigate = useNavigate();
@@ -76,54 +75,54 @@ export function PaymentCheckoutPage() {
   const [memoCopied, setMemoCopied] = createSignal(false);
 
   onMount(() => {
-    if (!props()) navigate(ROOT.path, { replace: true });
+    if (!props) navigate(ROOT.path, { replace: true });
   });
 
   const handleCopyRecipientPrincipal = () => {
-    navigator.clipboard.writeText(props()!.recepientPrincipal);
+    navigator.clipboard.writeText(props!.recepientPrincipal);
     setPrincipalCopied(true);
   };
 
   const handleCopyRecipientSubaccount = () => {
-    navigator.clipboard.writeText(bytesToHex(props()!.recepientSubaccount!));
+    navigator.clipboard.writeText(bytesToHex(props!.recepientSubaccount!));
     setSubaccountCopied(true);
   };
 
   const handleCopyMemo = () => {
-    navigator.clipboard.writeText(bytesToHex(props()!.memo!));
+    navigator.clipboard.writeText(bytesToHex(props!.memo!));
     setMemoCopied(true);
   };
 
-  const [msqFee, msqRecipientId] = calculateMSQFee(props()!.assetId, props()!.amount);
+  const [msqFee, msqRecipientId] = calculateMSQFee(props!.assetId, props!.amount);
 
-  const calcSystemFee = () => (msqRecipientId ? props()!.fee * 2n : props()!.fee);
+  const calcSystemFee = () => (msqRecipientId ? props!.fee * 2n : props!.fee);
 
-  const calcTotalAmount = () => props()!.amount + msqFee + calcSystemFee();
+  const calcTotalAmount = () => props!.amount + msqFee + calcSystemFee();
 
   const handlePay = async () => {
     setLoading(true);
     document.body.style.cursor = "wait";
 
     const totalAmount = calcTotalAmount();
-    const totalAmountStr = tokensToStr(totalAmount, props()!.decimals, undefined, true);
+    const totalAmountStr = tokensToStr(totalAmount, props!.decimals, undefined, true);
 
-    const identity = await MsqIdentity.create(msq()!.getInner(), makeIcrc1Salt(props()!.assetId, props()!.accountId));
+    const identity = await MsqIdentity.create(msq()!.getInner(), makeIcrc1Salt(props!.assetId, props!.accountId));
     const agent = await makeAgent(identity);
-    const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(props()!.assetId) });
+    const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(props!.assetId) });
 
     try {
       const blockIdx = await ledger.transfer({
-        created_at_time: props()!.createdAt ? props()!.createdAt : BigInt(Date.now()) * 1_000_000n,
+        created_at_time: props!.createdAt ? props!.createdAt : BigInt(Date.now()) * 1_000_000n,
         to: {
-          owner: Principal.fromText(props()!.recepientPrincipal),
-          subaccount: props()!.recepientSubaccount ? [props()!.recepientSubaccount!] : [],
+          owner: Principal.fromText(props!.recepientPrincipal),
+          subaccount: props!.recepientSubaccount ? [props!.recepientSubaccount!] : [],
         },
-        amount: props()!.amount,
-        memo: props()!.memo,
-        fee: props()!.fee,
+        amount: props!.amount,
+        memo: props!.memo,
+        fee: props!.fee,
       });
 
-      props()!.onSuccess(blockIdx);
+      props!.onSuccess(blockIdx);
 
       setTxnResult({
         success: true,
@@ -142,7 +141,7 @@ export function PaymentCheckoutPage() {
           },
           amount: msqFee,
           memo: undefined,
-          fee: props()!.fee,
+          fee: props!.fee,
         });
       } catch (e) {
         log("Have a happy day 😊 (unable to pay MSQ fee)", e);
@@ -150,7 +149,7 @@ export function PaymentCheckoutPage() {
     } catch (e) {
       let err = debugStringify(e);
 
-      props()!.onFail();
+      props!.onFail();
 
       setTxnResult({ success: false, error: err });
     } finally {
@@ -162,18 +161,18 @@ export function PaymentCheckoutPage() {
   return (
     <CheckoutPageWrapper>
       <Switch>
-        <Match when={txnResult() === null && props()}>
+        <Match when={txnResult() === null && props}>
           <CheckoutPageContent>
-            <H3>Send {props()!.symbol}</H3>
+            <H3>Send {props!.symbol}</H3>
             <AccountCard
               fullWidth
-              accountId={props()!.accountId}
-              assetId={props()!.assetId}
-              name={props()!.accountName}
-              principal={props()!.accountPrincipal}
-              balance={props()!.accountBalance}
-              decimals={props()!.decimals}
-              symbol={props()!.symbol}
+              accountId={props!.accountId}
+              assetId={props!.assetId}
+              name={props!.accountName}
+              principal={props!.accountPrincipal}
+              balance={props!.accountBalance}
+              decimals={props!.decimals}
+              symbol={props!.symbol}
             />
             <CheckoutForm>
               <CheckoutFormInput>
@@ -182,7 +181,7 @@ export function PaymentCheckoutPage() {
                 </Text>
                 <CheckoutFormInputField>
                   <Text size={16} weight={600} class={Elipsis}>
-                    {props()!.recepientPrincipal}
+                    {props!.recepientPrincipal}
                   </Text>
                   <Show
                     when={principalCopied()}
@@ -210,9 +209,9 @@ export function PaymentCheckoutPage() {
                 </Text>
                 <CheckoutFormInputField>
                   <Text size={16} weight={600} class={Elipsis}>
-                    {props()!.recepientSubaccount ? bytesToHex(props()!.recepientSubaccount!) : "Default Subaccount"}
+                    {props!.recepientSubaccount ? bytesToHex(props!.recepientSubaccount!) : "Default Subaccount"}
                   </Text>
-                  <Show when={props()!.recepientSubaccount}>
+                  <Show when={props!.recepientSubaccount}>
                     <Show
                       when={subaccountCopied()}
                       fallback={
@@ -240,9 +239,9 @@ export function PaymentCheckoutPage() {
                 </Text>
                 <CheckoutFormInputField>
                   <Text size={16} weight={600} class={Elipsis}>
-                    {props()!.memo ? bytesToHex(props()!.memo!) : "-"}
+                    {props!.memo ? bytesToHex(props!.memo!) : "-"}
                   </Text>
-                  <Show when={props()!.memo}>
+                  <Show when={props!.memo}>
                     <Show
                       when={memoCopied()}
                       fallback={
@@ -267,10 +266,10 @@ export function PaymentCheckoutPage() {
                 </Text>
                 <CheckoutFeeLineSum>
                   <Text size={16} weight={600} color={COLOR_GRAY_140}>
-                    {tokensToStr(props()!.amount, props()!.decimals, undefined, true)}
+                    {tokensToStr(props!.amount, props!.decimals, undefined, true)}
                   </Text>
                   <Text size={12} weight={500} color={COLOR_GRAY_140}>
-                    {props()!.symbol}
+                    {props!.symbol}
                   </Text>
                 </CheckoutFeeLineSum>
               </CheckoutFeeLine>
@@ -280,10 +279,10 @@ export function PaymentCheckoutPage() {
                 </Text>
                 <CheckoutFeeLineSum>
                   <Text size={16} color={COLOR_GRAY_140} weight={600}>
-                    {tokensToStr(msqFee, props()!.decimals, undefined, true)}
+                    {tokensToStr(msqFee, props!.decimals, undefined, true)}
                   </Text>
                   <Text size={12} color={COLOR_GRAY_140} weight={500}>
-                    {props()!.symbol}
+                    {props!.symbol}
                   </Text>
                 </CheckoutFeeLineSum>
               </CheckoutFeeLine>
@@ -293,10 +292,10 @@ export function PaymentCheckoutPage() {
                 </Text>
                 <CheckoutFeeLineSum>
                   <Text size={16} weight={600} color={COLOR_GRAY_140}>
-                    {tokensToStr(calcSystemFee(), props()!.decimals, undefined, true)}
+                    {tokensToStr(calcSystemFee(), props!.decimals, undefined, true)}
                   </Text>
                   <Text size={12} color={COLOR_GRAY_140} weight={500}>
-                    {props()!.symbol}
+                    {props!.symbol}
                   </Text>
                 </CheckoutFeeLineSum>
               </CheckoutFeeLine>
@@ -307,9 +306,9 @@ export function PaymentCheckoutPage() {
                   Total Amount:
                 </Text>
                 <CheckoutTotalSum>
-                  <H5>{tokensToStr(calcTotalAmount(), props()!.decimals, undefined, true)}</H5>
+                  <H5>{tokensToStr(calcTotalAmount(), props!.decimals, undefined, true)}</H5>
                   <Text size={12} weight={600}>
-                    {props()!.symbol}
+                    {props!.symbol}
                   </Text>
                 </CheckoutTotalSum>
               </CheckoutTotalInfo>
@@ -318,7 +317,7 @@ export function PaymentCheckoutPage() {
                   label="cancel"
                   kind={EButtonKind.Additional}
                   text="Cancel"
-                  onClick={props()!.onCancel}
+                  onClick={props!.onCancel}
                   fullWidth
                   disabled={loading()}
                 />
@@ -337,20 +336,20 @@ export function PaymentCheckoutPage() {
         </Match>
         <Match when={txnResult()!.success}>
           <TxnSuccessPage
-            assetId={props()!.assetId}
-            accountId={props()!.accountId}
-            accountName={props()!.accountName}
-            accountPrincipal={props()!.accountPrincipal!}
-            accountBalance={props()!.accountBalance}
-            symbol={props()!.symbol}
-            decimals={props()!.decimals}
+            assetId={props!.assetId}
+            accountId={props!.accountId}
+            accountName={props!.accountName}
+            accountPrincipal={props!.accountPrincipal!}
+            accountBalance={props!.accountBalance}
+            symbol={props!.symbol}
+            decimals={props!.decimals}
             amount={calcTotalAmount()}
             blockId={txnResult()!.blockIdx!}
-            onBack={props()!.onBack}
+            onBack={props!.onBack}
           />
         </Match>
         <Match when={!txnResult()!.success}>
-          <TxnFailPage error={txnResult()?.error!} onBack={props()!.onBack} />
+          <TxnFailPage error={txnResult()?.error!} onBack={props!.onBack} />
         </Match>
       </Switch>
     </CheckoutPageWrapper>

@@ -35,6 +35,10 @@ export function getIcHost(): string | null {
   return JSON.parse(host);
 }
 
+export function getIcHostOrDefault(): string {
+  return getIcHost() || import.meta.env.VITE_MSQ_DFX_NETWORK_HOST;
+}
+
 if (getIcHost() === null) {
   setIcHost(import.meta.env.VITE_MSQ_DFX_NETWORK_HOST);
 }
@@ -420,5 +424,3 @@ export function eventHandler<E extends Event>(fn: (e: E) => void | Promise<void>
 export function makeIcrc1Salt(assetId: string, accountId: TAccountId): Uint8Array {
   return strToBytes(`\xacicrc1\n${assetId}\n${accountId}`);
 }
-
-export const SHOULD_BE_FLASK = false;

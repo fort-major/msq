@@ -21,6 +21,7 @@ import { MyLinksPage } from "./pages/cabinet/my-links";
 import { MyAssetsPage } from "./pages/cabinet/my-assets";
 import { StatisticsPage } from "./pages/statistics";
 import { useLocation } from "@solidjs/router";
+import { unreacheable } from "@fort-major/msq-shared";
 
 export interface IRoute {
   parent?: IRoute;
@@ -209,6 +210,12 @@ export function findRoute(path: string): IRoute | undefined {
   }
 
   return cur;
+}
+
+export function useCurrentRouteProps<T>(): Readonly<T> | null {
+  const { state } = useLocation<T>();
+
+  return state as Readonly<T>;
 }
 
 export interface ISolidRoute {

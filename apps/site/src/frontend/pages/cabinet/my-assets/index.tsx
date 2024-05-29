@@ -32,7 +32,7 @@ import { ColorGray115, ColorGray130, H2, H4, H5, Text } from "../../../ui-kit/ty
 import { Button, EButtonKind } from "../../../ui-kit/button";
 import { IReceivePopupProps, ReceivePopup } from "./receive";
 import { AddAccountBtn } from "../../../components/add-account-btn";
-import { useAssetData, useSendPageProps } from "../../../store/assets";
+import { useAssetData } from "../../../store/assets";
 import { COLOR_ERROR_RED, COLOR_WHITE, CabinetContent, CabinetPage, FONT_WEIGHT_SEMI_BOLD } from "../../../ui-kit";
 import { CabinetNav } from "../../../components/cabinet-nav";
 import { ContactUsBtn } from "../../../components/contact-us-btn";
@@ -42,7 +42,8 @@ import { ROOT } from "../../../routes";
 
 export function MyAssetsPage() {
   const msq = useMsqClient();
-  const { assets, init, refresh, addAccount, editAccount, addAsset, removeAssetLogo } = useAssetData();
+  const { assets, assetMetadata, init, refreshBalances, addAccount, editAccount, addAsset, removeAssetLogo } =
+    useAssetData();
 
   const [newAssetId, setNewAssetId] = createSignal<string>("");
   const [newAssetMetadata, setNewAssetMetadata] = createSignal<IAssetMetadata | null>(null);
@@ -51,7 +52,6 @@ export function MyAssetsPage() {
   const [loading, setLoading] = createSignal(false);
   const [addingAccount, setAddingAccount] = createSignal(false);
 
-  const [sendPopupProps, setSendPopupProps] = useSendPageProps();
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
 
   const navigate = useNavigate();
@@ -69,7 +69,7 @@ export function MyAssetsPage() {
 
       const existing = assets[newAssetId()];
       if (existing) {
-        setError(`Token ${existing.metadata!.symbol} (${newAssetId()}) already exists`);
+        setError(`Token ${assetMetadata[newAssetId()]!.metadata.symbol} (${newAssetId()}) already exists`);
         return;
       }
 
@@ -123,6 +123,7 @@ export function MyAssetsPage() {
 
   const handleSend = (accountId: TAccountId, assetId: string) => {
     const assetData = assets[assetId]!;
+    const { metadata } = assetMetadata[assetId]!;
     const account = assetData.accounts[accountId];
 
     const sendProps: ISendPageProps = {
@@ -131,29 +132,25 @@ export function MyAssetsPage() {
       balance: account.balance!,
       name: account.name,
       principal: account.principal!,
-      symbol: assetData.metadata!.symbol,
-      decimals: assetData.metadata!.decimals,
-      fee: assetData.metadata!.fee,
+      symbol: metadata.symbol,
+      decimals: metadata.decimals,
+      fee: metadata.fee,
 
-      onComplete: handleCancelSend,
-      onCancel: () => handleCancelSend(false),
+      onComplete: (result: boolean) => handleCancelSend(result, assetId),
+      onCancel: () => handleCancelSend(false, assetId),
     };
 
-    setSendPopupProps(sendProps);
-    navigate(ROOT["/"].cabinet["/"]["my-assets"]["/"].send.path);
+    navigate(ROOT["/"].cabinet["/"]["my-assets"]["/"].send.path, { state: sendProps });
   };
 
-  const handleCancelSend = async (result: boolean) => {
+  const handleCancelSend = async (result: boolean, assetId: string) => {
     navigate(ROOT["/"].cabinet["/"]["my-assets"].path);
-
-    const assetId = sendPopupProps()!.assetId;
-    setSendPopupProps(undefined);
 
     if (result) {
       setLoading(true);
       document.body.style.cursor = "wait";
 
-      await refresh!([assetId]);
+      await refreshBalances!([assetId]);
 
       document.body.style.cursor = "unset";
       setLoading(false);
@@ -210,7 +207,7 @@ export function MyAssetsPage() {
                 header={
                   <AssetSpoilerHeader>
                     <Show
-                      when={assets[assetId]?.metadata}
+                      when={assetMetadata[assetId]?.metadata}
                       fallback={
                         <Text size={20} weight={600}>
                           {assetId}
@@ -221,15 +218,15 @@ export function MyAssetsPage() {
                       }
                     >
                       <NameAndLogo>
-                        <Show when={assets[assetId]!.metadata!.logoSrc}>
+                        <Show when={assetMetadata[assetId]!.metadata!.logoSrc}>
                           <AssetLogo
                             onError={() => removeAssetLogo(assetId)}
-                            src={assets[assetId]!.metadata!.logoSrc}
+                            src={assetMetadata[assetId]!.metadata!.logoSrc}
                             alt="logo"
                           />
                         </Show>
                         <Text size={20} weight={600}>
-                          {assets[assetId]!.metadata!.name}
+                          {assetMetadata[assetId]!.metadata!.name}
                           <Show when={assets[assetId]?.erroed}>
                             <ErrorPin />
                           </Show>
@@ -237,7 +234,7 @@ export function MyAssetsPage() {
                       </NameAndLogo>
                     </Show>
                     <Show
-                      when={assets[assetId]?.metadata}
+                      when={assetMetadata[assetId]?.metadata}
                       fallback={
                         <Text size={20} weight={600}>
                           0 <span class={ColorGray130}>TOK</span>
@@ -247,17 +244,17 @@ export function MyAssetsPage() {
                       <Text size={20} weight={600}>
                         {tokensToStr(
                           assets[assetId]!.totalBalance,
-                          assets[assetId]!.metadata!.decimals,
+                          assetMetadata[assetId]!.metadata!.decimals,
                           undefined,
                           true,
                         )}{" "}
-                        <span class={ColorGray130}>{assets[assetId]!.metadata!.symbol}</span>
+                        <span class={ColorGray130}>{assetMetadata[assetId]!.metadata!.symbol}</span>
                       </Text>
                     </Show>
                   </AssetSpoilerHeader>
                 }
               >
-                <Show when={assets[assetId]?.metadata}>
+                <Show when={assetMetadata[assetId]?.metadata}>
                   <AssetSpoilerContent>
                     <AssetAccountsWrapper>
                       <For each={assets[assetId]!.accounts}>
@@ -268,8 +265,8 @@ export function MyAssetsPage() {
                             name={account.name}
                             principal={account.principal}
                             balance={account.balance}
-                            symbol={assets[assetId]!.metadata!.symbol}
-                            decimals={assets[assetId]!.metadata!.decimals}
+                            symbol={assetMetadata[assetId]!.metadata!.symbol}
+                            decimals={assetMetadata[assetId]!.metadata!.decimals}
                             onSend={handleSend}
                             onReceive={handleReceive}
                             onEdit={(newName) => handleEdit(assetId, idx(), newName)}
@@ -282,9 +279,9 @@ export function MyAssetsPage() {
                       disabled={addingAccount()}
                       loading={addingAccount()}
                       onClick={() =>
-                        handleAddAccount(assetId, assets[assetId]!.metadata!.name, assets[assetId]!.metadata!.symbol)
+                        handleAddAccount(assetId, assetMetadata[assetId]!.metadata!.name, assetMetadata[assetId]!.metadata!.symbol)
                       }
-                      symbol={assets[assetId]!.metadata!.symbol}
+                      symbol={assetMetadata[assetId]!.metadata!.symbol}
                     />
                   </AssetSpoilerContent>
                 </Show>

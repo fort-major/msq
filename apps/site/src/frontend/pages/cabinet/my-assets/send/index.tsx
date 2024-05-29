@@ -25,11 +25,10 @@ import {
   SendPopupWrapper,
 } from "./style";
 import { useNavigate } from "@solidjs/router";
-import { useSendPageProps } from "../../../../store/assets";
 import { CabinetPage } from "../../../../ui-kit";
-import { ContactUsBtn } from "../../../../components/contact-us-btn";
 import { TxnFailPage } from "../../../txn/fail";
 import { TxnSuccessPage } from "../../../txn/success";
+import { useCurrentRouteProps } from "../../../../routes";
 
 export interface ISendPageProps {
   accountId: number;
@@ -67,7 +66,6 @@ const validateHex = (hex: string) =>
   hex.split("").every((c) => VALID_HEX_SYMBOLS.includes(c)) && hex.length % 2 == 0 ? null : "Invalid hex string";
 
 export function SendPage() {
-  const [props] = useSendPageProps();
   const [recipientPrincipal, setRecipientPrincipal] = createSignal<Principal | null>(null);
   const [recipientSubaccount, setRecipientSubaccount] = createSignal<string | null>(null);
   const [memo, setMemo] = createSignal<string | null>(null);
@@ -77,32 +75,33 @@ export function SendPage() {
   const [sending, setSending] = createSignal(false);
 
   const navigate = useNavigate();
+  const props = useCurrentRouteProps<ISendPageProps>();
 
   onMount(() => {
-    if (!props()) navigate("/404", { replace: true });
+    if (!props) navigate("/404", { replace: true });
   });
 
   createEffect(() => {
-    if (props()?.default?.recepientPrincipal) {
-      setRecipientPrincipal(props()!.default!.recepientPrincipal);
+    if (props?.default?.recepientPrincipal) {
+      setRecipientPrincipal(props.default!.recepientPrincipal);
     }
   });
 
   createEffect(() => {
-    if (props()?.default?.recepientSubaccount) {
-      setRecipientSubaccount(props()!.default!.recepientSubaccount || null);
+    if (props?.default?.recepientSubaccount) {
+      setRecipientSubaccount(props.default!.recepientSubaccount || null);
     }
   });
 
   createEffect(() => {
-    if (props()?.default?.memo) {
-      setMemo(props()!.default!.memo || null);
+    if (props?.default?.memo) {
+      setMemo(props.default!.memo || null);
     }
   });
 
   createEffect(() => {
-    if (props()?.default?.amount) {
-      setAmount(props()!.default!.amount || 0n);
+    if (props?.default?.amount) {
+      setAmount(props.default!.amount || 0n);
     }
   });
 
@@ -115,9 +114,9 @@ export function SendPage() {
     document.body.style.cursor = "wait";
 
     const subaccount = recipientSubaccount() ? hexToBytes(recipientSubaccount()!) : undefined;
-    const identity = await MsqIdentity.create(msq()!.getInner(), makeIcrc1Salt(props()!.assetId, props()!.accountId));
+    const identity = await MsqIdentity.create(msq()!.getInner(), makeIcrc1Salt(props!.assetId!, props!.accountId!));
     const agent = await makeAgent(identity);
-    const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(props()!.assetId) });
+    const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(props!.assetId!) });
 
     try {
       const blockIdx = await ledger.transfer({
@@ -133,7 +132,7 @@ export function SendPage() {
       setTxnResult({
         success: true,
         blockIdx,
-        totalAmount: tokensToStr(amount() + props()!.fee, props()!.decimals, undefined, true),
+        totalAmount: tokensToStr(amount() + props!.fee!, props!.decimals!, undefined, true),
       });
     } catch (e) {
       let err = debugStringify(e);
@@ -147,22 +146,22 @@ export function SendPage() {
 
   return (
     <CabinetPage class={SendPageMixin}>
-      <Show when={props()}>
+      <Show when={props}>
         <SendPopupBg>
           <SendPopupWrapper>
             <Switch>
               <Match when={txnResult() === null}>
-                <SendPopupHeading>Send {props()!.symbol}</SendPopupHeading>
+                <SendPopupHeading>Send {props!.symbol}</SendPopupHeading>
                 <SendPopupBody>
                   <AccountCard
                     fullWidth
-                    accountId={props()!.accountId}
-                    assetId={props()!.assetId}
-                    name={props()!.name}
-                    principal={props()!.principal}
-                    balance={props()!.balance}
-                    decimals={props()!.decimals}
-                    symbol={props()!.symbol}
+                    accountId={props!.accountId}
+                    assetId={props!.assetId}
+                    name={props!.name}
+                    principal={props!.principal}
+                    balance={props!.balance}
+                    decimals={props!.decimals}
+                    symbol={props!.symbol}
                   />
                   <Input
                     label="Principal ID"
@@ -200,14 +199,11 @@ export function SendPage() {
                       triggerChangeOnInput
                       KindTokens={{
                         onChange: setAmount,
-                        decimals: props()!.decimals,
-                        symbol: props()!.symbol,
+                        decimals: props!.decimals,
+                        symbol: props!.symbol,
                         validate: (val) =>
-                          val + props()!.fee > props()!.balance
-                            ? `Insufficient balance (max ${tokensToStr(
-                                props()!.balance - props()!.fee,
-                                props()!.decimals,
-                              )})`
+                          val + props!.fee > props!.balance
+                            ? `Insufficient balance (max ${tokensToStr(props!.balance - props!.fee, props!.decimals)})`
                             : null,
                         defaultValue: amount() || undefined,
                       }}
@@ -216,9 +212,9 @@ export function SendPage() {
                       <FeeLine>
                         <FeeLineAmount>
                           <FeeLineAmountQty>
-                            +{tokensToStr(props()!.fee, props()!.decimals, undefined, true)}
+                            +{tokensToStr(props!.fee, props!.decimals, undefined, true)}
                           </FeeLineAmountQty>
-                          <FeeLineAmountSymbol>{props()!.symbol}</FeeLineAmountSymbol>
+                          <FeeLineAmountSymbol>{props!.symbol}</FeeLineAmountSymbol>
                         </FeeLineAmount>
                         <FeeLineReason>System Fee</FeeLineReason>
                       </FeeLine>
@@ -228,7 +224,7 @@ export function SendPage() {
                     <Button
                       label="cancel"
                       disabled={sending()}
-                      onClick={() => props()!.onCancel()}
+                      onClick={() => props!.onCancel()}
                       fullWidth
                       kind={EButtonKind.Additional}
                       text="Cancel"
@@ -250,20 +246,20 @@ export function SendPage() {
 
               <Match when={txnResult()!.success}>
                 <TxnSuccessPage
-                  assetId={props()!.assetId}
-                  accountId={props()!.accountId}
-                  accountName={props()!.name}
-                  accountPrincipal={props()!.principal!}
-                  accountBalance={props()!.balance}
-                  symbol={props()!.symbol}
-                  decimals={props()!.decimals}
-                  amount={amount() + props()!.fee}
+                  assetId={props!.assetId}
+                  accountId={props!.accountId}
+                  accountName={props!.name}
+                  accountPrincipal={props!.principal}
+                  accountBalance={props!.balance}
+                  symbol={props!.symbol}
+                  decimals={props!.decimals}
+                  amount={amount() + props!.fee}
                   blockId={txnResult()!.blockIdx!}
-                  onBack={() => props()!.onComplete(true)}
+                  onBack={() => props!.onComplete(true)}
                 />
               </Match>
               <Match when={!txnResult()!.success}>
-                <TxnFailPage error={txnResult()?.error!} onBack={() => props()!.onComplete(false)} />
+                <TxnFailPage error={txnResult()?.error!} onBack={() => props!.onComplete(false)} />
               </Match>
             </Switch>
           </SendPopupWrapper>

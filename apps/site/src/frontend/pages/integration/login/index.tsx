@@ -1,7 +1,7 @@
 import { For, Match, Show, Switch, createEffect, createSignal } from "solid-js";
 import { IMask, TOrigin, originToHostname } from "@fort-major/msq-shared";
 import { DismissBtn, LoginHeadingSection, LoginOptionsSection, LoginOptionsWrapper, LoginPageHeader } from "./style";
-import { useICRC35, useMsqClient } from "../../../store/global";
+import { useMsqClient } from "../../../store/global";
 import { useNavigate } from "@solidjs/router";
 import { Divider } from "../../../components/divider/style";
 import { LoginOption } from "../../../components/login-option";
@@ -10,17 +10,18 @@ import { Spoiler } from "../../../components/spoiler";
 import { ColorAccent, H1, Text } from "../../../ui-kit/typography";
 import { EIconKind, Icon } from "../../../ui-kit/icon";
 import { ROOT } from "../../../routes";
+import { useICRC35Store } from "../../../store/icrc-35";
 
 export function LoginPage() {
   const [loginOptions, setLoginOptions] = createSignal<[TOrigin, IMask[]][] | null>(null);
-  const _msq = useMsqClient();
-  const [icrc35Request] = useICRC35<undefined>();
-  const navigate = useNavigate();
-
   const [loading, setLoading] = createSignal(false);
 
+  const _msq = useMsqClient();
+  const { getIcrc35Request } = useICRC35Store();
+  const navigate = useNavigate();
+
   createEffect(async () => {
-    if (icrc35Request() === undefined) {
+    if (getIcrc35Request() === undefined) {
       navigate(ROOT.path);
       return;
     }
@@ -29,15 +30,15 @@ export function LoginPage() {
       return;
     }
 
-    const loginOptions = await _msq()!.getLoginOptions(icrc35Request()!.peerOrigin);
+    const loginOptions = await _msq()!.getLoginOptions(getIcrc35Request()!.peerOrigin);
 
     setLoginOptions(loginOptions);
   });
 
   const onLogin = async (loginOrigin: string, identityId: number) => {
-    await _msq()!.login(icrc35Request()!.peerOrigin, identityId, loginOrigin);
+    await _msq()!.login(getIcrc35Request()!.peerOrigin, identityId, loginOrigin);
 
-    icrc35Request()!.respond(true);
+    getIcrc35Request()!.respond(true);
     window.close();
   };
 
@@ -47,9 +48,9 @@ export function LoginPage() {
 
     const msq = _msq()!;
 
-    await msq.register(icrc35Request()!.peerOrigin);
+    await msq.register(getIcrc35Request()!.peerOrigin);
 
-    const loginOptions = await msq.getLoginOptions(icrc35Request()!.peerOrigin);
+    const loginOptions = await msq.getLoginOptions(getIcrc35Request()!.peerOrigin);
     setLoginOptions(loginOptions);
 
     document.body.style.cursor = "unset";
@@ -57,13 +58,13 @@ export function LoginPage() {
   };
 
   const onDismiss = () => {
-    icrc35Request()!.respond(false);
+    getIcrc35Request()!.respond(false);
 
     window.close();
   };
 
   return (
-    <Show when={icrc35Request()}>
+    <Show when={getIcrc35Request()}>
       <LoginHeadingSection>
         <DismissBtn onClick={onDismiss}>
           <Icon kind={EIconKind.ArrowLeftLong} size={12} />
@@ -73,7 +74,7 @@ export function LoginPage() {
           <H1>Choose a Mask to wear</H1>
         </LoginPageHeader>
         <Text size={20} weight={600}>
-          <span class={ColorAccent}>{originToHostname(icrc35Request()!.peerOrigin)}</span> wants you to log in
+          <span class={ColorAccent}>{originToHostname(getIcrc35Request()!.peerOrigin)}</span> wants you to log in
         </Text>
       </LoginHeadingSection>
       <LoginOptionsWrapper>
@@ -102,7 +103,7 @@ export function LoginPage() {
                   )}
                 </For>
                 <Switch>
-                  <Match when={origin === icrc35Request()!.peerOrigin}>
+                  <Match when={origin === getIcrc35Request()!.peerOrigin}>
                     <Divider />
                     <AddNewMaskBtn loading={loading()} onClick={onAddNewMask} />
                   </Match>

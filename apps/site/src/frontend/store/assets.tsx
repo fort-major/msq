@@ -16,8 +16,6 @@ import { Principal } from "@dfinity/principal";
 import { MsqIdentity } from "@fort-major/msq-client";
 import { PRE_LISTED_TOKENS, TAccountId, delay, unreacheable } from "@fort-major/msq-shared";
 import { AnonymousIdentity } from "@dfinity/agent";
-import { ISendPageProps } from "../pages/cabinet/my-assets/send";
-import { IPaymentCheckoutPageProps } from "../pages/integration/payment/checkout";
 import { useNavigate } from "@solidjs/router";
 import { ROOT } from "../routes";
 
@@ -27,29 +25,29 @@ export type IAssetDataExt = {
     principal?: string | undefined;
     balance: bigint | undefined;
   }[];
-  metadata?: IAssetMetadata | undefined;
   totalBalance: bigint;
   erroed: boolean;
 };
-// undefined == not loaded yet, null == erroed
-export type AllAssetData = Record<string, IAssetDataExt | undefined | null>;
-export type SendPagePropsStore = [Accessor<ISendPageProps | undefined>, Setter<ISendPageProps | undefined>];
-type PaymentCheckoutPageStore = [
-  Accessor<IPaymentCheckoutPageProps | undefined>,
-  Setter<IPaymentCheckoutPageProps | undefined>,
-];
+
+export type IAssetMetadataExt = {
+  metadata: IAssetMetadata;
+  erroed: boolean;
+};
+
+export type AllAssetData = Partial<Record<string, IAssetDataExt>>;
+export type AllAssetMetadata = Partial<Record<string, IAssetMetadataExt>>;
 
 export interface IAssetDataStore {
   assets: AllAssetData;
+  assetMetadata: AllAssetMetadata;
   init: (assetIds?: string[]) => Promise<void>;
-  fetch: (assetIds?: string[]) => Promise<boolean[] | undefined>;
-  refresh: (assetIds?: string[]) => Promise<void>;
+  fetchAccountInfo: (assetIds?: string[]) => Promise<boolean[] | undefined>;
+  fetchMetadata: (assetIds?: string[]) => Promise<void>;
+  refreshBalances: (assetIds?: string[]) => Promise<void>;
   addAccount: (assetId: string, assetName: string, symbol: string) => Promise<void>;
   editAccount: (assetId: string, accountId: TAccountId, newName: string) => Promise<void>;
   addAsset: (assetId: string) => Promise<void>;
   removeAssetLogo: (assetId: string) => void;
-  sendPageProps: SendPagePropsStore;
-  paymentCheckoutPageProps: PaymentCheckoutPageStore;
 }
 
 const AssetDataContext = createContext<IAssetDataStore>();
@@ -64,26 +62,6 @@ export function useAssetData(): IAssetDataStore {
   return c;
 }
 
-export function useSendPageProps(): SendPagePropsStore {
-  const c = useContext(AssetDataContext);
-
-  if (!c) {
-    unreacheable("Cabinet context is uninitialized");
-  }
-
-  return c.sendPageProps;
-}
-
-export function usePaymentCheckoutPageProps() {
-  const ctx = useContext(AssetDataContext);
-
-  if (!ctx) {
-    unreacheable("Integration context is uninitialized");
-  }
-
-  return ctx.paymentCheckoutPageProps;
-}
-
 const PRE_DEFINED_ASSETS: { assetId: string; name: string; symbol: string; decimals: number; fee: bigint }[] =
   Object.values(PRE_LISTED_TOKENS).map((it) => ({
     assetId: it.assetId,
@@ -95,8 +73,7 @@ const PRE_DEFINED_ASSETS: { assetId: string; name: string; symbol: string; decim
 
 export function AssetsStore(props: IChildren) {
   const [allAssetData, setAllAssetData] = createStore<AllAssetData>();
-  const [sendPageProps, setSendPageProps] = createSignal<ISendPageProps | undefined>(undefined);
-  const [paymentCheckoutPageProps, setPaymentCheckoutPageProps] = createSignal<IPaymentCheckoutPageProps | undefined>();
+  const [allAssetMetadata, setAllAssetMetadata] = createStore<AllAssetMetadata>();
   const [refreshPeriodically, setRefreshPeriodically] = createSignal(true);
   const [initialized, setInitialized] = createSignal(false);
   const _msq = useMsqClient();
@@ -106,7 +83,7 @@ export function AssetsStore(props: IChildren) {
     while (refreshPeriodically()) {
       await delay(ONE_MIN_MS);
 
-      if (_msq()) await refresh();
+      if (_msq()) await refreshBalances();
     }
   });
 
@@ -119,8 +96,9 @@ export function AssetsStore(props: IChildren) {
 
     await addPredefinedAssets();
 
-    await fetch();
-    await refresh();
+    await fetchAccountInfo();
+    await fetchMetadata();
+    await refreshBalances();
     setInitialized(true);
   };
 
@@ -141,7 +119,8 @@ export function AssetsStore(props: IChildren) {
     }
   };
 
-  const fetch = async (assetIds?: string[]): Promise<boolean[] | undefined> => {
+  // fetches the account info from the wallet by provided asset ids
+  const fetchAccountInfo = async (assetIds?: string[]): Promise<boolean[] | undefined> => {
     const msq = _msq()!;
 
     let fetchedAllAssetData = await msq.getAllAssetData(assetIds);
@@ -178,8 +157,8 @@ export function AssetsStore(props: IChildren) {
     return result;
   };
 
-  const refresh = async (assetIds?: string[]) => {
-    const msq = _msq()!;
+  // fetches the Metadata of the provided assets
+  const fetchMetadata = async (assetIds?: string[]) => {
     const agent = await makeAnonymousAgent();
 
     if (!assetIds) assetIds = Object.keys(allAssetData);
@@ -190,29 +169,15 @@ export function AssetsStore(props: IChildren) {
       getAssetMetadata(ledger, false)
         .then((metadata) => {
           // if we're queried for the first time, or the data is different - send an update to verify
-          if (!metadataIsEqual(metadata, allAssetData[assetId]?.metadata)) {
-            setAllAssetData(assetId, { metadata, totalBalance: 0n });
+          if (!metadataIsEqual(metadata, allAssetMetadata[assetId]?.metadata)) {
+            setAllAssetMetadata(assetId, { metadata });
             getAssetMetadata(ledger, true)
-              .then((metadata) => setAllAssetData(assetId, "metadata", metadata))
+              .then((metadata) => setAllAssetMetadata(assetId, "metadata", metadata))
               .catch((e) => {
                 console.error(e);
 
                 setAllAssetData(assetId, "erroed", true);
               });
-          }
-
-          for (let idx = 0; idx < allAssetData[assetId]!.accounts.length; idx++) {
-            MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, idx)).then((identity) => {
-              const principal = identity.getPrincipal();
-
-              setAllAssetData(assetId, "accounts", idx, "principal", principal.toText());
-
-              updateBalanceOf(ledger, assetId, idx).catch((e) => {
-                console.log(e);
-
-                setAllAssetData(assetId, "erroed", true);
-              });
-            });
           }
         })
         .catch((e) => {
@@ -220,6 +185,34 @@ export function AssetsStore(props: IChildren) {
 
           setAllAssetData(assetId, "erroed", true);
         });
+    }
+  };
+
+  // fetches balances of the wallet accounts for the specified assets
+  const refreshBalances = async (assetIds?: string[]) => {
+    const msq = _msq()!;
+    const agent = await makeAnonymousAgent();
+
+    if (!assetIds) assetIds = Object.keys(allAssetData);
+
+    for (let assetId of assetIds) {
+      const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(assetId) });
+
+      setAllAssetData(assetId, { totalBalance: 0n });
+
+      for (let idx = 0; idx < allAssetData[assetId]!.accounts.length; idx++) {
+        MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, idx)).then((identity) => {
+          const principal = identity.getPrincipal();
+
+          setAllAssetData(assetId, "accounts", idx, "principal", principal.toText());
+
+          updateBalanceOf(ledger, assetId, idx).catch((e) => {
+            console.log(e);
+
+            setAllAssetData(assetId, "erroed", true);
+          });
+        });
+      }
     }
   };
 
@@ -258,7 +251,6 @@ export function AssetsStore(props: IChildren) {
     setAllAssetData(
       produce((state) => {
         state[assetId] = {
-          metadata: undefined,
           totalBalance: 0n,
           accounts: [
             {
@@ -271,12 +263,13 @@ export function AssetsStore(props: IChildren) {
         };
       }),
     );
+    setAllAssetMetadata(assetId, { metadata: undefined, erroed: false });
 
     try {
       // first we query to be fast
       let metadata = await getAssetMetadata(ledger, false);
 
-      setAllAssetData(assetId, "metadata", metadata);
+      setAllAssetMetadata(assetId, "metadata", metadata);
 
       // then we update to be sure
       let metadataUpd = await getAssetMetadata(ledger, true);
@@ -304,10 +297,11 @@ export function AssetsStore(props: IChildren) {
 
       setAllAssetData(
         produce((state) => {
-          state[assetId]!.metadata = metadata;
           state[assetId]!.accounts[0].name = assetData[0].accounts[0];
         }),
       );
+
+      setAllAssetMetadata(assetId, "metadata", metadata);
 
       const identity = await MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, 0));
       const principal = identity.getPrincipal();
@@ -368,22 +362,22 @@ export function AssetsStore(props: IChildren) {
   };
 
   const removeAssetLogo = (assetId: string) => {
-    setAllAssetData(assetId, "metadata", "logoSrc", undefined);
+    setAllAssetMetadata(assetId, "metadata", "logoSrc", undefined);
   };
 
   return (
     <AssetDataContext.Provider
       value={{
         assets: allAssetData,
+        assetMetadata: allAssetMetadata,
         init,
-        fetch,
-        refresh,
+        fetchAccountInfo,
+        fetchMetadata,
+        refreshBalances,
         addAccount,
         editAccount,
         addAsset,
         removeAssetLogo,
-        sendPageProps: [sendPageProps, setSendPageProps],
-        paymentCheckoutPageProps: [paymentCheckoutPageProps, setPaymentCheckoutPageProps],
       }}
     >
       {props.children}
