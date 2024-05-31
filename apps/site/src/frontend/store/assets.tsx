@@ -18,6 +18,7 @@ import { PRE_LISTED_TOKENS, TAccountId, delay, unreacheable } from "@fort-major/
 import { AnonymousIdentity } from "@dfinity/agent";
 import { useNavigate } from "@solidjs/router";
 import { ROOT } from "../routes";
+import { TThirdPartyWalletKind } from "./wallets";
 
 export type IAssetDataExt = {
   accounts: {
@@ -41,6 +42,7 @@ export interface IAssetDataStore {
   assets: AllAssetData;
   assetMetadata: AllAssetMetadata;
   init: (assetIds?: string[]) => Promise<void>;
+  initThirdPartyAccountInfo: (walletKind: TThirdPartyWalletKind, accountPrincipalId: string, assetId: string) => void;
   fetchAccountInfo: (assetIds?: string[]) => Promise<boolean[] | undefined>;
   fetchMetadata: (assetIds?: string[]) => Promise<void>;
   refreshBalances: (assetIds?: string[]) => Promise<void>;
@@ -122,6 +124,7 @@ export function AssetsStore(props: IChildren) {
   // fetches the account info from the wallet by provided asset ids
   const fetchAccountInfo = async (assetIds?: string[]): Promise<boolean[] | undefined> => {
     const msq = _msq()!;
+    setAllAssetData({});
 
     let fetchedAllAssetData = await msq.getAllAssetData(assetIds);
 
@@ -155,6 +158,26 @@ export function AssetsStore(props: IChildren) {
     setAllAssetData(allAssetData);
 
     return result;
+  };
+
+  const initThirdPartyAccountInfo = async (
+    walletKind: TThirdPartyWalletKind,
+    accountPrincipalId: string,
+    assetId: string,
+  ) => {
+    setAllAssetData({
+      [assetId]: {
+        totalBalance: BigInt(0),
+        erroed: false,
+        accounts: [
+          {
+            name: `${walletKind} wallet account`,
+            principal: accountPrincipalId,
+            balance: undefined,
+          },
+        ],
+      },
+    });
   };
 
   // fetches the Metadata of the provided assets
@@ -371,6 +394,7 @@ export function AssetsStore(props: IChildren) {
         assets: allAssetData,
         assetMetadata: allAssetMetadata,
         init,
+        initThirdPartyAccountInfo,
         fetchAccountInfo,
         fetchMetadata,
         refreshBalances,

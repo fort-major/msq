@@ -29,8 +29,7 @@ import { EIconKind } from "../../../ui-kit/icon";
 import { IReceivePopupProps, ReceivePopup } from "../../cabinet/my-assets/receive";
 import { IPaymentCheckoutPageProps } from "./checkout";
 import { useAssetData } from "../../../store/assets";
-import { ROOT, useCurrentRouteProps } from "../../../routes";
-import { ICRC35AsyncRequest } from "@fort-major/msq-client";
+import { ROOT } from "../../../routes";
 import { useThirdPartyWallet } from "../../../store/wallets";
 import { useICRC35Store } from "../../../store/icrc-35";
 
@@ -39,8 +38,16 @@ export function PaymentPage() {
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
   const [loading, setLoading] = createSignal(false);
 
-  const { assets, assetMetadata, fetchMetadata, fetchAccountInfo, refreshBalances, addAsset, addAccount } =
-    useAssetData();
+  const {
+    initThirdPartyAccountInfo,
+    assets,
+    assetMetadata,
+    fetchMetadata,
+    fetchAccountInfo,
+    refreshBalances,
+    addAsset,
+    addAccount,
+  } = useAssetData();
   const msq = useMsqClient();
   const { getIcrc35Request } = useICRC35Store();
   const navigate = useNavigate();
@@ -158,21 +165,24 @@ export function PaymentPage() {
   };
 
   const handleConnectPlug = async () => {
-    await connectWallet("plug");
+    await connectWallet("Plug");
+    const prin = await connectedWallets()["Plug"]!.getPrincipal();
 
-    console.log("Plug connected", await connectedWallets()["plug"]?.getPrincipal());
+    initThirdPartyAccountInfo("Plug", prin.toText(), getAssetId()!);
   };
 
   const handleConnectBitfinity = async () => {
-    await connectWallet("bitfinity");
+    await connectWallet("Bitfinity");
+    const prin = await connectedWallets()["Bitfinity"]!.getPrincipal();
 
-    console.log("Bitfinity connected", await connectedWallets()["bitfinity"]?.getPrincipal());
+    initThirdPartyAccountInfo("Bitfinity", prin.toText(), getAssetId()!);
   };
 
   const handleConnectNNS = async () => {
-    await connectWallet("nns");
+    await connectWallet("NNS");
+    const prin = await connectedWallets()["NNS"]!.getPrincipal();
 
-    console.log("NNS connected", await connectedWallets()["nns"]?.getPrincipal());
+    initThirdPartyAccountInfo("NNS", prin.toText(), getAssetId()!);
   };
 
   return (

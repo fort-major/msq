@@ -9,8 +9,9 @@ import {
   connectPlugWallet,
 } from "../utils/wallets";
 import { IChildren } from "../utils";
+import { useAssetData } from "./assets";
 
-export type TThirdPartyWalletKind = "nns" | "plug" | "bitfinity";
+export type TThirdPartyWalletKind = "NNS" | "Plug" | "Bitfinity";
 export type ConnectedWalletsStore = Accessor<Partial<Record<TThirdPartyWalletKind, IWallet>>>;
 
 interface IThirdPartyWalletsContext {
@@ -32,22 +33,26 @@ export function useThirdPartyWallet(): IThirdPartyWalletsContext {
 
 export function ThirdPartyWalletStore(props: IChildren) {
   const [connectedWallets, setConnectedWallets] = createSignal<Partial<Record<TThirdPartyWalletKind, IWallet>>>({});
+  const { initThirdPartyAccountInfo } = useAssetData();
 
   const connectWallet = async (kind: TThirdPartyWalletKind) => {
     let result: Result<IWallet, WalletError>;
 
     switch (kind) {
-      case "plug":
+      case "Plug":
         result = await connectPlugWallet();
         break;
 
-      case "bitfinity":
+      case "Bitfinity":
         result = await connectBitfinityWallet();
         break;
 
-      case "nns":
+      case "NNS":
         result = await connectNNSWallet();
         break;
+
+      default:
+        unreacheable("Invalid wallet kind");
     }
 
     if ("Err" in result) {
