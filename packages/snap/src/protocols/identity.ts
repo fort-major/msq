@@ -27,7 +27,6 @@ import {
   ZIdentityUnlinkAllRequest,
   ZIdentityGetPublicKeyRequest,
   bytesToHex,
-  calculateMSQFee,
   IHttpAgentRequest,
   IOriginData,
   tokensToStr,
@@ -678,11 +677,6 @@ async function assertIcrc1TransferAcknowledged(
   // will fail, if not icrc1_transfer args are used
   const [icrc1Request] = IDL.decode([ICRC1_TRANSFER_ARGS_SCHEMA], arg) as unknown as [ICRC1TransferArgs];
 
-  // do not trigger, when sending MSQ fees (when the recepient is our hard-coded account)
-  const [_, chargingAccountId] = calculateMSQFee(req.canister_id, icrc1Request.amount);
-  const sendingMSQFees = icrc1Request.to.owner.toText() === chargingAccountId;
-  if (sendingMSQFees) return;
-
   // prompt the user with a consent message
   const totalAmountStr = tokensToStr(icrc1Request.amount + assetData.fee, assetData.decimals, false, true);
 
@@ -709,7 +703,6 @@ async function assertIcrc1TransferAcknowledged(
         text(toSubaccountStr),
         text("**Total amount:**"),
         heading(`${totalAmountStr} ${assetData.symbol}`),
-        text("*additional fees may apply*"),
         divider(),
         heading("🚨 BE CAREFUL! 🚨"),
         text("This action is irreversible. You won't be able to recover your funds!"),
