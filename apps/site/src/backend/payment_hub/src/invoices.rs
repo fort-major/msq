@@ -72,8 +72,8 @@ pub struct InvoicesState {
 
 impl InvoicesState {
     #[inline]
-    pub fn init_id_seed(&mut self, seed: Vec<u8>) {
-        self.generate_id(&seed);
+    pub fn init_id_seed(&mut self, seed: &[u8]) {
+        self.invoice_id_generator.copy_from_slice(seed);
     }
 
     pub fn create(
@@ -93,7 +93,7 @@ impl InvoicesState {
             correlation_id,
         };
 
-        let id = self.generate_id(&inv.created_at.to_le_bytes());
+        let id = self.generate_id(&timestamp.to_le_bytes());
 
         match self.active_invoices.entry(inv.exchange_rates_timestamp) {
             Entry::Occupied(mut e) => {
@@ -272,8 +272,8 @@ impl InvoicesState {
 
     fn generate_id(&mut self, salt: &[u8]) -> InvoiceId {
         blake3::Hasher::new()
-            .update(ID_GENERATION_DOMAIN)
             .update(&self.invoice_id_generator)
+            .update(ID_GENERATION_DOMAIN)
             .update(salt)
             .finalize()
             .into()
@@ -307,7 +307,7 @@ pub fn garbage_collect_invoices() {
 pub async fn init_invoice_ids_seed() {
     let (rand,) = raw_rand().await.unwrap();
 
-    INVOICES_STATE.with(|it| it.borrow_mut().init_id_seed(rand));
+    INVOICES_STATE.with(|it| it.borrow_mut().init_id_seed(&rand));
 }
 
 // ----------------------- API -------------------------
