@@ -13,6 +13,7 @@ export function IndexPage(props: IChildren) {
 
   createEffect(() => {
     const route = findRoute(location.pathname)!;
+    console.log(route);
 
     if (route.features?.onlyWithMsqWallet) {
       if (!route.features.mobile && isMobile().any) {
@@ -24,7 +25,7 @@ export function IndexPage(props: IChildren) {
       if (!attemptedMsqConnect() && !isConnectingMsq()) {
         setConnectingMsq(true);
 
-        connectMsq()
+        connectMsq(true, true)
           .then(() => {
             setAttemptedMsqConnect(true);
             setConnectingMsq(false);

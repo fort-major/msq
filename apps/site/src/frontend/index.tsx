@@ -4,6 +4,7 @@ import "./ui-kit/index";
 
 /* @refresh reload */
 import { render } from "solid-js/web";
+import { Toaster } from "solid-toast";
 import { Header } from "./components/header";
 import { Root, Page } from "./ui-kit";
 import { Router, useLocation, useNavigate } from "@solidjs/router";
@@ -64,8 +65,8 @@ export function App(props: IChildren) {
   try {
     return (
       <GlobalStore>
-        <ThirdPartyWalletStore>
-          <AssetsStore>
+        <AssetsStore>
+          <ThirdPartyWalletStore>
             <OriginDataStore>
               <ICRC35Store>
                 <Root>
@@ -75,12 +76,13 @@ export function App(props: IChildren) {
                     {props.children}
                   </Page>
                   <LoaderWrapper />
+                  <Toaster />
                   <ContactUsBtn />
                 </Root>
               </ICRC35Store>
             </OriginDataStore>
-          </AssetsStore>
-        </ThirdPartyWalletStore>
+          </ThirdPartyWalletStore>
+        </AssetsStore>
       </GlobalStore>
     );
   } catch (e) {
@@ -101,4 +103,6 @@ export function App(props: IChildren) {
   }
 }
 
-render(() => <Router root={App}>{getSolidRoutes()}</Router>, root!);
+const routes = getSolidRoutes();
+
+render(() => <Router root={App}>{routes}</Router>, root!);

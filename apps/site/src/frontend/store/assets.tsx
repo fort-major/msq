@@ -42,7 +42,11 @@ export interface IAssetDataStore {
   assets: AllAssetData;
   assetMetadata: AllAssetMetadata;
   init: (assetIds?: string[]) => Promise<void>;
-  initThirdPartyAccountInfo: (walletKind: TThirdPartyWalletKind, accountPrincipalId: string, assetId: string) => void;
+  initThirdPartyAccountInfo: (
+    walletKind: TThirdPartyWalletKind,
+    accountPrincipalId: string,
+    assetIds: string[],
+  ) => void;
   fetchAccountInfo: (assetIds?: string[]) => Promise<boolean[] | undefined>;
   fetchMetadata: (assetIds?: string[]) => Promise<void>;
   refreshBalances: (assetIds?: string[]) => Promise<void>;
@@ -139,8 +143,6 @@ export function AssetsStore(props: IChildren) {
 
     const allAssetDataKeys = Object.keys(fetchedAllAssetData);
 
-    const allAssetData = fetchedAllAssetData as unknown as AllAssetData;
-
     const result: boolean[] | undefined = assetIds?.map((_) => false);
 
     for (let idx = 0; idx < allAssetDataKeys.length; idx++) {
@@ -148,11 +150,19 @@ export function AssetsStore(props: IChildren) {
 
       if (result && assetIds!.includes(key)) result[idx] = true;
 
-      allAssetData[key]!.accounts = fetchedAllAssetData[key]!.accounts.map((it) => ({
+      const accounts = fetchedAllAssetData[key]!.accounts.map((it) => ({
         name: it,
         balance: undefined,
       }));
-      allAssetData[key]!.totalBalance = BigInt(0);
+
+      setAllAssetData(key, "accounts", accounts);
+      setAllAssetData(key, "totalBalance", BigInt(0));
+
+      MsqIdentity.create(msq.getInner(), makeIcrc1Salt(key, idx)).then((identity) => {
+        const principal = identity.getPrincipal();
+
+        setAllAssetData(key, "accounts", idx, "principal", principal.toText());
+      });
     }
 
     setAllAssetData(allAssetData);
@@ -163,21 +173,27 @@ export function AssetsStore(props: IChildren) {
   const initThirdPartyAccountInfo = async (
     walletKind: TThirdPartyWalletKind,
     accountPrincipalId: string,
-    assetId: string,
+    assetIds: string[],
   ) => {
-    setAllAssetData({
-      [assetId]: {
-        totalBalance: BigInt(0),
-        erroed: false,
-        accounts: [
-          {
-            name: `${walletKind} wallet account`,
-            principal: accountPrincipalId,
-            balance: undefined,
+    const allAssetData = assetIds.reduce(
+      (prev, cur) =>
+        Object.assign(prev, {
+          [cur]: {
+            totalBalance: BigInt(0),
+            erroed: false,
+            accounts: [
+              {
+                name: `${walletKind} wallet account`,
+                principal: accountPrincipalId,
+                balance: undefined,
+              },
+            ],
           },
-        ],
-      },
-    });
+        }),
+      {},
+    );
+
+    setAllAssetData(allAssetData);
   };
 
   // fetches the Metadata of the provided assets
@@ -213,7 +229,6 @@ export function AssetsStore(props: IChildren) {
 
   // fetches balances of the wallet accounts for the specified assets
   const refreshBalances = async (assetIds?: string[]) => {
-    const msq = _msq()!;
     const agent = await makeAnonymousAgent();
 
     if (!assetIds) assetIds = Object.keys(allAssetData);
@@ -224,16 +239,10 @@ export function AssetsStore(props: IChildren) {
       setAllAssetData(assetId, { totalBalance: 0n });
 
       for (let idx = 0; idx < allAssetData[assetId]!.accounts.length; idx++) {
-        MsqIdentity.create(msq.getInner(), makeIcrc1Salt(assetId, idx)).then((identity) => {
-          const principal = identity.getPrincipal();
+        updateBalanceOf(ledger, assetId, idx).catch((e) => {
+          console.log(e);
 
-          setAllAssetData(assetId, "accounts", idx, "principal", principal.toText());
-
-          updateBalanceOf(ledger, assetId, idx).catch((e) => {
-            console.log(e);
-
-            setAllAssetData(assetId, "erroed", true);
-          });
+          setAllAssetData(assetId, "erroed", true);
         });
       }
     }

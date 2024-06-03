@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createSignal } from "solid-js";
+import { For, Show, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { useMsqClient } from "../../../store/global";
 import { useLocation, useNavigate } from "@solidjs/router";
 import { Principal } from "@dfinity/principal";
@@ -18,6 +18,7 @@ import {
   ErrorCode,
   IICRC1TransferRequest,
   TAccountId,
+  delay,
   err,
   originToHostname,
   tokensToStr,
@@ -30,30 +31,28 @@ import { IReceivePopupProps, ReceivePopup } from "../../cabinet/my-assets/receiv
 import { IPaymentCheckoutPageProps } from "./checkout";
 import { useAssetData } from "../../../store/assets";
 import { ROOT } from "../../../routes";
-import { useThirdPartyWallet } from "../../../store/wallets";
+import { TThirdPartyWalletKind, useThirdPartyWallet } from "../../../store/wallets";
 import { useICRC35Store } from "../../../store/icrc-35";
 
 export function PaymentPage() {
   const [selectedAccountId, setSelectedAccountId] = createSignal<TAccountId>(0);
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
   const [loading, setLoading] = createSignal(false);
+  const [refreshing, setRefreshing] = createSignal<boolean | undefined>(false);
 
-  const {
-    initThirdPartyAccountInfo,
-    assets,
-    assetMetadata,
-    fetchMetadata,
-    fetchAccountInfo,
-    refreshBalances,
-    addAsset,
-    addAccount,
-  } = useAssetData();
-  const msq = useMsqClient();
+  const { assets, assetMetadata, fetchMetadata, fetchAccountInfo, refreshBalances, addAsset, addAccount } =
+    useAssetData();
   const { getIcrc35Request } = useICRC35Store();
   const navigate = useNavigate();
-  const { connectWallet, connectedWallets } = useThirdPartyWallet();
+  const { connectWallet, initWallet, connectedWallet, setWalletAccount } = useThirdPartyWallet();
 
   const getAssetId = () => getIcrc35Request<IICRC1TransferRequest>()!.payload.canisterId;
+
+  createEffect(() => {
+    if (connectedWallet() && connectedWallet()![0] === "MSQ") {
+      setWalletAccount(getAssetId(), selectedAccountId());
+    }
+  });
 
   createEffect(async () => {
     if (!getIcrc35Request()) {
@@ -72,8 +71,12 @@ export function PaymentPage() {
     const assetId = getAssetId()!;
 
     await fetchMetadata([assetId]);
+  });
 
-    if (!msq()) {
+  createEffect(async () => {
+    const assetId = getAssetId()!;
+
+    if (connectedWalletIsThirdParty()) {
       return;
     }
 
@@ -85,6 +88,21 @@ export function PaymentPage() {
     }
 
     await refreshBalances!([assetId]);
+  });
+
+  createEffect(async () => {
+    if (connectedWallet() && refreshing() === false) {
+      setRefreshing(true);
+
+      while (refreshing() !== undefined) {
+        await delay(2000);
+        await refreshBalances!([getAssetId()]);
+      }
+    }
+  });
+
+  onCleanup(() => {
+    setRefreshing(undefined);
   });
 
   const handleAddAccount = async (assetId: string, assetName: string, symbol: string) => {
@@ -112,10 +130,6 @@ export function PaymentPage() {
     setReceivePopupProps(null);
   };
 
-  const handleCheckoutBack = () => {
-    window.close();
-  };
-
   const handleCheckoutStart = (accountId: TAccountId) => {
     const assetId = getAssetId()!;
     const asset = assets[assetId]!;
@@ -140,49 +154,28 @@ export function PaymentPage() {
       recepientSubaccount: req.payload.to.subaccount,
       memo: req.payload.memo,
       createdAt: req.payload.createdAt,
-
-      onSuccess: handleCheckoutSuccess,
-      onFail: handleCheckoutFail,
-      onCancel: handleCheckoutCancel,
-      onBack: handleCheckoutBack,
     };
 
     navigate(ROOT["/"].integration["/"].pay["/"].checkout.path, { state: p });
   };
 
-  const handleCheckoutSuccess = (blockId: bigint) => {
-    getIcrc35Request()!.respond(blockId);
-    getIcrc35Request()!.closeConnection();
+  const handleCheckoutBack = () => {
+    window.close();
   };
 
-  const handleCheckoutFail = () => {
-    getIcrc35Request()!.respond(undefined);
-    getIcrc35Request()!.closeConnection();
+  const handleConnectWallet = async (kind: TThirdPartyWalletKind) => {
+    await connectWallet(kind);
+    await initWallet([getAssetId()]);
   };
 
-  const handleCheckoutCancel = () => {
-    navigate(ROOT["/"].integration["/"].pay.path, { replace: true });
-  };
+  const connectedWalletIsThirdParty = () => {
+    const connected = connectedWallet();
 
-  const handleConnectPlug = async () => {
-    await connectWallet("Plug");
-    const prin = await connectedWallets()["Plug"]!.getPrincipal();
+    // not entirely true, but will work for now
+    if (!connected) return true;
+    const [kind, _] = connected;
 
-    initThirdPartyAccountInfo("Plug", prin.toText(), getAssetId()!);
-  };
-
-  const handleConnectBitfinity = async () => {
-    await connectWallet("Bitfinity");
-    const prin = await connectedWallets()["Bitfinity"]!.getPrincipal();
-
-    initThirdPartyAccountInfo("Bitfinity", prin.toText(), getAssetId()!);
-  };
-
-  const handleConnectNNS = async () => {
-    await connectWallet("NNS");
-    const prin = await connectedWallets()["NNS"]!.getPrincipal();
-
-    initThirdPartyAccountInfo("NNS", prin.toText(), getAssetId()!);
+    return kind === "NNS" || kind === "Plug" || kind === "Bitfinity";
   };
 
   return (
@@ -203,9 +196,12 @@ export function PaymentPage() {
                 )}{" "}
                 {assetMetadata[getAssetId()!]!.metadata!.symbol}
               </H3>
-              <button onClick={handleConnectPlug}>Connect Plug</button>
-              <button onClick={handleConnectBitfinity}>Connect Bitfinity</button>
-              <button onClick={handleConnectNNS}>Connect NNS</button>
+              <Show when={!connectedWallet()}>
+                <button onClick={() => handleConnectWallet("MSQ")}>Connect MSQ</button>
+                <button onClick={() => handleConnectWallet("NNS")}>Connect NNS</button>
+                <button onClick={() => handleConnectWallet("Plug")}>Connect Plug</button>
+                <button onClick={() => handleConnectWallet("Bitfinity")}>Connect Bitfinity</button>
+              </Show>
             </Show>
           </PaymentPageHeading>
           <Show when={assets[getAssetId()!]?.accounts && assetMetadata[getAssetId()!]?.metadata}>
@@ -235,18 +231,20 @@ export function PaymentPage() {
                     )}
                   </For>
                 </PaymentPageAccounts>
-                <AddAccountBtn
-                  disabled={loading()}
-                  loading={loading()}
-                  symbol={assetMetadata[getAssetId()!]!.metadata!.symbol}
-                  onClick={() =>
-                    handleAddAccount(
-                      getIcrc35Request<IICRC1TransferRequest>()!.payload.canisterId,
-                      assetMetadata[getAssetId()!]!.metadata!.name,
-                      assetMetadata[getAssetId()!]!.metadata!.symbol,
-                    )
-                  }
-                />
+                <Show when={!connectedWalletIsThirdParty()}>
+                  <AddAccountBtn
+                    disabled={loading()}
+                    loading={loading()}
+                    symbol={assetMetadata[getAssetId()!]!.metadata!.symbol}
+                    onClick={() =>
+                      handleAddAccount(
+                        getIcrc35Request<IICRC1TransferRequest>()!.payload.canisterId,
+                        assetMetadata[getAssetId()!]!.metadata!.name,
+                        assetMetadata[getAssetId()!]!.metadata!.symbol,
+                      )
+                    }
+                  />
+                </Show>
               </PaymentPageAccountsWrapper>
               <PaymentPageButtons>
                 <Button

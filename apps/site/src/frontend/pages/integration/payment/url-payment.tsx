@@ -44,7 +44,7 @@ interface UrlBasedICRC1TransferRequest {
 }
 
 export function UrlBasedPaymentPage() {
-  const msq = useMsqClient();
+  /*   const msq = useMsqClient();
   const { assets, assetMetadata, fetchAccountInfo, fetchMetadata, refreshBalances, addAsset, addAccount } =
     useAssetData();
   const [selectedAccountId, setSelectedAccountId] = createSignal<TAccountId>(0);
@@ -158,10 +158,11 @@ export function UrlBasedPaymentPage() {
     };
 
     navigate(ROOT["/"].pay["/"].send.path, { state: p });
-  };
+  }; */
 
   return (
-    <Show when={transferRequest()}>
+    <></>
+    /*     <Show when={transferRequest()}>
       <PaymentPageContainer>
         <PaymentPageWrapper>
           <PaymentPageHeading>
@@ -259,6 +260,6 @@ export function UrlBasedPaymentPage() {
           <ReceivePopup {...receivePopupProps()!} />
         </Show>
       </PaymentPageContainer>
-    </Show>
+    </Show> */
   );
 }

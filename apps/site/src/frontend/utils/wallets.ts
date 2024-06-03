@@ -1,7 +1,7 @@
 import { InternalSnapClient, MsqClient, MsqIdentity, TMsqCreateOk } from "@fort-major/msq-client";
-import { PRE_LISTED_TOKENS, Principal, unreacheable } from "@fort-major/msq-shared";
-import { getIcHostOrDefault, makeAgent } from ".";
-import { Actor, HttpAgent } from "@dfinity/agent";
+import { PRE_LISTED_TOKENS, Principal, TAccountId } from "@fort-major/msq-shared";
+import { assertIs, getIcHostOrDefault, makeAgent, makeIcrc1Salt } from ".";
+import { Actor, HttpAgent, Identity } from "@dfinity/agent";
 import { AuthClient } from "@dfinity/auth-client";
 import { AccountIdentifier } from "@dfinity/ledger-icp";
 
@@ -77,30 +77,66 @@ export async function connectMSQWallet(): Promise<Result<InternalSnapClient, Wal
   return { Ok: client };
 }
 
+export async function msqToIWallet(
+  client: InternalSnapClient,
+  assetId: string,
+  accountId: TAccountId,
+): Promise<IWallet> {
+  const createIdentity: () => Promise<Identity> = () => {
+    return MsqIdentity.create(client.getInner(), makeIcrc1Salt(assetId, accountId));
+  };
+
+  return {
+    getPrincipal: () => createIdentity().then((it) => it.getPrincipal()),
+    getAccountId: () =>
+      createIdentity().then((it) => AccountIdentifier.fromPrincipal({ principal: it.getPrincipal() }).toHex()),
+    createActor: async <T extends Actor>(args: CreateActorArgs) => {
+      const identity = await createIdentity();
+      const agent = await makeAgent(identity, getIcHostOrDefault());
+
+      return Actor.createActor<T>(args.interfaceFactory, {
+        agent,
+        canisterId: args.canisterId,
+      });
+    },
+  };
+}
+
 // connects the plug wallet and returns a common interface
 export async function connectPlugWallet(): Promise<Result<IWallet, WalletError>> {
-  const w = window as { ic?: { plug?: PlugProvider } };
+  assertIs<{ ic?: { plug?: PlugProvider } }>(window);
 
-  if (!w.ic?.plug) {
+  if (!window.ic?.plug) {
     return { Err: WalletError.WalletNotInstalled };
   }
 
-  if (w.ic.plug.sessionManager?.sessionData && (await w.ic.plug.isConnected())) {
-    return {
-      Ok: {
-        getPrincipal: async () => Principal.fromText(w.ic?.plug?.sessionManager?.sessionData?.principalId!),
-        getAccountId: async () => w.ic?.plug?.sessionManager?.sessionData?.accountId!,
-        createActor: async <T extends Actor>(args: CreateActorArgs) =>
-          Actor.createActor<T>(args.interfaceFactory, {
-            agent: w.ic?.plug?.sessionManager?.sessionData?.agent!,
-            canisterId: args.canisterId,
-          }),
-      },
-    };
+  const wallet = {
+    getPrincipal: async () => {
+      assertIs<{ ic?: { plug?: PlugProvider } }>(window);
+
+      return Principal.fromText(window.ic?.plug?.sessionManager?.sessionData?.principalId!);
+    },
+    getAccountId: async () => {
+      assertIs<{ ic?: { plug?: PlugProvider } }>(window);
+
+      return window.ic?.plug?.sessionManager?.sessionData?.accountId!;
+    },
+    createActor: async <T extends Actor>(args: CreateActorArgs) => {
+      assertIs<{ ic?: { plug?: PlugProvider } }>(window);
+
+      return Actor.createActor<T>(args.interfaceFactory, {
+        agent: window.ic?.plug?.sessionManager?.sessionData?.agent!,
+        canisterId: args.canisterId,
+      });
+    },
+  };
+
+  if (await window.ic.plug.isConnected()) {
+    return { Ok: wallet };
   }
 
   try {
-    await w.ic.plug.requestConnect({
+    await window.ic.plug.requestConnect({
       whitelist: Object.keys(PRE_LISTED_TOKENS),
       host: getIcHostOrDefault(),
     });
@@ -110,40 +146,41 @@ export async function connectPlugWallet(): Promise<Result<IWallet, WalletError>>
     return { Err: WalletError.ConnectionRejected };
   }
 
-  return {
-    Ok: {
-      getPrincipal: async () => Principal.fromText(w.ic?.plug?.sessionManager?.sessionData?.principalId!),
-      getAccountId: async () => w.ic?.plug?.sessionManager?.sessionData?.accountId!,
-      createActor: async <T extends Actor>(args: CreateActorArgs) =>
-        Actor.createActor<T>(args.interfaceFactory, {
-          agent: w.ic?.plug?.sessionManager?.sessionData?.agent!,
-          canisterId: args.canisterId,
-        }),
-    },
-  };
+  return { Ok: wallet };
 }
 
 // connects the bitfinity wallet and returns a common interface
 export async function connectBitfinityWallet(): Promise<Result<IWallet, WalletError>> {
-  const w = window as { ic?: { bitfinityWallet?: BitfinityProvider } };
+  assertIs<{ ic?: { bitfinityWallet?: BitfinityProvider } }>(window);
 
-  if (!w.ic?.bitfinityWallet) {
+  if (!window.ic?.bitfinityWallet) {
     return { Err: WalletError.WalletNotInstalled };
   }
 
-  if (await w.ic.bitfinityWallet.isConnected()) {
-    return {
-      Ok: {
-        getPrincipal: w.ic.bitfinityWallet.getPrincipal,
-        getAccountId: w.ic.bitfinityWallet.getAccountId,
-        createActor: (args: CreateActorArgs) =>
-          w.ic!.bitfinityWallet!.createActor!({ ...args, host: getIcHostOrDefault() }),
-      },
-    };
+  const wallet = {
+    getPrincipal: () => {
+      assertIs<{ ic?: { bitfinityWallet?: BitfinityProvider } }>(window);
+
+      return window.ic!.bitfinityWallet!.getPrincipal();
+    },
+    getAccountId: () => {
+      assertIs<{ ic?: { bitfinityWallet?: BitfinityProvider } }>(window);
+
+      return window.ic!.bitfinityWallet!.getAccountId();
+    },
+    createActor: <T extends Actor>(args: CreateActorArgs) => {
+      assertIs<{ ic?: { bitfinityWallet?: BitfinityProvider } }>(window);
+
+      return window.ic!.bitfinityWallet!.createActor!({ ...args, host: getIcHostOrDefault() }) as Promise<T>;
+    },
+  };
+
+  if (await window.ic.bitfinityWallet.isConnected()) {
+    return { Ok: wallet };
   }
 
   try {
-    await w.ic.bitfinityWallet.requestConnect({
+    await window.ic.bitfinityWallet.requestConnect({
       whitelist: Object.keys(PRE_LISTED_TOKENS),
     });
   } catch (e) {
@@ -152,32 +189,28 @@ export async function connectBitfinityWallet(): Promise<Result<IWallet, WalletEr
     return { Err: WalletError.ConnectionRejected };
   }
 
-  return {
-    Ok: {
-      getPrincipal: w.ic.bitfinityWallet.getPrincipal,
-      getAccountId: w.ic.bitfinityWallet.getAccountId,
-      createActor: (args: CreateActorArgs) =>
-        w.ic!.bitfinityWallet!.createActor!({ ...args, host: getIcHostOrDefault() }),
-    },
-  };
+  return { Ok: wallet };
 }
 
 // logs in through the II and returns a common interface
 export async function connectNNSWallet(): Promise<Result<IWallet, WalletError>> {
+  const wallet = {
+    getPrincipal: async () => (await AuthClient.create()).getIdentity().getPrincipal(),
+    getAccountId: async () =>
+      AccountIdentifier.fromPrincipal({
+        principal: (await AuthClient.create()).getIdentity().getPrincipal(),
+      }).toHex(),
+    createActor: async <T extends Actor>(args: CreateActorArgs) =>
+      Actor.createActor<T>(args.interfaceFactory, {
+        agent: await makeAgent((await AuthClient.create()).getIdentity(), getIcHostOrDefault()),
+        canisterId: args.canisterId,
+      }),
+  };
+
   const client = await AuthClient.create();
 
   if (await client.isAuthenticated()) {
-    const identity = client.getIdentity();
-    const agent = await makeAgent(identity, getIcHostOrDefault());
-
-    return {
-      Ok: {
-        getPrincipal: agent.getPrincipal,
-        getAccountId: async () => AccountIdentifier.fromPrincipal({ principal: await agent.getPrincipal() }).toHex(),
-        createActor: async <T extends Actor>(args: CreateActorArgs) =>
-          Actor.createActor<T>(args.interfaceFactory, { agent, canisterId: args.canisterId }),
-      },
-    };
+    return { Ok: wallet };
   }
 
   try {
@@ -188,15 +221,5 @@ export async function connectNNSWallet(): Promise<Result<IWallet, WalletError>> 
     return { Err: WalletError.ConnectionRejected };
   }
 
-  const identity = client.getIdentity();
-  const agent = await makeAgent(identity, getIcHostOrDefault());
-
-  return {
-    Ok: {
-      getPrincipal: agent.getPrincipal,
-      getAccountId: async () => AccountIdentifier.fromPrincipal({ principal: await agent.getPrincipal() }).toHex(),
-      createActor: async <T extends Actor>(args: CreateActorArgs) =>
-        Actor.createActor<T>(args.interfaceFactory, { agent, canisterId: args.canisterId }),
-    },
-  };
+  return { Ok: wallet };
 }

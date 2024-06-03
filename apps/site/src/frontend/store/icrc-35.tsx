@@ -16,7 +16,7 @@ export function useICRC35Store(): IICRC35Context {
   const ctx = useContext(ICRC35Context);
 
   if (!ctx) {
-    unreacheable("Third party wallet context is uninitialized");
+    unreacheable("ICRC35 context is uninitialized");
   }
 
   return ctx;

@@ -1,12 +1,4 @@
-import {
-  Principal,
-  TAccountId,
-  bytesToHex,
-  calculateMSQFee,
-  debugStringify,
-  log,
-  tokensToStr,
-} from "@fort-major/msq-shared";
+import { Principal, TAccountId, bytesToHex, debugStringify, tokensToStr, unreacheable } from "@fort-major/msq-shared";
 import { AccountCard } from "../../../../components/account-card";
 import { H3, H5, Text } from "../../../../ui-kit/typography";
 import {
@@ -27,17 +19,19 @@ import {
 } from "./style";
 import { EIconKind, Icon } from "../../../../ui-kit/icon";
 import { Match, Show, Switch, createSignal, onMount } from "solid-js";
-import { makeAgent, makeIcrc1Salt } from "../../../../utils";
+import { assertIs } from "../../../../utils";
 import { Button, EButtonKind } from "../../../../ui-kit/button";
 import { useNavigate } from "@solidjs/router";
-import { useMsqClient } from "../../../../store/global";
-import { MsqIdentity } from "@fort-major/msq-client";
-import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { ITxnResult } from "../../../cabinet/my-assets/send";
 import { TxnFailPage } from "../../../txn/fail";
 import { TxnSuccessPage } from "../../../txn/success";
 import { COLOR_ACCENT, COLOR_GRAY_140, COLOR_GRAY_165 } from "../../../../ui-kit";
 import { ROOT, useCurrentRouteProps } from "../../../../routes";
+import { useThirdPartyWallet } from "../../../../store/wallets";
+import { IWallet } from "../../../../utils/wallets";
+import { ICRC1IDLFactory, ICRC1Token } from "../../../../utils/icrc-1";
+import { Actor } from "@dfinity/agent";
+import { useICRC35Store } from "../../../../store/icrc-35";
 
 export interface IPaymentCheckoutPageProps {
   accountId: TAccountId;
@@ -57,18 +51,15 @@ export interface IPaymentCheckoutPageProps {
   recepientSubaccount?: Uint8Array;
   memo?: Uint8Array;
   createdAt?: bigint;
-
-  onSuccess(blockId: bigint): void;
-  onFail(): void;
-  onCancel(): void;
-  onBack(): void;
 }
 
 export function PaymentCheckoutPage() {
   const props = useCurrentRouteProps<IPaymentCheckoutPageProps>();
-  const [loading, setLoading] = createSignal(false);
-  const msq = useMsqClient();
+  const { connectedWallet } = useThirdPartyWallet();
   const navigate = useNavigate();
+  const { getIcrc35Request } = useICRC35Store();
+
+  const [loading, setLoading] = createSignal(false);
   const [txnResult, setTxnResult] = createSignal<ITxnResult | null>(null);
   const [principalCopied, setPrincipalCopied] = createSignal(false);
   const [subaccountCopied, setSubaccountCopied] = createSignal(false);
@@ -76,6 +67,7 @@ export function PaymentCheckoutPage() {
 
   onMount(() => {
     if (!props) navigate(ROOT.path, { replace: true });
+    if (!connectedWallet() || !connectedWallet()![1]) unreacheable("The wallet is not connected properly");
   });
 
   const handleCopyRecipientPrincipal = () => {
@@ -93,69 +85,83 @@ export function PaymentCheckoutPage() {
     setMemoCopied(true);
   };
 
-  const [msqFee, msqRecipientId] = calculateMSQFee(props!.assetId, props!.amount);
-
-  const calcSystemFee = () => (msqRecipientId ? props!.fee * 2n : props!.fee);
-
-  const calcTotalAmount = () => props!.amount + msqFee + calcSystemFee();
+  const calcSystemFee = () => props!.fee;
+  const calcTotalAmount = () => props!.amount + calcSystemFee();
 
   const handlePay = async () => {
+    const [_, wallet] = connectedWallet()!;
+    assertIs<IPaymentCheckoutPageProps>(props);
+
     setLoading(true);
     document.body.style.cursor = "wait";
 
     const totalAmount = calcTotalAmount();
     const totalAmountStr = tokensToStr(totalAmount, props!.decimals, undefined, true);
 
-    const identity = await MsqIdentity.create(msq()!.getInner(), makeIcrc1Salt(props!.assetId, props!.accountId));
-    const agent = await makeAgent(identity);
-    const ledger = IcrcLedgerCanister.create({ agent, canisterId: Principal.fromText(props!.assetId) });
+    // create a wallet-specific actor object targeting the token
+    const ledger = await (wallet as IWallet).createActor<ICRC1Token & Actor>({
+      interfaceFactory: ICRC1IDLFactory,
+      canisterId: props!.assetId,
+    });
 
-    try {
-      const blockIdx = await ledger.transfer({
-        created_at_time: props!.createdAt ? props!.createdAt : BigInt(Date.now()) * 1_000_000n,
-        to: {
-          owner: Principal.fromText(props!.recepientPrincipal),
-          subaccount: props!.recepientSubaccount ? [props!.recepientSubaccount!] : [],
-        },
-        amount: props!.amount,
-        memo: props!.memo,
-        fee: props!.fee,
-      });
+    // make the transfer
+    const result = await ledger.icrc1_transfer({
+      created_at_time: props.createdAt ? [props!.createdAt] : [BigInt(Date.now()) * 1_000_000n],
+      to: {
+        owner: Principal.fromText(props.recepientPrincipal),
+        subaccount: props.recepientSubaccount ? [props.recepientSubaccount!] : [],
+      },
+      from_subaccount: [],
+      amount: props.amount,
+      memo: props.memo ? [props.memo] : [],
+      fee: props.fee ? [props.fee] : [],
+    });
 
-      props!.onSuccess(blockIdx);
+    // if failed, show error page
+    if ("Err" in result) {
+      let err = debugStringify(result.Err);
 
-      setTxnResult({
-        success: true,
-        blockIdx,
-        totalAmount: totalAmountStr,
-      });
-
-      if (!msqRecipientId) return;
-
-      try {
-        await ledger.transfer({
-          created_at_time: BigInt(Date.now()) * 1_000_000n,
-          to: {
-            owner: Principal.fromText(msqRecipientId),
-            subaccount: [],
-          },
-          amount: msqFee,
-          memo: undefined,
-          fee: props!.fee,
-        });
-      } catch (e) {
-        log("Have a happy day 😊 (unable to pay MSQ fee)", e);
-      }
-    } catch (e) {
-      let err = debugStringify(e);
-
-      props!.onFail();
+      handleCheckoutFail();
 
       setTxnResult({ success: false, error: err });
-    } finally {
+
       document.body.style.cursor = "unset";
       setLoading(false);
+
+      return;
     }
+
+    // otherwise, report the blockID and show success page
+    const blockIdx = result.Ok;
+
+    handleCheckoutSuccess(blockIdx);
+
+    setTxnResult({
+      success: true,
+      blockIdx,
+      totalAmount: totalAmountStr,
+    });
+
+    document.body.style.cursor = "unset";
+    setLoading(false);
+  };
+
+  const handleCheckoutSuccess = (blockId: bigint) => {
+    getIcrc35Request()!.respond(blockId);
+    getIcrc35Request()!.closeConnection();
+  };
+
+  const handleCheckoutFail = () => {
+    getIcrc35Request()!.respond(undefined);
+    getIcrc35Request()!.closeConnection();
+  };
+
+  const handleCheckoutCancel = () => {
+    navigate(ROOT["/"].integration["/"].pay.path, { replace: true });
+  };
+
+  const handleCheckoutBack = () => {
+    window.close();
   };
 
   return (
@@ -275,19 +281,6 @@ export function PaymentCheckoutPage() {
               </CheckoutFeeLine>
               <CheckoutFeeLine>
                 <Text size={16} color={COLOR_GRAY_140}>
-                  MSQ Fee
-                </Text>
-                <CheckoutFeeLineSum>
-                  <Text size={16} color={COLOR_GRAY_140} weight={600}>
-                    {tokensToStr(msqFee, props!.decimals, undefined, true)}
-                  </Text>
-                  <Text size={12} color={COLOR_GRAY_140} weight={500}>
-                    {props!.symbol}
-                  </Text>
-                </CheckoutFeeLineSum>
-              </CheckoutFeeLine>
-              <CheckoutFeeLine>
-                <Text size={16} color={COLOR_GRAY_140}>
                   System Fee
                 </Text>
                 <CheckoutFeeLineSum>
@@ -317,7 +310,7 @@ export function PaymentCheckoutPage() {
                   label="cancel"
                   kind={EButtonKind.Additional}
                   text="Cancel"
-                  onClick={props!.onCancel}
+                  onClick={handleCheckoutCancel}
                   fullWidth
                   disabled={loading()}
                 />
@@ -345,11 +338,11 @@ export function PaymentCheckoutPage() {
             decimals={props!.decimals}
             amount={calcTotalAmount()}
             blockId={txnResult()!.blockIdx!}
-            onBack={props!.onBack}
+            onBack={handleCheckoutBack}
           />
         </Match>
         <Match when={!txnResult()!.success}>
-          <TxnFailPage error={txnResult()?.error!} onBack={props!.onBack} />
+          <TxnFailPage error={txnResult()?.error!} onBack={handleCheckoutBack} />
         </Match>
       </Switch>
     </CheckoutPageWrapper>

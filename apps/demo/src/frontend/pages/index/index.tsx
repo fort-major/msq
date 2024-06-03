@@ -29,7 +29,7 @@ export const IndexPage = () => {
   const [msq] = createResource(async () => {
     const result = await MsqClient.create({
       debug: import.meta.env.VITE_MSQ_MODE === "DEV",
-      forceReinstall: import.meta.env.VITE_MSQ_MODE === "DEV",
+      forceReinstall: false,
     });
 
     if (!("Ok" in result)) throw new Error("Install MetaMask, Unblock or Enable MSQ Snap");

@@ -14,9 +14,11 @@ import {
   toCBOR,
 } from "@fort-major/msq-shared";
 import { Accessor, JSX, JSXElement, Setter, createSignal } from "solid-js";
+import { toast } from "solid-toast";
 import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger-icrc";
 import D from "dompurify";
 import { AccountIdentifier } from "@dfinity/ledger-icp";
+import { COLOR_BLACK, COLOR_ERROR_RED, FONT_WEIGHT_BOLD } from "../ui-kit";
 
 // null = default
 // <string> = custom host
@@ -404,6 +406,20 @@ export function createICRC1TransactionLink(tokenId: Principal, txnIndex: bigint)
   if (!snsId) return null;
 
   return `https://dashboard.internetcomputer.org/sns/${snsId}/transaction/${txnIndex}`;
+}
+
+export function assertIs<T>(obj: any): asserts obj is T {}
+
+export function toastErr(msg: string) {
+  toast.error(msg, {
+    position: "bottom-center",
+    style: {
+      "background-color": COLOR_BLACK,
+      color: COLOR_ERROR_RED,
+      "font-family": "DM Sans",
+      "font-weight": FONT_WEIGHT_BOLD,
+    },
+  });
 }
 
 // ---------- SECURITY RELATED STUFF ------------

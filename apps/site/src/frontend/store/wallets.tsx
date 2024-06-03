@@ -1,5 +1,5 @@
 import { Accessor, createContext, createSignal, useContext } from "solid-js";
-import { unreacheable } from "@fort-major/msq-shared";
+import { TAccountId, unreacheable } from "@fort-major/msq-shared";
 import {
   IWallet,
   Result,
@@ -7,16 +7,24 @@ import {
   connectBitfinityWallet,
   connectNNSWallet,
   connectPlugWallet,
+  msqToIWallet,
 } from "../utils/wallets";
-import { IChildren } from "../utils";
+import { IChildren, toastErr } from "../utils";
+import { connectMsq } from "./global";
 import { useAssetData } from "./assets";
+import { InternalSnapClient } from "@fort-major/msq-client";
 
-export type TThirdPartyWalletKind = "NNS" | "Plug" | "Bitfinity";
-export type ConnectedWalletsStore = Accessor<Partial<Record<TThirdPartyWalletKind, IWallet>>>;
+export type TThirdPartyWalletKind = "MSQ" | "NNS" | "Plug" | "Bitfinity";
+export type ConnectedWalletStore = [TThirdPartyWalletKind, IWallet | InternalSnapClient] | undefined;
+type ConnectWalletFunc = (kind: TThirdPartyWalletKind) => Promise<void>;
+type InitWalletFunc = (assetIds: string[]) => Promise<void>;
+type SetWalletAccountFunc = (assetId: string, accountId: TAccountId) => Promise<void>;
 
 interface IThirdPartyWalletsContext {
-  connectWallet(kind: TThirdPartyWalletKind): Promise<void>;
-  connectedWallets: ConnectedWalletsStore;
+  connectWallet: ConnectWalletFunc;
+  initWallet: InitWalletFunc;
+  setWalletAccount: SetWalletAccountFunc;
+  connectedWallet: Accessor<ConnectedWalletStore>;
 }
 
 const ThirdPartyWalletsContext = createContext<IThirdPartyWalletsContext>();
@@ -32,10 +40,16 @@ export function useThirdPartyWallet(): IThirdPartyWalletsContext {
 }
 
 export function ThirdPartyWalletStore(props: IChildren) {
-  const [connectedWallets, setConnectedWallets] = createSignal<Partial<Record<TThirdPartyWalletKind, IWallet>>>({});
-  const { initThirdPartyAccountInfo } = useAssetData();
+  const [connectedWallet, setConnectedWallet] = createSignal<ConnectedWalletStore>();
+  const { init, initThirdPartyAccountInfo, refreshBalances } = useAssetData();
 
-  const connectWallet = async (kind: TThirdPartyWalletKind) => {
+  const connectWallet: ConnectWalletFunc = async (kind) => {
+    if (kind === "MSQ") {
+      await connectMsq(false, false);
+
+      return;
+    }
+
     let result: Result<IWallet, WalletError>;
 
     switch (kind) {
@@ -56,18 +70,45 @@ export function ThirdPartyWalletStore(props: IChildren) {
     }
 
     if ("Err" in result) {
-      // TODO: also show a toast
-      console.error(result.Err);
+      toastErr(result.Err);
       return;
     }
 
     const wallet = result.Ok;
 
-    setConnectedWallets({ ...connectedWallets(), [kind]: wallet });
+    setConnectedWallet([kind, wallet]);
+  };
+
+  const initWallet: InitWalletFunc = async (assetIds) => {
+    const connected = connectedWallet();
+
+    if (!connected) unreacheable("No wallet is connected for the initialization to take place");
+
+    const [kind, wallet] = connected;
+
+    if (kind === "MSQ") {
+      init(assetIds);
+    } else {
+      const prin = await (wallet! as IWallet).getPrincipal();
+      initThirdPartyAccountInfo(kind, prin.toText(), assetIds);
+      refreshBalances(assetIds);
+    }
+  };
+
+  const setWalletAccount: SetWalletAccountFunc = async (assetId, accountId) => {
+    const connected = connectedWallet();
+
+    if (!connected) unreacheable("No wallet is connected for the account setting to take place");
+
+    const [kind, wallet] = connected;
+
+    if (kind === "MSQ") {
+      setConnectedWallet([kind, await msqToIWallet(wallet as InternalSnapClient, assetId, accountId)]);
+    }
   };
 
   return (
-    <ThirdPartyWalletsContext.Provider value={{ connectWallet, connectedWallets }}>
+    <ThirdPartyWalletsContext.Provider value={{ connectWallet, connectedWallet, setWalletAccount, initWallet }}>
       {props.children}
     </ThirdPartyWalletsContext.Provider>
   );

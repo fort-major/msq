@@ -38,10 +38,13 @@ function route<T>(r: T): T & IRoute {
 }
 
 export const ROOT = route({
-  component: IndexPage,
   redirectTo: "/cabinet/my-assets",
 
   "/": {
+    "/": route({
+      component: IndexPage,
+    }),
+
     // INTEGRATION
     integration: route({
       "/": {
@@ -50,10 +53,12 @@ export const ROOT = route({
           component: LoginPage,
         }),
         pay: route({
-          component: PaymentPage,
           ...enableFeatures("mobile", "showBetaDisclaimer"),
 
           "/": {
+            "/": route({
+              component: PaymentPage,
+            }),
             checkout: route({
               component: PaymentCheckoutPage,
             }),
@@ -64,10 +69,12 @@ export const ROOT = route({
 
     // URL-BASED PAYMENT
     pay: route({
-      component: UrlBasedPaymentPage,
       ...enableFeatures("mobile", "showBetaDisclaimer"),
 
       "/": {
+        "/": route({
+          component: UrlBasedPaymentPage,
+        }),
         send: route({
           component: SendPage,
         }),
@@ -90,10 +97,12 @@ export const ROOT = route({
           component: MyLinksPage,
         }),
         "my-assets": route({
-          component: MyAssetsPage,
           ...enableFeatures("showBetaDisclaimer"),
 
           "/": {
+            "/": route({
+              component: MyAssetsPage,
+            }),
             send: route({
               component: SendPage,
             }),
@@ -233,12 +242,6 @@ function toSolidRoute(route: IRoute): ISolidRoute {
 
   if (route["/"]) {
     children = [];
-
-    if (route.component) {
-      children.push({
-        path: "/",
-      });
-    }
 
     for (let subroute of Object.values(route["/"] as Record<string, IRoute>)) {
       children.push(toSolidRoute(subroute));
