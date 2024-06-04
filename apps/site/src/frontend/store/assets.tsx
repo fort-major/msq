@@ -155,13 +155,15 @@ export function AssetsStore(props: IChildren) {
         balance: undefined,
       }));
 
-      setAllAssetData(key, "accounts", accounts);
-      setAllAssetData(key, "totalBalance", BigInt(0));
+      setAllAssetData(key, {
+        accounts,
+        totalBalance: BigInt(0),
+      });
 
       MsqIdentity.create(msq.getInner(), makeIcrc1Salt(key, idx)).then((identity) => {
         const principal = identity.getPrincipal();
 
-        setAllAssetData(key, "accounts", idx, "principal", principal.toText());
+        setAllAssetData(key, "accounts", idx, { principal: principal.toText() });
       });
     }
 

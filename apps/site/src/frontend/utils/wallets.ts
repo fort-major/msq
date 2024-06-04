@@ -77,21 +77,35 @@ export async function connectMSQWallet(): Promise<Result<InternalSnapClient, Wal
   return { Ok: client };
 }
 
+let client: InternalSnapClient | undefined;
+let assetId: string | undefined;
+let accountId: TAccountId | undefined;
+
 export async function msqToIWallet(
-  client: InternalSnapClient,
-  assetId: string,
-  accountId: TAccountId,
+  _client: InternalSnapClient,
+  _assetId: string,
+  _accountId: TAccountId,
 ): Promise<IWallet> {
-  const createIdentity: () => Promise<Identity> = () => {
-    return MsqIdentity.create(client.getInner(), makeIcrc1Salt(assetId, accountId));
-  };
+  client = _client;
+  assetId = _assetId;
+  accountId = _accountId;
+
+  console.log(client, assetId, accountId);
 
   return {
-    getPrincipal: () => createIdentity().then((it) => it.getPrincipal()),
-    getAccountId: () =>
-      createIdentity().then((it) => AccountIdentifier.fromPrincipal({ principal: it.getPrincipal() }).toHex()),
-    createActor: async <T extends Actor>(args: CreateActorArgs) => {
-      const identity = await createIdentity();
+    getPrincipal: async () => {
+      const it = await MsqIdentity.create(client!.getInner(), makeIcrc1Salt(assetId!, accountId!));
+      return it.getPrincipal();
+    },
+    getAccountId: async () => {
+      return MsqIdentity.create(client!.getInner(), makeIcrc1Salt(assetId!, accountId!)).then((it) =>
+        AccountIdentifier.fromPrincipal({ principal: it.getPrincipal() }).toHex(),
+      );
+    },
+    createActor: async function <T extends Actor>(args: CreateActorArgs) {
+      console.log(client, assetId, accountId);
+
+      const identity = await MsqIdentity.create(client!.getInner(), makeIcrc1Salt(assetId!, accountId!));
       const agent = await makeAgent(identity, getIcHostOrDefault());
 
       return Actor.createActor<T>(args.interfaceFactory, {

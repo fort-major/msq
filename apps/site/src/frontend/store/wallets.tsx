@@ -10,12 +10,12 @@ import {
   msqToIWallet,
 } from "../utils/wallets";
 import { IChildren, toastErr } from "../utils";
-import { connectMsq } from "./global";
+import { useConnectMsq, useMsqClient } from "./global";
 import { useAssetData } from "./assets";
 import { InternalSnapClient } from "@fort-major/msq-client";
 
 export type TThirdPartyWalletKind = "MSQ" | "NNS" | "Plug" | "Bitfinity";
-export type ConnectedWalletStore = [TThirdPartyWalletKind, IWallet | InternalSnapClient] | undefined;
+export type ConnectedWalletStore = [TThirdPartyWalletKind, IWallet | InternalSnapClient | undefined] | undefined;
 type ConnectWalletFunc = (kind: TThirdPartyWalletKind) => Promise<void>;
 type InitWalletFunc = (assetIds: string[]) => Promise<void>;
 type SetWalletAccountFunc = (assetId: string, accountId: TAccountId) => Promise<void>;
@@ -40,12 +40,15 @@ export function useThirdPartyWallet(): IThirdPartyWalletsContext {
 }
 
 export function ThirdPartyWalletStore(props: IChildren) {
+  const msq = useMsqClient();
+  const connectMsq = useConnectMsq();
   const [connectedWallet, setConnectedWallet] = createSignal<ConnectedWalletStore>();
   const { init, initThirdPartyAccountInfo, refreshBalances } = useAssetData();
 
   const connectWallet: ConnectWalletFunc = async (kind) => {
     if (kind === "MSQ") {
       await connectMsq(false, false);
+      setConnectedWallet([kind, undefined]);
 
       return;
     }
@@ -102,8 +105,11 @@ export function ThirdPartyWalletStore(props: IChildren) {
 
     const [kind, wallet] = connected;
 
-    if (kind === "MSQ") {
-      setConnectedWallet([kind, await msqToIWallet(wallet as InternalSnapClient, assetId, accountId)]);
+    if (kind === "MSQ" && !wallet) {
+      const _msq = msq();
+      if (!_msq) unreacheable("MSQ wallet is not initialized");
+
+      setConnectedWallet([kind, await msqToIWallet(_msq, assetId, accountId)]);
     }
   };
 

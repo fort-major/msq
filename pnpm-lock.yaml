@@ -133,6 +133,9 @@ importers:
       '@fort-major/msq-shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@fort-major/reliable-solid-router':
+        specifier: link:../../../reliable-solid-router
+        version: link:../../../reliable-solid-router
       '@solidjs/router':
         specifier: 0.13.3
         version: 0.13.3(solid-js@1.8.7)

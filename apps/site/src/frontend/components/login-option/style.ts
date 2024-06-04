@@ -1,14 +1,14 @@
 import { css, styled } from "solid-styled-components";
 import { ANIM_DURATION, COLOR_BLACK, COLOR_GRAY_105, COLOR_GRAY_140, COLOR_WHITE } from "../../ui-kit";
 
-export const LoginOptionWrapper = styled.div<{ editable?: boolean | undefined }>`
+export const LoginOptionWrapper = styled.div<{ disabled?: boolean; editable?: boolean }>`
   display: flex;
   padding: 15px 20px 15px 15px;
   align-items: center;
   gap: 15px;
   align-self: stretch;
 
-  background-color: ${COLOR_BLACK};
+  background-color: ${(props) => (props.disabled ? COLOR_GRAY_105 : COLOR_BLACK)};
 
   transition: background-color ${ANIM_DURATION} ease-out;
 

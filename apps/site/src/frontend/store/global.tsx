@@ -1,4 +1,4 @@
-import { Accessor, createContext, createSignal, useContext } from "solid-js";
+import { Accessor, createContext, createSignal, onCleanup, onMount, useContext } from "solid-js";
 import { toast } from "solid-toast";
 import { InternalSnapClient, MsqIdentity } from "@fort-major/msq-client";
 import { IChildren, getIcHostOrDefault, handleStatistics, makeAnonymousAgent, toastErr } from "../utils";
@@ -44,14 +44,14 @@ export function useMsqIdentity(): Accessor<MsqIdentity | undefined> {
   return ctx.msqIdentity;
 }
 
-export function connectMsq(withLoader: boolean, withErrorPages: boolean) {
+export function useConnectMsq() {
   const ctx = useContext(GlobalContext);
 
   if (!ctx) {
     unreacheable("Global context is uninitialized");
   }
 
-  return ctx.connectMsq(withLoader, withErrorPages);
+  return ctx.connectMsq;
 }
 
 export function useLoader(): Accessor<boolean> {

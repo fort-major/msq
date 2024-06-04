@@ -36,10 +36,14 @@ export function LoginPage() {
   });
 
   const onLogin = async (loginOrigin: string, identityId: number) => {
-    await _msq()!.login(getIcrc35Request()!.peerOrigin, identityId, loginOrigin);
+    setLoading(true);
+    const agreed = await _msq()!.login(getIcrc35Request()!.peerOrigin, identityId, loginOrigin);
+    setLoading(false);
 
-    getIcrc35Request()!.respond(true);
-    window.close();
+    if (agreed) {
+      window.close();
+      getIcrc35Request()!.respond(true);
+    }
   };
 
   const onAddNewMask = async () => {
@@ -97,6 +101,7 @@ export function LoginPage() {
                       <LoginOption
                         pseudonym={mask.pseudonym}
                         principal={mask.principal}
+                        disabled={loading()}
                         onClick={() => onLogin(origin, idx())}
                       />
                     </>

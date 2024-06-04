@@ -12,12 +12,13 @@ export interface ILoginOptionProps {
   pseudonym: string;
   principal: string;
   onClick?: () => void;
+  disabled?: boolean;
   onEdit?: (newValue: string) => void;
 }
 
 export function LoginOption(props: ILoginOptionProps) {
   const handleClick = eventHandler((e: MouseEvent) => {
-    props.onClick?.();
+    if (!props.disabled) props.onClick?.();
   });
 
   const handleChange = (newPseudonym: string) => {

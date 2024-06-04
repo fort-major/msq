@@ -14,7 +14,7 @@ import { Loader } from "./components/loader";
 import { NotificationBar } from "./components/notification-bar";
 import { AssetsStore } from "./store/assets";
 import { OriginDataStore } from "./store/origins";
-import { findRoute, getSolidRoutes } from "./routes";
+import { ROOT, findRoute, getSolidRoutes } from "./routes";
 import { IChildren } from "./utils";
 import { DISCORD_LINK, debugStringify, logError } from "@fort-major/msq-shared";
 import { ErrorPage } from "./pages/error";
@@ -104,5 +104,7 @@ export function App(props: IChildren) {
 }
 
 const routes = getSolidRoutes();
+
+console.log(ROOT);
 
 render(() => <Router root={App}>{routes}</Router>, root!);

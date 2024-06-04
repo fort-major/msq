@@ -48,12 +48,6 @@ export function PaymentPage() {
 
   const getAssetId = () => getIcrc35Request<IICRC1TransferRequest>()!.payload.canisterId;
 
-  createEffect(() => {
-    if (connectedWallet() && connectedWallet()![0] === "MSQ") {
-      setWalletAccount(getAssetId(), selectedAccountId());
-    }
-  });
-
   createEffect(async () => {
     if (!getIcrc35Request()) {
       navigate(ROOT.path);
@@ -84,7 +78,7 @@ export function PaymentPage() {
 
     // canister ID will be validated here
     if (!result || !result[0]) {
-      await addAsset!(assetId);
+      err(ErrorCode.ICRC1_ERROR, "Token not found");
     }
 
     await refreshBalances!([assetId]);
@@ -132,6 +126,8 @@ export function PaymentPage() {
 
   const handleCheckoutStart = (accountId: TAccountId) => {
     const assetId = getAssetId()!;
+    setWalletAccount(assetId, accountId);
+
     const asset = assets[assetId]!;
     const { metadata } = assetMetadata[assetId]!;
     const req = getIcrc35Request<IICRC1TransferRequest>()!;

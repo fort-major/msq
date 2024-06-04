@@ -6,11 +6,13 @@ import { Show, createEffect, createSignal } from "solid-js";
 import { findRoute } from "../../routes";
 
 export function ContactUsBtn() {
-  const { pathname } = useLocation();
   const [btnVisible, setBtnVisible] = createSignal(true);
 
   createEffect(() => {
-    setBtnVisible(!findRoute(pathname)?.features?.hideFeedbackButton);
+    const { pathname } = useLocation();
+    const route = findRoute(pathname);
+
+    setBtnVisible(!route?.features?.hideFeedbackButton);
   });
 
   return (

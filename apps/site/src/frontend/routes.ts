@@ -38,13 +38,10 @@ function route<T>(r: T): T & IRoute {
 }
 
 export const ROOT = route({
+  component: IndexPage,
   redirectTo: "/cabinet/my-assets",
 
   "/": {
-    "/": route({
-      component: IndexPage,
-    }),
-
     // INTEGRATION
     integration: route({
       "/": {

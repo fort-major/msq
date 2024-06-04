@@ -3,17 +3,17 @@ import { createEffect, createSignal } from "solid-js";
 import { ROOT, findRoute } from "../../routes";
 import isMobile from "ismobilejs";
 import { IChildren } from "../../utils";
-import { connectMsq } from "../../store/global";
+import { useConnectMsq } from "../../store/global";
 
 export function IndexPage(props: IChildren) {
   const navigate = useNavigate();
-  const location = useLocation();
+  const connectMsq = useConnectMsq();
+
   const [attemptedMsqConnect, setAttemptedMsqConnect] = createSignal(false);
   const [isConnectingMsq, setConnectingMsq] = createSignal(false);
 
   createEffect(() => {
-    const route = findRoute(location.pathname)!;
-    console.log(route);
+    const route = findRoute(useLocation().pathname)!;
 
     if (route.features?.onlyWithMsqWallet) {
       if (!route.features.mobile && isMobile().any) {
