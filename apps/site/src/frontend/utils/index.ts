@@ -59,8 +59,8 @@ export async function handleStatistics(agent: Agent, client: InternalSnapClient)
 
   const statisticsBackend = createStatisticsBackendActor(agent);
 
-  await client.resetStats();
   await statisticsBackend.increment_stats(stats.data);
+  await client.resetStats();
 }
 
 function checkStats(stats: IStatistics): boolean {
