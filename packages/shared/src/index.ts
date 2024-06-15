@@ -166,13 +166,14 @@ export const PRE_LISTED_TOKENS: Record<string, PreListedToken> = {
     fee: 10_000n,
     decimals: 8,
   },
-  "jwcfb-hyaaa-aaaaj-aac4q-cai": {
-    name: "Origyn",
-    symbol: "OGY",
-    assetId: "jwcfb-hyaaa-aaaaj-aac4q-cai",
-    logoSrc: "https://msq.tech/ogy.svg",
-    fee: 200_000n,
-    decimals: 8,
+  "um5iw-rqaaa-aaaaq-qaaba-cai": {
+    name: "Trillion Cycles",
+    symbol: "TCYCLES",
+    assetId: "um5iw-rqaaa-aaaaq-qaaba-cai",
+    logoSrc:
+      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMF8xXzQpIj4KPHBhdGggZD0iTTkwIDBDMTM5LjcgMCAxODAgNDAuMyAxODAgOTBDMTgwIDEzOS43IDEzOS43IDE4MCA5MCAxODBDNDAuMyAxODAgMCAxMzkuNyAwIDkwQzAgNDAuMyA0MC4zIDAgOTAgMFoiIGZpbGw9IiMzQjAwQjkiLz4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0yMC4yIDk1LjJDMjIuNyAxMjkuNyA1MC4zIDE1Ny4zIDg0LjggMTU5LjhWMTY3LjZDNDYgMTY1IDE1IDEzNCAxMi40IDk1LjJIMjAuMloiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcl8xXzQpIi8+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNODQuOCAyMC4yQzUwLjMgMjIuNyAyMi43IDUwLjMgMjAuMiA4NC44SDEyLjRDMTQuOSA0NiA0NiAxNC45IDg0LjggMTIuNFYyMC4yWiIgZmlsbD0iIzI5QUJFMiIvPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTE1OS44IDg0LjdDMTU3LjMgNTAuMiAxMjkuNyAyMi42IDk1LjIgMjAuMVYxMi4zQzEzNCAxNC45IDE2NS4xIDQ1LjkgMTY3LjYgODQuN0gxNTkuOFoiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcl8xXzQpIi8+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNOTUuMiAxNTkuOEMxMjkuNyAxNTcuMyAxNTcuMyAxMjkuNyAxNTkuOCA5NS4ySDE2Ny42QzE2NS4xIDEzNCAxMzQgMTY1IDk1LjIgMTY3LjZWMTU5LjhaIiBmaWxsPSIjMjlBQkUyIi8+CjxwYXRoIGQ9Ik02My42MzY0IDY3LjY4MThWNjAuMTgxOEgxMTZWNjcuNjgxOEg5NC4wNDU1VjEzMEg4NS41OTA5VjY3LjY4MThINjMuNjM2NFoiIGZpbGw9IndoaXRlIi8+CjwvZz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhcl8xXzQiIHgxPSI2NS4zNTciIHkxPSIxNTIuMDYxIiB4Mj0iMTYuNzM2IiB5Mj0iMTExLjExNSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBvZmZzZXQ9IjAuMjEiIHN0b3AtY29sb3I9IiNFRDFFNzkiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNTIyNzg1Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQxX2xpbmVhcl8xXzQiIHgxPSIxNTQuNjYyIiB5MT0iNjEuNTI3IiB4Mj0iMTA2LjA0MSIgeTI9IjIwLjU4MiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBvZmZzZXQ9IjAuMjEiIHN0b3AtY29sb3I9IiNGMTVBMjQiLz4KPHN0b3Agb2Zmc2V0PSIwLjY4NCIgc3RvcC1jb2xvcj0iI0ZCQjAzQiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzFfNCI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiBmaWxsPSJ3aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=",
+    fee: 100_000_000n,
+    decimals: 12,
   },
   "mxzaz-hqaaa-aaaar-qaada-cai": {
     name: "Bitcoin",
@@ -281,6 +282,14 @@ export const PRE_LISTED_TOKENS: Record<string, PreListedToken> = {
     fee: 10_000n,
     decimals: 8,
   },
+  "lrtnw-paaaa-aaaaq-aadfa-cai": {
+    name: "ICPCC DAO LLC",
+    symbol: "CONF",
+    assetId: "lrtnw-paaaa-aaaaq-aadfa-cai",
+    snsId: "l7ra6-uqaaa-aaaaq-aadea-cai",
+    fee: 10_000n,
+    decimals: 8,
+  },
   "ca6gz-lqaaa-aaaaq-aacwa-cai": {
     name: "ICPSwap",
     symbol: "ICS",
@@ -355,6 +364,14 @@ export const PRE_LISTED_TOKENS: Record<string, PreListedToken> = {
     symbol: "FPL",
     fee: 100_000n,
     decimals: 8,
+  },
+  "lkwrt-vyaaa-aaaaq-aadhq-cai": {
+    name: "Origyn",
+    symbol: "OGY",
+    fee: 200_000n,
+    decimals: 8,
+    assetId: "lkwrt-vyaaa-aaaaq-aadhq-cai",
+    snsId: "leu43-oiaaa-aaaaq-aadgq-cai",
   },
   "hvgxa-wqaaa-aaaaq-aacia-cai": {
     name: "Sneed",
