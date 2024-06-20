@@ -196,6 +196,13 @@ export const PRE_LISTED_TOKENS: Record<string, PreListedToken> = {
     fee: 10_000n,
     decimals: 6,
   },
+  "g4tto-rqaaa-aaaar-qageq-cai": {
+    name: "ckLINK",
+    symbol: "ckLINK",
+    assetId: "g4tto-rqaaa-aaaar-qageq-cai",
+    fee: 100_000_000_000_000n,
+    decimals: 18,
+  },
 
   // ----------------  sns based tokens  ------------------
   "vtrom-gqaaa-aaaaq-aabia-cai": {
