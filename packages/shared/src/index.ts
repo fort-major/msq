@@ -203,6 +203,13 @@ export const PRE_LISTED_TOKENS: Record<string, PreListedToken> = {
     fee: 100_000_000_000_000n,
     decimals: 18,
   },
+  "q624g-niaaa-aaaag-alfyq-cai": {
+    name: "Fort Major DAO",
+    symbol: "FMJ",
+    assetId: "q624g-niaaa-aaaag-alfyq-cai",
+    fee: 10_000n,
+    decimals: 8,
+  },
 
   // ----------------  sns based tokens  ------------------
   "vtrom-gqaaa-aaaaq-aabia-cai": {
