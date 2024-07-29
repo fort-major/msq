@@ -449,5 +449,5 @@ export function calculateMSQFee(assetId: string, amount: bigint): [bigint, strin
 
 export const ICP_INDEX_TOKEN_IDX = ["ryjl3-tyaaa-aaaaa-aaaba-cai", "jwcfb-hyaaa-aaaaj-aac4q-cai"];
 
-export const DISCORD_LINK = "https://discord.gg/RMxyF5Huhs";
+export const TELEGRAM_LINK = "https://t.me/fortmajoricp";
 export const METAMASK_LINK = "https://metamask.io/download/";

@@ -1,7 +1,7 @@
 import { Outlet, useLocation, useNavigate } from "@solidjs/router";
 import { ErrorPage } from "../error";
 import { EIconKind } from "../../ui-kit/icon";
-import { DISCORD_LINK, debugStringify, logError } from "@fort-major/msq-shared";
+import { TELEGRAM_LINK, debugStringify, logError } from "@fort-major/msq-shared";
 import { createEffect } from "solid-js";
 
 export function IndexPage() {
@@ -27,7 +27,7 @@ export function IndexPage() {
         button={{
           text: "Report the Error",
           icon: EIconKind.ArrowRightUp,
-          action: () => window.open(DISCORD_LINK, "_blank"),
+          action: () => window.open(TELEGRAM_LINK, "_blank"),
         }}
       />
     );
