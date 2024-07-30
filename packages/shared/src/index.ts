@@ -189,6 +189,13 @@ export const PRE_LISTED_TOKENS: Record<string, PreListedToken> = {
     fee: 2_000_000_000_000n,
     decimals: 18,
   },
+  "cngnf-vqaaa-aaaar-qag4q-cai": {
+    name: "ckUSDT",
+    symbol: "ckUSDT",
+    assetId: "cngnf-vqaaa-aaaar-qag4q-cai",
+    fee: 10_000n,
+    decimals: 6,
+  },
   "xevnm-gaaaa-aaaar-qafnq-cai": {
     name: "ckUSDC",
     symbol: "ckUSDC",
