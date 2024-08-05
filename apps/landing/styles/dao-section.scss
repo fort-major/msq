@@ -1,0 +1,177 @@
+#dao-open, #dao-closed {
+    position: fixed;
+    bottom: 40px;
+    z-index: 100;
+
+    font-family: $font;
+}
+
+#dao-closed {
+    right: 0;
+
+    background-color: $dark-blue;
+    flex-flow: column-reverse;
+    align-items: center;
+
+    gap: 20px;
+    padding: 20px 0;
+
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+
+    cursor: pointer;
+
+    .text {
+        writing-mode: vertical-rl;
+        transform: rotateX(-180deg) scaleX(-1);
+
+        font-size: 20px;
+        font-weight: 600;
+        color: white;
+        line-height: 90%;
+        letter-spacing: 1px;
+    }
+
+    .divider {
+        width: 60px;
+        height: 1px;
+        background: rgba(255, 255, 255, .3);
+    }
+
+    .chevron {
+        transform: rotateY(180deg);
+    }
+}
+
+@include mobile {
+    #dao-closed {
+        display: none !important;
+
+        right: unset;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: -1px;
+
+        width: 290px;
+
+        flex-flow: row nowrap;
+        padding: 0 20px;
+        justify-content: space-between;
+
+        border-bottom-left-radius: 0;        
+        border-top-right-radius: 20px;        
+
+        .text {
+            writing-mode: unset;
+            transform: unset;
+            text-wrap: nowrap;
+        }
+
+        .divider {
+            height: 60px;
+            width: 1px;
+        }
+
+        .chevron {
+            transform: unset;
+            transform: rotate(-90deg);
+        }
+    }
+}
+
+#dao-open {
+    right: 40px;
+
+    background: $gray-108;
+    border-radius: 25px;
+    padding: 40px 30px 30px 30px;
+    
+    flex-flow: column;
+    gap: 30px;
+
+    color: $white;
+
+    max-width: 480px;
+
+    box-shadow: 0 0 25px rgba(0, 0, 0, .4);
+
+    .chevron {
+        position: absolute;
+        top: 20px;
+        right: 15px;
+        cursor: pointer;
+    }
+
+    .text-wrapper {
+        display: flex;
+        flex-flow: column;
+        gap: 10px;
+
+        .heading {
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 90%;
+            letter-spacing: -1px;
+        }
+
+        .text {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 140%;
+            letter-spacing: -0.25px;
+            color: $gray-165;
+        }
+    }
+
+    .join-dao-btn {
+        display: flex;
+        flex-flow: row nowrap;
+        text-wrap: nowrap;
+        color: white;
+        background: $dark-blue;
+        gap: 10px;
+        padding: 15px 25px;
+        border-radius: 1000px;
+
+        align-self: flex-start;
+        align-items: center;
+        justify-content: center;
+
+        span {
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 140%;
+            letter-spacing: -0.25px;
+        }
+    }
+}
+
+@include mobile {
+    #dao-open {
+        right: 0;
+        left: 0;
+        bottom: -1px;
+
+        border-radius: 0;
+        border-top-left-radius: 25px;
+        border-top-right-radius: 25px;
+
+        max-width: unset;
+
+        .chevron {
+            transform: rotate(90deg);
+        }
+
+        .join-dao-btn {
+            align-self: stretch;
+        }
+    }
+}
+
+#dao-closed.hidden, #dao-open.hidden {
+    display: none;
+}
+
+#dao-closed.visible, #dao-open.visible {
+    display: flex;
+}

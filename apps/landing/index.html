@@ -59,9 +59,93 @@
             document.body.style.setProperty('height', null)
             document.body.style.setProperty('overflow', null);
         }
+
+        const key = 'msq-dao-section-open';
+
+        function getDaoSectionOpenFlag() {
+            const open = localStorage.getItem(key);
+            if (open !== null) {
+                return JSON.parse(open);
+            }
+
+            return null;
+        }
+
+        function openDaoSection() {
+            localStorage.setItem(key, JSON.stringify(true)); 
+
+            const open = document.getElementById('dao-open');
+            open.className = "visible";
+
+            const closed = document.getElementById('dao-closed');
+            closed.classList = "hidden";
+        }
+
+        function closeDaoSection() {
+            localStorage.setItem(key, JSON.stringify(false));
+
+            const open = document.getElementById('dao-open');
+            open.className = "hidden";
+
+            const closed = document.getElementById('dao-closed');
+            closed.classList = "visible";
+        }
+
+        window.addEventListener('load', () => {
+            const releaseDate = new Date("08/08/2024").getTime();
+            const today = new Date().getTime();
+
+            if (today < releaseDate) return;
+   
+            window.addEventListener('scroll', scrollHandler);
+
+            const flag = getDaoSectionOpenFlag();
+
+            if (flag === true) {
+                openDaoSection();
+            } else if (flag === false) {
+                closeDaoSection();
+            }
+        });
+
+        function scrollHandler() {
+            if (window.scrollY > 100) {
+                const flag = getDaoSectionOpenFlag();
+
+                if (flag === null) {
+                    openDaoSection();
+                }
+                
+                window.removeEventListener("scroll", scrollHandler);
+            }
+        }
     </script>
   </head>
   <body>
+    <section onclick="openDaoSection()" id="dao-closed" class="hidden">
+        <p class="text">Join Fort Major DAO</p>
+        <span class="divider"></span>
+        <svg class="chevron" width="20" height="22" viewBox="0 0 20 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 1L15 11L5 21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </section>
+
+    <section id="dao-open" class="hidden">
+        <svg onclick="closeDaoSection()" class="chevron" width="20" height="22" viewBox="0 0 20 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 1L15 11L5 21" stroke="#3B3C44" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="text-wrapper">
+            <p class="heading">Build Together, Earn Together!</p>
+            <p class="text">Join our DAO where every contribution counts. At Fort Major, your participation leads to real rewards. Be part of something big and help us make a difference!</p>
+        </div>
+        <a href="https://fort-major.org" target="_blank" class="join-dao-btn">
+            <span>Join Fort Major Now</span>
+            <svg width="15" height="16" viewBox="0 0 15 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.66667 3L12.5 3.08266M12.5 3.08266V11.0992M12.5 3.08266L2.5 13" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+    </section>
+
     <section id="hero-screen">
       <header>
         <img src="/img/msq-logo-landing.svg" alt="MSQ logo" />
@@ -549,10 +633,18 @@
                     <a href="#faq-screen" onclick="closeNav()"><li>FAQ</li></a>
                     <a href="#integration-screen" onclick="closeNav()"><li>For Devs</li></a>
                 </ul>
-                <a href="https://t.me/fortmajoricp" target="_blank">
-                    <span>Contact Us</span>
-                    <img src="/img/arrow-right-top.svg" alt="arrow icon" />
-                </a>
+                <div class="btn-wrapper">
+                    <a href="https://fort-major.org" target="_blank">
+                        <span>Join Fort Major DAO</span>
+                        <svg width="15" height="16" viewBox="0 0 15 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4.66667 3L12.5 3.08266M12.5 3.08266V11.0992M12.5 3.08266L2.5 13" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                    <a href="https://t.me/fortmajoricp" target="_blank">
+                        <span>Contact Us</span>
+                        <img src="/img/arrow-right-top.svg" alt="arrow icon" />
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
