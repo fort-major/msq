@@ -4,6 +4,8 @@ Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
 *[Join Our Telegram](https://t.me/fortmajoricp)*
 
+*[Subscribe to our X](https://x.com/msqwallet)*
+
 ## Documentation
 
 1. [MSQ's Architecture](./documentation/architecture.md)
