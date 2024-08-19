@@ -93,11 +93,11 @@ export class MsqClient {
    * @returns - {@link MsqIdentity} if the login was a success, `null` otherwise
    */
   async requestLogin(peer?: ReturnType<typeof openICRC35Window>): Promise<MsqIdentity | null> {
-    const w = peer ? peer : openICRC35Window(MSQICRC35Client.Origin);
-
     if (this.isAuthorized()) {
       return MsqIdentity.create(this);
     }
+
+    const w = peer ? peer : openICRC35Window(MSQICRC35Client.Origin);
 
     const connection = await ICRC35Connection.establish({
       mode: "parent",

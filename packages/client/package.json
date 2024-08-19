@@ -5,7 +5,7 @@
     "It is done in src/index.ts:1",
     "Just set SNAP_VERSION to the actual one"
   ],
-  "version": "0.3.6",
+  "version": "0.3.7",
   "main": "./dist/cjs/index",
   "module": "./dist/esm/index",
   "unpkg": "./dist/esm/index",
