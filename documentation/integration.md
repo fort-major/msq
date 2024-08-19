@@ -82,7 +82,15 @@ if ("Err" in result) {
 
 MSQ employs `scoped-identity` technique, which means that a user gets a dedicated identity for every website they interact with. This is very important from the security perspective, because this protects users from signature-stealing attacks.
 
-The authorization session lasts indefinitely (even when the user leaves your website), until explicitly stopped. In order to re-create the identity object call the `requestLogin` function - if the user is authorized already it will immediately re-create this object and return, without going through the whole authorization flow once again.
+The authorization session lasts indefinitely (even when the user leaves your website), until explicitly stopped. When a user leaves your dapp and then returns (or simply refreshes), it is possible to automatically re-create all the objects without the user having to press the "Login" button again:
+
+```typescript
+// make sure to check, whether it is appropriate to resume without asking
+if (MsqClient.isSafeToResume()) {
+    const result = await MsqClient.createAndLogin();
+    // repeat the same as you did on explicit logging in
+}
+```
 
 In order to stop the session (log out), use the `requestLogout()` function:
 

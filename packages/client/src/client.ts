@@ -17,6 +17,7 @@ import { ICRC35Connection, openICRC35Window } from "icrc-35";
 import { MSQICRC35Client } from "./icrc35-client";
 import isMobile from "ismobilejs";
 import { MetaMaskSDK, SDKProvider } from "@metamask/sdk";
+import { Identity } from "@dfinity/agent";
 
 const DEFAULT_SHOULD_BE_FLASK = false;
 const DEFAULT_DEBUG = false;
@@ -67,7 +68,7 @@ export type TMsqCreateAndLoginOk = { Ok: { msq: MsqClient; identity: MsqIdentity
  */
 export class MsqClient {
   private queueLocked: boolean = false;
-  private isAuthorizedCache: boolean = false;
+  private isAuthorizedCache = false;
 
   /**
    * ## Returns true if the user is logged in current website
@@ -82,6 +83,24 @@ export class MsqClient {
   }
 
   /**
+   * Returns true if it is safe to resume the session after the user closes or refreshes the page
+   *
+   * @returns
+   */
+  static isSafeToResume(): boolean {
+    return safeToAutoresume();
+  }
+
+  /**
+   * ## Resumes the auth session if authorized
+   *
+   * @returns the identity object
+   */
+  resume(): Identity & MsqIdentity {
+    return MsqIdentity.create(this) as unknown as Identity & MsqIdentity;
+  }
+
+  /**
    * ## Proposes the user to log in to current website
    *
    * Opens up a separate browser window with the MSQ website that will guide the user through the authorization process.
@@ -92,9 +111,16 @@ export class MsqClient {
    *
    * @returns - {@link MsqIdentity} if the login was a success, `null` otherwise
    */
-  async requestLogin(peer?: ReturnType<typeof openICRC35Window>): Promise<MsqIdentity | null> {
+  async requestLogin(peer?: ReturnType<typeof openICRC35Window>): Promise<(MsqIdentity & Identity) | null> {
     if (this.isAuthorized()) {
-      return MsqIdentity.create(this);
+      peer?.peer.close();
+      setSafeToAutoresume("true");
+
+      return this.resume();
+    }
+
+    if (peer) {
+      setTimeout(() => peer.peer.focus(), 100);
     }
 
     const w = peer ? peer : openICRC35Window(MSQICRC35Client.Origin);
@@ -112,6 +138,7 @@ export class MsqClient {
 
     if (loginResult) {
       this.isAuthorizedCache = true;
+      setSafeToAutoresume("true");
     }
 
     return loginResult ? MsqIdentity.create(this) : null;
@@ -132,6 +159,7 @@ export class MsqClient {
 
     if (result) {
       this.isAuthorizedCache = false;
+      setSafeToAutoresume("false");
     }
 
     return result;
@@ -360,7 +388,11 @@ export class MsqClient {
    * @returns - an initialized {@link MsqClient} object that can be used right away or an Err
    */
   static async createAndLogin(params?: IMsqClientParams): Promise<TMsqCreateAndLoginResult> {
-    const peer = openICRC35Window(MSQICRC35Client.Origin);
+    const peer = safeToAutoresume() ? undefined : openICRC35Window(MSQICRC35Client.Origin);
+
+    if (peer) {
+      setTimeout(() => window.focus(), 100);
+    }
 
     const createResult = await MsqClient.create(params);
 
@@ -369,15 +401,19 @@ export class MsqClient {
       const identity = await msq.requestLogin(peer);
 
       if (!identity) {
+        setSafeToAutoresume("false");
         // throwing this in case the user rejects logging in
         // don't want to add another error type
         return { MSQConnectionRejected: null, Err: "MSQConnectionRejected" };
       }
 
+      setSafeToAutoresume("true");
+
       return { Ok: { msq, identity } };
     }
 
-    peer.peer.close();
+    setSafeToAutoresume("false");
+    peer?.peer.close();
     return createResult;
   }
 
@@ -418,4 +454,12 @@ export async function connectToMetaMask(shouldBeFlask?: boolean): Promise<SDKPro
 
     return null;
   }
+}
+
+function safeToAutoresume() {
+  return localStorage.getItem("msq-safe-to-autoresume") === "true";
+}
+
+function setSafeToAutoresume(has: "true" | "false") {
+  localStorage.setItem("msq-safe-to-autoresume", has);
 }
