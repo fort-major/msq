@@ -2,7 +2,9 @@
 
 Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)
 
-*[Join Our Discord](https://discord.gg/RMxyF5Huhs)*
+*[Join Our Telegram](https://t.me/fortmajoricp)*
+
+*[Subscribe to our X](https://x.com/msqwallet)*
 
 ## Documentation
 
