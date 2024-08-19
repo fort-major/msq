@@ -23,49 +23,36 @@ The version of the client library is always tied to the version of the Snap itse
 
 ## Usage
 
-### Setup
-
-First of all, you have to connect to MetaMask and the Snap. Our client library does all of this under the hood, so no worries - it is easy:
+The best way to authenticate your users via MSQ is using the `createAndLogin()` function:
 
 ```typescript
-const result = await MsqClient.create();
+const result = await MsqClient.createAndLogin();
+```
 
-if (!("Ok" in result)) {
-    // handle possible errors
+This function will do everything for you:
+
+1. Connect your dapp to the user's MetaMask browser extension.
+2. Download and install the MSQ Snap.
+3. Connect your dapp to the MSQ Snap.
+4. Guide the user through the authentication process.
+
+The first two steps are omitted for users who already have MSQ Snap installed. The third step is only executed for users who have never authenticated to your dapp before. And the last step is fast-forwarded for already authenticated users.
+In other words, all the time-consuming stuff only happens for the first time. Once the user is logged in to your website, their subsequent authentication attempts will go near-instant.
+
+You should process the `result` object the following way:
+
+```typescript
+if ("Ok" in result) {
+    const { msq, identity } = result.Ok;
+    // process the msq and the client objects, e.g. save to the dapps store
+} else {
+    // process result.Err
 }
 ```
 
-This function returns the following data structure:
+The `msq` object can be used for various MSQ-related flows, e.g. ICRC-1 payments (more info below).
 
-```typescript
-type Result = { Ok: MsqClient } | { InstallMetaMask: null } | { UnblockMSQ: null } | { EnableMSQ: null } | { MobileNotSupported: null } | { MSQConnectionRejected: null };
-```
-
-which you can use to understand, if there was an error during the connection procedure and render a nice error screen. If everything is okay, you should be able to retrieve the client:
-
-```typescript
-import { TMsqCreateOk, MsqClient } from "@fort-major/msq-client";
-
-const msq: MsqClient = (result as TMsqCreateOk).Ok;
-```
-
-This is it! Now your app is connected to MetaMask and MSQ. If the user doesn't have MSQ installed, it will install itself to their MetaMask automatically.
-
-### Authorization
-
-First of all, you want users to authorize so they could interact with canisters of your dapp. Doing this is really simple, you just call `requestLogin()` function of the client:
-
-```typescript
-import { Identity } from "@dfinity/identity"; 
-
-const identity: Identity | null = await msq.requestLogin();
-
-if (identity === null) {
-    // the user has rejected to log in
-}
-```
-
-This function will return an `Identity` object, which you can then simply supply into the `HttpAgent` constructor, like this:
+The `identity` object is a regular `Identity` type from `@dfinity/identity`, which you can then supply into the `HttpAgent` constructor, like this:
 
 ```typescript
 import { HttpAgent } from "@dfinity/agent";
@@ -75,18 +62,29 @@ const agent = new HttpAgent({ identity });
 
 Which then can be used in order to call canisters on users behalf.
 
-MSQ employs `scoped-identity` technique, which means that a user gets a dedicated identity for every website they interact with. This is very important from the security perspective, because this protects users from signature-stealing attacks.
+### Error handling
 
-The authorization session lasts indefinitely (even when the user leaves your website), until explicitly stopped. In order to check if the session exists (a user is logged in), use `isAuthorized()` function:
+If the `result` contains a `Err` property, than something went wrong and you should probably render a nice error message:
 
 ```typescript
-if (msq.isAuthorized()) {
-    // the user is already logged in
-    // you can omit the authorization
+if ("Err" in result) {
+    switch (result.Err) {
+        case 'InstallMetaMask': // MetaMask browser extension is not installed
+        case 'MSQConnectionRejected': // the user has explicitely rejected MetaMask connection, MSQ connection or the final login approval
+        case 'MobileNotSupported': // MSQ doesn't work on mobile devices yet (but works on Android devices with Kiwi Browser in Desktop mode)
+        case 'EnableMSQ': // the user has manually disabled the MSQ Snap in their MetaMask options
+        case 'UnblockMSQ': // MSQ has been banned by MetaMask (very unlikely, but is an option)
+    }
 }
 ```
 
-In order to stop the session (log out), use `requestLogout()` function:
+### More on auth sessions
+
+MSQ employs `scoped-identity` technique, which means that a user gets a dedicated identity for every website they interact with. This is very important from the security perspective, because this protects users from signature-stealing attacks.
+
+The authorization session lasts indefinitely (even when the user leaves your website), until explicitly stopped. In order to re-create the identity object call the `requestLogin` function - if the user is authorized already it will immediately re-create this object and return, without going through the whole authorization flow once again.
+
+In order to stop the session (log out), use the `requestLogout()` function:
 
 ```typescript
 if (await msq.requestLogout()) {
@@ -112,7 +110,7 @@ const avatarSrc: string = await identity.getAvatarSrc();
 <img class="avatar" src={avatarSrc}/>
 ```
 
-*While we generate `avatarSrc` and `pseudonym` with all the security pre-cautions in mind, it might be a good idea for you to purify this data, to double-check possible xss attack vectors.*
+*While we generate `avatarSrc` and `pseudonym` with all the security pre-cautions in mind, it might be a good idea for you to purify this data, to double-check possible xss attack vectors. Especially if you're saving this data on backend*
 
 ## ICRC-1 Payments
 
