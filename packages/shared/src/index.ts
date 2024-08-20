@@ -203,6 +203,13 @@ export const PRE_LISTED_TOKENS: Record<string, PreListedToken> = {
     fee: 10_000n,
     decimals: 6,
   },
+  "pe5t5-diaaa-aaaar-qahwa-cai": {
+    name: "ckEURC",
+    symbol: "ckEURC",
+    assetId: "pe5t5-diaaa-aaaar-qahwa-cai",
+    fee: 10_000n,
+    decimals: 6,
+  },
   "g4tto-rqaaa-aaaar-qageq-cai": {
     name: "ckLINK",
     symbol: "ckLINK",
