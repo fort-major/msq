@@ -1,4 +1,4 @@
-import { DISCORD_LINK } from "@fort-major/msq-shared";
+import { TELEGRAM_LINK } from "@fort-major/msq-shared";
 import { ContactUsBtnText, ContactUsBtnWrapper } from "./style";
 import { EIconKind, Icon } from "../../ui-kit/icon";
 import { useLocation } from "@solidjs/router";
@@ -17,7 +17,7 @@ export function ContactUsBtn() {
 
   return (
     <Show when={btnVisible()}>
-      <ContactUsBtnWrapper href={DISCORD_LINK} target="_blank">
+      <ContactUsBtnWrapper href={TELEGRAM_LINK} target="_blank">
         <Icon kind={EIconKind.Chat} size={24} />
         <ContactUsBtnText>Contact Us</ContactUsBtnText>
       </ContactUsBtnWrapper>

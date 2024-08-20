@@ -4,7 +4,7 @@ import { TxnPage, TxnPageContent } from "./style";
 import { EIconKind } from "../../ui-kit/icon";
 import { Button, EButtonKind } from "../../ui-kit/button";
 import { ErrorSpoiler } from "../../components/error-spoiler";
-import { DISCORD_LINK } from "@fort-major/msq-shared";
+import { TELEGRAM_LINK } from "@fort-major/msq-shared";
 
 export interface ITxnFailPageProps {
   error: string;
@@ -13,7 +13,7 @@ export interface ITxnFailPageProps {
 
 export function TxnFailPage(props: ITxnFailPageProps) {
   const handleReport = () => {
-    window.open(DISCORD_LINK, "_blank");
+    window.open(TELEGRAM_LINK, "_blank");
   };
 
   return (

@@ -17,6 +17,7 @@ import { ICRC35Connection, openICRC35Window } from "icrc-35";
 import { MSQICRC35Client } from "./icrc35-client";
 import isMobile from "ismobilejs";
 import { MetaMaskSDK, SDKProvider } from "@metamask/sdk";
+import { Identity } from "@dfinity/agent";
 
 const DEFAULT_SHOULD_BE_FLASK = false;
 const DEFAULT_DEBUG = false;
@@ -42,18 +43,32 @@ export type TMsqCreateResult =
   | TMsqCreateErrEnableMetaMask
   | TMsqMobileNotSupported
   | TMsqConnectionRejected;
+
 export type TMsqCreateOk = { Ok: MsqClient };
-export type TMsqCreateErrInstallMetaMask = { InstallMetaMask: null };
-export type TMsqCreateErrUnblockMetaMask = { UnblockMSQ: null };
-export type TMsqCreateErrEnableMetaMask = { EnableMSQ: null };
-export type TMsqMobileNotSupported = { MobileNotSupported: null };
-export type TMsqConnectionRejected = { MSQConnectionRejected: null };
+export type TMsqCreateErrInstallMetaMask = { InstallMetaMask: null } & TMsqCreateErr;
+export type TMsqCreateErrUnblockMetaMask = { UnblockMSQ: null } & TMsqCreateErr;
+export type TMsqCreateErrEnableMetaMask = { EnableMSQ: null } & TMsqCreateErr;
+export type TMsqMobileNotSupported = { MobileNotSupported: null } & TMsqCreateErr;
+export type TMsqConnectionRejected = { MSQConnectionRejected: null } & TMsqCreateErr;
+export type TMsqCreateErr = {
+  Err: "MSQConnectionRejected" | "MobileNotSupported" | "EnableMSQ" | "UnblockMSQ" | "InstallMetaMask";
+};
+
+export type TMsqCreateAndLoginResult =
+  | TMsqCreateAndLoginOk
+  | TMsqCreateErrInstallMetaMask
+  | TMsqCreateErrUnblockMetaMask
+  | TMsqCreateErrEnableMetaMask
+  | TMsqMobileNotSupported
+  | TMsqConnectionRejected;
+export type TMsqCreateAndLoginOk = { Ok: { msq: MsqClient; identity: MsqIdentity } };
 
 /**
  * ## A client to interact with the MSQ Snap
  */
 export class MsqClient {
   private queueLocked: boolean = false;
+  private isAuthorizedCache = false;
 
   /**
    * ## Returns true if the user is logged in current website
@@ -63,8 +78,26 @@ export class MsqClient {
    *
    * @returns
    */
-  async isAuthorized(): Promise<boolean> {
-    return await this._requestSnap(SNAP_METHODS.public.identity.sessionExists);
+  isAuthorized(): boolean {
+    return this.isAuthorizedCache;
+  }
+
+  /**
+   * Returns true if it is safe to resume the session after the user closes or refreshes the page
+   *
+   * @returns
+   */
+  static isSafeToResume(): boolean {
+    return safeToAutoresume();
+  }
+
+  /**
+   * ## Resumes the auth session if authorized
+   *
+   * @returns the identity object
+   */
+  resume(): Identity & MsqIdentity {
+    return MsqIdentity.create(this) as unknown as Identity & MsqIdentity;
   }
 
   /**
@@ -78,21 +111,35 @@ export class MsqClient {
    *
    * @returns - {@link MsqIdentity} if the login was a success, `null` otherwise
    */
-  async requestLogin(): Promise<MsqIdentity | null> {
-    if (await this.isAuthorized()) {
-      return MsqIdentity.create(this);
+  async requestLogin(peer?: ReturnType<typeof openICRC35Window>): Promise<(MsqIdentity & Identity) | null> {
+    if (this.isAuthorized()) {
+      peer?.peer.close();
+      setSafeToAutoresume("true");
+
+      return this.resume();
     }
+
+    if (peer) {
+      setTimeout(() => peer.peer.focus(), 100);
+    }
+
+    const w = peer ? peer : openICRC35Window(MSQICRC35Client.Origin);
 
     const connection = await ICRC35Connection.establish({
       mode: "parent",
       debug: this.debug,
-      ...openICRC35Window(MSQICRC35Client.Origin),
+      ...w,
     });
     const client = new MSQICRC35Client(connection);
 
     const loginResult = await client.login();
 
     connection.close();
+
+    if (loginResult) {
+      this.isAuthorizedCache = true;
+      setSafeToAutoresume("true");
+    }
 
     return loginResult ? MsqIdentity.create(this) : null;
   }
@@ -108,7 +155,14 @@ export class MsqClient {
    * @returns whether the user was logged out
    */
   async requestLogout(): Promise<boolean> {
-    return await this._requestSnap(SNAP_METHODS.public.identity.requestLogout);
+    const result: boolean = await this._requestSnap(SNAP_METHODS.public.identity.requestLogout);
+
+    if (result) {
+      this.isAuthorizedCache = false;
+      setSafeToAutoresume("false");
+    }
+
+    return result;
   }
 
   /**
@@ -269,17 +323,17 @@ export class MsqClient {
    *  - check if the MSQ snap is installed, installing it automatically if not
    *
    * @param params - {@link IMsqClientParams}
-   * @returns - an initialized {@link MsqClient} object that can be used right away
+   * @returns - an initialized {@link MsqClient} object that can be used right away or an Err
    */
   static async create(params?: IMsqClientParams): Promise<TMsqCreateResult> {
     if (isMobile(window.navigator).any) {
-      return { MobileNotSupported: null };
+      return { MobileNotSupported: null, Err: "MobileNotSupported" };
     }
 
     let provider = await connectToMetaMask(params?.shouldBeFlask);
 
     if (provider === null) {
-      return { InstallMetaMask: null };
+      return { InstallMetaMask: null, Err: "InstallMetaMask" };
     }
 
     const snapId = params?.snapId ?? SNAP_ID;
@@ -298,7 +352,7 @@ export class MsqClient {
         });
       } catch (e) {
         logError("(Client connection)", e);
-        return { MSQConnectionRejected: null };
+        return { MSQConnectionRejected: null, Err: "MSQConnectionRejected" };
       }
     }
 
@@ -306,11 +360,11 @@ export class MsqClient {
     msqSnap = getSnapsResponse[snapId]!;
 
     if (msqSnap.blocked) {
-      return { UnblockMSQ: null };
+      return { UnblockMSQ: null, Err: "UnblockMSQ" };
     }
 
     if (!msqSnap.enabled) {
-      return { EnableMSQ: null };
+      return { EnableMSQ: null, Err: "EnableMSQ" };
     }
 
     if (msqSnap.version !== snapVersion || forceReinstall) {
@@ -320,7 +374,47 @@ export class MsqClient {
       });
     }
 
-    return { Ok: new MsqClient(provider, snapId, debug) };
+    const client = new MsqClient(provider, snapId, debug);
+    client.isAuthorizedCache = await client._requestSnap(SNAP_METHODS.public.identity.sessionExists);
+
+    return { Ok: client };
+  }
+
+  /**
+   * ## Same as `create` and `requestLogin`, but combined in one.
+   * Useful in cases when the browser blocks popups, since it opens the MSQ page first thing and only then does all the stuff
+   *
+   * @param params - {@link IMsqClientParams}
+   * @returns - an initialized {@link MsqClient} object that can be used right away or an Err
+   */
+  static async createAndLogin(params?: IMsqClientParams): Promise<TMsqCreateAndLoginResult> {
+    const peer = safeToAutoresume() ? undefined : openICRC35Window(MSQICRC35Client.Origin);
+
+    if (peer) {
+      setTimeout(() => window.focus(), 100);
+    }
+
+    const createResult = await MsqClient.create(params);
+
+    if ("Ok" in createResult) {
+      const msq = createResult.Ok;
+      const identity = await msq.requestLogin(peer);
+
+      if (!identity) {
+        setSafeToAutoresume("false");
+        // throwing this in case the user rejects logging in
+        // don't want to add another error type
+        return { MSQConnectionRejected: null, Err: "MSQConnectionRejected" };
+      }
+
+      setSafeToAutoresume("true");
+
+      return { Ok: { msq, identity } };
+    }
+
+    setSafeToAutoresume("false");
+    peer?.peer.close();
+    return createResult;
   }
 
   private constructor(
@@ -360,4 +454,12 @@ export async function connectToMetaMask(shouldBeFlask?: boolean): Promise<SDKPro
 
     return null;
   }
+}
+
+function safeToAutoresume() {
+  return localStorage.getItem("msq-safe-to-autoresume") === "true";
+}
+
+function setSafeToAutoresume(has: "true" | "false") {
+  localStorage.setItem("msq-safe-to-autoresume", has);
 }

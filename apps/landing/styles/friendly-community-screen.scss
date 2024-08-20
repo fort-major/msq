@@ -59,6 +59,10 @@
 
                 width: 195px;
                 padding-left: 30px;
+
+                span {
+                    text-wrap: nowrap;
+                }
             }
         }
     }

@@ -6,7 +6,7 @@ import { Show, createEffect } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { ErrorSpoiler } from "../../components/error-spoiler";
 import { COLOR_GRAY_105, COLOR_GRAY_140, COLOR_GRAY_190 } from "../../ui-kit";
-import { DISCORD_LINK, METAMASK_LINK } from "@fort-major/msq-shared";
+import { TELEGRAM_LINK, METAMASK_LINK } from "@fort-major/msq-shared";
 import isMobile from "ismobilejs";
 import { useMsqClient } from "../../store/global";
 import { ROOT } from "../../routes";
@@ -36,7 +36,7 @@ export function ErrorMobileNotSupportedPage() {
       button={{
         text: "Join Us",
         icon: EIconKind.Discord,
-        action: () => window.open(DISCORD_LINK, "_blank"),
+        action: () => window.open(TELEGRAM_LINK, "_blank"),
       }}
     />
   );
@@ -95,7 +95,7 @@ export function ErrorInstallMetaMaskPage() {
     <ErrorPage
       header="Install MetaMask"
       text="We couldn't find your MetaMask browser extension. Please, install it and refresh the page. If the problem persists, reach us out via Discord!"
-      button={{ text: "Get Help", icon: EIconKind.Discord, action: () => window.open(DISCORD_LINK, "_blank") }}
+      button={{ text: "Get Help", icon: EIconKind.Discord, action: () => window.open(TELEGRAM_LINK, "_blank") }}
       button2={{
         text: "Install MetaMask",
         icon: EIconKind.ArrowRightUp,
@@ -118,7 +118,7 @@ export function ErrorUnblockMsqPage() {
   return (
     <ErrorPage
       header="MSQ Snap is blocked by MetaMask"
-      text="Seems like MSQ Snap is in the Snaps block list. Don't worry, this must me some kind of misunderstanding. We're going to fix this really soon."
+      text="Seems like MSQ Snap is in the Snap block list. Don't worry, this must me some kind of misunderstanding. We're going to fix this really soon."
       button={{ text: "Get Help", icon: EIconKind.Discord, action: () => window.open(DISCORD_LINK, "_blank") }}
     />
   );
@@ -138,7 +138,7 @@ export function ErrorEnableMsqPage() {
     <ErrorPage
       header="Your MSQ Snap is disabled"
       text="Seems like you've disabled your MSQ Snap in your MetaMask settings. Enable it and refresh the page."
-      button={{ text: "Get Help", icon: EIconKind.Discord, action: () => window.open(DISCORD_LINK, "_blank") }}
+      button={{ text: "Get Help", icon: EIconKind.Discord, action: () => window.open(TELEGRAM_LINK, "_blank") }}
     />
   );
 }

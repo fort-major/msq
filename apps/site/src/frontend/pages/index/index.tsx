@@ -4,6 +4,7 @@ import { ROOT, findRoute } from "../../routes";
 import isMobile from "ismobilejs";
 import { IChildren } from "../../utils";
 import { useConnectMsq } from "../../store/global";
+import { TELEGRAM_LINK, debugStringify, logError } from "@fort-major/msq-shared";
 
 export function IndexPage(props: IChildren) {
   const navigate = useNavigate();
