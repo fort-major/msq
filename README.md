@@ -52,6 +52,15 @@ DFX env variables (starting with `CANISTER_ID_`) are propagated to vite automati
   * if this command fails because of locked `Cargo.toml`, run `pnpm run cargo:repair` and repeat
 * `pnpm run dev` - starts a development server with both: MSQ website and Demo project
 
+#### Setup the Internet Identity
+
+In another terminal window:
+
+* `git submodule init && git submodule update` - clone the Internet Identity repo
+* `cd apps/internet-identity && npm ci` - install II's deps
+* `dfx deploy internet_identity --no-wallet` - deploy the II's canisters
+* `npm run dev -- --port 4444` - start the II dev
+
 ### Test
 
 Tests only work when the project is built for dev (`pnpm run dev:build`)

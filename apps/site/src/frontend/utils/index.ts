@@ -84,6 +84,10 @@ export interface IChildren {
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+export function monthToStr(m: number) {
+  return MONTHS[m];
+}
+
 export function timestampToStr(timestampMs: number) {
   const date = new Date(timestampMs);
   const day = date.getDate().toString().padStart(2, "0");
@@ -106,7 +110,7 @@ export async function makeAgent(identity?: Identity | undefined, host?: string):
     icHost = storedHost === null ? import.meta.env.VITE_MSQ_DFX_NETWORK_HOST : storedHost;
   }
 
-  const agent = new HttpAgent({ host: icHost, identity, retryTimes: 10 });
+  const agent = new HttpAgent({ host: icHost, identity });
 
   if (icHost) {
     await agent.fetchRootKey();

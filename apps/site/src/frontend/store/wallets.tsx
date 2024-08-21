@@ -1,20 +1,12 @@
 import { Accessor, createContext, createSignal, useContext } from "solid-js";
 import { TAccountId, unreacheable } from "@fort-major/msq-shared";
-import {
-  IWallet,
-  Result,
-  WalletError,
-  connectBitfinityWallet,
-  connectNNSWallet,
-  connectPlugWallet,
-  msqToIWallet,
-} from "../utils/wallets";
+import { IWallet, Result, WalletError, connectNNSWallet, connectPlugWallet, msqToIWallet } from "../utils/wallets";
 import { IChildren, toastErr } from "../utils";
 import { useConnectMsq, useMsqClient } from "./global";
 import { useAssetData } from "./assets";
 import { InternalSnapClient } from "@fort-major/msq-client";
 
-export type TThirdPartyWalletKind = "MSQ" | "NNS" | "Plug" | "Bitfinity";
+export type TThirdPartyWalletKind = "MSQ" | "NNS" | "Plug";
 export type ConnectedWalletStore = [TThirdPartyWalletKind, IWallet | InternalSnapClient | undefined] | undefined;
 type ConnectWalletFunc = (kind: TThirdPartyWalletKind) => Promise<void>;
 type InitWalletFunc = (assetIds: string[]) => Promise<void>;
@@ -58,10 +50,6 @@ export function ThirdPartyWalletStore(props: IChildren) {
     switch (kind) {
       case "Plug":
         result = await connectPlugWallet();
-        break;
-
-      case "Bitfinity":
-        result = await connectBitfinityWallet();
         break;
 
       case "NNS":

@@ -5,6 +5,7 @@ import {
   ErrorAssetNotFoundPage,
   ErrorEnableMsqPage,
   ErrorInstallMetaMaskPage,
+  ErrorInvalidPaymentRequestPage,
   ErrorMSQConnectionRejectedPage,
   ErrorMobileNotSupportedPage,
   ErrorUnblockMsqPage,
@@ -13,7 +14,6 @@ import { ICRC35Page } from "./pages/icrc35";
 import { LoginPage } from "./pages/integration/login";
 import { PaymentPage } from "./pages/integration/payment";
 import { PaymentCheckoutPage } from "./pages/integration/payment/checkout";
-import { UrlBasedPaymentPage } from "./pages/integration/payment/url-payment";
 import { SendPage } from "./pages/cabinet/my-assets/send";
 import { MyMasksPage } from "./pages/cabinet/my-masks";
 import { MySessionsPage } from "./pages/cabinet/my-sessions";
@@ -21,7 +21,6 @@ import { MyLinksPage } from "./pages/cabinet/my-links";
 import { MyAssetsPage } from "./pages/cabinet/my-assets";
 import { StatisticsPage } from "./pages/statistics";
 import { useLocation } from "@solidjs/router";
-import { unreacheable } from "@fort-major/msq-shared";
 
 export interface IRoute {
   parent?: IRoute;
@@ -60,20 +59,6 @@ export const ROOT = route({
               component: PaymentCheckoutPage,
             }),
           },
-        }),
-      },
-    }),
-
-    // URL-BASED PAYMENT
-    pay: route({
-      ...enableFeatures("mobile", "showBetaDisclaimer"),
-
-      "/": {
-        "/": route({
-          component: UrlBasedPaymentPage,
-        }),
-        send: route({
-          component: SendPage,
         }),
       },
     }),
@@ -136,6 +121,9 @@ export const ROOT = route({
         }),
         "token-not-found": route({
           component: ErrorAssetNotFoundPage,
+        }),
+        "bad-payment-request": route({
+          component: ErrorInvalidPaymentRequestPage,
         }),
         "404": route({
           component: Error404Page,

@@ -90,8 +90,6 @@ export async function msqToIWallet(
   assetId = _assetId;
   accountId = _accountId;
 
-  console.log(client, assetId, accountId);
-
   return {
     getPrincipal: async () => {
       const it = await MsqIdentity.create(client!.getInner(), makeIcrc1Salt(assetId!, accountId!));
@@ -103,8 +101,6 @@ export async function msqToIWallet(
       );
     },
     createActor: async function <T extends Actor>(args: CreateActorArgs) {
-      console.log(client, assetId, accountId);
-
       const identity = await MsqIdentity.create(client!.getInner(), makeIcrc1Salt(assetId!, accountId!));
       const agent = await makeAgent(identity, getIcHostOrDefault());
 
@@ -123,6 +119,8 @@ export async function connectPlugWallet(): Promise<Result<IWallet, WalletError>>
   if (!window.ic?.plug) {
     return { Err: WalletError.WalletNotInstalled };
   }
+
+  console.log("plug host", getIcHostOrDefault());
 
   const wallet = {
     getPrincipal: async () => {
@@ -163,49 +161,6 @@ export async function connectPlugWallet(): Promise<Result<IWallet, WalletError>>
   return { Ok: wallet };
 }
 
-// connects the bitfinity wallet and returns a common interface
-export async function connectBitfinityWallet(): Promise<Result<IWallet, WalletError>> {
-  assertIs<{ ic?: { bitfinityWallet?: BitfinityProvider } }>(window);
-
-  if (!window.ic?.bitfinityWallet) {
-    return { Err: WalletError.WalletNotInstalled };
-  }
-
-  const wallet = {
-    getPrincipal: () => {
-      assertIs<{ ic?: { bitfinityWallet?: BitfinityProvider } }>(window);
-
-      return window.ic!.bitfinityWallet!.getPrincipal();
-    },
-    getAccountId: () => {
-      assertIs<{ ic?: { bitfinityWallet?: BitfinityProvider } }>(window);
-
-      return window.ic!.bitfinityWallet!.getAccountId();
-    },
-    createActor: <T extends Actor>(args: CreateActorArgs) => {
-      assertIs<{ ic?: { bitfinityWallet?: BitfinityProvider } }>(window);
-
-      return window.ic!.bitfinityWallet!.createActor!({ ...args, host: getIcHostOrDefault() }) as Promise<T>;
-    },
-  };
-
-  if (await window.ic.bitfinityWallet.isConnected()) {
-    return { Ok: wallet };
-  }
-
-  try {
-    await window.ic.bitfinityWallet.requestConnect({
-      whitelist: Object.keys(PRE_LISTED_TOKENS),
-    });
-  } catch (e) {
-    console.error(e);
-
-    return { Err: WalletError.ConnectionRejected };
-  }
-
-  return { Ok: wallet };
-}
-
 // logs in through the II and returns a common interface
 export async function connectNNSWallet(): Promise<Result<IWallet, WalletError>> {
   const wallet = {
@@ -228,7 +183,13 @@ export async function connectNNSWallet(): Promise<Result<IWallet, WalletError>> 
   }
 
   try {
-    await new Promise((res, rej) => client.login({ onSuccess: res, onError: rej }));
+    await new Promise((res, rej) =>
+      client.login({
+        identityProvider: import.meta.env.DEV ? "http://localhost:4444" : undefined,
+        onSuccess: res,
+        onError: rej,
+      }),
+    );
   } catch (e) {
     console.error(e);
 

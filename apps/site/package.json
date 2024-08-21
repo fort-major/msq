@@ -16,7 +16,6 @@
     "dev:build": "pnpm run propagateEnv && tsc && vite build --mode dev",
     "dev:build:apps": "pnpm run dev:build",
     "dev": "pnpm run propagateEnv && vite --mode dev",
-    "dev:gen": "dfx generate",
     "dev:deploy": "dfx deploy",
     "dev:deploy:frontend": "dfx deploy msq_frontend",
     "dev:deploy:site": "pnpm run dev:deploy:frontend",

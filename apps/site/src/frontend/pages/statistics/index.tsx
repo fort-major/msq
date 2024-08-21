@@ -1,6 +1,6 @@
 import { For, Show, createResource } from "solid-js";
 import { createStatisticsBackendActor } from "../../backend";
-import { makeAnonymousAgent, timestampToStr } from "../../utils";
+import { makeAnonymousAgent, monthToStr } from "../../utils";
 import { Line } from "solid-chartjs";
 import { COLOR_ACCENT } from "../../ui-kit";
 import { Stat, StatsWrapper } from "./style";
@@ -9,6 +9,7 @@ import { Text } from "../../ui-kit/typography";
 interface IStat {
   labels: string[];
   datasets: { label: string; data: number[] }[];
+  last?: { m: number; y: number };
 }
 
 function makeDefaultStat(label: string): IStat {
@@ -47,19 +48,66 @@ export function StatisticsPage() {
     };
 
     for (let episode of statisticsHistory) {
-      const time = timestampToStr(Math.floor(Number(episode.timestamp / BigInt(1000000))));
+      const timestampMs = Math.floor(Number(episode.timestamp / 1000000n));
+      const date = new Date(timestampMs);
+      const label = `${monthToStr(date.getMonth())} ${date.getFullYear()}`;
 
-      result.login.labels.push(time);
-      result.login.datasets[0].data.push(episode.data.login);
+      if (episode.data.login > 0) {
+        if (
+          result.login.last &&
+          result.login.last.m === date.getMonth() &&
+          result.login.last.y === date.getFullYear()
+        ) {
+          result.login.datasets[0].data[result.login.datasets[0].data.length] += episode.data.login;
+        } else {
+          result.login.last = { m: date.getMonth(), y: date.getFullYear() };
+          result.login.labels.push(label);
+          result.login.datasets[0].data.push(episode.data.login);
+        }
+      }
 
-      result.transfer.labels.push(time);
-      result.transfer.datasets[0].data.push(episode.data.transfer);
+      if (episode.data.transfer > 0) {
+        if (
+          result.transfer.last &&
+          result.transfer.last.m === date.getMonth() &&
+          result.transfer.last.y === date.getFullYear()
+        ) {
+          result.transfer.datasets[0].data[result.transfer.datasets[0].data.length] += episode.data.transfer;
+        } else {
+          result.transfer.last = { m: date.getMonth(), y: date.getFullYear() };
+          result.transfer.labels.push(label);
+          result.transfer.datasets[0].data.push(episode.data.transfer);
+        }
+      }
 
-      result.origin_link.labels.push(time);
-      result.origin_link.datasets[0].data.push(episode.data.origin_link);
+      if (episode.data.origin_link > 0) {
+        if (
+          result.origin_link.last &&
+          result.origin_link.last.m === date.getMonth() &&
+          result.origin_link.last.y === date.getFullYear()
+        ) {
+          result.origin_link.datasets[0].data[result.origin_link.datasets[0].data.length] += episode.data.origin_link;
+        } else {
+          result.origin_link.last = { m: date.getMonth(), y: date.getFullYear() };
+          result.origin_link.labels.push(label);
+          result.origin_link.datasets[0].data.push(episode.data.origin_link);
+        }
+      }
 
-      result.origin_unlink.labels.push(time);
-      result.origin_unlink.datasets[0].data.push(episode.data.origin_unlink);
+      if (episode.data.origin_unlink > 0) {
+        if (
+          result.origin_unlink.last &&
+          result.origin_unlink.last.m === date.getMonth() &&
+          result.origin_unlink.last.y === date.getFullYear()
+        ) {
+          result.origin_unlink.datasets[0].data[result.origin_unlink.datasets[0].data.length] +=
+            episode.data.origin_unlink;
+        } else {
+          result.origin_unlink.last = { m: date.getMonth(), y: date.getFullYear() };
+          result.origin_unlink.labels.push(label);
+          result.origin_unlink.datasets[0].data.push(episode.data.origin_unlink);
+        }
+      }
     }
 
     return result;

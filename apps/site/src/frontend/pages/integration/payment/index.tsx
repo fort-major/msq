@@ -1,6 +1,6 @@
-import { For, Show, createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { For, Show, createEffect, createMemo, createSignal, on, onCleanup, onMount } from "solid-js";
 import { useMsqClient } from "../../../store/global";
-import { useLocation, useNavigate } from "@solidjs/router";
+import { useLocation, useNavigate, useSearchParams } from "@solidjs/router";
 import { Principal } from "@dfinity/principal";
 import {
   AccountCardBase,
@@ -20,6 +20,7 @@ import {
   TAccountId,
   delay,
   err,
+  hexToBytes,
   originToHostname,
   tokensToStr,
 } from "@fort-major/msq-shared";
@@ -34,6 +35,26 @@ import { ROOT } from "../../../routes";
 import { TThirdPartyWalletKind, useThirdPartyWallet } from "../../../store/wallets";
 import { useICRC35Store } from "../../../store/icrc-35";
 
+interface ITransferRequestSearchParams {
+  kind?: "t" | "d";
+  "canister-id": string;
+  "to-principal": string;
+  "to-subaccount"?: string;
+  memo?: string;
+  amount: string;
+}
+
+interface UrlBasedICRC1TransferRequest {
+  kind: "transfer" | "donation";
+  canisterId: string;
+  to: {
+    owner: string;
+    subaccount?: string;
+  };
+  memo?: string;
+  amount: bigint;
+}
+
 export function PaymentPage() {
   const [selectedAccountId, setSelectedAccountId] = createSignal<TAccountId>(0);
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
@@ -46,43 +67,141 @@ export function PaymentPage() {
   const navigate = useNavigate();
   const { connectWallet, initWallet, connectedWallet, setWalletAccount } = useThirdPartyWallet();
 
-  const getAssetId = () => getIcrc35Request<IICRC1TransferRequest>()!.payload.canisterId;
+  const transferRequest = createMemo(() => {
+    const [searchParams] = useSearchParams() as unknown as [ITransferRequestSearchParams];
+    if (!searchParams["canister-id"] || !searchParams["to-principal"] || !searchParams["amount"]) return undefined;
 
-  createEffect(async () => {
-    if (!getIcrc35Request()) {
-      navigate(ROOT.path);
-      return;
-    }
+    // inputs are validated here or later for principals
+    const req: UrlBasedICRC1TransferRequest = {
+      kind: searchParams.kind === "d" ? "donation" : "transfer",
+      canisterId: searchParams["canister-id"],
+      to: {
+        owner: searchParams["to-principal"],
+        subaccount: searchParams["to-subaccount"],
+      },
+      memo: searchParams.memo,
+      amount: BigInt(searchParams.amount),
+    };
 
-    const req = getIcrc35Request<IICRC1TransferRequest>()!;
-
-    // validate other inputs
-    Principal.fromText(req.payload.to.owner);
-    if (req.payload.amount < 0n) {
-      err(ErrorCode.INVALID_INPUT, `Amount is less than zero: ${req.payload.amount}`);
-    }
-
-    const assetId = getAssetId()!;
-
-    await fetchMetadata([assetId]);
+    return req;
   });
 
-  createEffect(async () => {
-    const assetId = getAssetId()!;
+  const mode = (): "icrc-35" | "url" | undefined =>
+    getIcrc35Request() ? "icrc-35" : transferRequest() ? "url" : undefined;
 
-    if (connectedWalletIsThirdParty()) {
-      return;
+  const getAssetId = () => {
+    try {
+      switch (mode()) {
+        case "icrc-35":
+          Principal.fromText(getIcrc35Request<IICRC1TransferRequest>()!.payload.canisterId);
+        case "url":
+          return Principal.fromText(transferRequest()!.canisterId);
+      }
+    } catch {
+      return undefined;
+    }
+  };
+
+  const getKind = (): "payment" | "transfer" | "donation" | undefined => {
+    switch (mode()) {
+      case "icrc-35":
+        return "payment";
+      case "url":
+        return transferRequest()!.kind;
+    }
+  };
+
+  const getToPrincipal = () => {
+    try {
+      switch (mode()) {
+        case "icrc-35":
+          return Principal.fromText(getIcrc35Request<IICRC1TransferRequest>()!.payload.to.owner);
+        case "url":
+          return Principal.fromText(transferRequest()!.to.owner);
+      }
+    } catch {
+      return undefined;
+    }
+  };
+
+  const getToSubaccount = () => {
+    switch (mode()) {
+      case "icrc-35":
+        return getIcrc35Request<IICRC1TransferRequest>()!.payload.to.subaccount;
+      case "url":
+        return transferRequest()!.to.subaccount ? hexToBytes(transferRequest()!.to.subaccount!) : undefined;
+    }
+  };
+
+  const getMemo = () => {
+    switch (mode()) {
+      case "icrc-35":
+        return getIcrc35Request<IICRC1TransferRequest>()!.payload.memo;
+      case "url":
+        return transferRequest()!.memo ? hexToBytes(transferRequest()!.memo!) : undefined;
+    }
+  };
+
+  const getAmount = () => {
+    let amount: bigint;
+
+    switch (mode()) {
+      case "icrc-35":
+        amount = getIcrc35Request<IICRC1TransferRequest>()!.payload.amount;
+        break;
+      case "url":
+        amount = transferRequest()!.amount;
+        break;
+
+      default:
+        amount = 0n;
     }
 
-    const result = await fetchAccountInfo([assetId]);
+    if (amount > 0n) return amount;
+    return undefined;
+  };
 
-    // canister ID will be validated here
-    if (!result || !result[0]) {
-      err(ErrorCode.ICRC1_ERROR, "Token not found");
+  const isValidRequest = () =>
+    getAssetId() !== undefined && getToPrincipal() !== undefined && getAmount() !== undefined;
+
+  const getInitiatorOrigin = () => {
+    switch (mode()) {
+      case "icrc-35":
+        return getIcrc35Request<IICRC1TransferRequest>()!.peerOrigin;
+      case "url":
+        return window.document.referrer ? new URL(window.document.referrer).origin : undefined;
     }
+  };
 
-    await refreshBalances!([assetId]);
-  });
+  createEffect(
+    on(isValidRequest, async (isValid) => {
+      if (!isValid) {
+        navigate(ROOT["/"].error["/"]["bad-payment-request"].path);
+        return;
+      }
+
+      await fetchMetadata([getAssetId()!.toText()]);
+    }),
+  );
+
+  createEffect(
+    on(getAssetId, async (assetId) => {
+      if (!assetId) return;
+
+      if (connectedWalletIsThirdParty()) {
+        return;
+      }
+
+      const result = await fetchAccountInfo([assetId.toText()]);
+
+      // canister ID will be validated here
+      if (!result || !result[0]) {
+        err(ErrorCode.ICRC1_ERROR, "Token not found");
+      }
+
+      await refreshBalances!([assetId.toText()]);
+    }),
+  );
 
   createEffect(async () => {
     if (connectedWallet() && refreshing() === false) {
@@ -90,7 +209,7 @@ export function PaymentPage() {
 
       while (refreshing() !== undefined) {
         await delay(2000);
-        await refreshBalances!([getAssetId()]);
+        await refreshBalances!([getAssetId()!.toText()]);
       }
     }
   });
@@ -110,10 +229,10 @@ export function PaymentPage() {
   };
 
   const handleReceive = (accountId: TAccountId) => {
-    const assetId = getAssetId()!;
+    const assetId = getAssetId()!.toText();
 
     setReceivePopupProps({
-      assetId,
+      assetId: assetId,
       principal: assets[assetId]!.accounts[accountId].principal!,
       symbol: assetMetadata[assetId]!.metadata!.symbol,
       onClose: handleReceiveClose,
@@ -125,7 +244,7 @@ export function PaymentPage() {
   };
 
   const handleCheckoutStart = (accountId: TAccountId) => {
-    const assetId = getAssetId()!;
+    const assetId = getAssetId()!.toText();
     setWalletAccount(assetId, accountId);
 
     const asset = assets[assetId]!;
@@ -161,7 +280,7 @@ export function PaymentPage() {
 
   const handleConnectWallet = async (kind: TThirdPartyWalletKind) => {
     await connectWallet(kind);
-    await initWallet([getAssetId()]);
+    await initWallet([getAssetId()!.toText()]);
   };
 
   const connectedWalletIsThirdParty = () => {
@@ -171,43 +290,40 @@ export function PaymentPage() {
     if (!connected) return true;
     const [kind, _] = connected;
 
-    return kind === "NNS" || kind === "Plug" || kind === "Bitfinity";
+    return kind === "NNS" || kind === "Plug";
   };
 
   return (
-    <Show when={getIcrc35Request()}>
+    <Show when={isValidRequest()}>
       <PaymentPageContainer>
         <PaymentPageWrapper>
           <PaymentPageHeading>
             <Text size={20} weight={600}>
-              Pending payment on <span class={ColorAccent}>{originToHostname(getIcrc35Request()!.peerOrigin)}</span>
+              Pending {getKind()}{" "}
+              <Show when={getInitiatorOrigin()}>
+                initiated by <span class={ColorAccent}>{originToHostname(getInitiatorOrigin()!)}</span>
+              </Show>
             </Text>
-            <Show when={getAssetId() && assetMetadata[getAssetId()!]?.metadata}>
+            <Show when={getAssetId() && assetMetadata[getAssetId()!.toText()]?.metadata}>
               <H3>
-                {tokensToStr(
-                  getIcrc35Request<IICRC1TransferRequest>()!.payload.amount,
-                  assetMetadata[getAssetId()!]!.metadata!.decimals,
-                  undefined,
-                  true,
-                )}{" "}
-                {assetMetadata[getAssetId()!]!.metadata!.symbol}
+                {tokensToStr(getAmount()!, assetMetadata[getAssetId()!.toText()]!.metadata!.decimals, undefined, true)}{" "}
+                {assetMetadata[getAssetId()!.toText()]!.metadata!.symbol}
               </H3>
               <Show when={!connectedWallet()}>
                 <button onClick={() => handleConnectWallet("MSQ")}>Connect MSQ</button>
                 <button onClick={() => handleConnectWallet("NNS")}>Connect NNS</button>
                 <button onClick={() => handleConnectWallet("Plug")}>Connect Plug</button>
-                <button onClick={() => handleConnectWallet("Bitfinity")}>Connect Bitfinity</button>
               </Show>
             </Show>
           </PaymentPageHeading>
-          <Show when={assets[getAssetId()!]?.accounts && assetMetadata[getAssetId()!]?.metadata}>
+          <Show when={assets[getAssetId()!.toText()]?.accounts && assetMetadata[getAssetId()!.toText()]?.metadata}>
             <PaymentPageContent>
               <Text size={20} weight={600}>
                 Select an account to continue:
               </Text>
               <PaymentPageAccountsWrapper>
                 <PaymentPageAccounts>
-                  <For each={assets[getAssetId()!]?.accounts}>
+                  <For each={assets[getAssetId()!.toText()]?.accounts}>
                     {(account, idx) => (
                       <AccountCard
                         classList={{ [AccountCardBase]: true, [AccountCardSelected]: idx() === selectedAccountId() }}
@@ -217,12 +333,9 @@ export function PaymentPage() {
                         name={account.name}
                         balance={account.balance}
                         principal={account.principal}
-                        decimals={assetMetadata[getAssetId()!]!.metadata!.decimals}
-                        symbol={assetMetadata[getAssetId()!]!.metadata!.symbol}
-                        targetBalance={
-                          getIcrc35Request<IICRC1TransferRequest>()!.payload.amount +
-                          assetMetadata[getAssetId()!]!.metadata!.fee
-                        }
+                        decimals={assetMetadata[getAssetId()!.toText()]!.metadata!.decimals}
+                        symbol={assetMetadata[getAssetId()!.toText()]!.metadata!.symbol}
+                        targetBalance={getAmount()! + assetMetadata[getAssetId()!.toText()]!.metadata!.fee}
                       />
                     )}
                   </For>
@@ -231,12 +344,12 @@ export function PaymentPage() {
                   <AddAccountBtn
                     disabled={loading()}
                     loading={loading()}
-                    symbol={assetMetadata[getAssetId()!]!.metadata!.symbol}
+                    symbol={assetMetadata[getAssetId()!.toText()]!.metadata!.symbol}
                     onClick={() =>
                       handleAddAccount(
-                        getIcrc35Request<IICRC1TransferRequest>()!.payload.canisterId,
-                        assetMetadata[getAssetId()!]!.metadata!.name,
-                        assetMetadata[getAssetId()!]!.metadata!.symbol,
+                        getAssetId()!.toText(),
+                        assetMetadata[getAssetId()!.toText()]!.metadata!.name,
+                        assetMetadata[getAssetId()!.toText()]!.metadata!.symbol,
                       )
                     }
                   />
@@ -252,9 +365,8 @@ export function PaymentPage() {
                 />
                 <Show
                   when={
-                    (assets[getAssetId()!]!.accounts[selectedAccountId()].balance || 0n) >=
-                    getIcrc35Request<IICRC1TransferRequest>()!.payload.amount +
-                      assetMetadata[getAssetId()!]!.metadata!.fee
+                    (assets[getAssetId()!.toText()]!.accounts[selectedAccountId()].balance || 0n) >=
+                    getAmount()! + assetMetadata[getAssetId()!.toText()]!.metadata!.fee
                   }
                   fallback={
                     <Button
@@ -263,7 +375,7 @@ export function PaymentPage() {
                       text="Top up the Balance"
                       icon={EIconKind.ArrowLeftDown}
                       onClick={() => handleReceive(selectedAccountId())}
-                      disabled={assets[getAssetId()!]!.accounts[selectedAccountId()].principal === undefined}
+                      disabled={assets[getAssetId()!.toText()]!.accounts[selectedAccountId()].principal === undefined}
                       fullWidth
                     />
                   }

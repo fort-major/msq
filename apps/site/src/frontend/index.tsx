@@ -16,7 +16,7 @@ import { AssetsStore } from "./store/assets";
 import { OriginDataStore } from "./store/origins";
 import { ROOT, findRoute, getSolidRoutes } from "./routes";
 import { IChildren } from "./utils";
-import { DISCORD_LINK, debugStringify, logError } from "@fort-major/msq-shared";
+import { debugStringify, logError, TELEGRAM_LINK } from "@fort-major/msq-shared";
 import { ErrorPage } from "./pages/error";
 import { EIconKind } from "./ui-kit/icon";
 import { ContactUsBtn } from "./components/contact-us-btn";
@@ -96,7 +96,7 @@ export function App(props: IChildren) {
         button={{
           text: "Report the Error",
           icon: EIconKind.ArrowRightUp,
-          action: () => window.open(DISCORD_LINK, "_blank"),
+          action: () => window.open(TELEGRAM_LINK, "_blank"),
         }}
       />
     );
@@ -104,7 +104,5 @@ export function App(props: IChildren) {
 }
 
 const routes = getSolidRoutes();
-
-console.log(ROOT);
 
 render(() => <Router root={App}>{routes}</Router>, root!);

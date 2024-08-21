@@ -119,7 +119,7 @@ export function ErrorUnblockMsqPage() {
     <ErrorPage
       header="MSQ Snap is blocked by MetaMask"
       text="Seems like MSQ Snap is in the Snap block list. Don't worry, this must me some kind of misunderstanding. We're going to fix this really soon."
-      button={{ text: "Get Help", icon: EIconKind.Discord, action: () => window.open(DISCORD_LINK, "_blank") }}
+      button={{ text: "Get Help", icon: EIconKind.Discord, action: () => window.open(TELEGRAM_LINK, "_blank") }}
     />
   );
 }
@@ -152,6 +152,15 @@ export function Error404Page() {
       headerLine2="Page Not Found"
       text="Seems like there is no page you're looking for. Try other ones or go back!"
       button={{ text: "To My Wallet", icon: EIconKind.Login, action: () => navigate(ROOT.path, { replace: true }) }}
+    />
+  );
+}
+
+export function ErrorInvalidPaymentRequestPage() {
+  return (
+    <ErrorPage
+      header="Invalid payment request"
+      text="Nothing bad happened. Close this page and try again. We're sorry for the inconvenience!"
     />
   );
 }
