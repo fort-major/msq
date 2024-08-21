@@ -426,18 +426,22 @@ export class MsqClient {
 
 export async function connectToMetaMask(shouldBeFlask?: boolean): Promise<SDKProvider | null> {
   const sdk = new MetaMaskSDK({
+    checkInstallationImmediately: true,
     dappMetadata: {
       name: "MSQ - Safe ICP Wallet",
       url: "https://msq.tech",
     },
     extensionOnly: true,
+    preferDesktop: true,
   });
-
-  (window as any).sdk = sdk;
 
   try {
     await sdk.connect();
     const provider = sdk.getProvider();
+
+    console.log(provider);
+
+    if (!provider || !provider.isMetaMask) return null;
 
     const version = await provider.request<string>({
       method: "web3_clientVersion",

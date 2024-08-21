@@ -1,5 +1,4 @@
-// @ts-expect-error - did is a .js file
-import { idlFactory } from "../declarations/msq_statistics/msq_statistics.did";
+import { idlFactory } from "../declarations/msq_statistics/msq_statistics.did.js";
 import { Actor, ActorSubclass, Agent } from "@dfinity/agent";
 
 export type { _SERVICE as StatisticsBackend } from "../declarations/msq_statistics/msq_statistics.did";

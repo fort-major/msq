@@ -5,7 +5,7 @@
     "It is done in src/index.ts:1",
     "Just set SNAP_VERSION to the actual one"
   ],
-  "version": "0.3.11",
+  "version": "0.3.12",
   "main": "./dist/cjs/index",
   "module": "./dist/esm/index",
   "unpkg": "./dist/esm/index",
@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@fort-major/msq-shared": "workspace:*",
-    "@metamask/sdk": "^0.14.3",
+    "@metamask/sdk": "^0.27.0",
     "icrc-35": "^0.2",
     "ismobilejs": "1.1.1"
   }
