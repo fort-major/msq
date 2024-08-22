@@ -1,7 +1,7 @@
 import { IOriginDataExternal, TIdentityId, TOrigin, unreacheable } from "@fort-major/msq-shared";
 import { IChildren, ONE_SEC_MS } from "../utils";
 import { createStore, produce } from "solid-js/store";
-import { createContext, createSignal, useContext } from "solid-js";
+import { createContext, createEffect, createSignal, on, useContext } from "solid-js";
 import { useMsqClient } from "./global";
 
 export type AllOriginData = Record<TOrigin, IOriginDataExternal | undefined>;
@@ -33,7 +33,7 @@ export function OriginDataStore(props: IChildren) {
   const [allOriginData, setAllOriginData] = createStore<AllOriginData>({});
   const [isFetching, setFetching] = createSignal(false);
   const [initialized, setInitialized] = createSignal(false);
-  const _msq = useMsqClient();
+  const msqClient = useMsqClient();
 
   const init = async (origins?: TOrigin[]) => {
     if (initialized()) return;
@@ -47,7 +47,7 @@ export function OriginDataStore(props: IChildren) {
     if (isFetching()) return;
     setFetching(true);
 
-    const msq = _msq()!;
+    const msq = msqClient()!;
 
     const fetchedAllOriginData = await msq.getAllOriginData(origins);
 
@@ -59,7 +59,7 @@ export function OriginDataStore(props: IChildren) {
   };
 
   const addNewMask = async (origin: TOrigin) => {
-    const msq = _msq()!;
+    const msq = msqClient()!;
 
     const newMask = await msq.register(origin);
     if (!newMask) return;
@@ -72,14 +72,14 @@ export function OriginDataStore(props: IChildren) {
   };
 
   const editPseudonym = async (origin: TOrigin, identityId: TIdentityId, newPseudonym: string) => {
-    const msq = _msq()!;
+    const msq = msqClient()!;
 
     setAllOriginData(origin, "masks", identityId, "pseudonym", newPseudonym);
     await msq.editPseudonym(origin, identityId, newPseudonym);
   };
 
   const unlinkOne = async (origin: TOrigin, withOrigin: TOrigin) => {
-    const msq = _msq()!;
+    const msq = msqClient()!;
     const result = await msq.unlinkOne(origin, withOrigin);
 
     if (result) {
@@ -96,7 +96,7 @@ export function OriginDataStore(props: IChildren) {
   };
 
   const unlinkAll = async (origin: TOrigin) => {
-    const msq = _msq()!;
+    const msq = msqClient()!;
     const result = await msq.unlinkAll(origin);
 
     if (result) {
@@ -116,7 +116,7 @@ export function OriginDataStore(props: IChildren) {
   };
 
   const stopSession = async (origin: TOrigin) => {
-    const msq = _msq()!;
+    const msq = msqClient()!;
     const result = await msq.stopSession(origin);
 
     if (result) {

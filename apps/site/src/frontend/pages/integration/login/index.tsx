@@ -1,4 +1,4 @@
-import { For, Match, Show, Switch, createEffect, createSignal } from "solid-js";
+import { For, Match, Show, Switch, createEffect, createSignal, on } from "solid-js";
 import { IMask, TOrigin, originToHostname } from "@fort-major/msq-shared";
 import { DismissBtn, LoginHeadingSection, LoginOptionsSection, LoginOptionsWrapper, LoginPageHeader } from "./style";
 import { useMsqClient } from "../../../store/global";
@@ -16,33 +16,39 @@ export function LoginPage() {
   const [loginOptions, setLoginOptions] = createSignal<[TOrigin, IMask[]][] | null>(null);
   const [loading, setLoading] = createSignal(false);
 
-  const _msq = useMsqClient();
+  const msqClient = useMsqClient();
   const { getIcrc35Request } = useICRC35Store();
   const navigate = useNavigate();
 
-  createEffect(async () => {
-    if (getIcrc35Request() === undefined) {
-      navigate(ROOT.path);
+  createEffect(() => {
+    if (!getIcrc35Request()) {
+      navigate(ROOT["/"].error["/"]["bad-login-request"].path);
       return;
     }
-
-    if (_msq() === undefined) {
-      return;
-    }
-
-    const loginOptions = await _msq()!.getLoginOptions(getIcrc35Request()!.peerOrigin);
-
-    setLoginOptions(loginOptions);
   });
 
+  createEffect(
+    on(msqClient, async (msq) => {
+      if (!msq) {
+        return;
+      }
+
+      const loginOptions = await msq.getLoginOptions(getIcrc35Request()!.peerOrigin);
+
+      setLoginOptions(loginOptions);
+    }),
+  );
+
   const onLogin = async (loginOrigin: string, identityId: number) => {
+    const icrc35 = getIcrc35Request()!;
+
     setLoading(true);
-    const agreed = await _msq()!.login(getIcrc35Request()!.peerOrigin, identityId, loginOrigin);
+    const agreed = await msqClient()!.login(icrc35.peerOrigin, identityId, loginOrigin);
     setLoading(false);
 
     if (agreed) {
+      icrc35.respond(true);
       window.close();
-      getIcrc35Request()!.respond(true);
     }
   };
 
@@ -50,7 +56,7 @@ export function LoginPage() {
     setLoading(true);
     document.body.style.cursor = "wait";
 
-    const msq = _msq()!;
+    const msq = msqClient()!;
 
     await msq.register(getIcrc35Request()!.peerOrigin);
 
@@ -62,8 +68,6 @@ export function LoginPage() {
   };
 
   const onDismiss = () => {
-    getIcrc35Request()!.respond(false);
-
     window.close();
   };
 

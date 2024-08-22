@@ -32,10 +32,10 @@ export function ErrorMobileNotSupportedPage() {
   return (
     <ErrorPage
       header="Oops! This page is not available on mobile devices yet"
-      text="Try accessing this page via your desktop browser. Join our Discord community and be the first to know when it’s ready."
+      text="Try accessing this page via your desktop browser. Join our Telegram community and be the first to know when it’s ready."
       button={{
         text: "Join Us",
-        icon: EIconKind.Discord,
+        icon: EIconKind.ArrowRightUp,
         action: () => window.open(TELEGRAM_LINK, "_blank"),
       }}
     />
@@ -94,8 +94,8 @@ export function ErrorInstallMetaMaskPage() {
   return (
     <ErrorPage
       header="Install MetaMask"
-      text="We couldn't find your MetaMask browser extension. Please, install it and refresh the page. If the problem persists, reach us out via Discord!"
-      button={{ text: "Get Help", icon: EIconKind.Discord, action: () => window.open(TELEGRAM_LINK, "_blank") }}
+      text="We couldn't find your MetaMask browser extension. Please, install it and refresh the page. If the problem persists, reach us out via Telegram!"
+      button={{ text: "Get Help", icon: EIconKind.ArrowRightUp, action: () => window.open(TELEGRAM_LINK, "_blank") }}
       button2={{
         text: "Install MetaMask",
         icon: EIconKind.ArrowRightUp,
@@ -119,7 +119,7 @@ export function ErrorUnblockMsqPage() {
     <ErrorPage
       header="MSQ Snap is blocked by MetaMask"
       text="Seems like MSQ Snap is in the Snap block list. Don't worry, this must me some kind of misunderstanding. We're going to fix this really soon."
-      button={{ text: "Get Help", icon: EIconKind.Discord, action: () => window.open(TELEGRAM_LINK, "_blank") }}
+      button={{ text: "Get Help", icon: EIconKind.ArrowRightUp, action: () => window.open(TELEGRAM_LINK, "_blank") }}
     />
   );
 }
@@ -138,7 +138,7 @@ export function ErrorEnableMsqPage() {
     <ErrorPage
       header="Your MSQ Snap is disabled"
       text="Seems like you've disabled your MSQ Snap in your MetaMask settings. Enable it and refresh the page."
-      button={{ text: "Get Help", icon: EIconKind.Discord, action: () => window.open(TELEGRAM_LINK, "_blank") }}
+      button={{ text: "Get Help", icon: EIconKind.ArrowRightUp, action: () => window.open(TELEGRAM_LINK, "_blank") }}
     />
   );
 }
@@ -160,6 +160,15 @@ export function ErrorInvalidPaymentRequestPage() {
   return (
     <ErrorPage
       header="Invalid payment request"
+      text="Nothing bad happened. Close this page and try again. We're sorry for the inconvenience!"
+    />
+  );
+}
+
+export function ErrorInvalidLoginRequestPage() {
+  return (
+    <ErrorPage
+      header="Invalid login request"
       text="Nothing bad happened. Close this page and try again. We're sorry for the inconvenience!"
     />
   );

@@ -60,7 +60,10 @@ export type TMsqCreateAndLoginResult =
   | TMsqCreateErrUnblockMetaMask
   | TMsqCreateErrEnableMetaMask
   | TMsqMobileNotSupported
-  | TMsqConnectionRejected;
+  | TMsqConnectionRejected
+  | TMsqLogoutDetected;
+
+export type TMsqLogoutDetected = { Err: "Session resuming failed. Please, try logging in again!" };
 export type TMsqCreateAndLoginOk = { Ok: { msq: MsqClient; identity: MsqIdentity } };
 
 /**
@@ -68,18 +71,17 @@ export type TMsqCreateAndLoginOk = { Ok: { msq: MsqClient; identity: MsqIdentity
  */
 export class MsqClient {
   private queueLocked: boolean = false;
-  private isAuthorizedCache = false;
 
   /**
-   * ## Returns true if the user is logged in current website
+   * ## Returns true if the user is logged in to the current website
    *
    * @see {@link requestLogin}
    * @see {@link requestLogout}
    *
    * @returns
    */
-  isAuthorized(): boolean {
-    return this.isAuthorizedCache;
+  async isAuthorized(): Promise<boolean> {
+    return this._requestSnap(SNAP_METHODS.public.identity.sessionExists);
   }
 
   /**
@@ -92,12 +94,12 @@ export class MsqClient {
   }
 
   /**
-   * ## Resumes the auth session if authorized
+   * ## Returns current user identity
    *
    * @returns the identity object
    */
-  resume(): Identity & MsqIdentity {
-    return MsqIdentity.create(this) as unknown as Identity & MsqIdentity;
+  resume(): Promise<Identity & MsqIdentity> {
+    return MsqIdentity.create(this);
   }
 
   /**
@@ -112,15 +114,11 @@ export class MsqClient {
    * @returns - {@link MsqIdentity} if the login was a success, `null` otherwise
    */
   async requestLogin(peer?: ReturnType<typeof openICRC35Window>): Promise<(MsqIdentity & Identity) | null> {
-    if (this.isAuthorized()) {
+    if (await this.isAuthorized()) {
       peer?.peer.close();
       setSafeToAutoresume("true");
 
       return this.resume();
-    }
-
-    if (peer) {
-      setTimeout(() => peer.peer.focus(), 100);
     }
 
     const w = peer ? peer : openICRC35Window(MSQICRC35Client.Origin);
@@ -137,11 +135,42 @@ export class MsqClient {
     connection.close();
 
     if (loginResult) {
-      this.isAuthorizedCache = true;
       setSafeToAutoresume("true");
     }
 
     return loginResult ? MsqIdentity.create(this) : null;
+  }
+
+  /**
+   * ## Proposes the user to log in to current website
+   *
+   * Opens up a separate browser window with the MSQ website that will guide the user through the authorization process.
+   * Under the hood uses ICRC-35 protocol.
+   *
+   * @see {@link requestLogout}
+   * @see {@link isAuthorized}
+   *
+   * @returns - true or false, depending on whether the login was successful
+   */
+  static async makeLoginRequest(debug?: boolean): Promise<boolean> {
+    const w = openICRC35Window(MSQICRC35Client.Origin);
+
+    const connection = await ICRC35Connection.establish({
+      mode: "parent",
+      debug: debug,
+      ...w,
+    });
+    const client = new MSQICRC35Client(connection);
+
+    const loginResult = await client.login();
+
+    connection.close();
+
+    try {
+      w.peer.close();
+    } catch {}
+
+    return loginResult;
   }
 
   /**
@@ -158,7 +187,6 @@ export class MsqClient {
     const result: boolean = await this._requestSnap(SNAP_METHODS.public.identity.requestLogout);
 
     if (result) {
-      this.isAuthorizedCache = false;
       setSafeToAutoresume("false");
     }
 
@@ -245,6 +273,53 @@ export class MsqClient {
       mode: "parent",
       debug: this.debug,
       ...openICRC35Window(MSQICRC35Client.Origin),
+    });
+    const client = new MSQICRC35Client(connection);
+
+    const res = await client.pay({
+      canisterId: tokenCanisterId.toText(),
+      to: { owner: to.owner.toText(), subaccount: to.subaccount },
+      amount,
+      memo,
+      createdAt: createdAt,
+    });
+
+    connection.close();
+
+    return res;
+  }
+
+  /**
+   * ## Proposes the user to transfer tokens via ICRC-1 token standard.
+   *
+   * Opens up a separate browser window with the MSQ website that will guide the user through the payment process.
+   * Under the hood uses ICRC-35 protocol.
+   *
+   * This function greatly simplifies payments, since now you can just request the user to pay you for something,
+   * without worrying about user identity being different on your website than on the wallet website.
+   *
+   * @param tokenCanisterId - {@link Principal} - a canister ID of the valid `ICRC-1` token
+   * @param to.owner - {@link Principal} - payment recipient's `principal` ID
+   * @param to.owner - (optional) {@link Uint8Array} - payment recipient's `subaccount` ID
+   * @param amount - {@link bigint} - an amount of tokens that the user needs to transfer to the recepient (fees applied automatically)
+   * @param memo - (optional) {@link Uint8Array} - memo field (32-bytes max) for transaction identification
+   * @param createdAt - (optional) {@link bigint} - transaction creation time in nanoseconds (set automatically to `Date.now()` if not passed)
+   * @returns - {@link bigint} - block ID that can be used for transaction verification or `null` if the payment failed
+   */
+  static async requestICRC1Transfer(
+    tokenCanisterId: Principal,
+    to: { owner: Principal; subaccount?: Uint8Array | undefined },
+    amount: bigint,
+    memo?: Uint8Array | undefined,
+    createdAt?: bigint | undefined,
+    debug?: boolean,
+  ): Promise<bigint | null> {
+    const peer = openICRC35Window(MSQICRC35Client.Origin);
+
+    const connection = await ICRC35Connection.establish({
+      mode: "parent",
+      debug: debug,
+      ...peer,
     });
     const client = new MSQICRC35Client(connection);
 
@@ -375,7 +450,6 @@ export class MsqClient {
     }
 
     const client = new MsqClient(provider, snapId, debug);
-    client.isAuthorizedCache = await client._requestSnap(SNAP_METHODS.public.identity.sessionExists);
 
     return { Ok: client };
   }
@@ -388,33 +462,48 @@ export class MsqClient {
    * @returns - an initialized {@link MsqClient} object that can be used right away or an Err
    */
   static async createAndLogin(params?: IMsqClientParams): Promise<TMsqCreateAndLoginResult> {
-    const peer = safeToAutoresume() ? undefined : openICRC35Window(MSQICRC35Client.Origin);
+    if (MsqClient.isSafeToResume()) {
+      const createResult = await MsqClient.create(params);
 
-    if (peer) {
-      setTimeout(() => window.focus(), 100);
-    }
-
-    const createResult = await MsqClient.create(params);
-
-    if ("Ok" in createResult) {
-      const msq = createResult.Ok;
-      const identity = await msq.requestLogin(peer);
-
-      if (!identity) {
+      if ("Err" in createResult) {
         setSafeToAutoresume("false");
-        // throwing this in case the user rejects logging in
-        // don't want to add another error type
-        return { MSQConnectionRejected: null, Err: "MSQConnectionRejected" };
+
+        return createResult;
       }
 
-      setSafeToAutoresume("true");
+      const msq = createResult.Ok;
+
+      const isAuthorized = await msq.isAuthorized();
+
+      if (!isAuthorized) {
+        setSafeToAutoresume("false");
+
+        return { Err: "Session resuming failed. Please, try logging in again!" };
+      }
+
+      const identity = await msq.resume();
 
       return { Ok: { msq, identity } };
     }
 
-    setSafeToAutoresume("false");
-    peer?.peer.close();
-    return createResult;
+    const isLoggedIn = await MsqClient.makeLoginRequest(params?.debug);
+
+    if (!isLoggedIn) {
+      return { MSQConnectionRejected: null, Err: "MSQConnectionRejected" };
+    }
+
+    const createResult = await MsqClient.create(params);
+
+    if ("Err" in createResult) {
+      return createResult;
+    }
+
+    const msq = createResult.Ok;
+    const identity = await msq.resume();
+
+    setSafeToAutoresume("true");
+
+    return { Ok: { msq, identity } };
   }
 
   private constructor(

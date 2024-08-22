@@ -32,7 +32,10 @@ export function ICRC35Page() {
 
       setIcrc35Request(request);
 
-      connection.onBeforeConnectionClosed(() => request.respond(false));
+      window.addEventListener("beforeunload", () => {
+        request.respond(false);
+        connection.close();
+      });
 
       navigate(ROOT["/"].integration["/"].login.path);
     };
@@ -43,16 +46,16 @@ export function ICRC35Page() {
 
       setIcrc35Request(request);
 
-      connection.onBeforeConnectionClosed(() => request.respond(null));
+      window.addEventListener("beforeunload", () => {
+        request.respond(null);
+        connection.close();
+      });
 
       navigate(ROOT["/"].integration["/"].pay.path);
     };
 
     connection.onRequest(LOGIN_ROUTE, loginHandler);
     connection.onRequest(PAY_ROUTE, payHandler);
-
-    const closeHandler = () => connection.close();
-    window.addEventListener("beforeunload", closeHandler);
   });
 
   return undefined;

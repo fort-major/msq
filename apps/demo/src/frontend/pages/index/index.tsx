@@ -1,6 +1,6 @@
 import { HttpAgent, Identity } from "@dfinity/agent";
 import { MsqClient, TMsqCreateOk } from "@fort-major/msq-client";
-import { Match, Switch, createEffect, createResource, createSignal } from "solid-js";
+import { Match, Switch, batch, createEffect, createResource, createSignal } from "solid-js";
 import { Body, BodyHeading, Header, LoginButton, Logo, ProfileWrapper } from "./style";
 import MetaMaskLogoSvg from "#assets/metamask.svg";
 import { PlushieCard } from "../../components/plushie-card";
@@ -25,17 +25,7 @@ export const IndexPage = () => {
   const [profile, setProfile] = createSignal<IProfile | null>(null);
   const [loading, setLoading] = createSignal<boolean>(false);
   const [order, setOrder] = createSignal<Order | null>(null);
-
-  const [msq] = createResource(async () => {
-    const result = await MsqClient.create({
-      debug: import.meta.env.VITE_MSQ_MODE === "DEV",
-      forceReinstall: false,
-    });
-
-    if (!("Ok" in result)) throw new Error("Install MetaMask, Unblock or Enable MSQ Snap");
-
-    return (result as TMsqCreateOk).Ok;
-  });
+  const [msq, setMsq] = createSignal<MsqClient>();
 
   const [backend] = createResource(identity, async (identity) => {
     const agent = new HttpAgent({
@@ -58,25 +48,30 @@ export const IndexPage = () => {
   });
 
   createEffect(async () => {
-    if (!msq()) return;
-
-    if (await msq()!.isAuthorized()) {
-      await handleLogin();
+    if (MsqClient.isSafeToResume()) {
+      handleLogin();
     }
   });
 
   const handleLogin = async () => {
-    const identity = await msq()!.requestLogin();
+    const result = await MsqClient.createAndLogin();
 
-    if (identity === null) return;
+    if ("Err" in result) {
+      throw new Error(result.Err);
+    }
+
+    const { msq, identity } = result.Ok;
 
     const profile: IProfile = {
       pseudonym: await identity.getPseudonym(),
       avatarSrc: await identity.getAvatarSrc(),
     };
 
-    setProfile(profile);
-    setIdentity(identity);
+    batch(() => {
+      setProfile(profile);
+      setIdentity(identity);
+      setMsq(msq);
+    });
   };
 
   const handleAdd = () => {

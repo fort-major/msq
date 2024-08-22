@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createSignal } from "solid-js";
+import { For, Show, createEffect, createSignal, on, onMount } from "solid-js";
 import {
   AddAssetForm,
   AddAssetFormWrapper,
@@ -35,13 +35,12 @@ import { AddAccountBtn } from "../../../components/add-account-btn";
 import { useAssetData } from "../../../store/assets";
 import { COLOR_ERROR_RED, COLOR_WHITE, CabinetContent, CabinetPage, FONT_WEIGHT_SEMI_BOLD } from "../../../ui-kit";
 import { CabinetNav } from "../../../components/cabinet-nav";
-import { ContactUsBtn } from "../../../components/contact-us-btn";
 import { Toggle } from "../../../components/toggle";
 import { ErrorPin } from "../../../ui-kit/error-pin";
 import { ROOT } from "../../../routes";
 
 export function MyAssetsPage() {
-  const msq = useMsqClient();
+  const msqClient = useMsqClient();
   const { assets, assetMetadata, init, refreshBalances, addAccount, editAccount, addAsset, removeAssetLogo } =
     useAssetData();
 
@@ -56,9 +55,15 @@ export function MyAssetsPage() {
 
   const navigate = useNavigate();
 
-  createEffect(() => {
-    if (msq()) init();
+  onMount(() => {
+    if (msqClient()) init();
   });
+
+  createEffect(
+    on(msqClient, (msq) => {
+      if (msq) init();
+    }),
+  );
 
   const handleNewAssetIdInput = eventHandler(async (e: Event & { target: HTMLInputElement }) => {
     setNewAssetId(e.target.value.trim());
@@ -279,7 +284,11 @@ export function MyAssetsPage() {
                       disabled={addingAccount()}
                       loading={addingAccount()}
                       onClick={() =>
-                        handleAddAccount(assetId, assetMetadata[assetId]!.metadata!.name, assetMetadata[assetId]!.metadata!.symbol)
+                        handleAddAccount(
+                          assetId,
+                          assetMetadata[assetId]!.metadata!.name,
+                          assetMetadata[assetId]!.metadata!.symbol,
+                        )
                       }
                       symbol={assetMetadata[assetId]!.metadata!.symbol}
                     />

@@ -5,6 +5,7 @@ import {
   ErrorAssetNotFoundPage,
   ErrorEnableMsqPage,
   ErrorInstallMetaMaskPage,
+  ErrorInvalidLoginRequestPage,
   ErrorInvalidPaymentRequestPage,
   ErrorMSQConnectionRejectedPage,
   ErrorMobileNotSupportedPage,
@@ -124,6 +125,9 @@ export const ROOT = route({
         }),
         "bad-payment-request": route({
           component: ErrorInvalidPaymentRequestPage,
+        }),
+        "bad-login-request": route({
+          component: ErrorInvalidLoginRequestPage,
         }),
         "404": route({
           component: Error404Page,

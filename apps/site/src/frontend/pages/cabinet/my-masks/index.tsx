@@ -1,5 +1,5 @@
 import { MyMasksContent, SpoilerHeading } from "./style";
-import { For, createEffect, createSignal } from "solid-js";
+import { For, createEffect, createSignal, on, onMount } from "solid-js";
 import { Spoiler } from "../../../components/spoiler";
 import { TIdentityId, TOrigin, originToHostname } from "@fort-major/msq-shared";
 import { LoginOption } from "../../../components/login-option";
@@ -18,11 +18,15 @@ export function MyMasksPage() {
   const { originsData, init, fetch, addNewMask, editPseudonym } = useOriginData();
   const [loading, setLoading] = createSignal(false);
 
-  createEffect(() => {
-    if (msq()) {
-      init();
-    }
+  onMount(() => {
+    if (msq()) init();
   });
+
+  createEffect(
+    on(msq, (m) => {
+      if (m) init();
+    }),
+  );
 
   const handleEditPseudonym = async (origin: TOrigin, identityId: TIdentityId, newPseudonym: string) => {
     setLoading(true);

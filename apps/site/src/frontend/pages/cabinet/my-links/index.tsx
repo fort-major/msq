@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createSignal } from "solid-js";
+import { For, Show, createEffect, createSignal, on, onMount } from "solid-js";
 import {
   LinksInfoAvatars,
   LinksInfoWrapper,
@@ -30,11 +30,15 @@ export function MyLinksPage() {
 
   const [loading, setLoading] = createSignal(false);
 
-  createEffect(() => {
-    if (msq()) {
-      init();
-    }
+  onMount(() => {
+    if (msq()) init();
   });
+
+  createEffect(
+    on(msq, (m) => {
+      if (m) init();
+    }),
+  );
 
   const handleUnlinkOne = async (origin: TOrigin, withOrigin: TOrigin) => {
     setLoading(true);

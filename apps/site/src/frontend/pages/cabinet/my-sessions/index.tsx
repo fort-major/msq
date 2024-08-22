@@ -1,4 +1,4 @@
-import { For, createEffect, createSignal } from "solid-js";
+import { For, createEffect, createSignal, on, onMount } from "solid-js";
 import {
   MySessionsContent,
   SessionInfoDataPrincipal,
@@ -32,11 +32,15 @@ export function MySessionsPage() {
 
   const [loading, setLoading] = createSignal(false);
 
-  createEffect(() => {
-    if (msq()) {
-      init();
-    }
+  onMount(() => {
+    if (msq()) init();
   });
+
+  createEffect(
+    on(msq, (m) => {
+      if (m) init();
+    }),
+  );
 
   const getMaskBySession = (session: ISession): { pseudonym: string; principal: Principal } => {
     const originData = originsData[session.deriviationOrigin];
