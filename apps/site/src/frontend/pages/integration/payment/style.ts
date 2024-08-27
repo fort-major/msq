@@ -35,14 +35,14 @@ export const PaymentPageContent = styled.div`
 export const PaymentPageAccountsWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 20px;
   align-self: stretch;
 `;
 
-export const PaymentPageAccounts = styled.div`
+export const PaymentPageAccounts = styled.div<{ grid?: boolean }>`
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: ${(props) => (props.grid ? "auto auto" : "auto")};
   gap: 20px;
 `;
 

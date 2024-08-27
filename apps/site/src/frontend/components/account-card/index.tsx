@@ -28,6 +28,8 @@ import { Button, EButtonKind } from "../../ui-kit/button";
 import { EIconKind, Icon } from "../../ui-kit/icon";
 import { ColorGray150, H5, StrikedText, Text } from "../../ui-kit/typography";
 import { COLOR_ACCENT, COLOR_GRAY_140 } from "../../ui-kit";
+import { TThirdPartyWalletKind } from "../../store/wallets";
+import { Block, Img } from "../markup";
 
 export interface IAccountCardProps {
   accountId: TAccountId;
@@ -49,6 +51,7 @@ export interface IAccountCardProps {
   onReceive?: (assetId: string, symbol: string, principal: string) => void;
   onEdit?: (newName: string) => void;
   showAccountHistory?: boolean;
+  showWalletKindLogo?: TThirdPartyWalletKind;
 }
 
 export function AccountCard(props: IAccountCardProps) {
@@ -84,6 +87,9 @@ export function AccountCard(props: IAccountCardProps) {
   return (
     <AccountCardWrapper classList={props.classList} onClick={handleClick} fullWidth={props.fullWidth}>
       <AccountCardHeaderWrapper>
+        <Show when={props.showWalletKindLogo}>
+          <Img src={`/assets/${props.showWalletKindLogo!.toLowerCase()}-wallet.png`} w="40px" h="40px" rounded />
+        </Show>
         <AccountCardHeader>
           <Switch>
             <Match when={edited()}>

@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createMemo, createSignal, on, onCleanup, onMount } from "solid-js";
+import { For, Match, Show, Switch, createEffect, createMemo, createSignal, on, onCleanup, onMount } from "solid-js";
 import { useMsqClient } from "../../../store/global";
 import { useLocation, useNavigate, useSearchParams } from "@solidjs/router";
 import { Principal } from "@dfinity/principal";
@@ -34,6 +34,13 @@ import { useAssetData } from "../../../store/assets";
 import { ROOT } from "../../../routes";
 import { TThirdPartyWalletKind, useThirdPartyWallet } from "../../../store/wallets";
 import { useICRC35Store } from "../../../store/icrc-35";
+import { Block, Img } from "../../../components/markup";
+import { Plate } from "../../../components/plate";
+import { COLOR_GRAY_115, COLOR_GRAY_140, COLOR_GRAY_190, COLOR_ORANGE, COLOR_WHITE } from "../../../ui-kit";
+import { eventHandler } from "../../../utils";
+import { Checkbox } from "../../../ui-kit/checkbox";
+import { Warning } from "../../../ui-kit/warning";
+import { Copyable } from "../../../ui-kit/copyable";
 
 interface ITransferRequestSearchParams {
   kind?: "t" | "d";
@@ -60,14 +67,17 @@ export function PaymentPage() {
   const [receivePopupProps, setReceivePopupProps] = createSignal<IReceivePopupProps | null>(null);
   const [loading, setLoading] = createSignal(false);
   const [refreshing, setRefreshing] = createSignal<boolean | undefined>(false);
+  const [pageState, setPageState] = createSignal<"account-select" | "wallet-select">("wallet-select");
 
   const { assets, assetMetadata, fetchMetadata, fetchAccountInfo, refreshBalances, addAsset, addAccount } =
     useAssetData();
   const { getIcrc35Request } = useICRC35Store();
   const navigate = useNavigate();
-  const { connectWallet, initWallet, connectedWallet, setWalletAccount } = useThirdPartyWallet();
+  const { connectWallet, disconnectWallet, initWallet, connectedWallet, setWalletAccount } = useThirdPartyWallet();
 
-  const transferRequest = createMemo(() => {
+  const icrc35BasedPaymentRequest = () => getIcrc35Request<IICRC1TransferRequest>();
+
+  const urlBasedPaymentRequest = createMemo(() => {
     const [searchParams] = useSearchParams() as unknown as [ITransferRequestSearchParams];
     if (!searchParams["canister-id"] || !searchParams["to-principal"] || !searchParams["amount"]) return undefined;
 
@@ -87,17 +97,18 @@ export function PaymentPage() {
   });
 
   const mode = (): "icrc-35" | "url" | undefined =>
-    getIcrc35Request() ? "icrc-35" : transferRequest() ? "url" : undefined;
+    getIcrc35Request() ? "icrc-35" : urlBasedPaymentRequest() ? "url" : undefined;
 
   const getAssetId = () => {
     try {
       switch (mode()) {
         case "icrc-35":
-          Principal.fromText(getIcrc35Request<IICRC1TransferRequest>()!.payload.canisterId);
+          return Principal.fromText(icrc35BasedPaymentRequest()!.payload.canisterId);
         case "url":
-          return Principal.fromText(transferRequest()!.canisterId);
+          return Principal.fromText(urlBasedPaymentRequest()!.canisterId);
       }
-    } catch {
+    } catch (e) {
+      console.error(e);
       return undefined;
     }
   };
@@ -107,7 +118,7 @@ export function PaymentPage() {
       case "icrc-35":
         return "payment";
       case "url":
-        return transferRequest()!.kind;
+        return urlBasedPaymentRequest()!.kind;
     }
   };
 
@@ -115,9 +126,9 @@ export function PaymentPage() {
     try {
       switch (mode()) {
         case "icrc-35":
-          return Principal.fromText(getIcrc35Request<IICRC1TransferRequest>()!.payload.to.owner);
+          return Principal.fromText(icrc35BasedPaymentRequest()!.payload.to.owner);
         case "url":
-          return Principal.fromText(transferRequest()!.to.owner);
+          return Principal.fromText(urlBasedPaymentRequest()!.to.owner);
       }
     } catch {
       return undefined;
@@ -127,18 +138,20 @@ export function PaymentPage() {
   const getToSubaccount = () => {
     switch (mode()) {
       case "icrc-35":
-        return getIcrc35Request<IICRC1TransferRequest>()!.payload.to.subaccount;
+        return icrc35BasedPaymentRequest()!.payload.to.subaccount;
       case "url":
-        return transferRequest()!.to.subaccount ? hexToBytes(transferRequest()!.to.subaccount!) : undefined;
+        return urlBasedPaymentRequest()!.to.subaccount
+          ? hexToBytes(urlBasedPaymentRequest()!.to.subaccount!)
+          : undefined;
     }
   };
 
   const getMemo = () => {
     switch (mode()) {
       case "icrc-35":
-        return getIcrc35Request<IICRC1TransferRequest>()!.payload.memo;
+        return icrc35BasedPaymentRequest()!.payload.memo;
       case "url":
-        return transferRequest()!.memo ? hexToBytes(transferRequest()!.memo!) : undefined;
+        return urlBasedPaymentRequest()!.memo ? hexToBytes(urlBasedPaymentRequest()!.memo!) : undefined;
     }
   };
 
@@ -147,10 +160,10 @@ export function PaymentPage() {
 
     switch (mode()) {
       case "icrc-35":
-        amount = getIcrc35Request<IICRC1TransferRequest>()!.payload.amount;
+        amount = icrc35BasedPaymentRequest()!.payload.amount;
         break;
       case "url":
-        amount = transferRequest()!.amount;
+        amount = urlBasedPaymentRequest()!.amount;
         break;
 
       default:
@@ -161,15 +174,49 @@ export function PaymentPage() {
     return undefined;
   };
 
-  const isValidRequest = () =>
-    getAssetId() !== undefined && getToPrincipal() !== undefined && getAmount() !== undefined;
+  const getMetadata = () => {
+    const assetId = getAssetId()?.toText();
+    if (!assetId) return undefined;
+
+    const metadata = assetMetadata[assetId];
+    if (!metadata) return undefined;
+
+    return metadata;
+  };
+
+  const getAmountToTransfer = () => {
+    const qty = getAmount();
+    if (!qty) return undefined;
+
+    const meta = getMetadata();
+    if (!meta) return undefined;
+
+    return qty + meta.metadata.fee;
+  };
+
+  const getCreatedAt = () => {
+    switch (mode()) {
+      case "icrc-35":
+        return icrc35BasedPaymentRequest()!.payload.createdAt;
+      default:
+        return undefined;
+    }
+  };
+
+  const isValidRequest = () => {
+    console.log(getAssetId(), getToPrincipal(), getAmount(), icrc35BasedPaymentRequest(), urlBasedPaymentRequest());
+
+    return getAssetId() !== undefined && getToPrincipal() !== undefined && getAmount() !== undefined;
+  };
 
   const getInitiatorOrigin = () => {
     switch (mode()) {
       case "icrc-35":
-        return getIcrc35Request<IICRC1TransferRequest>()!.peerOrigin;
+        return icrc35BasedPaymentRequest()!.peerOrigin;
       case "url":
-        return window.document.referrer ? new URL(window.document.referrer).origin : undefined;
+        return window.document.referrer ? new URL(window.document.referrer).origin : window.location.origin;
+      default:
+        return window.location.origin;
     }
   };
 
@@ -249,7 +296,6 @@ export function PaymentPage() {
 
     const asset = assets[assetId]!;
     const { metadata } = assetMetadata[assetId]!;
-    const req = getIcrc35Request<IICRC1TransferRequest>()!;
 
     const p: IPaymentCheckoutPageProps = {
       accountId,
@@ -257,30 +303,37 @@ export function PaymentPage() {
       accountBalance: asset.accounts[accountId].balance!,
       accountPrincipal: asset.accounts[accountId].principal,
 
-      assetId: req.payload.canisterId,
+      assetId,
       symbol: metadata.symbol,
       decimals: metadata.decimals,
       fee: metadata.fee,
 
-      peerOrigin: req.peerOrigin,
+      peerOrigin: getInitiatorOrigin(),
 
-      amount: req.payload.amount,
-      recepientPrincipal: req.payload.to.owner,
-      recepientSubaccount: req.payload.to.subaccount,
-      memo: req.payload.memo,
-      createdAt: req.payload.createdAt,
+      amount: getAmount()!,
+      recepientPrincipal: getToPrincipal()!.toText(),
+      recepientSubaccount: getToSubaccount(),
+      memo: getMemo(),
+      createdAt: getCreatedAt(),
     };
 
     navigate(ROOT["/"].integration["/"].pay["/"].checkout.path, { state: p });
   };
 
-  const handleCheckoutBack = () => {
+  const handleWalletSelectBack = () => {
     window.close();
+  };
+
+  const handleAccountSelectBack = () => {
+    disconnectWallet();
+    setPageState("wallet-select");
   };
 
   const handleConnectWallet = async (kind: TThirdPartyWalletKind) => {
     await connectWallet(kind);
     await initWallet([getAssetId()!.toText()]);
+
+    setPageState("account-select");
   };
 
   const connectedWalletIsThirdParty = () => {
@@ -293,13 +346,15 @@ export function PaymentPage() {
     return kind === "NNS" || kind === "Plug";
   };
 
+  const supportedWallets: ["MSQ", "Plug", "NNS"] = ["MSQ", "Plug", "NNS"];
+
   return (
     <Show when={isValidRequest()}>
       <PaymentPageContainer>
         <PaymentPageWrapper>
           <PaymentPageHeading>
             <Text size={20} weight={600}>
-              Pending {getKind()}{" "}
+              Pending {getKind()} request{" "}
               <Show when={getInitiatorOrigin()}>
                 initiated by <span class={ColorAccent}>{originToHostname(getInitiatorOrigin()!)}</span>
               </Show>
@@ -309,27 +364,75 @@ export function PaymentPage() {
                 {tokensToStr(getAmount()!, assetMetadata[getAssetId()!.toText()]!.metadata!.decimals, undefined, true)}{" "}
                 {assetMetadata[getAssetId()!.toText()]!.metadata!.symbol}
               </H3>
-              <Show when={!connectedWallet()}>
-                <button onClick={() => handleConnectWallet("MSQ")}>Connect MSQ</button>
-                <button onClick={() => handleConnectWallet("NNS")}>Connect NNS</button>
-                <button onClick={() => handleConnectWallet("Plug")}>Connect Plug</button>
-              </Show>
             </Show>
           </PaymentPageHeading>
-          <Show when={assets[getAssetId()!.toText()]?.accounts && assetMetadata[getAssetId()!.toText()]?.metadata}>
+
+          <Show when={pageState() === "wallet-select"}>
+            <Block gap="40px" flow="column" items="stretch">
+              <Block gap="25px" flow="column" items="stretch">
+                <Text size={20} weight={600}>
+                  Select a wallet to pay with:
+                </Text>
+                <Block flow="column" items="stretch">
+                  <For each={supportedWallets}>
+                    {(walletName) => (
+                      <Plate pointer bgHover onClick={eventHandler(() => handleConnectWallet(walletName))}>
+                        <Block gap="15px" items="center">
+                          <Img src={`/assets/${walletName.toLowerCase()}-wallet.png`} w="50px" h="50px" rounded />
+                          <Block flow="column" gap="15px">
+                            <Text size={16} weight={600} color={COLOR_WHITE}>
+                              {walletName}
+                            </Text>
+                            <Text size={12} weight={500} color={COLOR_GRAY_140}>
+                              <Switch>
+                                <Match when={walletName === "MSQ"}>MetaMask-based Safe ICP Wallet</Match>
+                                <Match when={walletName === "NNS"}>Use Internet Identity to pay via the NNS dapp</Match>
+                                <Match when={walletName === "Plug"}>IC Wallet by Funded</Match>
+                              </Switch>
+                            </Text>
+                          </Block>
+                        </Block>
+                      </Plate>
+                    )}
+                  </For>
+                </Block>
+              </Block>
+              <Button kind={EButtonKind.Additional} text="Dismiss" label="dismiss" onClick={handleWalletSelectBack} />
+            </Block>
+          </Show>
+
+          <Show
+            when={
+              pageState() === "account-select" &&
+              connectedWallet() &&
+              assets[getAssetId()!.toText()]?.accounts &&
+              assetMetadata[getAssetId()!.toText()]?.metadata
+            }
+          >
             <PaymentPageContent>
               <Text size={20} weight={600}>
-                Select an account to continue:
+                <Switch>
+                  <Match when={connectedWallet()![0] === "MSQ"}>Select an account to continue:</Match>
+                  <Match when={connectedWallet()![0] === "NNS"}>
+                    Refill with{" "}
+                    <a href="https://nns.ic0.app" style={{ "text-decoration": "underline" }} class={ColorAccent}>
+                      NNS Dapp
+                    </a>{" "}
+                    (or other) to continue:
+                  </Match>
+                </Switch>
               </Text>
               <PaymentPageAccountsWrapper>
-                <PaymentPageAccounts>
+                <PaymentPageAccounts grid={connectedWallet()![0] === "MSQ"}>
                   <For each={assets[getAssetId()!.toText()]?.accounts}>
                     {(account, idx) => (
                       <AccountCard
+                        fullWidth
+                        showWalletKindLogo={connectedWallet()![0]}
                         classList={{ [AccountCardBase]: true, [AccountCardSelected]: idx() === selectedAccountId() }}
                         onClick={(accountId) => setSelectedAccountId(accountId)}
                         accountId={idx()}
-                        assetId={getIcrc35Request<IICRC1TransferRequest>()!.payload.canisterId}
+                        assetId={getAssetId()!.toText()}
                         name={account.name}
                         balance={account.balance}
                         principal={account.principal}
@@ -340,6 +443,31 @@ export function PaymentPage() {
                     )}
                   </For>
                 </PaymentPageAccounts>
+                <Show when={connectedWallet()![0] === "NNS" && getAmountToTransfer() !== undefined}>
+                  <Block flow="column" items="stretch">
+                    <Warning iconBgColor={COLOR_GRAY_190}>
+                      <Block gap="5px" items="center">
+                        <Text weight={500} size={16}>
+                          Mare sure to transfer exactly
+                        </Text>
+                        <Copyable
+                          text={tokensToStr(getAmountToTransfer()!, getMetadata()!.metadata.decimals)}
+                          after={getMetadata()!.metadata.symbol}
+                        />
+                        <Text weight={500} size={16}>
+                          , otherwise you won't be able to complete the payment.
+                        </Text>
+                      </Block>
+                    </Warning>
+                    <Warning iconBgColor={COLOR_ORANGE}>
+                      <Block gap="5px" items="center">
+                        <Text weight={500} size={16}>
+                          Make sure your wallet supports ICRC-1 transfers, otherwise your funds may be lost.
+                        </Text>
+                      </Block>
+                    </Warning>
+                  </Block>
+                </Show>
                 <Show when={!connectedWalletIsThirdParty()}>
                   <AddAccountBtn
                     disabled={loading()}
@@ -359,7 +487,7 @@ export function PaymentPage() {
                 <Button
                   label="dismiss"
                   kind={EButtonKind.Additional}
-                  onClick={handleCheckoutBack}
+                  onClick={handleAccountSelectBack}
                   text="Dismiss"
                   fullWidth
                 />

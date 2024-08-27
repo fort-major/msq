@@ -13,6 +13,7 @@ type InitWalletFunc = (assetIds: string[]) => Promise<void>;
 type SetWalletAccountFunc = (assetId: string, accountId: TAccountId) => Promise<void>;
 
 interface IThirdPartyWalletsContext {
+  disconnectWallet: () => void;
   connectWallet: ConnectWalletFunc;
   initWallet: InitWalletFunc;
   setWalletAccount: SetWalletAccountFunc;
@@ -36,6 +37,10 @@ export function ThirdPartyWalletStore(props: IChildren) {
   const connectMsq = useConnectMsq();
   const [connectedWallet, setConnectedWallet] = createSignal<ConnectedWalletStore>();
   const { init, initThirdPartyAccountInfo, refreshBalances } = useAssetData();
+
+  const disconnectWallet = () => {
+    setConnectedWallet(undefined);
+  };
 
   const connectWallet: ConnectWalletFunc = async (kind) => {
     if (kind === "MSQ") {
@@ -102,7 +107,9 @@ export function ThirdPartyWalletStore(props: IChildren) {
   };
 
   return (
-    <ThirdPartyWalletsContext.Provider value={{ connectWallet, connectedWallet, setWalletAccount, initWallet }}>
+    <ThirdPartyWalletsContext.Provider
+      value={{ disconnectWallet, connectWallet, connectedWallet, setWalletAccount, initWallet }}
+    >
       {props.children}
     </ThirdPartyWalletsContext.Provider>
   );

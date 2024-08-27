@@ -22,6 +22,7 @@ export enum EIconKind {
   Check,
   Discord,
   Dots,
+  AlertCircle,
 }
 
 interface IIconProps {
@@ -234,6 +235,17 @@ export function Icon(props: IIconProps) {
           <path
             d="M4.45003 11.9354L0.514718 8.00007M0.514718 8.00007L4.44601 4.06878M0.514718 8.00007L17.4853 8.00007"
             stroke={props.color ?? "white"}
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </Svg>
+      </Match>
+      <Match when={props.kind === EIconKind.AlertCircle}>
+        <Svg {...props} pointer={!!props.onClick} handleClick={handleClick} viewBox="0 0 24 24">
+          <path
+            d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+            stroke={props.color ?? "white"}
+            stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
           />

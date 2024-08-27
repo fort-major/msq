@@ -19,6 +19,7 @@ import { IcrcLedgerCanister, IcrcMetadataResponseEntries } from "@dfinity/ledger
 import D from "dompurify";
 import { AccountIdentifier } from "@dfinity/ledger-icp";
 import { COLOR_BLACK, COLOR_ERROR_RED, FONT_WEIGHT_BOLD } from "../ui-kit";
+import { ROOT } from "../routes";
 
 // null = default
 // <string> = custom host
@@ -241,7 +242,7 @@ export function createPaymentLink(
   recipientSubaccount?: string,
   memo?: string,
 ): URL {
-  const baseUrl = new URL("pay", import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
+  const baseUrl = new URL(ROOT["/"].integration["/"].pay.path, import.meta.env.VITE_MSQ_SNAP_SITE_ORIGIN);
   const params = baseUrl.searchParams;
 
   if (amount) {
