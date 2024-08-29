@@ -64,9 +64,8 @@ fn handle_exchange_rates_fetch_timer() {
     let delay =
         StdDuration::from_nanos((tomorrow_2am_utc - now_utc).num_nanoseconds().unwrap() as u64);
 
-    TIMERS.with(|t| {
-        let mut timers_opt_ref = t.borrow_mut();
-        let timers_ref = timers_opt_ref.as_mut().unwrap();
+    TIMERS.with_borrow_mut(|t| {
+        let timers_ref = t.as_mut().unwrap();
 
         timers_ref.exchange_rates_fetch = set_timer(delay, handle_exchange_rates_fetch_timer);
     });

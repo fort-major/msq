@@ -1,5 +1,4 @@
 use std::{
-    borrow::Borrow,
     cell::RefCell,
     collections::{btree_map::Values, BTreeMap},
 };
@@ -62,9 +61,7 @@ thread_local! {
 }
 
 pub fn init_supported_tokens(tokens: Vec<Token>) {
-    SUPPORTED_TOKENS.with(|it| {
-        let mut s = it.borrow_mut();
-
+    SUPPORTED_TOKENS.with_borrow_mut(|s| {
         for t in tokens {
             s.add_token(t);
         }
@@ -78,8 +75,7 @@ pub struct GetSupportedTokensResponse {
 
 #[query]
 fn get_supported_tokens() -> GetSupportedTokensResponse {
-    let supported_tokens =
-        SUPPORTED_TOKENS.with(|it| it.borrow().get().cloned().collect::<Vec<_>>());
+    let supported_tokens = SUPPORTED_TOKENS.with_borrow(|s| s.get().cloned().collect::<Vec<_>>());
 
     GetSupportedTokensResponse { supported_tokens }
 }
@@ -91,7 +87,7 @@ pub struct AddSupportedTokenRequest {
 
 #[update]
 fn add_supported_token(req: AddSupportedTokenRequest) {
-    SUPPORTED_TOKENS.with(|it| it.borrow_mut().add_token(req.token));
+    SUPPORTED_TOKENS.with_borrow_mut(|it| it.add_token(req.token));
 }
 
 #[derive(CandidType, Deserialize)]
@@ -101,5 +97,5 @@ pub struct RemoveSupportedTokenRequest {
 
 #[update]
 fn remove_supported_token(req: RemoveSupportedTokenRequest) {
-    SUPPORTED_TOKENS.with(|it| it.borrow_mut().remove_token(req.ticker));
+    SUPPORTED_TOKENS.with_borrow_mut(|it| it.remove_token(req.ticker));
 }

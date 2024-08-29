@@ -1,8 +1,9 @@
 use std::{borrow::Borrow, str::FromStr, time::Duration};
 
 use candid::{CandidType, Nat, Principal};
-use ic_cdk::call;
+use ic_cdk::{api::call::CallResult, call};
 use ic_cdk_timers::set_timer;
+use icrc_ledger_types::icrc1::transfer::{BlockIndex, TransferArg, TransferError};
 use serde::Deserialize;
 use tinystr::TinyStr16;
 
@@ -177,5 +178,22 @@ impl<'de> Deserialize<'de> for Ticker {
         Ok(Ticker(
             TinyStr16::from_str(String::deserialize(deserializer)?.as_str()).unwrap(),
         ))
+    }
+}
+
+pub struct ICRC1CanisterClient {
+    pub canister_id: Principal,
+}
+
+impl ICRC1CanisterClient {
+    pub fn new(canister_id: Principal) -> Self {
+        Self { canister_id }
+    }
+
+    pub async fn icrc1_transfer(
+        &self,
+        arg: TransferArg,
+    ) -> CallResult<(Result<BlockIndex, TransferError>,)> {
+        call(self.canister_id, "icrc1_transfer", (arg,)).await
     }
 }

@@ -296,9 +296,7 @@ thread_local! {
 
 #[inline]
 pub fn garbage_collect_invoices() {
-    INVOICES_STATE.with(|it| {
-        let mut s = it.borrow_mut();
-
+    INVOICES_STATE.with_borrow_mut(|s| {
         EXCHANGE_RATES.with(|rates| s.purge_expired(&mut rates.borrow_mut()));
     });
 }
@@ -307,7 +305,7 @@ pub fn garbage_collect_invoices() {
 pub async fn init_invoice_ids_seed() {
     let (rand,) = raw_rand().await.unwrap();
 
-    INVOICES_STATE.with(|it| it.borrow_mut().init_id_seed(&rand));
+    INVOICES_STATE.with_borrow_mut(|it| it.init_id_seed(&rand));
 }
 
 // ----------------------- API -------------------------
@@ -324,7 +322,7 @@ pub struct GetInvoiceResponse {
 
 #[query]
 fn get_invoice(req: GetInvoiceRequest) -> GetInvoiceResponse {
-    let invoice_opt = INVOICES_STATE.with(|it| it.borrow().invoices.get(&req.invoice_id).cloned());
+    let invoice_opt = INVOICES_STATE.with_borrow(|it| it.invoices.get(&req.invoice_id).cloned());
 
     GetInvoiceResponse { invoice_opt }
 }
@@ -345,10 +343,8 @@ pub struct CreateInvoiceResponse {
 fn create_invoice(req: CreateInvoiceRequest) -> CreateInvoiceResponse {
     let shop_id = unwrap_shop_cert(req.shop_cert);
 
-    let invoice_id = INVOICES_STATE.with(|it| {
-        it.borrow_mut()
-            .create(req.qty_usd, shop_id, time(), req.correlation_id)
-    });
+    let invoice_id = INVOICES_STATE
+        .with_borrow_mut(|it| it.create(req.qty_usd, shop_id, time(), req.correlation_id));
 
     CreateInvoiceResponse { invoice_id }
 }
@@ -376,14 +372,14 @@ fn pay(req: PayRequest) -> PayResponse {
         return Err(ERROR_INVALID_RECEPIENT);
     }
 
-    let result = INVOICES_STATE.with(|invoices_state| {
-        EXCHANGE_RATES.with(|exchange_rates_state| {
-            SUPPORTED_TOKENS.with(|supported_tokens| {
-                invoices_state.borrow_mut().pay(
+    let result = INVOICES_STATE.with_borrow_mut(|invoices_state| {
+        EXCHANGE_RATES.with_borrow_mut(|exchange_rates_state| {
+            SUPPORTED_TOKENS.with_borrow(|supported_tokens| {
+                invoices_state.pay(
                     &req.invoice_id,
                     txn,
-                    &mut exchange_rates_state.borrow_mut(),
-                    &supported_tokens.borrow(),
+                    exchange_rates_state,
+                    &supported_tokens,
                 )
             })
         })
