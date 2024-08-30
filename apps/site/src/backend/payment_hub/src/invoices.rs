@@ -3,21 +3,20 @@ use std::{
     collections::{hash_map::Entry, BTreeMap, BTreeSet, HashMap},
 };
 
-use candid::{CandidType, Nat};
+use candid::{CandidType, Nat, Principal};
 use ic_cdk::{
     api::{management_canister::main::raw_rand, time},
-    caller, id, query, spawn, update,
+    call, caller, id, query, spawn, update,
 };
+use icrc_ledger_types::{icrc1::account::Account, icrc3::blocks::GetBlocksRequest};
 use serde::Deserialize;
 
 use crate::{
     exchange_rates::{get_current_exchange_rate_timestamp, ExchangeRatesState, EXCHANGE_RATES},
     tokens::{SupportedTokensState, TokenId, SUPPORTED_TOKENS},
     utils::{
-        calc_shop_subaccount, perform_refund, unwrap_cert_chain, unwrap_shop_cert, Account,
-        ErrorCode, InvoiceId, RawPayCertificateChain, RawShopCert, ShopId, Timestamp, TransferTxn,
-        DEFAULT_TTL, ERROR_INSUFFICIENT_FUNDS, ERROR_INVALID_INVOICE_STATUS, ERROR_INVALID_MEMO,
-        ERROR_INVALID_RECEPIENT, ERROR_INVALID_TRANSACTION_CERT, ERROR_INVOICE_NOT_FOUND,
+        calc_shop_subaccount, icrc3_block_to_transfer_txn, perform_refund, ErrorCode,
+        ICRC1CanisterClient, InvoiceId, ShopId, Timestamp, TransferTxn, DEFAULT_TTL,
         ID_GENERATION_DOMAIN, MEMO_GENERATION_DOMAIN, RECYCLING_TTL, USD,
     },
 };
@@ -38,13 +37,26 @@ pub enum InvoiceStatus {
 }
 
 #[derive(CandidType, Deserialize, Clone, Debug)]
+pub enum InvoiceNotificationMethod {
+    HttpOutcall {
+        hostname: String,
+        manual: Option<Vec<u8>>,
+    },
+    InterCanisterCall {
+        canister_id: Principal,
+        manual: Option<Vec<u8>>,
+    },
+}
+
+#[derive(CandidType, Deserialize, Clone, Debug)]
 pub struct Invoice {
-    pub state: InvoiceStatus,
+    pub status: InvoiceStatus,
     pub qty_usd: Nat,
     pub created_at: u64,
     pub exchange_rates_timestamp: Timestamp,
     pub shop_id: ShopId,
     pub correlation_id: CorrelationId,
+    pub notification_method: InvoiceNotificationMethod,
     pub is_notified: bool,
 }
 
@@ -54,7 +66,7 @@ pub struct Refund {
     pub from: Account,
     pub to: Account,
     pub qty: Nat,
-    pub error_code: ErrorCode,
+    pub reason: String,
 }
 
 #[derive(Default, CandidType, Deserialize, Clone, Debug)]
@@ -82,14 +94,16 @@ impl InvoicesState {
         shop_id: ShopId,
         timestamp: u64,
         correlation_id: CorrelationId,
+        notification_method: InvoiceNotificationMethod,
     ) -> InvoiceId {
         let inv = Invoice {
-            state: InvoiceStatus::Created { ttl: DEFAULT_TTL },
+            status: InvoiceStatus::Created { ttl: DEFAULT_TTL },
             qty_usd,
             exchange_rates_timestamp: get_current_exchange_rate_timestamp(),
             created_at: timestamp,
             shop_id,
             is_notified: false,
+            notification_method,
             correlation_id,
         };
 
@@ -124,9 +138,9 @@ impl InvoicesState {
                 {
                     let invoice = self.invoices.get_mut(id).unwrap();
 
-                    if let InvoiceStatus::Created { ttl } = invoice.state {
+                    if let InvoiceStatus::Created { ttl } = invoice.status {
                         if ttl > RECYCLING_TTL {
-                            invoice.state = InvoiceStatus::Created { ttl: ttl - 1 };
+                            invoice.status = InvoiceStatus::Created { ttl: ttl - 1 };
                         } else {
                             remove = true;
                         }
@@ -170,26 +184,33 @@ impl InvoicesState {
     }
 
     // TODO: implement overpaid refund
+    // TODO: IMPORTANT!!!!! Implement protection against malicious refunds!
     pub fn pay(
         &mut self,
         invoice_id: &InvoiceId,
         transfer_txn: TransferTxn,
         exchange_rates_state: &mut ExchangeRatesState,
         supported_tokens_state: &SupportedTokensState,
-    ) -> Result<Invoice, Result<Refund, ErrorCode>> {
+        this_canister_id: Principal,
+    ) -> Result<Invoice, Result<Refund, String>> {
         let invoice = self
             .invoices
             .get_mut(invoice_id)
-            .ok_or(Err(ERROR_INVOICE_NOT_FOUND))?;
+            .ok_or(Err("Invoice not found".to_string()))?;
 
-        if !matches!(invoice.state, InvoiceStatus::Created { ttl: _ }) {
-            return Err(Err(ERROR_INVALID_INVOICE_STATUS));
+        if !matches!(invoice.status, InvoiceStatus::Created { ttl: _ }) {
+            return Err(Err("Invoice already paid".to_string()));
         }
 
         // is memo valid
         let expected_memo = Self::make_invoice_memo(invoice_id);
-        if expected_memo != transfer_txn.memo {
-            return Err(Err(ERROR_INVALID_MEMO));
+        let actual_memo = transfer_txn.memo;
+
+        if expected_memo != actual_memo {
+            return Err(Err(format!(
+                "Txn memo field doesn't match the invoice one: expected {:?}, actual {:?}",
+                expected_memo, actual_memo
+            )));
         }
 
         // check if the sum sent is enough to cover the invoice
@@ -201,25 +222,45 @@ impl InvoicesState {
             )
         });
 
-        if exchange_rate.clone() * transfer_txn.qty.clone() < invoice.qty_usd {
+        let expected_qty_usd = invoice.qty_usd;
+        let actual_qty_usd = exchange_rate.clone() * transfer_txn.qty.clone();
+
+        if actual_qty_usd < invoice.qty_usd {
             return Err(Ok(Self::create_refund_result(
                 transfer_txn,
-                ERROR_INSUFFICIENT_FUNDS,
+                format!(
+                    "Insufficient transfer: expected (usd e8s) {}, actual (usd e8s) {}",
+                    expected_qty_usd, actual_qty_usd
+                ),
             )));
         }
 
         // check if the transfer was sent to the correct recepient
-        let shop_subaccount = calc_shop_subaccount(invoice.shop_id);
+        let expected_recepient_principal = this_canister_id;
+        let actual_recepient_principal = transfer_txn.to.owner;
 
-        if transfer_txn.to.subaccount != shop_subaccount {
+        if expected_recepient_principal != actual_recepient_principal {
+            return Err(Err(format!(
+                "Invalid recepient - funds are lost: expected {}, actual {}",
+                expected_recepient_principal, actual_recepient_principal
+            )));
+        }
+
+        let expected_shop_subaccount = calc_shop_subaccount(invoice.shop_id);
+        let actual_shop_subaccount = transfer_txn.to.subaccount.unwrap_or([0u8; 32]);
+
+        if actual_shop_subaccount != expected_shop_subaccount {
             return Err(Ok(Self::create_refund_result(
                 transfer_txn,
-                ERROR_INVALID_RECEPIENT,
+                format!(
+                    "Invalid recepient subaccount: expected {:?}, actual {:?}",
+                    expected_shop_subaccount, actual_shop_subaccount
+                ),
             )));
         }
 
         // everything is okay, update invoice status
-        invoice.state = InvoiceStatus::Paid {
+        invoice.status = InvoiceStatus::Paid {
             timestamp: time(),
             token_id: transfer_txn.token_id,
             exchange_rate,
@@ -260,13 +301,13 @@ impl InvoicesState {
         return self.notified_invoices.len() - 1;
     }
 
-    fn create_refund_result(transfer_txn: TransferTxn, error_code: u16) -> Refund {
+    fn create_refund_result(transfer_txn: TransferTxn, reason: String) -> Refund {
         return Refund {
             token_id: transfer_txn.token_id,
             from: transfer_txn.from,
             to: transfer_txn.to,
             qty: transfer_txn.qty,
-            error_code,
+            reason,
         };
     }
 
@@ -330,8 +371,8 @@ fn get_invoice(req: GetInvoiceRequest) -> GetInvoiceResponse {
 #[derive(CandidType, Deserialize)]
 pub struct CreateInvoiceRequest {
     pub qty_usd: USD,
-    pub shop_cert: RawShopCert,
     pub correlation_id: CorrelationId,
+    pub notification_method: InvoiceNotificationMethod,
 }
 
 #[derive(CandidType, Deserialize)]
@@ -341,10 +382,17 @@ pub struct CreateInvoiceResponse {
 
 #[update]
 fn create_invoice(req: CreateInvoiceRequest) -> CreateInvoiceResponse {
-    let shop_id = unwrap_shop_cert(req.shop_cert);
+    // TODO: check if caller is in shop's invoice creator list
 
-    let invoice_id = INVOICES_STATE
-        .with_borrow_mut(|it| it.create(req.qty_usd, shop_id, time(), req.correlation_id));
+    let invoice_id = INVOICES_STATE.with_borrow_mut(|it| {
+        it.create(
+            req.qty_usd,
+            shop_id,
+            time(),
+            req.correlation_id,
+            req.notification_method,
+        )
+    });
 
     CreateInvoiceResponse { invoice_id }
 }
@@ -352,10 +400,14 @@ fn create_invoice(req: CreateInvoiceRequest) -> CreateInvoiceResponse {
 #[derive(CandidType, Deserialize)]
 pub struct PayRequest {
     pub invoice_id: InvoiceId,
-    pub cert_chain: RawPayCertificateChain,
+    pub asset_id: Principal,
+    pub block_idx: Nat,
 }
 
-pub type PayResponse = Result<Invoice, ErrorCode>;
+#[derive(CandidType, Deserialize)]
+pub struct PayResponse {
+    pub result: Result<Invoice, String>,
+}
 
 /**
  * Refund conditions:
@@ -365,40 +417,78 @@ pub type PayResponse = Result<Invoice, ErrorCode>;
  *  4. The invoice is referenced from within the transaction's memo field
  */
 #[update]
-fn pay(req: PayRequest) -> PayResponse {
-    let txn = unwrap_cert_chain(&req.cert_chain).ok_or(ERROR_INVALID_TRANSACTION_CERT)?;
+async fn pay(req: PayRequest) -> PayResponse {
+    let token = ICRC1CanisterClient::new(req.asset_id);
+    let (mut get_blocks_result,) = token
+        .icrc3_get_blocks(GetBlocksRequest {
+            start: req.block_idx.clone(),
+            length: Nat::from(1u64),
+        })
+        .await
+        .expect(&format!(
+            "Unable to fetch ICRC3 blocks of token {}",
+            req.asset_id
+        ));
 
-    if txn.to.principal_id != id() {
-        return Err(ERROR_INVALID_RECEPIENT);
+    if get_blocks_result.log_length < req.block_idx {
+        panic!(
+            "Block {} does not exist (total block len {})",
+            req.block_idx, get_blocks_result.log_length
+        );
     }
 
-    let result = INVOICES_STATE.with_borrow_mut(|invoices_state| {
-        EXCHANGE_RATES.with_borrow_mut(|exchange_rates_state| {
-            SUPPORTED_TOKENS.with_borrow(|supported_tokens| {
-                invoices_state.pay(
-                    &req.invoice_id,
-                    txn,
-                    exchange_rates_state,
-                    &supported_tokens,
-                )
+    // loop over archives until the block is found
+    while get_blocks_result.blocks.get(0).is_none() {
+        let archive = get_blocks_result
+            .archived_blocks
+            .get(0)
+            .expect("No good archive found for the block");
+
+        (get_blocks_result,) = call(
+            archive.callback.canister_id,
+            &archive.callback.method,
+            (GetBlocksRequest {
+                start: req.block_idx.clone(),
+                length: Nat::from(1u64),
+            },),
+        )
+        .await
+        .expect(&format!(
+            "Unable to fetch ICRC3 blocks of token {}",
+            req.asset_id
+        ))
+    }
+
+    let block = get_blocks_result.blocks.get(0).unwrap();
+    if block.id != req.block_idx {
+        unreachable!("Invalid block id from an ICRC-3 ledger");
+    }
+
+    let txn = icrc3_block_to_transfer_txn(block, req.asset_id).expect("Unable to parse block");
+
+    let result = INVOICES_STATE
+        .with_borrow_mut(|invoices_state| {
+            EXCHANGE_RATES.with_borrow_mut(|exchange_rates_state| {
+                SUPPORTED_TOKENS.with_borrow(|supported_tokens| {
+                    invoices_state.pay(
+                        &req.invoice_id,
+                        txn,
+                        exchange_rates_state,
+                        &supported_tokens,
+                        id(),
+                    )
+                })
             })
         })
-    });
-
-    // if everything is okay - respond with the invoice
-    // if refund is possible - refund and respond with an error code
-    // otherwise - no refund and respond with an error code
-    match result {
-        Ok(inv) => Ok(inv),
-
-        Err(er) => match er {
+        .map_err(|e| match e {
             Ok(refund_info) => {
-                let code = refund_info.error_code;
+                let reason = refund_info.reason.clone();
                 spawn(perform_refund(refund_info));
 
-                Err(code)
+                reason
             }
-            Err(error_code) => Err(error_code),
-        },
-    }
+            Err(err) => err,
+        });
+
+    PayResponse { result }
 }

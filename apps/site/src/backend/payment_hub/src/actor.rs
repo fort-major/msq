@@ -4,6 +4,7 @@ use ic_cdk::{
     init, post_upgrade, pre_upgrade, spawn,
     storage::{stable_restore, stable_save},
 };
+use icrc_ledger_types::icrc1::account::Account;
 use invoices::{init_invoice_ids_seed, InvoicesState, INVOICES_STATE};
 use serde::Deserialize;
 use shops::{ShopsState, SHOPS_STATE};
@@ -21,10 +22,13 @@ mod utils;
 #[derive(CandidType, Deserialize)]
 struct InitArgs {
     supported_tokens: Vec<Token>,
+    fee_collector_account: Option<Account>,
 }
 
 #[init]
 fn init_hook(args: InitArgs) {
+    SHOPS_STATE.with_borrow_mut(|s| s.set_fee_collector_account(args.fee_collector_account));
+
     init_timers();
     init_supported_tokens(args.supported_tokens);
 

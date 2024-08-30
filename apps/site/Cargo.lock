@@ -510,6 +510,7 @@ dependencies = [
  "blake3",
  "candid",
  "chrono",
+ "futures",
  "ic-cdk",
  "ic-cdk-timers",
  "icrc-ledger-types",

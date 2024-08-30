@@ -18,3 +18,4 @@ icrc-ledger-types = "^0.1"
 serde = "^1.0"
 chrono = { version = "^0.4", default-features = false }
 tinystr = "^0.4"
+futures = { version = "0.3", default-features = false }

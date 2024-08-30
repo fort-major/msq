@@ -49,6 +49,10 @@ impl SupportedTokensState {
         self.tokens.values()
     }
 
+    pub fn get_by_id(&self, id: &TokenId) -> Option<&Token> {
+        self.tokens.get(id)
+    }
+
     pub fn ticker_by_token_id(&self, token_id: &TokenId) -> Option<Ticker> {
         self.tokens.get(token_id).map(|it| it.ticker)
     }
