@@ -34,3 +34,5 @@ declarations
 
 docs
 **/docs
+
+**/*.tsbuildinfo

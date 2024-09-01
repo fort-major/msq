@@ -2,35 +2,14 @@
   "private": true,
   "scripts": {
     "prod:build": "dotenv -e .env.prod -- turbo prod:build",
-    "prod:build:libs": "dotenv -e .env.prod -- turbo prod:build:libs",
     "prod:build:client-lib": "dotenv -e .env.prod -- turbo prod:build:client-lib",
-    "prod:build:apps": "dotenv -e .env.prod -- turbo prod:build:apps",
-    "prod:build:site": "dotenv -e .env.prod -- turbo prod:build:site",
-    "prod:build:landing": "dotenv -e .env.prod -- turbo prod:build:landing",
-    "prod:deploy": "dotenv -e .env.prod -- turbo prod:deploy",
-    "prod:deploy:frontend": "dotenv -e .env.prod -- turbo prod:deploy:frontend",
-    "prod:deploy:site": "dotenv -e .env.prod -- turbo prod:deploy:site",
-    "prod:deploy:landing": "dotenv -e .env.prod -- turbo prod:deploy:landing",
-    "prod:deploy:demo": "dotenv -e .env.prod -- turbo prod:deploy:demo",
-    "prod:deploy:backend": "dotenv -e .env.prod -- turbo prod:deploy:backend",
     "dev": "dotenv -e .env.dev -- turbo dev",
     "dev:build": "dotenv -e .env.dev -- turbo dev:build",
-    "dev:build:libs": "dotenv -e .env.dev -- turbo dev:build:libs",
-    "dev:build:apps": "dotenv -e .env.dev -- turbo dev:build:apps",
-    "dev:deploy": "dotenv -e .env.dev -- turbo dev:deploy",
-    "dev:deploy:frontend": "dotenv -e .env.dev -- turbo dev:deploy:frontend",
-    "dev:deploy:site": "dotenv -e .env.dev -- turbo dev:deploy:site",
-    "dev:deploy:landing": "dotenv -e .env.dev -- turbo dev:deploy:landing",
-    "dev:deploy:demo": "dotenv -e .env.dev -- turbo dev:deploy:demo",
-    "dev:deploy:backend": "dotenv -e .env.dev -- turbo dev:deploy:backend",
-    "dev:nns": "turbo dev:nns",
-    "dev:gen": "turbo dev:gen",
     "dev:run:snap": "dotenv -e .env.dev -- turbo dev:run:snap",
     "test": "dotenv -e .env.dev -- turbo test",
     "lint": "turbo lint",
     "format": "turbo format",
-    "doc": "turbo doc",
-    "cargo:repair": "turbo cargo:repair"
+    "doc": "turbo doc"
   },
   "dependencies": {
     "@dfinity/agent": "^1.3",
@@ -48,12 +27,9 @@
     "eslint-plugin-import": "2.29.0",
     "eslint-plugin-n": "16.3.1",
     "eslint-plugin-promise": "6.1.1",
-    "eslint-plugin-solid": "0.13.0",
     "glob": "10.3.10",
     "prettier": "3.1.0",
     "typedoc": "0.25.4",
-    "typescript": "5.3.2",
-    "vite-plugin-compression": "0.5.1",
-    "vite-plugin-eslint": "1.8.1"
+    "typescript": "5.3.2"
   }
 }

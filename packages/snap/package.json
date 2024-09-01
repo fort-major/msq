@@ -1,7 +1,7 @@
 {
   "name": "@fort-major/msq",
   "version": "0.3.4",
-  "description": "Privacy-focused MetaMask snap for the Internet Computer (ICP)",
+  "description": "Phishing-proof MetaMask ICP Wallet",
   "keywords": [
     "MetaMask",
     "web3",
@@ -31,11 +31,9 @@
   "scripts": {
     "prod:build": "tsc && pnpm run prod:build:snap",
     "prod:build:snap": "mm-snap build -s ./src/index.ts",
-    "prod:build:apps": "pnpm run prod:build",
     "pub": "mm-snap manifest --fix && npm publish",
     "dev:build": "tsc && mm-snap build -s ./src/index.ts",
     "dev:build:snap": "pnpm run dev:build",
-    "dev:build:apps": "pnpm run dev:build",
     "dev": "mm-snap watch -s ./src/index.ts -d dist",
     "dev:run:snap": "pnpm run dev",
     "test": "jest",

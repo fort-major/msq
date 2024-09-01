@@ -1,2 +1,0 @@
-// needed to deploy II to local replica
-service : () -> {}

@@ -8,9 +8,7 @@
   "license": "MIT",
   "scripts": {
     "prod:build": "tsc && tsc -p tsconfig.cjs.json",
-    "prod:build:libs": "pnpm run prod:build",
     "dev:build": "tsc && tsc -p tsconfig.cjs.json",
-    "dev:build:libs": "pnpm run dev:build",
     "pub": "npm publish",
     "lint": "eslint --fix src --ext .ts --ext .tsx",
     "format": "pnpm exec prettier src/**/*.{ts,tsx} --write",
