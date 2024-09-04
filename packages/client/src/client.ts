@@ -10,6 +10,8 @@ import {
   toCBOR,
   log,
   logError,
+  TInvoiceId,
+  IMSQPayResponse,
 } from "@fort-major/msq-shared";
 import { SNAP_ID, SNAP_VERSION } from ".";
 import { MsqIdentity } from "./identity";
@@ -246,7 +248,7 @@ export class MsqClient {
   }
 
   /**
-   * ## Proposes the user to transfer tokens via ICRC-1 token standard.
+   * ## Starts the ICRC-1 transfer flow for the user.
    *
    * Opens up a separate browser window with the MSQ website that will guide the user through the payment process.
    * Under the hood uses ICRC-35 protocol.
@@ -269,28 +271,11 @@ export class MsqClient {
     memo?: Uint8Array | undefined,
     createdAt?: bigint | undefined,
   ): Promise<bigint | null> {
-    const connection = await ICRC35Connection.establish({
-      mode: "parent",
-      debug: this.debug,
-      ...openICRC35Window(MSQICRC35Client.Origin),
-    });
-    const client = new MSQICRC35Client(connection);
-
-    const res = await client.pay({
-      canisterId: tokenCanisterId.toText(),
-      to: { owner: to.owner.toText(), subaccount: to.subaccount },
-      amount,
-      memo,
-      createdAt: createdAt,
-    });
-
-    connection.close();
-
-    return res;
+    return MsqClient.requestICRC1Transfer(tokenCanisterId, to, amount, memo, createdAt, this.debug);
   }
 
   /**
-   * ## Proposes the user to transfer tokens via ICRC-1 token standard.
+   * ## Starts the ICRC-1 transfer flow for the user.
    *
    * Opens up a separate browser window with the MSQ website that will guide the user through the payment process.
    * Under the hood uses ICRC-35 protocol.
@@ -323,13 +308,58 @@ export class MsqClient {
     });
     const client = new MSQICRC35Client(connection);
 
-    const res = await client.pay({
+    const res = await client.icrc1Transfer({
       canisterId: tokenCanisterId.toText(),
       to: { owner: to.owner.toText(), subaccount: to.subaccount },
       amount,
       memo,
       createdAt: createdAt,
     });
+
+    connection.close();
+
+    return res;
+  }
+
+  /**
+   * ## Starts the MSQ Pay flow.
+   *
+   * Opens up a separate browser window with the MSQ website that will guide the user through the payment process.
+   * Under the hood uses ICRC-35 protocol.
+   *
+   * This function greatly simplifies payments, since now you can just request the user to pay you for something,
+   * without worrying about user identity being different on your website than on the wallet website.
+   *
+   * @param invoiceId - {@link Uint8Array} - an MSQ Pay invoice from your backend canister
+   * @returns - {@link IMSQPayResponse} - block ID that can be used for transaction verification and the token that was used or `null` if the payment failed
+   */
+  async requestMSQPay(invoiceId: TInvoiceId): Promise<IMSQPayResponse> {
+    return MsqClient.requestMSQPay(invoiceId);
+  }
+
+  /**
+   * ## Starts the MSQ Pay flow.
+   *
+   * Opens up a separate browser window with the MSQ website that will guide the user through the payment process.
+   * Under the hood uses ICRC-35 protocol.
+   *
+   * This function greatly simplifies payments, since now you can just request the user to pay you for something,
+   * without worrying about user identity being different on your website than on the wallet website.
+   *
+   * @param invoiceId - {@link Uint8Array} - an MSQ Pay invoice from your backend canister
+   * @returns - {@link IMSQPayResponse} - block ID that can be used for transaction verification and the token that was used or `null` if the payment failed
+   */
+  static async requestMSQPay(invoiceId: TInvoiceId, debug?: boolean): Promise<IMSQPayResponse> {
+    const peer = openICRC35Window(MSQICRC35Client.Origin);
+
+    const connection = await ICRC35Connection.establish({
+      mode: "parent",
+      debug,
+      ...peer,
+    });
+    const client = new MSQICRC35Client(connection);
+
+    const res = await client.pay({ invoiceId });
 
     connection.close();
 

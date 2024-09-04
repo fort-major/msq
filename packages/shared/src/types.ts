@@ -349,6 +349,24 @@ export const ZICRC1EditAssetAccountRequest = z.object({
 });
 export type IICRC1EditAssetAccountRequest = z.infer<typeof ZICRC1EditAssetAccountRequest>;
 
+// ----------- MSQ PAY TYPES ----------------------------
+
+export const ZInvoiceId = z.instanceof(Uint8Array);
+export type TInvoiceId = Uint8Array;
+
+export const ZMSQPayRequest = z.object({
+  invoiceId: ZInvoiceId,
+});
+export type IMSQPayRequest = z.infer<typeof ZMSQPayRequest>;
+
+export const ZMSQPayResponse = z.null().or(
+  z.object({
+    blockIdx: z.bigint().positive(),
+    tokenId: ZPrincipalStrSanitized,
+  }),
+);
+export type IMSQPayResponse = z.infer<typeof ZMSQPayResponse>;
+
 // ---------- MESSAGE TYPES ------------------------------
 
 export const ZMsgDomain = z.literal("msq");
