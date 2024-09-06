@@ -27,3 +27,5 @@ export type IGetSnapsResponse = Record<
     }
   | undefined
 >;
+
+export type { IMSQPayRequest, IMSQPayResponse, IICRC1TransferRequest } from "@fort-major/msq-shared";
