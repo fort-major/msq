@@ -6,8 +6,6 @@ export const ICRC1_ROUTE = "msq:icrc-1";
 export const PAY_ROUTE = "msq:pay";
 
 export class MSQICRC35Client {
-  static Origin = process.env.MSQ_SNAP_SITE_ORIGIN;
-
   constructor(private connection: IICRC35Connection) {}
 
   async login(): Promise<boolean> {

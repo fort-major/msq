@@ -24,6 +24,7 @@ import { Identity } from "@dfinity/agent";
 const DEFAULT_SHOULD_BE_FLASK = false;
 const DEFAULT_DEBUG = false;
 const DEFAULT_FORCE_REINSTALL = false;
+const DEFAULT_MSQ_ORIGIN = "https://msq.tech";
 
 export interface IMsqClientParams {
   /** snap id, for example `npm:@fort-major/msq` */
@@ -36,6 +37,8 @@ export interface IMsqClientParams {
   debug?: boolean | undefined;
   /** makes the snap re-install on every `.create()` invocation */
   forceReinstall?: boolean | undefined;
+  /** allows changing MSQ site origin */
+  msqOrigin?: string | undefined;
 }
 
 export type TMsqCreateResult =
@@ -96,15 +99,6 @@ export class MsqClient {
   }
 
   /**
-   * ## Returns current user identity
-   *
-   * @returns the identity object
-   */
-  resume(): Promise<Identity & MsqIdentity> {
-    return MsqIdentity.create(this);
-  }
-
-  /**
    * ## Proposes the user to log in to current website
    *
    * Opens up a separate browser window with the MSQ website that will guide the user through the authorization process.
@@ -120,10 +114,10 @@ export class MsqClient {
       peer?.peer.close();
       setSafeToAutoresume("true");
 
-      return this.resume();
+      return MsqIdentity.create(this);
     }
 
-    const w = peer ? peer : openICRC35Window(MSQICRC35Client.Origin);
+    const w = peer ? peer : openICRC35Window(this.msqOrigin);
 
     const connection = await ICRC35Connection.establish({
       mode: "parent",
@@ -154,8 +148,8 @@ export class MsqClient {
    *
    * @returns - true or false, depending on whether the login was successful
    */
-  static async makeLoginRequest(debug?: boolean): Promise<boolean> {
-    const w = openICRC35Window(MSQICRC35Client.Origin);
+  static async makeLoginRequest(debug?: boolean, msqOrigin?: string): Promise<boolean> {
+    const w = openICRC35Window(msqOrigin ?? DEFAULT_MSQ_ORIGIN);
 
     const connection = await ICRC35Connection.establish({
       mode: "parent",
@@ -167,10 +161,6 @@ export class MsqClient {
     const loginResult = await client.login();
 
     connection.close();
-
-    try {
-      w.peer.close();
-    } catch {}
 
     return loginResult;
   }
@@ -271,7 +261,7 @@ export class MsqClient {
     memo?: Uint8Array | undefined,
     createdAt?: bigint | undefined,
   ): Promise<bigint | null> {
-    return MsqClient.requestICRC1Transfer(tokenCanisterId, to, amount, memo, createdAt, this.debug);
+    return MsqClient.requestICRC1Transfer(tokenCanisterId, to, amount, memo, createdAt, this.debug, this.msqOrigin);
   }
 
   /**
@@ -298,8 +288,9 @@ export class MsqClient {
     memo?: Uint8Array | undefined,
     createdAt?: bigint | undefined,
     debug?: boolean,
+    msqOrigin?: string,
   ): Promise<bigint | null> {
-    const peer = openICRC35Window(MSQICRC35Client.Origin);
+    const peer = openICRC35Window(msqOrigin ?? DEFAULT_MSQ_ORIGIN);
 
     const connection = await ICRC35Connection.establish({
       mode: "parent",
@@ -334,7 +325,7 @@ export class MsqClient {
    * @returns - {@link IMSQPayResponse} - block ID that can be used for transaction verification and the token that was used or `null` if the payment failed
    */
   async requestMSQPay(invoiceId: TInvoiceId): Promise<IMSQPayResponse> {
-    return MsqClient.requestMSQPay(invoiceId);
+    return MsqClient.requestMSQPay(invoiceId, this.msqOrigin, this.debug);
   }
 
   /**
@@ -349,8 +340,8 @@ export class MsqClient {
    * @param invoiceId - {@link Uint8Array} - an MSQ Pay invoice from your backend canister
    * @returns - {@link IMSQPayResponse} - block ID that can be used for transaction verification and the token that was used or `null` if the payment failed
    */
-  static async requestMSQPay(invoiceId: TInvoiceId, debug?: boolean): Promise<IMSQPayResponse> {
-    const peer = openICRC35Window(MSQICRC35Client.Origin);
+  static async requestMSQPay(invoiceId: TInvoiceId, msqOrigin?: string, debug?: boolean): Promise<IMSQPayResponse> {
+    const peer = openICRC35Window(msqOrigin ?? DEFAULT_MSQ_ORIGIN);
 
     const connection = await ICRC35Connection.establish({
       mode: "parent",
@@ -445,6 +436,7 @@ export class MsqClient {
     const snapVersion = params?.snapVersion ?? SNAP_VERSION;
     const debug = params?.debug ?? DEFAULT_DEBUG;
     const forceReinstall = params?.forceReinstall ?? DEFAULT_FORCE_REINSTALL;
+    const msqOrigin = params?.msqOrigin ?? DEFAULT_MSQ_ORIGIN;
 
     let getSnapsResponse: IGetSnapsResponse = (await provider.request({ method: "wallet_getSnaps" }))!;
     let msqSnap = getSnapsResponse[snapId];
@@ -479,7 +471,7 @@ export class MsqClient {
       });
     }
 
-    const client = new MsqClient(provider, snapId, debug);
+    const client = new MsqClient(provider, snapId, debug, msqOrigin);
 
     return { Ok: client };
   }
@@ -511,12 +503,12 @@ export class MsqClient {
         return { Err: "Session resuming failed. Please, try logging in again!" };
       }
 
-      const identity = await msq.resume();
+      const identity = await MsqIdentity.create(msq);
 
       return { Ok: { msq, identity } };
     }
 
-    const isLoggedIn = await MsqClient.makeLoginRequest(params?.debug);
+    const isLoggedIn = await MsqClient.makeLoginRequest(params?.debug, params?.msqOrigin);
 
     if (!isLoggedIn) {
       return { MSQConnectionRejected: null, Err: "MSQConnectionRejected" };
@@ -529,7 +521,7 @@ export class MsqClient {
     }
 
     const msq = createResult.Ok;
-    const identity = await msq.resume();
+    const identity = await MsqIdentity.create(msq);
 
     setSafeToAutoresume("true");
 
@@ -540,6 +532,7 @@ export class MsqClient {
     private readonly provider: SDKProvider,
     private readonly snapId: string,
     private readonly debug: boolean,
+    private readonly msqOrigin: string,
   ) {}
 }
 
