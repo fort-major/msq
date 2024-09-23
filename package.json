@@ -1,6 +1,9 @@
 {
   "private": true,
   "scripts": {
+    "build:css": "npx tailwindcss -i ./apps/landing/styles/tailwind.css -o ./apps/landing/styles/output.css",
+    "watch:css": "npx tailwindcss -i ./apps/landing/styles/tailwind.css -o ./apps/landing/styles/output.css --watch",
+    "dev": "vite",
     "prod:build": "dotenv -e .env.prod -- turbo prod:build",
     "prod:build:libs": "dotenv -e .env.prod -- turbo prod:build:libs",
     "prod:build:client-lib": "dotenv -e .env.prod -- turbo prod:build:client-lib",
@@ -13,7 +16,6 @@
     "prod:deploy:landing": "dotenv -e .env.prod -- turbo prod:deploy:landing",
     "prod:deploy:demo": "dotenv -e .env.prod -- turbo prod:deploy:demo",
     "prod:deploy:backend": "dotenv -e .env.prod -- turbo prod:deploy:backend",
-    "dev": "dotenv -e .env.dev -- turbo dev",
     "dev:build": "dotenv -e .env.dev -- turbo dev:build",
     "dev:build:libs": "dotenv -e .env.dev -- turbo dev:build:libs",
     "dev:build:apps": "dotenv -e .env.dev -- turbo dev:build:apps",
@@ -42,6 +44,8 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "6.13.2",
     "@typescript-eslint/parser": "6.13.2",
+    "autoprefixer": "^10.4.20",
+    "dotenv": "^16.4.5",
     "eslint": "8.55.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-config-standard-with-typescript": "40.0.0",
@@ -50,10 +54,20 @@
     "eslint-plugin-promise": "6.1.1",
     "eslint-plugin-solid": "0.13.0",
     "glob": "10.3.10",
+    "postcss": "^8.4.47",
     "prettier": "3.1.0",
+    "tailwindcss": "^3.4.12",
     "typedoc": "0.25.4",
     "typescript": "5.3.2",
+    "vite": "5.0.5",
     "vite-plugin-compression": "0.5.1",
     "vite-plugin-eslint": "1.8.1"
-  }
+  },
+  "name": "msq",
+  "version": "1.0.0",
+  "description": "Privacy-focused MetaMask snap for interacting with the Internet Computer (ICP)",
+  "main": ".eslintrc.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
