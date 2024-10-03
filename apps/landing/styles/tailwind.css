@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Rotate the icon when details is open */
+details[open] summary img {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}
+
+details summary img {
+  transition: transform 0.3s ease;
+}
